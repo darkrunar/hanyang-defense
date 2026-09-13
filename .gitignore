@@ -15,3 +15,8 @@ build/
 dist/
 tmp/
 *.log
+
+# Godot engine artifacts
+.godot/
+*.translation
+build_out/

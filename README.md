@@ -2,7 +2,7 @@
 
 **한양 전체를 무기화하는 대규모 전투 디펜스.** 조선 사이버펑크 세계에서 적을 유도·압축하고 도시의 시설을 연결해 싸우는 로그라이트 디펜스 프로젝트입니다.
 
-현재 단계는 **기획 및 구현 핸드오프 초기화**입니다. 실행 가능한 게임, 엔진 프로젝트, 자동 에이전트 연동은 아직 없습니다.
+현재 단계는 **WP-001 구현 완료 · GPT 리뷰 대기(REVIEW)** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
 
 ## 게임의 중심
 
@@ -27,6 +27,7 @@
 | [WP-002](backlog/WP-002.md) | 봉수망과 시설 간 표적 공유 |
 | [WP-003](backlog/WP-003.md) | 웨이브 검증 → 붕괴 → 후퇴·재편 |
 | [결과 양식](results/RESULT_TEMPLATE.md) | 구현 증거와 GPT 리뷰 기록 |
+| [WP-001 결과](results/WP-001-RESULT.md) | WP-001 구현·검증 결과, AC별 증거, 성능 측정 |
 
 ## GPT ↔ Claude Code 작업 흐름
 
@@ -58,11 +59,58 @@ backlog/WP-001.md, results/WP-001-RESULT.md와 기록된 기준/구현 커밋의
 실패나 미실행 기준이 있으면 보완 작업을 명시한다. 증거 없이 통과시키지 않는다.
 ```
 
-## 개발 시작 전
+## 실행 환경 (WP-001에서 확정)
 
-엔진·버전, 렌더링 방식, 대상 플랫폼, 성능 측정 장비는 미확정이다. 기존 대화의 Unity 언급은 구현 예시이며 엔진 확정으로 간주하지 않는다. WP-001의 기술 착수 단계에서 결정한다.
+엔진은 **Godot 4.7.stable (GDScript, 2D 탑다운, gl_compatibility)** 이다. 근거와 성능 예산은 [DECISIONS D-007~D-011](docs/DECISIONS.md)에 있다. 기존 대화의 Unity 언급은 구현 예시였으며 채택하지 않았다.
 
-저장소는 비공개를 기본으로 한다. 참조 이미지와 원본 대화는 배포 파일에 포함하지 않는다. 상용 제목·출시 일정·라이선스는 미정이다.
+### 설치
+
+1. [Godot 4.7.stable](https://godotengine.org/download) 표준(비-.NET) 에디터를 받아 실행 파일을 `godot`이라는 이름으로 PATH에 둔다. 확인: `godot --version` → `4.7.stable.official.5b4e0cb0f`.
+2. 릴리스 빌드를 만들려면 같은 버전의 **Windows export template**을 설치한다(에디터 → Editor → Manage Export Templates, 또는 `%APPDATA%\Godot\export_templates\4.7.stable\`).
+3. 저장소를 체크아웃한다. 추가 패키지 설치는 없다. 최초 실행 시 Godot이 `.godot/` 캐시를 만든다(gitignore).
+
+### 실행·테스트·빌드
+
+```bash
+# 플레이 (창 실행, 1920x1080 논리 해상도)
+godot --path . --rendering-driver opengl3
+```
+
+```bash
+# 헤드리스 자동 검증 (AC-01~06 대응, 종료 코드 0 = 전부 통과)
+godot --headless --path . --script res://tests/run_tests.gd -- --report=results/evidence/test_report.txt
+```
+
+```bash
+# 회색상자 지형·경로장 덤프 (ASCII)
+godot --headless --path . --script res://game/tools/dump_map.gd
+```
+
+```bash
+# 증거 캡처 (실제 실행 화면 PNG + 상태 JSON). ac01 / ac02 / ac06
+godot --path . --rendering-driver opengl3 -- --capture=ac06 --out-dir=D:/abs/path/to/results/evidence/captures
+```
+
+```bash
+# 릴리스 빌드 (export_presets.cfg 사용)
+godot --headless --path . --export-release "Windows Desktop Release" build_out/windows/hanyang_defense_wp001.exe
+```
+
+```bash
+# 성능 측정 (릴리스 빌드, 준비 10초 + 측정 60초, JSON 출력). 시나리오 move / combat
+./build_out/windows/hanyang_defense_wp001.exe -- --perf --scenario=combat --warmup=10 --measure=60 --out=D:/abs/path/perf_combat.json
+```
+
+한 번에 전부 실행하려면 `scripts/verify.ps1`(Windows) 또는 `scripts/verify.sh`(Git Bash)를 사용한다. 조작법과 명령행 옵션은 [game/scenes/main.gd](game/scenes/main.gd) 상단 주석, 밸런스·시드 설정값은 [game/core/config.gd](game/core/config.gd)에 있다. 기본 시드는 `20260913`.
+
+### 조작
+
+`LMB` 설치(누르고 있으면 셀이 빌 때까지 재시도) · `RMB` 제거 · `1/2` 장승/화차 모드 · `C` 전투 토글(처치 끔) · `Z` 밀도 존 표시 · `G` 화차 사거리 · `P` 일시정지 · `R` 초기화(같은 시드) · `H` HUD · `F12` 캡처(`%APPDATA%\Godot\app_userdata\...\captures`) · `Esc` 종료
+
+## 공개 범위와 권리
+
+저장소는 **공개(Public)** 다 (2026-09-13 사용자 요청, [D-010](docs/DECISIONS.md)). `docs/art/`의 이미지는 AI 생성 기획 참고 자료이며 실제 실행 화면이 아니다. 원본 대화·제삼자 에셋·폰트는 포함하지 않는다. HUD 한글은 Godot의 시스템 폰트 폴백으로 표시된다. 상용 제목·출시 일정·라이선스는 미정이다.
+
 ## 비주얼 기획
 
 ### 예상 플레이 화면
