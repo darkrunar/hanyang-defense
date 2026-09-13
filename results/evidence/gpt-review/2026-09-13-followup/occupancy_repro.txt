@@ -1,0 +1,3 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+{"actual_cell":3596,"cached_cell":3596,"enemy_position":[890.897888183594,759.646545410156],"footprint_contains_living_enemy":true,"path_version_after":2,"path_version_before":2,"placement_accepted":false,"reason":"ENEMY_OCCUPIES_CELL"}

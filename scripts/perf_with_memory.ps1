@@ -1,0 +1,59 @@
+# Runs one WP-001 perf scenario on the release build and samples the process
+# working set / private bytes once per second from outside the engine, because
+# Godot release templates compile out their internal memory counters.
+#
+#   .\scripts\perf_with_memory.ps1 -Scenario combat -Out results\evidence\perf\perf_combat_1000_release.json
+#
+# Writes <Out> (from the game) and <Out>.memory.json (from this sampler).
+param(
+    [ValidateSet("move", "combat")][string]$Scenario = "move",
+    [string]$Exe = "build_out\windows\hanyang_defense_wp001.exe",
+    [int]$Warmup = 10,
+    [int]$Measure = 60,
+    [Parameter(Mandatory = $true)][string]$Out
+)
+$ErrorActionPreference = "Stop"
+Set-Location (Join-Path $PSScriptRoot "..")
+$outAbs = [System.IO.Path]::GetFullPath($Out)
+New-Item -ItemType Directory -Force (Split-Path $outAbs) | Out-Null
+
+$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs")
+$proc = Start-Process -FilePath (Resolve-Path $Exe) -ArgumentList $args -PassThru
+$samples = @()
+$t0 = Get-Date
+while (-not $proc.HasExited) {
+    Start-Sleep -Seconds 1
+    try {
+        $p = Get-Process -Id $proc.Id -ErrorAction Stop
+        $samples += [pscustomobject]@{
+            t_s            = [math]::Round(((Get-Date) - $t0).TotalSeconds, 1)
+            working_set_mb = [math]::Round($p.WorkingSet64 / 1MB, 1)
+            private_mb     = [math]::Round($p.PrivateMemorySize64 / 1MB, 1)
+            peak_ws_mb     = [math]::Round($p.PeakWorkingSet64 / 1MB, 1)
+        }
+    } catch { break }
+}
+$ws = $samples | Select-Object -ExpandProperty working_set_mb
+$measureStart = $Warmup  # sampler t≈0 is process start; the game's window begins after warmup
+$inWindow = $samples | Where-Object { $_.t_s -ge $measureStart }
+$report = [ordered]@{
+    scenario            = $Scenario
+    exe                 = (Resolve-Path $Exe).Path
+    sampler             = "Get-Process WorkingSet64 / PrivateMemorySize64, 1 Hz, external"
+    samples             = $samples.Count
+    working_set_mb_min  = ($ws | Measure-Object -Minimum).Minimum
+    working_set_mb_max  = ($ws | Measure-Object -Maximum).Maximum
+    working_set_mb_at_measure_start = ($inWindow | Select-Object -First 1).working_set_mb
+    working_set_mb_at_end           = ($samples | Select-Object -Last 1).working_set_mb
+    private_mb_max      = ($samples | Select-Object -ExpandProperty private_mb | Measure-Object -Maximum).Maximum
+    peak_ws_mb          = ($samples | Select-Object -ExpandProperty peak_ws_mb | Measure-Object -Maximum).Maximum
+    exit_code           = $proc.ExitCode
+    per_second          = $samples
+}
+$json = $report | ConvertTo-Json -Depth 4
+[System.IO.File]::WriteAllText("$outAbs.memory.json", $json, (New-Object System.Text.UTF8Encoding $false))  # UTF-8 without BOM
+Write-Host ("MEMORY {0}: working set {1} -> {2} MB (min {3}, max {4}), private max {5} MB, samples {6}" -f `
+    $Scenario, $report.working_set_mb_at_measure_start, $report.working_set_mb_at_end, `
+    $report.working_set_mb_min, $report.working_set_mb_max, $report.private_mb_max, $samples.Count)
+if ($proc.ExitCode -ne 0) { throw "game exited with code $($proc.ExitCode)" }
+if (-not (Test-Path $outAbs)) { throw "game did not write $outAbs" }

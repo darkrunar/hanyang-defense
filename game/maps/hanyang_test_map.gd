@@ -1,0 +1,153 @@
+extends RefCounted
+## WP-001 grey-box test map: three gates into one shared defence objective.
+##
+## Grid is 96 x 54 cells at 20 px = 1920 x 1080 world units. The grid starts
+## fully solid and open areas are carved, so anything not listed here is a wall.
+##
+## Layout (world y grows downward):
+##
+##   +----------------------------------------------------+
+##   |                 [ 경복궁 compound ]                  |  y  6..14
+##   |                   door x46..49                      |  y 15
+##   |            [       중앙 광장 plaza      ]            |  y 16..30
+##   |  서대문 ===lane N===|                |===lane N=== 동대문
+##   |   corridor  [block] |     plaza      | [block]      |  y 24..29
+##   |         ===lane S===|                |===lane S===  |
+##   |                  | W |block| E |                    |  y 31..43
+##   |                  [ 남대문 corridor ]                 |  y 44..53
+##   +----------------------------------------------------+
+##
+## Each route enters a wide corridor that splits into two 2-cell lanes around a
+## solid block and rejoins at the plaza. A 2x2 장승 fully plugs one lane, which
+## is what makes AC-02 / AC-03 / AC-06 legible.
+
+const TerrainGrid := preload("res://game/core/terrain_grid.gd")
+const PathNetwork := preload("res://game/core/path_network.gd")
+const DensityDetector := preload("res://game/core/density_detector.gd")
+const Placement := preload("res://game/core/placement.gd")
+
+const WIDTH: int = 96
+const HEIGHT: int = 54
+
+const GOAL_CELL: Vector2i = Vector2i(47, 10)
+
+## Open rectangles, inclusive cell bounds: [x0, y0, x1, y1, name]
+const OPEN_RECTS: Array = [
+    [42, 6, 53, 14, "경복궁 compound"],
+    [46, 15, 49, 15, "광화문 door"],
+    [30, 16, 65, 30, "중앙 광장"],
+
+    [44, 44, 49, 53, "남대문 corridor"],
+    [44, 31, 45, 43, "남문 서편 골목"],
+    [48, 31, 49, 43, "남문 동편 골목"],
+
+    [0, 24, 15, 29, "서대문 corridor"],
+    [16, 24, 29, 25, "서문 북편 골목"],
+    [16, 28, 29, 29, "서문 남편 골목"],
+
+    [80, 24, 95, 29, "동대문 corridor"],
+    [66, 24, 79, 25, "동문 북편 골목"],
+    [66, 28, 79, 29, "동문 남편 골목"],
+]
+
+## Route id, display name, and the spawn cells at the map edge.
+const ROUTES: Array = [
+    ["S_NAMDAEMUN", "남대문", Vector2i(44, 53), Vector2i(49, 53)],
+    ["W_SEODAEMUN", "서대문", Vector2i(0, 24), Vector2i(0, 29)],
+    ["E_DONGDAEMUN", "동대문", Vector2i(95, 24), Vector2i(95, 29)],
+]
+
+const ROUTE_COLORS: Array[Color] = [
+    Color(0.86, 0.33, 0.30),   # 단청 red   - 남대문
+    Color(0.36, 0.76, 0.72),   # 청록       - 서대문
+    Color(0.90, 0.71, 0.30),   # 치자 amber - 동대문
+]
+
+## Candidate density zones: [name, center_x, center_y, radius]
+## Lane zones use r=45 so that a zone covers its own 40 px lane and never
+## reaches into the neighbouring lane across the solid block.
+const ZONES: Array = [
+    ["남문 서편 골목", 900.0, 750.0, 45.0],
+    ["남문 동편 골목", 980.0, 750.0, 45.0],
+    ["남대문 대로", 940.0, 1000.0, 70.0],
+    ["서문 북편 골목", 460.0, 500.0, 45.0],
+    ["서문 남편 골목", 460.0, 580.0, 45.0],
+    ["동문 북편 골목", 1460.0, 500.0, 45.0],
+    ["동문 남편 골목", 1460.0, 580.0, 45.0],
+    ["광화문 어귀", 960.0, 310.0, 70.0],
+]
+
+## Starting hwachas: [label, anchor_x, anchor_y]. Placed on open plaza ground.
+## A hwacha never blocks traffic, so these cannot disconnect a route.
+const HWACHAS: Array = [
+    ["화차·중영", 46, 29],
+    ["화차·서영", 30, 25],
+    ["화차·동영", 64, 25],
+    ["화차·궁성", 46, 17],
+]
+
+## Reference anchors used by the scripted AC scenarios and the docs.
+const AC_SCENARIO_ANCHORS: Dictionary = {
+    "south_west_lane": Vector2i(44, 36),
+    "south_east_lane": Vector2i(48, 36),
+    "west_north_lane": Vector2i(22, 24),
+    "west_south_lane": Vector2i(22, 28),
+}
+
+
+static func build_grid() -> TerrainGrid:
+    var g: TerrainGrid = TerrainGrid.new(WIDTH, HEIGHT)
+    for r: Array in OPEN_RECTS:
+        g.carve_open(r[0], r[1], r[2], r[3])
+    return g
+
+
+static func build_path(g: TerrainGrid) -> PathNetwork:
+    var p: PathNetwork = PathNetwork.new(g)
+    p.set_goal(GOAL_CELL.x, GOAL_CELL.y)
+    for r: Array in ROUTES:
+        var a: Vector2i = r[2]
+        var b: Vector2i = r[3]
+        var cells: PackedInt32Array = PackedInt32Array()
+        for cy: int in range(mini(a.y, b.y), maxi(a.y, b.y) + 1):
+            for cx: int in range(mini(a.x, b.x), maxi(a.x, b.x) + 1):
+                cells.append(g.idx(cx, cy))
+        p.add_route(r[0], cells)
+    p.rebuild()
+    return p
+
+
+static func build_zones() -> DensityDetector:
+    var d: DensityDetector = DensityDetector.new()
+    for z: Array in ZONES:
+        d.add_zone(z[0], Vector2(z[1], z[2]), z[3])
+    return d
+
+
+static func route_display_name(route_index: int) -> String:
+    return ROUTES[route_index][1]
+
+
+static func route_color(route_index: int) -> Color:
+    return ROUTE_COLORS[route_index % ROUTE_COLORS.size()]
+
+
+## Wall rectangles for rendering, derived from the open rectangles by scanning
+## the finished grid into horizontal runs (cheap, and always matches the sim).
+static func wall_runs(g: TerrainGrid) -> Array:
+    var runs: Array = []
+    for cy: int in range(g.height):
+        var start: int = -1
+        for cx: int in range(g.width + 1):
+            var solid: bool = cx < g.width and g.is_wall(cx, cy)
+            if solid and start < 0:
+                start = cx
+            elif not solid and start >= 0:
+                runs.append(Rect2(
+                    float(start) * TerrainGrid.CELL_SIZE,
+                    float(cy) * TerrainGrid.CELL_SIZE,
+                    float(cx - start) * TerrainGrid.CELL_SIZE,
+                    TerrainGrid.CELL_SIZE
+                ))
+                start = -1
+    return runs

@@ -1,0 +1,149 @@
+
+== path + placement (AC-02, AC-03) ==
+  -- AC-02 jangseung reroutes traffic and removal restores it
+     PASS  reference run: west lane carries traffic (5.0 > 0.0)
+     PASS  reference run: east lane carries traffic (6.0 > 0.0)
+     PASS  placing a jangseung in the south-west lane is accepted
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  blocked cell is impassable
+     PASS  south route still reaches the goal
+     PASS  blocked west lane holds no enemies (= 0)
+     PASS  east lane absorbs the diverted flow (detour observed) (13.0 > 6.0)
+     PASS  south route still reaches the objective by the detour (545.0 > 0.0)
+     ....  t=35s west lane: reference=5 blocked=0 | east lane: reference=6 blocked=13
+     ....  south-route objective arrivals at t=35s: reference=551 detoured=545
+     PASS  jangseung removal succeeds
+     PASS  removal bumps path_version (= 4)
+     PASS  removed cell is passable again
+     PASS  west lane carries traffic again after removal (20.0 > 0.0)
+     ....  after removal west lane=20 east lane=15
+  -- AC-03 a placement that would seal a route is refused, state intact
+     PASS  first jangseung plugs the west-north lane
+     PASS  west route still connected via the south lane
+     PASS  second jangseung sealing the last west lane is refused
+     PASS  rejection reason (= 5)
+     PASS  refused placement does not bump path_version (= 3)
+     PASS  refused placement adds no structure (= 5)
+     PASS  distance field unchanged after refusal
+     PASS  flow field unchanged after refusal
+     PASS  every refused footprint cell is left clear
+     PASS  west route is still reachable after the refusal
+     PASS  west route keeps producing traffic (351.0 > 0.0)
+     PASS  west route still reaches the objective (335.0 > 0.0)
+  -- AC-03 a cell occupied by a living enemy refuses a structure
+     PASS  test enemy placed inside the footprint
+     PASS  placement onto the occupied cell is refused
+     PASS  rejection reason (= 4)
+     PASS  refusal names the occupied cell (= 3504)
+     PASS  refusal does not bump path_version (= 2)
+     PASS  refusal adds no structure (= 4)
+     PASS  occupant removed (= 1)
+     PASS  the same placement is accepted once the cell is clear
+     PASS  accepted placement bumps path_version (= 3)
+  -- AC-03 the occupancy rule under saturation (measured, known limitation)
+     PASS  field saturated before probing (1000.0 >= 1000.0)
+     PASS  every south-lane attempt is either accepted or refused for occupancy (= 720)
+     PASS  no other refusal reason appears on open lane cells (= 0)
+     PASS  some placements are still legal during saturation (38.0 > 0.0)
+     ....  saturated south lanes: 38/720 anchors legal (5.28%) - see WP-001 result, known limitation
+     PASS  placement into a saturated lane is rare (5.28%), which is the reported friction
+     PASS  every probe structure was removed again, state left clean (= 0)
+  -- AC-03 terrain, bounds and overlap refusals
+     PASS  placement on static terrain is refused
+     PASS  rejection reason (= 2)
+     PASS  placement crossing the grid edge is refused
+     PASS  rejection reason (= 1)
+     PASS  first structure on open ground accepted
+     PASS  overlapping structure is refused
+     PASS  rejection reason (= 3)
+     PASS  hwacha placed on open ground
+     PASS  all routes still reachable with a hwacha down
+     PASS  exactly one jangseung survived the refusals (= 1)
+  -- an enemy standing on a cell that becomes impassable still moves
+     PASS  jangseung placed
+     PASS  enemy teleported onto the blocked cell
+     PASS  stranded enemy escapes instead of freezing (moved 116.6 px) (116.572906494141 > 5.0)
+
+== density + hwacha (AC-04, AC-05) ==
+  -- AC-04 density counts known coordinates, boundary inclusive
+     PASS  8 enemies placed at known coordinates (= 8)
+     PASS  count = 3 inside + 2 exactly on the radius (= 5)
+     PASS  batch evaluate matches the single-zone count (= 5)
+  -- AC-04 dead enemies leave the density immediately
+     PASS  all six counted while alive (= 6)
+     PASS  one lethal volley kills all six (= 6)
+     PASS  density drops to zero, no dead enemy counted (= 0)
+     PASS  each death counted exactly once (= 6)
+     PASS  alive count consistent (= 0)
+  -- AC-05 hwacha aims at the densest in-range zone and ignores out-of-range
+     PASS  picks the densest zone inside the firing range (= 1)
+     PASS  follows the density when it moves to another in-range zone (= 0)
+     PASS  a zone exactly at the range boundary is targetable (= 0)
+     PASS  a zone just beyond the range is not (= -1)
+  -- AC-05 equal density ties break on the stable zone id
+     PASS  three-way tie picks the lowest zone id (= 0)
+     PASS  tie among the leaders picks the lowest of those ids (= 1)
+     PASS  tie-break is stable across repeated evaluations
+  -- AC-05 no enemies means no shot, and the cooldown is not burned
+     PASS  an empty zone is never targeted (= -1)
+     PASS  an empty field produces no shots (= 0)
+     PASS  hwacha #1 stays ready while holding fire (= 0.0)
+     PASS  hwacha #2 stays ready while holding fire (= 0.0)
+     PASS  hwacha #3 stays ready while holding fire (= 0.0)
+     PASS  hwacha #4 stays ready while holding fire (= 0.0)
+     PASS  fires on the first step after a target appears (= 1)
+  -- AC-05 a volley damages each enemy once and counts each death once
+     PASS  7 enemies staged (= 7)
+     PASS  first volley kills nobody (= 0)
+     PASS  enemy exactly on the blast edge took damage once (= 35.0)
+     PASS  enemy just outside took no damage (= 60.0)
+     PASS  distant enemy took no damage (= 60.0)
+     PASS  second volley still kills nobody (= 0)
+     PASS  damage accumulates once per volley (= 10.0)
+     PASS  third volley kills the five inside the blast (= 5)
+     PASS  kill counter totals five, no double counting (= 5)
+     PASS  the two outside survive (= 2)
+     PASS  firing again over the dead adds no kills (= 0)
+     PASS  kill counter unchanged (= 5)
+  -- AC-05 cooldown gates the fire rate
+     PASS  5 s at a 1 s cooldown produced 5 volleys
+
+== flow + determinism (AC-01, AC-06) ==
+  -- AC-01 1000 concurrent living enemies across all three entries
+     PASS  concurrent living enemies at t=30 s (1000.0 >= 1000.0)
+     PASS  peak concurrent living enemies (1000.0 >= 1000.0)
+     PASS  cumulative spawns exceed the concurrent count (the two are distinct) (2061.0 > 1000.0)
+     PASS  route 남대문 has living enemies (297.0 > 0.0)
+     PASS  route 남대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 서대문 has living enemies (352.0 > 0.0)
+     PASS  route 서대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 동대문 has living enemies (351.0 > 0.0)
+     PASS  route 동대문 has spawned enemies (687.0 > 0.0)
+     ....  alive=1000 peak=1000 spawned=2061 leaked=1061 killed=0 | per-route alive 남대문 297 / 서대문 352 / 동대문 351
+     PASS  south-west lane is in use (13.0 > 0.0)
+     PASS  south-east lane is in use (9.0 > 0.0)
+  -- AC-01 spawned = alive + killed + leaked at all times
+     PASS  book-keeping at t=5s (= 1000)
+     PASS  book-keeping at t=10s (= 1487)
+     PASS  book-keeping at t=15s (= 1996)
+     PASS  book-keeping at t=20s (= 2581)
+     PASS  book-keeping at t=25s (= 3117)
+     PASS  book-keeping at t=30s (= 3634)
+     PASS  per-route alive counts sum to the total (= 1000)
+  -- AC-06 same seed, same instant: the jangseung raises the fired-on density
+     ....  baseline : east-lane density avg 24.8 / west-lane avg 24.7 / 화차·중영 kills 231 / south arrivals 2
+     ....  with 장승 : east-lane density avg 44.1 / west-lane avg 0.0 / 화차·중영 kills 863 / south arrivals 0
+     PASS  blocking the west lane raises the density in the zone the hwacha fires on (44.1333333333333 > 24.8483333333333)
+     PASS  the same hwacha kills more over the same window (863.0 > 231.0)
+     PASS  fewer south-route enemies reach the objective (0 < 2)
+     PASS  the blocked lane stays empty in the choked case (= 0.0)
+  -- the same seed and the same inputs reproduce the same run
+     PASS  alive count reproduces (= 1000)
+     PASS  kill count reproduces (= 1578)
+     PASS  leak count reproduces (= 3)
+     PASS  per-zone densities reproduce (= [18, 15, 84, 22, 0, 54, 0, 23])
+     PASS  enemy positions reproduce (= 1026439.994)
+     PASS  a different seed gives a different run (1006834.965 != 1026439.994)
+
+TOTAL passed=116 failed=0
+elapsed 19.7 s

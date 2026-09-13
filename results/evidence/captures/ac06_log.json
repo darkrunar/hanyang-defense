@@ -1,0 +1,244 @@
+[
+  {
+    "alive": 1000,
+    "capture": "ac06_a_before_t35",
+    "combat_enabled": true,
+    "hwacha_count": 4,
+    "hwachas": [
+      {
+        "id": 1,
+        "kills": 413,
+        "label": "화차·중영",
+        "shots": 38,
+        "target_zone": 0
+      },
+      {
+        "id": 2,
+        "kills": 1071,
+        "label": "화차·서영",
+        "shots": 36,
+        "target_zone": 3
+      },
+      {
+        "id": 3,
+        "kills": 1072,
+        "label": "화차·동영",
+        "shots": 36,
+        "target_zone": 5
+      },
+      {
+        "id": 4,
+        "kills": 605,
+        "label": "화차·궁성",
+        "shots": 31,
+        "target_zone": 7
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 3161,
+    "leaked_total": 5,
+    "path_version": 2,
+    "peak_alive": 1000,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\captures/ac06_a_before_t35.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 385,
+        "id": "S_NAMDAEMUN",
+        "leaked": 5,
+        "name": "남대문",
+        "peak_alive": 443,
+        "reachable": true,
+        "spawned": 1389
+      },
+      {
+        "alive": 311,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 367,
+        "reachable": true,
+        "spawned": 1389
+      },
+      {
+        "alive": 304,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 382,
+        "reachable": true,
+        "spawned": 1388
+      }
+    ],
+    "sim_time": 35.0000000700007,
+    "spawned_total": 4166,
+    "steps": 2100,
+    "zones": [
+      {
+        "count": 27,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 26,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 87,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 51,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 41,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 37,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  {
+    "ok": true,
+    "place": "(44, 36)",
+    "reason": "NONE",
+    "t": 0.0
+  },
+  {
+    "alive": 1000,
+    "capture": "ac06_b_after_t35",
+    "combat_enabled": true,
+    "hwacha_count": 4,
+    "hwachas": [
+      {
+        "id": 1,
+        "kills": 1299,
+        "label": "화차·중영",
+        "shots": 38,
+        "target_zone": 1
+      },
+      {
+        "id": 2,
+        "kills": 1222,
+        "label": "화차·서영",
+        "shots": 36,
+        "target_zone": 3
+      },
+      {
+        "id": 3,
+        "kills": 1238,
+        "label": "화차·동영",
+        "shots": 36,
+        "target_zone": 5
+      },
+      {
+        "id": 4,
+        "kills": 52,
+        "label": "화차·궁성",
+        "shots": 28,
+        "target_zone": 7
+      }
+    ],
+    "jangseung_count": 1,
+    "killed_total": 3811,
+    "leaked_total": 0,
+    "path_version": 4,
+    "peak_alive": 1000,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\captures/ac06_b_after_t35.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 280,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 334,
+        "reachable": true,
+        "spawned": 1604
+      },
+      {
+        "alive": 369,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 419,
+        "reachable": true,
+        "spawned": 1604
+      },
+      {
+        "alive": 351,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 434,
+        "reachable": true,
+        "spawned": 1603
+      }
+    ],
+    "sim_time": 35.0000000700007,
+    "spawned_total": 4811,
+    "steps": 2100,
+    "zones": [
+      {
+        "count": 0,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 55,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 106,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 48,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 41,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 1,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  }
+]

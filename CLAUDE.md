@@ -40,3 +40,10 @@ GPT는 WHY / WHAT / 게임 규칙 / UX / 우선순위 / 수용 기준과 리뷰�
 GPT는 실제 diff와 증거를 함께 검토한다. PASS는 모든 필수 AC 충족, 범위 준수, 재현 가능한 결과가 있을 때만 가능하다. REVISE에는 파일/행 또는 재현 시나리오, 기대 동작, 필요한 수정·재시험을 기록한다.
 
 API 기반 자동 실행, CI, 배포, 새 패키지 계정 연결은 현재 초기 구조에 포함되지 않는다.
+
+## 실행 환경 (WP-001 이후)
+
+- 엔진: Godot 4.7.stable, GDScript, 2D 탑다운 (DECISIONS D-007~D-009). 설치·실행·테스트·빌드·성능 측정 명령은 README "실행 환경" 절과 `scripts/verify.*`에 있다.
+- 시뮬레이션 규칙은 `game/core/`의 SceneTree 비의존 클래스에만 둔다. `game/scenes/`는 상태를 읽고 명령만 전달한다. 헤드리스 테스트(`tests/`)가 `game/core`를 직접 구동하므로 이 경계를 유지한다.
+- 밸런스·시드·시나리오 값은 `game/core/config.gd`에 두고 `--set key=value`로 덮어쓴다. 테스트는 시드를 명시한다.
+- 회귀 확인은 `godot --headless --path . --script res://tests/run_tests.gd` 종료 코드 0을 기준으로 한다. 결과 문서의 증거는 `results/evidence/`에 둔다 (캡처 PNG, 테스트 리포트, 성능 JSON).
