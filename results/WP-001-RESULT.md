@@ -1,9 +1,9 @@
 # WP-001 Result
 
 - 작성일: 2026-09-13
-- WP / 상태: WP-001 Enemy Flow Prototype / **REVIEW** (GPT 판정 **REVISE**, 아래 GPT Review 참조)
+- WP / 상태: WP-001 Enemy Flow Prototype / **REVIEW** (1차 GPT 판정 **REVISE** → 보완 회차 제출, 재리뷰 **PENDING**. 아래 "보완 회차" 및 GPT Review 참조)
 - 기준 커밋: `17d17e9c685bcfd9a1007f7c36aca0daeaf572db` (origin/main, "docs: add concept art and gameplay mockup references")
-- 검증한 구현 커밋: `7af1f9288a26bcf8f43fdb091f8de1f2be83b4b1` ("feat(wp-001): Godot 4.7 enemy flow prototype …")
+- 검증한 구현 커밋: 1차 `7af1f9288a26bcf8f43fdb091f8de1f2be83b4b1` ("feat(wp-001): …") → **보완 회차 `0f3a8328eb722bb51fdc2c8a55664175448bb5e8`** ("fix(wp-001): occupancy follows movement (R-01) and perf holds the 1000-enemy load (R-02)")
 - 브랜치: `wp/001-enemy-flow` · Draft PR: https://github.com/darkrunar/hanyang-defense/pull/1
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility / OpenGL 3.3) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 (6C/12T) · NVIDIA GeForce RTX 4070 SUPER (driver 591.86) · 63.2 GB RAM · 1920×1080
 
@@ -118,6 +118,72 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - 재사용할 기능: `Battle` 오케스트레이터·고정 스텝·스냅샷, `DensityDetector`(센서 공유 시 존 카운트를 그룹 단위로 합치면 됨), `Placement`의 footprint·거절 사유 체계(봉수대 추가는 Kind 하나 추가), `Hwacha.select_zone`(공유 표적은 후보 영역 목록을 넓히는 방식으로 확장 가능), `PerfRecorder`·`--capture` 증거 파이프라인, 헤드리스 테스트 프레임워크.
 - 변경된 인터페이스: 시설은 `Placement.Structure` 하나로 표현되고 `blocking` 플래그로 통행 차단 여부를 가른다. WP-002의 봉수대는 비차단 시설로 두면 경로 검증을 건드리지 않는다. 화차의 로컬 탐지 범위(`fire_range`)와 사격 범위를 SYSTEM_SPEC WP-002 규칙대로 분리하려면 `Structure`에 필드 하나를 더해야 한다.
 - 주의점: (1) `path_version`은 차단 시설 변경에만 증가한다. 봉수망 연결 변경은 별도 버전 카운터를 두어야 한다. (2) 밀도 평가는 매 스텝 전체 적을 순회한다(8존 × 1000). 봉수망으로 존이 늘면 공간 해시 도입을 측정 후 검토. (3) 포화 골목 설치 규칙(P-007)은 WP-002/003의 재편 조작에도 그대로 영향을 준다 — 후퇴 시 내곽 재배치는 적이 도달하기 전에 이루어져야 성립한다. (4) 시뮬레이션은 결정적이지만 `--speed` 배속과 렌더 프레임은 무관하도록 유지해야 한다.
+
+## 보완 회차 · 2026-09-13 (GPT REVISE R-01 / R-02 반영, Claude Code)
+
+1차 제출(`7af1f92`)과 1차 GPT 리뷰(`0211f3d`, 아래 GPT Review 절)를 보존하고, 보완 구현 커밋 **`0f3a832`** 기준으로 다시 검증했다. 이 절의 증거 파일은 같은 경로에 덮어썼으며(캡처 PNG·JSON, test_report, 성능 JSON), 1차 성능 원시 파일은 덮어쓰기 전 수치를 위 "성능" 절과 재현 편차 메모에 그대로 남겼다.
+
+### 변경 내용 (`0211f3d` → `0f3a832`)
+
+| 파일 | 변경 | 대응 |
+|---|---|---|
+| `game/core/enemy_sim.gd` | `step_movement()`가 이동 **후** 위치로 `cell[s]`를 갱신. `is_cell_occupied()`는 캐시 대신 생존 적의 현재 좌표를 같은 floor 규칙으로 판정 | R-01 |
+| `tests/test_path_and_placement.gd` | 회귀 케이스 추가: GPT 재현 좌표 (890,760.1) 1스텝 후 거절·path_version 불변, **진입 경계**(한 틱에 footprint로 들어옴 → 거절), **이탈 경계**(한 틱에 나감 → 수락), 포화 필드에서 커서 판정과 설치 판정이 24개 앵커 전부 일치. 포화 스윕은 고정 성공률 단언을 제거하고 측정치만 기록 | R-01 |
+| `game/core/config.gd`, `battle.gd`, `scenes/main.gd` | 벤치마크 전용 `benchmark_hold_alive`(기본 false): 켜지면 매 틱 **끝**에 `target_alive`까지 즉시 보충. `--perf`가 켠다. 일반 플레이·캡처 시나리오의 생성 규칙은 그대로 | R-02 |
+| `game/tools/perf_recorder.gd`, `scenes/main.gd` | JSON에 원시 프레임 간격 배열 `frame_us_raw`·`alive_raw`, `load_held_all_frames`, `path_version_expected`, 시설 수, 실행 인수 기록. 스크립트 모드(`--perf`, `--capture`)에서는 Esc 외 입력 무시 | R-02, 리뷰 권고 |
+| `game/tools/probe_occupancy.gd` | 포화 스윕 + **홀드 대기시간** 측정(한 앵커를 누르고 있을 때 성공까지 틱 수) JSON 출력 | P-007 재측정 |
+| `scripts/verify.ps1`, `verify.sh`, `perf_with_memory.ps1` | 각 단계 종료 코드·산출물 검사, 성능 합격 조건(avg≥60, p95≤25ms, alive_min≥target) 검사, 실패 시 즉시 중단 | 리뷰 권고 |
+| `docs/SYSTEM_SPEC.md` | WP-001 절에 D-011(화차 점유는 중복 배치만 막고 통행은 막지 않음, 적은 footprint를 통과)과 "점유 판정은 현재 좌표 기준" 명시 | D-011 승인 반영 |
+| `docs/DECISIONS.md`, `README.md` | P-007/P-008/P-009/D-011의 GPT 판정과 재측정치, 벤치마크 플래그·probe 설명 | — |
+
+### AC 재검증 (보완 회차, 구현자 보고)
+
+| AC | 보완 회차 | 실제 결과 | 증거 |
+|---|---|---|---|
+| AC-01 | PASS (변경 없음) | 캡처 재실행 t=30s: alive 1000 / spawned 2061 / leaked 1061, 경로별 297/352/351 — 1차와 동일 | `captures/ac01_*` |
+| AC-02 | PASS (변경 없음) | 재실행 Z0 13→0→19, Z1 9→22→20, path_version 2→4→5 — 1차와 동일 | `captures/ac02_*` |
+| AC-03 | **PASS (R-01 수정)** | GPT 재현 스크립트 재실행: `placement_accepted=false`, `reason=ENEMY_OCCUPIES_CELL`, `cached_cell=actual_cell=3596`, path_version 2→2. 진입 경계(y 760.05→759.70) 거절, 이탈 경계(y 720.2→719.7) 수락, 커서/설치 판정 불일치 0/24. 기존 전체 차단·정지 점유·지형·경계·중복 거절 유지 | `test_report.txt` "R-01 regression" 15건; `gpt-review/repro_occupied_after_move.gd` 재실행 출력(아래) |
+| AC-04·05 | PASS (변경 없음) | 129/129 중 해당 케이스 전부 통과 | `test_report.txt` |
+| AC-06 | PASS (변경 없음) | 같은 시드 창 [30,50]s: 24.8→44.1 밀도, 231→863 처치; 캡처 413→1299 — 1차와 동일 | `captures/ac06_*` |
+| AC-07 | **PASS (R-02 보완 측정)** | 아래 표. **측정 프레임 전체에서 alive_min = 1000** (`load_held_all_frames=true`), 이동 전용·전투+경로 재계산 12회 모두 예산 충족 | `perf/perf_move_1000_release.json`, `perf_combat_1000_release.json`, `*.memory.json` |
+| AC-08 | PASS | 절차 갱신(README, `scripts/verify.*` 검사 추가). 이 회차의 모든 증거를 같은 절차로 생성 | README, `scripts/` |
+
+자동 검증: **129 passed / 0 failed** (24.6 s). GPT 재현 스크립트 출력(수정 후):
+`{"actual_cell":3596,"cached_cell":3596,"footprint_contains_living_enemy":true,"placement_accepted":false,"reason":"ENEMY_OCCUPIES_CELL","path_version_before":2,"path_version_after":2}`
+
+### 성능 보완 측정 (R-02) — 구현 커밋 `0f3a832`, 릴리스 빌드, 1920×1080, vsync off, 10s 준비 + 60s 측정
+
+실행 인수: `hanyang_defense_wp001.exe -- --perf --scenario=<move|combat> --warmup=10 --measure=60 --out=<abs>.json` (`scripts/perf_with_memory.ps1` 경유, 외부 1 Hz 워킹셋 샘플). `--perf`는 `benchmark_hold_alive=true`를 켠다.
+
+| 회차 | 시나리오 | 프레임 / 초 | 생존 min / avg / max | 부하 유지 | 평균 FPS | 프레임 ms p50 / **p95** / p99 / max | sim step ms avg / p95 / max | 경로 재계산 (path_version) | 워킹셋 MB 시작→종료 (최대) | 종료 코드 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **3 (채택)** | move | 25,338 / 60.00 | **1000 / 1000.0 / 1000** | true | **422.3** | 1.43 / **7.47** / 8.99 / 21.00 | 1.15 / 1.31 / 3.15 | 0 (2 = 기대 2) | 170.0→171.0 (171.0) | 0 |
+| **3 (채택)** | combat | 25,242 / 60.00 | **1000 / 1000.0 / 1000** | true | **420.7** | 1.47 / **7.25** / 8.93 / 19.63 | 2.37 / 6.74 / 9.49 | 12 (14 = 기대 14), 화차 310발, 처치 8,281 | 171.7→172.8 (172.9) | 0 |
+| 2 (참고) | move | 24,782 / 60.00 | 1000 / 1000.0 / 1000 | true | 413.0 | 1.46 / 7.69 / 8.97 / 14.93 | 1.27 / 1.39 / 9.19 | 0, 그러나 path_version 6 (기대 2) | 170.1→171.6 | 0 |
+| 2 (참고) | combat | 22,571 / 60.01 | 1000 / 1000.0 / 1000 | true | 376.1 | 1.64 / 8.04 / 9.65 / 18.29 | 2.31 / 6.79 / 7.75 | 12, 그러나 path_version 50 (기대 14) | 168.5→171.6 | 0 |
+| 1 (1차 제출) | move | 26,688 | 993 / 999.1 / 1000 | **false** | 444.8 | 1.42 / 6.77 / 8.63 / 40.26 | — | 0 | 167.7→171.1 | 0 |
+| 1 (1차 제출) | combat | 27,693 | **931** / 993.5 / 1000 | **false** | 461.5 | 1.40 / 6.31 / 7.71 / 13.65 | — | 12 | 169.9→171.6 | 0 |
+
+- 회차 3의 p95/p99/평균 FPS는 JSON의 `frame_us_raw`로 독립 재계산해 저장값과 일치함을 확인했다 (move p95 7.469, combat p95 7.248).
+- 회차 2는 R-01/R-02 수정 직후의 측정으로 부하는 유지됐으나 `path_version`이 기대값과 달랐다(move +4, combat +36). 당시 `--perf` 모드가 창의 마우스·키 입력을 그대로 받아들여 측정 중 전면 창에 들어온 입력이 장승 설치·제거를 일으킨 것으로 판단하고, 스크립트 모드의 입력을 차단한 뒤 회차 3으로 대체했다. 회차 2 원시 파일은 `perf/*_run2_unguarded_input.json`으로 남긴다(예산 자체는 충족하지만 채택하지 않음).
+- 예산 대비: 평균 60 FPS 이상 → 422.3 / 420.7 (통과), p95 25 ms 이하 → 7.47 / 7.25 ms (통과), 동시 1,000 유지 → alive_min 1000 (통과). 초당 FPS 최소값 move 299, combat 246.
+- 메모리: 60초 동안 워킹셋 증가 ≤1.1 MB. 장기 누수 여부는 60초 관측으로 단정하지 않는다.
+
+### P-007 재측정 (R-01 수정 후, `results/evidence/occupancy_probe.json`)
+
+- 포화 스윕(전투 활성 30초 후, 남대문 두 골목 24개 앵커, 0.1초 간격 100회): **65/2400 = 2.71%** 수락, 나머지 전부 `ENEMY_OCCUPIES_CELL`. 테스트 내 30회 스윕: 38/720 = 5.28% (GPT 재실행과 동일).
+- **홀드 대기시간**(한 앵커를 누르고 매 틱 재시도, 20회 시행): 19회 성공, 1회 30초 내 실패. 성공까지 **최소 1.08 s / 평균 7.66 s / 최대 25.58 s**.
+- 해석: 규칙은 명세대로 동작하며 1차 보고의 "3.6~11.4%"는 캐시 오류로 부풀려진 값이었다. 실제 대기 평균 7.7초는 전투 중 재편 조작으로는 길다. GPT 판정대로 WP-001에서는 현행 규칙을 유지하고, "예약 → 빈 순간 재검증 후 확정"은 별도 명세 후 후속 WP에서 다룬다.
+
+### 이 회차의 알려진 문제
+
+- 프레임 시간 이봉 분포(p50 ≈1.4 ms, p95 ≈7.5 ms)는 그대로이며 원인(HUD 재배치 추정)은 여전히 미측정.
+- `benchmark_hold_alive`는 벤치마크 전용이다. 이를 켠 상태의 처치 수(8,281/60s)는 즉시 보충 때문에 일반 플레이보다 높다.
+- 회차 2의 입력 유입 원인은 정황 판단이다(입력 차단 후 회차 3에서 기대값과 일치). 이후 모든 스크립트 실행은 입력을 무시한다.
+
+### 재리뷰 요청
+
+R-01 수정 및 양쪽 경계 회귀, P-007 재측정, R-02 부하 유지 측정, SYSTEM_SPEC D-011 명시를 반영했다. GPT 재리뷰에서 AC-03·AC-07을 다시 판정해 주기를 요청한다. 최종 판정은 아래 GPT Review 절에 날짜별로 추가한다.
 
 ## GPT Review
 

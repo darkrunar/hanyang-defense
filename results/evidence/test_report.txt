@@ -40,13 +40,27 @@
      PASS  occupant removed (= 1)
      PASS  the same placement is accepted once the cell is clear
      PASS  accepted placement bumps path_version (= 3)
+  -- AC-03 occupancy follows movement (R-01 regression, both edges)
+     PASS  after one tick the enemy stands inside the footprint (cell 3596)
+     PASS  cached cell matches the post-move position (= 3596)
+     PASS  placement onto the just-entered cell is refused
+     PASS  rejection reason (= 4)
+     PASS  path_version unchanged by the refusal (= 2)
+     PASS  no structure added by the refusal (= 4)
+     PASS  footprint cells stay passable
+     PASS  enemy still outside: placement accepted
+     PASS  enemy crossed the footprint edge this tick (y=759.696)
+     PASS  entering edge: refused on the very tick the enemy crosses in
+     PASS  leaving edge: refused while the enemy is still inside
+     PASS  enemy left the footprint this tick (y=719.843)
+     PASS  leaving edge: accepted on the very tick the enemy steps out
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  cursor-side occupancy and placement agree on all 24 anchors (= 0)
   -- AC-03 the occupancy rule under saturation (measured, known limitation)
      PASS  field saturated before probing (1000.0 >= 1000.0)
      PASS  every south-lane attempt is either accepted or refused for occupancy (= 720)
      PASS  no other refusal reason appears on open lane cells (= 0)
-     PASS  some placements are still legal during saturation (38.0 > 0.0)
-     ....  saturated south lanes: 38/720 anchors legal (5.28%) - see WP-001 result, known limitation
-     PASS  placement into a saturated lane is rare (5.28%), which is the reported friction
+     ....  saturated south lanes: 38/720 anchors legal (5.28%) - measured, see P-007
      PASS  every probe structure was removed again, state left clean (= 0)
   -- AC-03 terrain, bounds and overlap refusals
      PASS  placement on static terrain is refused
@@ -145,5 +159,5 @@
      PASS  enemy positions reproduce (= 1026439.994)
      PASS  a different seed gives a different run (1006834.965 != 1026439.994)
 
-TOTAL passed=116 failed=0
-elapsed 21.7 s
+TOTAL passed=129 failed=0
+elapsed 24.6 s
