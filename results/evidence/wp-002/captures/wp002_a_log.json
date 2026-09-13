@@ -1,0 +1,925 @@
+[
+  {
+    "id": 1,
+    "kind": "HWACHA",
+    "label": "H 화차",
+    "ok": true,
+    "place": "(46, 29)",
+    "reason": "NONE",
+    "t": 0.0166666667
+  },
+  {
+    "id": 2,
+    "kind": "BONGSU",
+    "label": "B 봉수대",
+    "ok": true,
+    "place": "(44, 33)",
+    "reason": "NONE",
+    "t": 0.0166666667
+  },
+  {
+    "id": 3,
+    "kind": "SENSOR",
+    "label": "S 혼천의",
+    "ok": true,
+    "place": "(44, 39)",
+    "reason": "NONE",
+    "t": 0.0166666667
+  },
+  {
+    "active": false,
+    "ok": true,
+    "set_active": "B 봉수대",
+    "t": 0.0166666667,
+    "topology_version": 4
+  },
+  {
+    "enemy_id": 65536,
+    "slot": 0,
+    "spawn": "(900.0, 750.0)",
+    "t": 0.0166666667
+  },
+  {
+    "activation_changes": 1,
+    "active_count": 2,
+    "alive": 1,
+    "bongsu_count": 1,
+    "capture": "wp002_a1_disconnected_no_fire_t2",
+    "combat_enabled": true,
+    "commands_accepted": 3,
+    "commands_rejected": 0,
+    "fixture": "none",
+    "hwacha_count": 1,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.0,
+        "group": -1,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "H 화차",
+        "last_target_local": 0,
+        "last_target_shared": 0,
+        "shots": 0,
+        "target_zone": -1,
+        "wait_reason": "표적 없음"
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "network": {
+      "bongsu": [
+        {
+          "active": false,
+          "group": -1,
+          "id": 2,
+          "label": "B 봉수대",
+          "links": []
+        }
+      ],
+      "groups": [],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 5,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 3,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "S 혼천의"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "H 화차"
+        }
+      ],
+      "topology_version": 4
+    },
+    "path_version": 3,
+    "peak_alive": 1,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-002\\captures/wp002_a1_disconnected_no_fire_t2.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 1,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 1,
+        "reachable": true,
+        "spawned": 1
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "seed": 20260913,
+    "sensor_count": 1,
+    "shared_only_shots": 0,
+    "shots_total": 0,
+    "sim_time": 2.000000004,
+    "spawned_total": 1,
+    "steps": 120,
+    "structure_count": 3,
+    "targeting_mode": "wp002",
+    "zones": [
+      {
+        "count": 1,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  {
+    "active": true,
+    "ok": true,
+    "set_active": "B 봉수대",
+    "t": 2.01666667069999,
+    "topology_version": 5
+  },
+  {
+    "activation_changes": 2,
+    "active_count": 3,
+    "alive": 1,
+    "bongsu_count": 1,
+    "capture": "wp002_a2_connected_shared_fire_t2.5",
+    "combat_enabled": true,
+    "commands_accepted": 3,
+    "commands_rejected": 0,
+    "fixture": "none",
+    "hwacha_count": 1,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": 2,
+        "cooldown_left": 0.333333332400001,
+        "group": 2,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [
+          65536
+        ],
+        "known_local": 0,
+        "known_shared": 1,
+        "label": "H 화차",
+        "last_target_local": 0,
+        "last_target_shared": 1,
+        "shots": 1,
+        "target_zone": 0,
+        "wait_reason": "재장전"
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "network": {
+      "bongsu": [
+        {
+          "active": true,
+          "group": 2,
+          "id": 2,
+          "label": "B 봉수대",
+          "links": []
+        }
+      ],
+      "groups": [
+        2
+      ],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 6,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": 2,
+          "group": 2,
+          "id": 3,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "S 혼천의"
+        },
+        {
+          "active": true,
+          "attached_to": 2,
+          "group": 2,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 1,
+          "label": "H 화차"
+        }
+      ],
+      "topology_version": 5
+    },
+    "path_version": 3,
+    "peak_alive": 1,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-002\\captures/wp002_a2_connected_shared_fire_t2.5.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 1,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 1,
+        "reachable": true,
+        "spawned": 1
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "seed": 20260913,
+    "sensor_count": 1,
+    "shared_only_shots": 1,
+    "shots_total": 1,
+    "sim_time": 2.50000000499999,
+    "spawned_total": 1,
+    "steps": 150,
+    "structure_count": 3,
+    "targeting_mode": "wp002",
+    "zones": [
+      {
+        "count": 1,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  {
+    "active": false,
+    "ok": true,
+    "set_active": "B 봉수대",
+    "t": 2.51666667169999,
+    "topology_version": 6
+  },
+  {
+    "activation_changes": 3,
+    "active_count": 2,
+    "alive": 1,
+    "bongsu_count": 1,
+    "capture": "wp002_a3_disconnected_again_no_stale_fire_t5",
+    "combat_enabled": true,
+    "commands_accepted": 3,
+    "commands_rejected": 0,
+    "fixture": "none",
+    "hwacha_count": 1,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.0,
+        "group": -1,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "H 화차",
+        "last_target_local": 0,
+        "last_target_shared": 1,
+        "shots": 1,
+        "target_zone": -1,
+        "wait_reason": "표적 없음"
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "network": {
+      "bongsu": [
+        {
+          "active": false,
+          "group": -1,
+          "id": 2,
+          "label": "B 봉수대",
+          "links": []
+        }
+      ],
+      "groups": [],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 7,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 3,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "S 혼천의"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "H 화차"
+        }
+      ],
+      "topology_version": 6
+    },
+    "path_version": 3,
+    "peak_alive": 1,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-002\\captures/wp002_a3_disconnected_again_no_stale_fire_t5.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 1,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 1,
+        "reachable": true,
+        "spawned": 1
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "seed": 20260913,
+    "sensor_count": 1,
+    "shared_only_shots": 1,
+    "shots_total": 1,
+    "sim_time": 5.00000000999998,
+    "spawned_total": 1,
+    "steps": 300,
+    "structure_count": 3,
+    "targeting_mode": "wp002",
+    "zones": [
+      {
+        "count": 1,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "kind": "HWACHA",
+    "label": "H2 화차(로컬)",
+    "ok": true,
+    "place": "(48, 41)",
+    "reason": "NONE",
+    "t": 5.01666667669998
+  },
+  {
+    "enemy_id": 65537,
+    "slot": 1,
+    "spawn": "(980.0, 750.0)",
+    "t": 5.01666667669998
+  },
+  {
+    "activation_changes": 3,
+    "active_count": 3,
+    "alive": 2,
+    "bongsu_count": 1,
+    "capture": "wp002_a4_local_fire_while_disconnected_t5.5",
+    "combat_enabled": true,
+    "commands_accepted": 4,
+    "commands_rejected": 0,
+    "fixture": "none",
+    "hwacha_count": 2,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.0,
+        "group": -1,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "H 화차",
+        "last_target_local": 0,
+        "last_target_shared": 1,
+        "shots": 1,
+        "target_zone": -1,
+        "wait_reason": "표적 없음"
+      },
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.333333332400001,
+        "group": -1,
+        "id": 4,
+        "kills": 0,
+        "known_ids": [
+          65537
+        ],
+        "known_local": 1,
+        "known_shared": 0,
+        "label": "H2 화차(로컬)",
+        "last_target_local": 1,
+        "last_target_shared": 0,
+        "shots": 1,
+        "target_zone": 1,
+        "wait_reason": "재장전"
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "network": {
+      "bongsu": [
+        {
+          "active": false,
+          "group": -1,
+          "id": 2,
+          "label": "B 봉수대",
+          "links": []
+        }
+      ],
+      "groups": [],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 8,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 3,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "S 혼천의"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "H 화차"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 4,
+          "kind": "HWACHA",
+          "known_local": 1,
+          "known_shared": 0,
+          "label": "H2 화차(로컬)"
+        }
+      ],
+      "topology_version": 7
+    },
+    "path_version": 3,
+    "peak_alive": 2,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-002\\captures/wp002_a4_local_fire_while_disconnected_t5.5.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 2,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 2,
+        "reachable": true,
+        "spawned": 2
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "seed": 20260913,
+    "sensor_count": 1,
+    "shared_only_shots": 1,
+    "shots_total": 2,
+    "sim_time": 5.50000001099998,
+    "spawned_total": 2,
+    "steps": 330,
+    "structure_count": 4,
+    "targeting_mode": "wp002",
+    "zones": [
+      {
+        "count": 1,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 1,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  {
+    "active": true,
+    "ok": true,
+    "set_active": "B 봉수대",
+    "t": 5.51666667769998,
+    "topology_version": 8
+  },
+  {
+    "activation_changes": 4,
+    "active_count": 4,
+    "alive": 0,
+    "bongsu_count": 1,
+    "capture": "wp002_a5_reconnected_reacquired_t7",
+    "combat_enabled": true,
+    "commands_accepted": 4,
+    "commands_rejected": 0,
+    "fixture": "none",
+    "hwacha_count": 2,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": 2,
+        "cooldown_left": 0.0,
+        "group": 2,
+        "id": 1,
+        "kills": 1,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "H 화차",
+        "last_target_local": 0,
+        "last_target_shared": 1,
+        "shots": 2,
+        "target_zone": -1,
+        "wait_reason": "표적 없음"
+      },
+      {
+        "active": true,
+        "attached_to": 2,
+        "cooldown_left": 0.0,
+        "group": 2,
+        "id": 4,
+        "kills": 1,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "H2 화차(로컬)",
+        "last_target_local": 1,
+        "last_target_shared": 0,
+        "shots": 2,
+        "target_zone": -1,
+        "wait_reason": "표적 없음"
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 2,
+    "leaked_total": 0,
+    "network": {
+      "bongsu": [
+        {
+          "active": true,
+          "group": 2,
+          "id": 2,
+          "label": "B 봉수대",
+          "links": []
+        }
+      ],
+      "groups": [
+        2
+      ],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 9,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": 2,
+          "group": 2,
+          "id": 3,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "S 혼천의"
+        },
+        {
+          "active": true,
+          "attached_to": 2,
+          "group": 2,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "H 화차"
+        },
+        {
+          "active": true,
+          "attached_to": 2,
+          "group": 2,
+          "id": 4,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "H2 화차(로컬)"
+        }
+      ],
+      "topology_version": 8
+    },
+    "path_version": 3,
+    "peak_alive": 2,
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-002\\captures/wp002_a5_reconnected_reacquired_t7.png",
+    "png_saved": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 0,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 2,
+        "reachable": true,
+        "spawned": 2
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "seed": 20260913,
+    "sensor_count": 1,
+    "shared_only_shots": 2,
+    "shots_total": 4,
+    "sim_time": 7.00000001399998,
+    "spawned_total": 2,
+    "steps": 420,
+    "structure_count": 4,
+    "targeting_mode": "wp002",
+    "zones": [
+      {
+        "count": 0,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      }
+    ]
+  }
+]
