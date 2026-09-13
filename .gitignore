@@ -1,0 +1,17 @@
+# Local secrets and tools
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/settings.local.json
+
+# Generated outputs; engine-specific exclusions follow the engine decision
+build/
+dist/
+tmp/
+*.log
