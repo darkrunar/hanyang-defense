@@ -4,7 +4,7 @@
 - WP / 상태: WP-002 Bongsu Network / **REVIEW** (GPT 판정 PENDING)
 - 기준 커밋: `37c29f1` ("docs(wp-002): finalize bongsu network criteria and mark READY", main; WP-001 DONE 머지 `a8f16ef` 포함)
 - 검증한 구현 커밋: `efa53bb8ae162624773ab979c45285c7b1754605` ("feat(wp-002): bongsu network …")
-- 브랜치: `wp/002-bongsu-network` · Draft PR: (이 문서 커밋 후 PR 링크를 아래 "PR" 절에 기록)
+- 브랜치: `wp/002-bongsu-network` · Draft PR: https://github.com/darkrunar/hanyang-defense/pull/2
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility / OpenGL 3.3) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 (6C/12T) · NVIDIA GeForce RTX 4070 SUPER (driver 591.86) · 63.2 GB RAM · 1920×1080 · Parsec 가상 디스플레이 어댑터 공존(vsync off로 측정)
 
 이 문서는 `results/RESULT_TEMPLATE.md` 양식을 따른다. 수치는 전부 `results/evidence/wp-002/` 원시 파일에서 가져왔고, WP-001 증거(`results/evidence/`)는 손대지 않았다. 문서 커밋은 구현 커밋과 분리한다.
@@ -114,7 +114,7 @@ WP-002 계약과 다른 점(정직 기록): fixture A 4단계 "로컬 사격"은
 
 ## PR
 
-- Draft PR: (문서 커밋 후 기록)
+- Draft PR: https://github.com/darkrunar/hanyang-defense/pull/2 · 결과·증거 커밋 `8471809`
 
 ## GPT Review
 
