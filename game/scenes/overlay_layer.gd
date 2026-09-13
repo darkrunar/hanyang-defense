@@ -87,13 +87,9 @@ func _draw() -> void:
 
     if show_cursor:
         var anchor: Vector2i = battle.placement.anchor_for_world(get_global_mouse_position())
-        var cells: PackedInt32Array = battle.placement.footprint_cells(anchor)
-        var ok: bool = not cells.is_empty()
-        if ok:
-            for ci: int in cells:
-                if battle.grid.is_wall_i(ci) or battle.placement.structure_at_cell(ci) != null \
-                        or battle.sim.is_cell_occupied(ci):
-                    ok = false
-                    break
+        # Same validation as the placement command (terrain, overlap, occupancy
+        # AND the would-block-all-paths probe), so the ghost colour never
+        # contradicts the result of clicking.
+        var ok: bool = battle.placement.preview(place_mode, anchor, battle.sim)
         var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
         draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), COLOR_GHOST_OK if ok else COLOR_GHOST_BAD, false, 2.0)

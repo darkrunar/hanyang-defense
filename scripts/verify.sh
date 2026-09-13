@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# WP-001 end-to-end verification (Git Bash / Linux / macOS shells).
+# WP-001 end-to-end verification (Bash).
 #
-#   scripts/verify.sh            tests + captures + release build + perf
-#   scripts/verify.sh --quick    tests + captures only (no build, no perf)
+#   scripts/verify.sh            tests + probe + captures + release build + perf   (Windows Git Bash only)
+#   scripts/verify.sh --quick    tests + probe + captures                          (any host with Godot)
 #
-# Requires `godot` (4.7.stable) on PATH and, for the build/perf steps, the
-# matching Windows export template. Evidence lands in results/evidence/.
+# Requires `godot` (4.7.stable) on PATH. The full run also needs the matching
+# Windows export template and PowerShell (steps 5-6 export a Windows PE and
+# sample its memory from PowerShell); other hosts must use --quick.
+# Evidence lands in results/evidence/.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
@@ -48,6 +50,15 @@ if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi
 
+# The export preset produces a Windows x86_64 PE and the perf runner samples
+# memory with PowerShell, so steps 5-6 are Windows (Git Bash) only. Fail
+# clearly elsewhere instead of trying to execute the PE (Codex review).
+if ! command -v powershell.exe >/dev/null 2>&1; then
+    echo "steps 5-6 (release export + perf) are Windows-only in WP-001: no powershell.exe / Windows host detected."
+    echo "run '$0 --quick' here, or run the full script from Windows Git Bash / scripts/verify.ps1."
+    exit 1
+fi
+
 echo "== 5/6 release export"
 godot --headless --path . --export-release "Windows Desktop Release" build_out/windows/hanyang_defense_wp001.exe
 
@@ -58,14 +69,10 @@ json_bool() { grep -o "\"$2\": *\(true\|false\)" "$1" | head -1 | sed 's/.*: *//
 for sc in move combat; do
     out="$EVID/perf/perf_${sc}_1000_release.json"
     rm -f "$out" "$out.memory.json"   # freshness: a stale file can never pass as new evidence
-    if command -v powershell.exe >/dev/null 2>&1; then
-        # Windows: sample the process working set from outside the engine too.
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1 \
-            -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/perf/perf_${sc}_1000_release.json"
-    else
-        ./build_out/windows/hanyang_defense_wp001.exe -- --perf --scenario="$sc" --warmup=10 --measure=60 \
-            --out="$(abs "$out")"
-    fi
+    # Sample the process working set from outside the engine too (release
+    # templates report 0 for their internal memory counters).
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1 \
+        -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/perf/perf_${sc}_1000_release.json"
     [[ -s "$out" ]] || { echo "perf $sc produced no JSON"; exit 1; }
     # D-009 budget, same three conditions as verify.ps1: avg >= 60 FPS, p95 <= 25 ms, load held on every frame.
     fps=$(json_num "$out" avg_fps); p95=$(json_num "$out" frame_ms_p95); held=$(json_bool "$out" load_held_all_frames)

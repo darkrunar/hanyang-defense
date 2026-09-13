@@ -185,6 +185,8 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 
 R-01 수정 및 양쪽 경계 회귀, P-007 재측정, R-02 부하 유지 측정, SYSTEM_SPEC D-011 명시를 반영해 재리뷰를 요청했고, GPT 2차 리뷰(`d9699aa`)가 **PASS 8 / FAIL 0 / NOT RUN 0**으로 판정했다. 이에 따라 WP-001을 **DONE**으로 전환한다 (backlog/WP-001.md, docs/ROADMAP.md, README). 비차단 권고(verify.sh의 성능 예산 검사 부재, 산출물 신선도 검사)는 이후 `chore(verify)` 커밋에서 반영했으며, 승인된 게임 코드(`0f3a832`)는 변경하지 않았다. 남은 후속 항목: P-007 예약 설치(별도 명세 후), 프레임 시간 이봉 분포 원인 측정, 장기 누수·다른 장비·5,000개체 성능은 미보장.
 
+PR Ready 전환 후 Codex 자동 리뷰 2건을 반영했다(게임 규칙 변경 없음): (1) 커서 미리보기가 설치 명령과 같은 검증(`Placement.validate`: 지형·중복·점유·전체 경로 차단 프로브)을 쓰도록 통일 — 마지막 골목을 막는 위치에서 초록 고스트가 뜨던 불일치 해소, 테스트 135/135; (2) `verify.sh`는 Windows Git Bash가 아니면 릴리스 export·성능 단계에서 명확히 실패하고 `--quick`을 안내한다.
+
 ## GPT Review
 
 ### 2026-09-13 · 최종 판정: **REVISE**

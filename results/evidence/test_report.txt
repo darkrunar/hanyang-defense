@@ -28,6 +28,12 @@
      PASS  flow field unchanged after refusal
      PASS  every refused footprint cell is left clear
      PASS  west route is still reachable after the refusal
+     PASS  preview reports the sealing placement as not allowed
+     PASS  preview leaves path_version untouched (= 3)
+     PASS  preview leaves dist/flow untouched
+     PASS  preview leaves the tentative cells clear
+     PASS  preview allows a non-blocking hwacha on the same cells
+     PASS  preview allows a jangseung on open plaza ground
      PASS  west route keeps producing traffic (351.0 > 0.0)
      PASS  west route still reaches the objective (335.0 > 0.0)
   -- AC-03 a cell occupied by a living enemy refuses a structure
@@ -159,5 +165,5 @@
      PASS  enemy positions reproduce (= 1026439.994)
      PASS  a different seed gives a different run (1006834.965 != 1026439.994)
 
-TOTAL passed=129 failed=0
-elapsed 24.6 s
+TOTAL passed=135 failed=0
+elapsed 23.4 s

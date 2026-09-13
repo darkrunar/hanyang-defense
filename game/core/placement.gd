@@ -139,33 +139,63 @@ func _fail(reason: int, blocked_cell: int = -1) -> Result:
     return r
 
 
-## Validate and place. On failure nothing at all is mutated.
-func try_place(kind: int, anchor: Vector2i, sim: EnemySim, label: String = "") -> Result:
+## Run every placement rule without mutating anything. Returns Reject.NONE
+## when the placement would be accepted. The cursor ghost and `try_place`
+## share this so the preview can never disagree with the command.
+func validate(kind: int, anchor: Vector2i, sim: EnemySim) -> int:
     var cells: PackedInt32Array = footprint_cells(anchor)
     if cells.is_empty():
-        return _fail(Reject.OUT_OF_BOUNDS)
-
+        return Reject.OUT_OF_BOUNDS
     for ci: int in cells:
         if grid.is_wall_i(ci):
-            return _fail(Reject.TERRAIN_BLOCKED, ci)
+            return Reject.TERRAIN_BLOCKED
     for ci: int in cells:
         if _cell_owner.has(ci):
-            return _fail(Reject.STRUCTURE_OVERLAP, ci)
+            return Reject.STRUCTURE_OVERLAP
     if sim != null:
         for ci: int in cells:
             if sim.is_cell_occupied(ci):
-                return _fail(Reject.ENEMY_OCCUPIES_CELL, ci)
-
-    var blocking: bool = (kind == Kind.JANGSEUNG)
-    if blocking:
-        # Tentatively block, probe reachability without touching dist/flow/version.
+                return Reject.ENEMY_OCCUPIES_CELL
+    if kind == Kind.JANGSEUNG:
+        # Tentatively block, probe reachability without touching dist/flow/version,
+        # then restore. The probe uses scratch arrays only.
         for ci: int in cells:
             grid.set_structure_i(ci, _next_id)
         var ok: bool = path.probe_all_routes_reachable()
+        for ci: int in cells:
+            grid.set_structure_i(ci, -1)
         if not ok:
-            for ci: int in cells:
-                grid.set_structure_i(ci, -1)
-            return _fail(Reject.WOULD_BLOCK_ALL_PATHS)
+            return Reject.WOULD_BLOCK_ALL_PATHS
+    return Reject.NONE
+
+
+## Side-effect-free preview for the cursor: same rules as `try_place`, no
+## rejection counter or last_result update.
+func preview(kind: int, anchor: Vector2i, sim: EnemySim) -> bool:
+    return validate(kind, anchor, sim) == Reject.NONE
+
+
+## Validate and place. On failure nothing at all is mutated.
+func try_place(kind: int, anchor: Vector2i, sim: EnemySim, label: String = "") -> Result:
+    var reason: int = validate(kind, anchor, sim)
+    if reason != Reject.NONE:
+        var blocked: int = -1
+        var cells_for_report: PackedInt32Array = footprint_cells(anchor)
+        if reason == Reject.TERRAIN_BLOCKED or reason == Reject.STRUCTURE_OVERLAP \
+                or reason == Reject.ENEMY_OCCUPIES_CELL:
+            for ci: int in cells_for_report:
+                if (reason == Reject.TERRAIN_BLOCKED and grid.is_wall_i(ci)) \
+                        or (reason == Reject.STRUCTURE_OVERLAP and _cell_owner.has(ci)) \
+                        or (reason == Reject.ENEMY_OCCUPIES_CELL and sim != null and sim.is_cell_occupied(ci)):
+                    blocked = ci
+                    break
+        return _fail(reason, blocked)
+
+    var cells: PackedInt32Array = footprint_cells(anchor)
+    var blocking: bool = (kind == Kind.JANGSEUNG)
+    if blocking:
+        for ci: int in cells:
+            grid.set_structure_i(ci, _next_id)
 
     var s: Structure = Structure.new()
     s.id = _next_id

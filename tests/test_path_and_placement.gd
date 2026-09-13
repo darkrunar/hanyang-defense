@@ -128,6 +128,22 @@ func _ac03_reject_full_block(t: RefCounted) -> void:
     t.check(clear, "every refused footprint cell is left clear")
     t.check(b.path.route_reachable(WEST), "west route is still reachable after the refusal")
 
+    # The cursor preview must say the same thing as the command (Codex review):
+    # after the first jangseung, hovering the last lane must show "not ok".
+    t.check(not b.placement.preview(Placement.Kind.JANGSEUNG, south, b.sim),
+        "preview reports the sealing placement as not allowed")
+    t.eq(b.path.path_version, version_before, "preview leaves path_version untouched")
+    t.check(b.path.dist == dist_before and b.path.flow == flow_before, "preview leaves dist/flow untouched")
+    var clear_after_preview: bool = true
+    for ci: int in b.placement.footprint_cells(south):
+        if b.grid.structure_at_i(ci) != -1:
+            clear_after_preview = false
+    t.check(clear_after_preview, "preview leaves the tentative cells clear")
+    t.check(b.placement.preview(Placement.Kind.HWACHA, south, b.sim),
+        "preview allows a non-blocking hwacha on the same cells")
+    t.check(b.placement.preview(Placement.Kind.JANGSEUNG, Vector2i(36, 20), b.sim),
+        "preview allows a jangseung on open plaza ground")
+
     # The remaining legal lane keeps working.
     b.spawning_enabled = true
     b.run_for(30.0)
@@ -226,14 +242,10 @@ func _ac03_occupancy_tracks_movement(t: RefCounted) -> void:
     for y: int in range(31, 43):
         for lane_x: int in [44, 48]:
             var a: Vector2i = Vector2i(lane_x, y)
-            var cells: PackedInt32Array = b4.placement.footprint_cells(a)
-            var any_occupied: bool = false
-            for ci: int in cells:
-                if b4.sim.is_cell_occupied(ci):
-                    any_occupied = true
+            var predicted: bool = b4.placement.preview(Placement.Kind.JANGSEUNG, a, b4.sim)
             var r: Placement.Result = b4.place_jangseung(a)
             checks += 1
-            if r.ok == any_occupied:
+            if r.ok != predicted:
                 disagreements += 1
             if r.ok:
                 b4.placement.remove(r.structure.id)
