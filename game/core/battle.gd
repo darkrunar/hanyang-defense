@@ -26,6 +26,7 @@ var sim_time: float = 0.0
 var steps: int = 0
 var combat_enabled: bool = true
 var spawning_enabled: bool = true
+var benchmark_hold_alive: bool = false
 
 ## Peak concurrent living enemies, i.e. the number AC-01 is about.
 var peak_alive: int = 0
@@ -52,6 +53,7 @@ func reset() -> void:
     _apply_tuning()
     sim.reset(config.get_int("seed"))
     combat_enabled = config.get_bool("combat_enabled")
+    benchmark_hold_alive = config.get_bool("benchmark_hold_alive")
     spawning_enabled = true
     sim_time = 0.0
     steps = 0
@@ -107,6 +109,13 @@ func step(dt: float) -> void:
             s.last_zone = -1
             if s.muzzle_timer > 0.0:
                 s.muzzle_timer = maxf(0.0, s.muzzle_timer - dt)
+    if benchmark_hold_alive and spawning_enabled:
+        # Benchmark supplement (R-02): top the field back up to the target at
+        # the END of the tick, so a frame sampled between ticks always sees the
+        # full concurrent load even right after a volley or a wave of arrivals.
+        var deficit: int = config.get_int("target_alive") - sim.alive_count
+        if deficit > 0:
+            sim.spawn_round_robin(deficit)
     sim_time += dt
     steps += 1
     if sim.alive_count > peak_alive:

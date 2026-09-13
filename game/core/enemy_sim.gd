@@ -199,8 +199,25 @@ func step_movement(dt: float) -> void:
         if len_sq > 1e-6:
             var inv: float = 1.0 / sqrt(len_sq)
             var step: float = speed[s] * dt
-            pos_x[s] = px + dx * inv * step
-            pos_y[s] = py + dy * inv * step
+            var nx: float = px + dx * inv * step
+            var ny: float = py + dy * inv * step
+            pos_x[s] = nx
+            pos_y[s] = ny
+            # Keep the cached cell in sync with the position the enemy ENDS the
+            # tick on, so occupancy checks issued after this step see the truth
+            # (GPT review R-01: the pre-move cache let a jangseung land on an
+            # enemy that had just stepped into the footprint).
+            var ncx: int = int(nx / cs)
+            var ncy: int = int(ny / cs)
+            if ncx < 0:
+                ncx = 0
+            elif ncx >= w:
+                ncx = w - 1
+            if ncy < 0:
+                ncy = 0
+            elif ncy >= h:
+                ncy = h - 1
+            cell[s] = ncy * w + ncx
         i += 1
 
 
@@ -248,9 +265,21 @@ func live_slots() -> PackedInt32Array:
     return _live
 
 
+## True when any LIVING enemy's current position lies inside cell `ci`.
+## Deliberately derived from pos_x/pos_y rather than the cached `cell` array,
+## so the answer can never lag behind movement (GPT review R-01). Uses the
+## same floor-to-cell rule as `step_movement` / `world_to_index`.
 func is_cell_occupied(ci: int) -> bool:
+    var w: int = _grid.width
+    var cs: float = TerrainGrid.CELL_SIZE
+    var x0: float = float(ci % w) * cs
+    var y0: float = float(int(ci / w)) * cs
+    var x1: float = x0 + cs
+    var y1: float = y0 + cs
     for s: int in _live:
-        if cell[s] == ci:
+        var px: float = pos_x[s]
+        var py: float = pos_y[s]
+        if px >= x0 and px < x1 and py >= y0 and py < y1:
             return true
     return false
 

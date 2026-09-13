@@ -26,6 +26,7 @@ func run(t: RefCounted) -> void:
     _ac02_reroute_and_restore(t)
     _ac03_reject_full_block(t)
     _ac03_reject_enemy_occupied(t)
+    _ac03_occupancy_tracks_movement(t)
     _ac03_saturated_lane_refuses_placement(t)
     _ac03_reject_terrain_and_overlap(t)
     _stranded_enemy_recovers(t)
@@ -164,6 +165,81 @@ func _ac03_reject_enemy_occupied(t: RefCounted) -> void:
     t.eq(b.path.path_version, version_before + 1, "accepted placement bumps path_version")
 
 
+## GPT review R-01 regression: the occupancy answer must follow the position an
+## enemy has at the END of the tick, on both the entering and the leaving edge.
+func _ac03_occupancy_tracks_movement(t: RefCounted) -> void:
+    t.case("AC-03 occupancy follows movement (R-01 regression, both edges)")
+    var anchor: Vector2i = TestMap.AC_SCENARIO_ANCHORS["south_west_lane"]  # (44,36)
+    var dt: float = Config.new().get_num("fixed_dt")
+
+    # --- exact GPT reproduction: enemy just below the footprint steps into it ---
+    var b: Battle = _fresh()
+    b.spawning_enabled = false
+    var slot: int = b.sim.force_spawn(SOUTH, Vector2(890.0, 760.1))
+    b.step(dt)
+    var now_cell: int = b.grid.world_to_index(Vector2(b.sim.pos_x[slot], b.sim.pos_y[slot]))
+    var footprint: PackedInt32Array = b.placement.footprint_cells(anchor)
+    t.check(footprint.has(now_cell), "after one tick the enemy stands inside the footprint (cell %d)" % now_cell)
+    t.eq(b.sim.cell[slot], now_cell, "cached cell matches the post-move position")
+    var version_before: int = b.path.path_version
+    var structures_before: int = b.placement.structures.size()
+    var res: Placement.Result = b.place_jangseung(anchor)
+    t.check(not res.ok, "placement onto the just-entered cell is refused")
+    t.eq(res.reason, Placement.Reject.ENEMY_OCCUPIES_CELL, "rejection reason")
+    t.eq(b.path.path_version, version_before, "path_version unchanged by the refusal")
+    t.eq(b.placement.structures.size(), structures_before, "no structure added by the refusal")
+    t.check(b.path.is_reachable_index(footprint[0]), "footprint cells stay passable")
+
+    # --- entering edge: a sub-pixel outside, one tick, then inside ---
+    var b2: Battle = _fresh()
+    b2.spawning_enabled = false
+    var s2: int = b2.sim.force_spawn(SOUTH, Vector2(900.0, 760.05))
+    b2.sim.speed[s2] = 30.0   # ~0.5 px per tick, so the crossing is a single tick
+    var before: Placement.Result = b2.place_jangseung(anchor)
+    t.check(before.ok, "enemy still outside: placement accepted")
+    b2.placement.remove(before.structure.id)
+    b2.step(dt)
+    t.check(b2.sim.pos_y[s2] < 760.0, "enemy crossed the footprint edge this tick (y=%.3f)" % b2.sim.pos_y[s2])
+    var after: Placement.Result = b2.place_jangseung(anchor)
+    t.check(not after.ok and after.reason == Placement.Reject.ENEMY_OCCUPIES_CELL,
+        "entering edge: refused on the very tick the enemy crosses in")
+
+    # --- leaving edge: inside at the top edge, one tick north, then outside ---
+    var b3: Battle = _fresh()
+    b3.spawning_enabled = false
+    var s3: int = b3.sim.force_spawn(SOUTH, Vector2(900.0, 720.2))  # inside, 0.2 px below the top edge
+    b3.sim.speed[s3] = 30.0
+    var inside: Placement.Result = b3.place_jangseung(anchor)
+    t.check(not inside.ok and inside.reason == Placement.Reject.ENEMY_OCCUPIES_CELL,
+        "leaving edge: refused while the enemy is still inside")
+    b3.step(dt)
+    t.check(b3.sim.pos_y[s3] < 720.0, "enemy left the footprint this tick (y=%.3f)" % b3.sim.pos_y[s3])
+    var freed: Placement.Result = b3.place_jangseung(anchor)
+    t.check(freed.ok, "leaving edge: accepted on the very tick the enemy steps out")
+    t.eq(b3.path.path_version, 3, "accepted placement bumps path_version")
+
+    # --- overlay/cursor and placement must agree, on a saturated field ---
+    var b4: Battle = _fresh(true)
+    b4.run_for(20.0)
+    var disagreements: int = 0
+    var checks: int = 0
+    for y: int in range(31, 43):
+        for lane_x: int in [44, 48]:
+            var a: Vector2i = Vector2i(lane_x, y)
+            var cells: PackedInt32Array = b4.placement.footprint_cells(a)
+            var any_occupied: bool = false
+            for ci: int in cells:
+                if b4.sim.is_cell_occupied(ci):
+                    any_occupied = true
+            var r: Placement.Result = b4.place_jangseung(a)
+            checks += 1
+            if r.ok == any_occupied:
+                disagreements += 1
+            if r.ok:
+                b4.placement.remove(r.structure.id)
+    t.eq(disagreements, 0, "cursor-side occupancy and placement agree on all %d anchors" % checks)
+
+
 func _ac03_saturated_lane_refuses_placement(t: RefCounted) -> void:
     t.case("AC-03 the occupancy rule under saturation (measured, known limitation)")
     var b: Battle = _fresh(true)
@@ -196,13 +272,11 @@ func _ac03_saturated_lane_refuses_placement(t: RefCounted) -> void:
     t.eq(occupied_refusals + accepted, attempts,
         "every south-lane attempt is either accepted or refused for occupancy")
     t.eq(other_refusals, 0, "no other refusal reason appears on open lane cells")
-    t.gt(float(accepted), 0.0, "some placements are still legal during saturation")
     var rate: float = 100.0 * float(accepted) / float(attempts)
-    t.note("saturated south lanes: %d/%d anchors legal (%.2f%%) - see WP-001 result, known limitation" % [
+    # Measurement, not a guarantee (GPT review: do not quote a fixed rate).
+    t.note("saturated south lanes: %d/%d anchors legal (%.2f%%) - measured, see P-007" % [
         accepted, attempts, rate
     ])
-    t.check(rate < 25.0,
-        "placement into a saturated lane is rare (%.2f%%), which is the reported friction" % rate)
     t.eq(b.placement.count_of(Placement.Kind.JANGSEUNG), 0,
         "every probe structure was removed again, state left clean")
 

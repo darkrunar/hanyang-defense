@@ -101,7 +101,14 @@ godot --headless --path . --export-release "Windows Desktop Release" build_out/w
 ./build_out/windows/hanyang_defense_wp001.exe -- --perf --scenario=combat --warmup=10 --measure=60 --out=D:/abs/path/perf_combat.json
 ```
 
-한 번에 전부 실행하려면 `scripts/verify.ps1`(Windows) 또는 `scripts/verify.sh`(Git Bash)를 사용한다. 조작법과 명령행 옵션은 [game/scenes/main.gd](game/scenes/main.gd) 상단 주석, 밸런스·시드 설정값은 [game/core/config.gd](game/core/config.gd)에 있다. 기본 시드는 `20260913`.
+```bash
+# P-007 측정: 포화 골목의 설치 성공률과 홀드 대기시간 (헤드리스, JSON 출력)
+godot --headless --path . --script res://game/tools/probe_occupancy.gd -- --out=D:/abs/path/occupancy_probe.json
+```
+
+`--perf` 모드는 `benchmark_hold_alive`를 켜서 매 틱 끝에 동시 생존 수를 `target_alive`로 즉시 보충한다(D-009의 부하를 측정 프레임 전체에서 유지하기 위한 벤치마크 전용 규칙, 일반 플레이에서는 꺼져 있음). 결과 JSON의 `load_held_all_frames`가 true여야 부하 조건을 충족한 측정이다.
+
+한 번에 전부 실행하려면 `scripts/verify.ps1`(Windows) 또는 `scripts/verify.sh`(Git Bash)를 사용한다. `verify.ps1`은 각 단계의 종료 코드·산출물·성능 합격 조건을 검사하고 실패 시 즉시 중단한다. 조작법과 명령행 옵션은 [game/scenes/main.gd](game/scenes/main.gd) 상단 주석, 밸런스·시드 설정값은 [game/core/config.gd](game/core/config.gd)에 있다. 기본 시드는 `20260913`.
 
 ### 조작
 

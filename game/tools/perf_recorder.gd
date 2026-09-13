@@ -157,7 +157,14 @@ func report() -> Dictionary:
         "memory_static_mb_peak_in_window": float(_mem_peak) / 1048576.0,
         "memory_static_mb_process_peak": float(OS.get_static_memory_peak_usage()) / 1048576.0,
         "per_second": _per_second,
+        # Raw per-frame wall-clock intervals (microseconds), in order, so a
+        # reviewer can recompute every percentile independently (GPT review).
+        "frame_us_raw": Array(_frame_us),
+        "alive_raw": Array(_alive_samples),
     }
     for k: String in extra:
         out[k] = extra[k]
+    if extra.has("target_alive"):
+        # The D-009 load requirement, evaluated on every measured frame.
+        out["load_held_all_frames"] = alive_min >= int(extra["target_alive"])
     return out

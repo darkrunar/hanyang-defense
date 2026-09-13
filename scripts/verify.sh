@@ -16,25 +16,37 @@ abs() {  # absolute native path for Godot's FileAccess on Windows
     if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else printf '%s' "$1"; fi
 }
 
-echo "== 1/5 headless test suite"
+echo "== 1/6 headless test suite"
 godot --headless --path . --script res://tests/run_tests.gd -- --report="$(abs "$EVID/test_report.txt")"
 
-echo "== 2/5 map dump"
-godot --headless --path . --script res://game/tools/dump_map.gd > "$EVID/map_dump.txt"
+grep -q "failed=0" "$EVID/test_report.txt" || { echo "test report does not say failed=0"; exit 1; }
 
-echo "== 3/5 evidence captures (windowed)"
+echo "== 2/6 map dump"
+godot --headless --path . --script res://game/tools/dump_map.gd > "$EVID/map_dump.txt"
+[[ -s "$EVID/map_dump.txt" ]] || { echo "map dump missing"; exit 1; }
+
+echo "== 3/6 P-007 occupancy probe"
+godot --headless --path . --script res://game/tools/probe_occupancy.gd -- --out="$(abs "$EVID/occupancy_probe.json")"
+[[ -s "$EVID/occupancy_probe.json" ]] || { echo "occupancy probe missing"; exit 1; }
+
+echo "== 4/6 evidence captures (windowed)"
 for sc in ac01 ac02 ac06; do
     godot --path . --rendering-driver opengl3 -- --capture="$sc" --out-dir="$(abs "$EVID/captures")"
+    [[ -s "$EVID/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
+done
+for png in ac01_t30_1000_alive_three_routes ac02_a_reference_t30 ac02_b_west_lane_blocked_t30 \
+           ac02_c_restored_t42 ac06_a_before_t35 ac06_b_after_t35; do
+    [[ -s "$EVID/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
 done
 
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi
 
-echo "== 4/5 release export"
+echo "== 5/6 release export"
 godot --headless --path . --export-release "Windows Desktop Release" build_out/windows/hanyang_defense_wp001.exe
 
-echo "== 5/5 performance (10 s warmup + 60 s measure, twice, with external memory sampling)"
+echo "== 6/6 performance (10 s warmup + 60 s measure, twice, with external memory sampling)"
 for sc in move combat; do
     if command -v powershell.exe >/dev/null 2>&1; then
         # Windows: sample the process working set from outside the engine too.

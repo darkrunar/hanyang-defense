@@ -12,6 +12,10 @@ const DEFAULTS: Dictionary = {
     "spawn_rate": 420.0,         # enemies per second while topping up
     "combat_enabled": true,      # false = hwachas hold fire (AC-01 counting run)
     "enemy_capacity": 6000,      # pool size; spawn stops when exhausted
+    # Benchmark-only: after every tick, refill to target_alive immediately so
+    # the measured load never dips below the D-009 requirement. Off in play;
+    # the --perf mode turns it on (GPT review R-02).
+    "benchmark_hold_alive": false,
 
     # --- enemy ---
     "enemy_speed": 58.0,

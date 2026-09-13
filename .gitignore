@@ -20,3 +20,4 @@ tmp/
 .godot/
 *.translation
 build_out/
+*.import

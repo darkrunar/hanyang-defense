@@ -55,3 +55,5 @@ $json = $report | ConvertTo-Json -Depth 4
 Write-Host ("MEMORY {0}: working set {1} -> {2} MB (min {3}, max {4}), private max {5} MB, samples {6}" -f `
     $Scenario, $report.working_set_mb_at_measure_start, $report.working_set_mb_at_end, `
     $report.working_set_mb_min, $report.working_set_mb_max, $report.private_mb_max, $samples.Count)
+if ($proc.ExitCode -ne 0) { throw "game exited with code $($proc.ExitCode)" }
+if (-not (Test-Path $outAbs)) { throw "game did not write $outAbs" }

@@ -188,6 +188,9 @@ func _apply_run_mode() -> void:
         _perf.scenario = _perf_scenario if _perf_scenario != "" else "move"
         config.values["combat_enabled"] = _perf.scenario != "move"
         battle.combat_enabled = config.get_bool("combat_enabled")
+        # R-02: hold the D-009 load (alive >= target) for every measured frame.
+        config.values["benchmark_hold_alive"] = true
+        battle.benchmark_hold_alive = true
         _perf_next_toggle = _perf.warmup_seconds
         DisplayServer.window_set_size(Vector2i(1920, 1080))
         DisplayServer.window_set_position(Vector2i(0, 0))
@@ -291,6 +294,12 @@ func _upload_enemies() -> void:
 # ================================================================= input ===
 
 func _unhandled_input(event: InputEvent) -> void:
+    if _perf != null or _capture_name != "":
+        # Scripted evidence runs must not be perturbed by stray clicks or keys
+        # on the foreground window; only Esc is honoured.
+        if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+            get_tree().quit()
+        return
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
         if mb.button_index == MOUSE_BUTTON_LEFT:
@@ -429,6 +438,9 @@ func _perf_script_step() -> void:
 func _finish_perf() -> void:
     _perf.extra = {
         "target_alive": config.get_int("target_alive"),
+        "benchmark_hold_alive": battle.benchmark_hold_alive,
+        "spawn_rate": config.get_num("spawn_rate"),
+        "cmdline_user_args": OS.get_cmdline_user_args(),
         "seed": config.get_int("seed"),
         "combat_enabled": battle.combat_enabled,
         "sim_time_at_end": battle.sim_time,
@@ -439,6 +451,13 @@ func _finish_perf() -> void:
         "path_rebuilds_scripted": _perf_rebuilds,
         "placement_refusals_scripted": _perf_refusals,
         "path_version": battle.path.path_version,
+        # path_version must equal 2 + path_rebuilds_scripted; anything else
+        # means an unscripted rebuild happened during the run.
+        "path_version_expected": 2 + _perf_rebuilds,
+        "jangseung_count_at_end": battle.placement.count_of(Placement.Kind.JANGSEUNG),
+        "hwacha_count_at_end": battle.placement.count_of(Placement.Kind.HWACHA),
+        "placement_rejected_total": battle.placement.rejected_total,
+        "interactive_input_ignored": true,
         "screen_size": str(DisplayServer.screen_get_size()),
     }
     var report: Dictionary = _perf.report()
