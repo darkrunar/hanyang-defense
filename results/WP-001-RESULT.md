@@ -1,7 +1,7 @@
 # WP-001 Result
 
 - 작성일: 2026-09-13
-- WP / 상태: WP-001 Enemy Flow Prototype / **REVIEW** (1차 GPT 판정 **REVISE** → 2026-09-13 보완 재리뷰 **PASS**. 아래 "보완 회차" 및 GPT Review 참조)
+- WP / 상태: WP-001 Enemy Flow Prototype / **DONE** (1차 GPT 판정 REVISE `0211f3d` → 보완 회차 `0f3a832` → 2026-09-13 GPT 재리뷰 **PASS 8/0/0** `d9699aa`. DONE 전환 2026-09-13, Claude Code. 아래 "보완 회차" 및 GPT Review 참조)
 - 기준 커밋: `17d17e9c685bcfd9a1007f7c36aca0daeaf572db` (origin/main, "docs: add concept art and gameplay mockup references")
 - 검증한 구현 커밋: 1차 `7af1f9288a26bcf8f43fdb091f8de1f2be83b4b1` ("feat(wp-001): …") → **보완 회차 `0f3a8328eb722bb51fdc2c8a55664175448bb5e8`** ("fix(wp-001): occupancy follows movement (R-01) and perf holds the 1000-enemy load (R-02)")
 - 브랜치: `wp/001-enemy-flow` · Draft PR: https://github.com/darkrunar/hanyang-defense/pull/1
@@ -142,7 +142,7 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 |---|---|---|---|
 | AC-01 | PASS (변경 없음) | 캡처 재실행 t=30s: alive 1000 / spawned 2061 / leaked 1061, 경로별 297/352/351 — 1차와 동일 | `captures/ac01_*` |
 | AC-02 | PASS (변경 없음) | 재실행 Z0 13→0→19, Z1 9→22→20, path_version 2→4→5 — 1차와 동일 | `captures/ac02_*` |
-| AC-03 | **PASS (R-01 수정)** | GPT 재현 스크립트 재실행: `placement_accepted=false`, `reason=ENEMY_OCCUPIES_CELL`, `cached_cell=actual_cell=3596`, path_version 2→2. 진입 경계(y 760.05→759.70) 거절, 이탈 경계(y 720.2→719.7) 수락, 커서/설치 판정 불일치 0/24. 기존 전체 차단·정지 점유·지형·경계·중복 거절 유지 | `test_report.txt` "R-01 regression" 15건; `gpt-review/repro_occupied_after_move.gd` 재실행 출력(아래) |
+| AC-03 | **PASS (R-01 수정)** | GPT 재현 스크립트 재실행: `placement_accepted=false`, `reason=ENEMY_OCCUPIES_CELL`, `cached_cell=actual_cell=3596`, path_version 2→2. 진입 경계(y 760.05→759.70) 거절, 이탈 경계(y 720.2→719.843) 수락, 커서/설치 판정 불일치 0/24. 기존 전체 차단·정지 점유·지형·경계·중복 거절 유지 | `test_report.txt` "R-01 regression" 15건; `gpt-review/repro_occupied_after_move.gd` 재실행 출력(아래) |
 | AC-04·05 | PASS (변경 없음) | 129/129 중 해당 케이스 전부 통과 | `test_report.txt` |
 | AC-06 | PASS (변경 없음) | 같은 시드 창 [30,50]s: 24.8→44.1 밀도, 231→863 처치; 캡처 413→1299 — 1차와 동일 | `captures/ac06_*` |
 | AC-07 | **PASS (R-02 보완 측정)** | 아래 표. **측정 프레임 전체에서 alive_min = 1000** (`load_held_all_frames=true`), 이동 전용·전투+경로 재계산 12회 모두 예산 충족 | `perf/perf_move_1000_release.json`, `perf_combat_1000_release.json`, `*.memory.json` |
@@ -181,9 +181,9 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - `benchmark_hold_alive`는 벤치마크 전용이다. 이를 켠 상태의 처치 수(8,281/60s)는 즉시 보충 때문에 일반 플레이보다 높다.
 - 회차 2의 입력 유입 원인은 정황 판단이다(입력 차단 후 회차 3에서 기대값과 일치). 이후 모든 스크립트 실행은 입력을 무시한다.
 
-### 재리뷰 요청
+### 재리뷰 결과 반영 (2026-09-13)
 
-R-01 수정 및 양쪽 경계 회귀, P-007 재측정, R-02 부하 유지 측정, SYSTEM_SPEC D-011 명시를 반영했다. GPT 재리뷰에서 AC-03·AC-07을 다시 판정해 주기를 요청한다. 최종 판정은 아래 GPT Review 절에 날짜별로 추가한다.
+R-01 수정 및 양쪽 경계 회귀, P-007 재측정, R-02 부하 유지 측정, SYSTEM_SPEC D-011 명시를 반영해 재리뷰를 요청했고, GPT 2차 리뷰(`d9699aa`)가 **PASS 8 / FAIL 0 / NOT RUN 0**으로 판정했다. 이에 따라 WP-001을 **DONE**으로 전환한다 (backlog/WP-001.md, docs/ROADMAP.md, README). 비차단 권고(verify.sh의 성능 예산 검사 부재, 산출물 신선도 검사)는 이후 `chore(verify)` 커밋에서 반영했으며, 승인된 게임 코드(`0f3a832`)는 변경하지 않았다. 남은 후속 항목: P-007 예약 설치(별도 명세 후), 프레임 시간 이봉 분포 원인 측정, 장기 누수·다른 장비·5,000개체 성능은 미보장.
 
 ## GPT Review
 

@@ -16,6 +16,11 @@ abs() {  # absolute native path for Godot's FileAccess on Windows
     if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else printf '%s' "$1"; fi
 }
 
+# Freshness: remove every artifact this script regenerates, so a leftover file
+# from an earlier run can never be mistaken for new evidence.
+rm -f "$EVID/test_report.txt" "$EVID/map_dump.txt" "$EVID/occupancy_probe.json"
+rm -f "$EVID"/captures/ac0*_log.json "$EVID"/captures/ac0*.png
+
 echo "== 1/6 headless test suite"
 godot --headless --path . --script res://tests/run_tests.gd -- --report="$(abs "$EVID/test_report.txt")"
 
@@ -47,14 +52,27 @@ echo "== 5/6 release export"
 godot --headless --path . --export-release "Windows Desktop Release" build_out/windows/hanyang_defense_wp001.exe
 
 echo "== 6/6 performance (10 s warmup + 60 s measure, twice, with external memory sampling)"
+# Pull one numeric field out of Godot's pretty-printed JSON without needing jq/python.
+json_num() { grep -o "\"$2\": *[-0-9.]*" "$1" | head -1 | sed 's/.*: *//'; }
+json_bool() { grep -o "\"$2\": *\(true\|false\)" "$1" | head -1 | sed 's/.*: *//'; }
 for sc in move combat; do
+    out="$EVID/perf/perf_${sc}_1000_release.json"
+    rm -f "$out" "$out.memory.json"   # freshness: a stale file can never pass as new evidence
     if command -v powershell.exe >/dev/null 2>&1; then
         # Windows: sample the process working set from outside the engine too.
         powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1 \
             -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/perf/perf_${sc}_1000_release.json"
     else
         ./build_out/windows/hanyang_defense_wp001.exe -- --perf --scenario="$sc" --warmup=10 --measure=60 \
-            --out="$(abs "$EVID/perf/perf_${sc}_1000_release.json")"
+            --out="$(abs "$out")"
+    fi
+    [[ -s "$out" ]] || { echo "perf $sc produced no JSON"; exit 1; }
+    # D-009 budget, same three conditions as verify.ps1: avg >= 60 FPS, p95 <= 25 ms, load held on every frame.
+    fps=$(json_num "$out" avg_fps); p95=$(json_num "$out" frame_ms_p95); held=$(json_bool "$out" load_held_all_frames)
+    if awk -v f="$fps" -v p="$p95" -v h="$held" 'BEGIN{exit !(f>=60 && p<=25 && h=="true")}'; then
+        echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> PASS"
+    else
+        echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> FAIL (budget: avg>=60, p95<=25ms, alive_min>=target)"; exit 1
     fi
 done
 echo "done. evidence in $EVID"

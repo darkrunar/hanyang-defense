@@ -6,7 +6,9 @@
 # Requires `godot` (4.7.stable) on PATH and, for build/perf, the matching
 # Windows export template. Evidence lands in results\evidence\.
 # Every external step is checked: a non-zero exit code or a missing artifact
-# stops the run (GPT review recommendation).
+# stops the run, regenerated artifacts are deleted first so a stale file can
+# never pass as new evidence, and the perf JSON is checked against the D-009
+# budget (GPT review recommendations).
 param([switch]$Quick)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
@@ -23,6 +25,14 @@ function Assert-File([string]$path, [string]$step) {
     if (-not (Test-Path $path)) { throw "$step produced no '$path'" }
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
+
+# Freshness: remove every artifact this script regenerates.
+$stale = @(
+    (Join-Path $evid "test_report.txt"), (Join-Path $evid "map_dump.txt"), (Join-Path $evid "occupancy_probe.json"),
+    (Join-Path $evid "captures\ac0*_log.json"), (Join-Path $evid "captures\ac0*.png"),
+    (Join-Path $evid "perf\perf_move_1000_release.json*"), (Join-Path $evid "perf\perf_combat_1000_release.json*")
+)
+Remove-Item -Force -ErrorAction SilentlyContinue $stale
 
 Write-Host "== 1/6 headless test suite"
 & godot --headless --path . --script res://tests/run_tests.gd -- "--report=$evid\test_report.txt"
