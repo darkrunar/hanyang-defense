@@ -1,0 +1,404 @@
+{
+  "adapter": "NVIDIA GeForce RTX 4070 SUPER",
+  "adapter_api": "3.3.0 NVIDIA 591.86",
+  "alive_avg": 999.065347721822,
+  "alive_max": 1000,
+  "alive_min": 993,
+  "avg_fps": 444.765456549541,
+  "build": "exported release",
+  "combat_enabled": false,
+  "cpu": "AMD Ryzen 5 7600 6-Core Processor",
+  "cpu_threads": 12,
+  "engine": "Godot 4.7-stable (official)",
+  "frame_ms_avg": 2.24837604916067,
+  "frame_ms_max": 40.257,
+  "frame_ms_p50": 1.416,
+  "frame_ms_p95": 6.771,
+  "frame_ms_p99": 8.63,
+  "frames": 26688,
+  "killed_total": 0,
+  "leaked_total": 3338,
+  "measure_seconds": 60.0,
+  "measured_seconds": 60.00466,
+  "memory_note": "static memory counters are 0 in release templates; see *.memory.json",
+  "memory_static_mb_end": 0.0,
+  "memory_static_mb_peak_in_window": 0.0,
+  "memory_static_mb_process_peak": 0.0,
+  "memory_static_mb_start": 0.0,
+  "os": "Windows 10.0.26200",
+  "path_rebuilds_scripted": 0,
+  "path_version": 2,
+  "per_second": [
+    {
+      "alive": 1000,
+      "fps": 358.202183242307,
+      "mem_mb": 0.0,
+      "t": 0
+    },
+    {
+      "alive": 999,
+      "fps": 381.064658932245,
+      "mem_mb": 0.0,
+      "t": 1
+    },
+    {
+      "alive": 1000,
+      "fps": 353.164765329995,
+      "mem_mb": 0.0,
+      "t": 2
+    },
+    {
+      "alive": 999,
+      "fps": 363.356220142245,
+      "mem_mb": 0.0,
+      "t": 3
+    },
+    {
+      "alive": 999,
+      "fps": 429.654557735581,
+      "mem_mb": 0.0,
+      "t": 4
+    },
+    {
+      "alive": 998,
+      "fps": 436.564308819798,
+      "mem_mb": 0.0,
+      "t": 5
+    },
+    {
+      "alive": 999,
+      "fps": 473.509444215792,
+      "mem_mb": 0.0,
+      "t": 6
+    },
+    {
+      "alive": 997,
+      "fps": 439.671751638301,
+      "mem_mb": 0.0,
+      "t": 7
+    },
+    {
+      "alive": 1000,
+      "fps": 454.028155719709,
+      "mem_mb": 0.0,
+      "t": 8
+    },
+    {
+      "alive": 998,
+      "fps": 484.570186244801,
+      "mem_mb": 0.0,
+      "t": 9
+    },
+    {
+      "alive": 1000,
+      "fps": 437.771045743076,
+      "mem_mb": 0.0,
+      "t": 10
+    },
+    {
+      "alive": 998,
+      "fps": 399.956004839468,
+      "mem_mb": 0.0,
+      "t": 11
+    },
+    {
+      "alive": 999,
+      "fps": 410.065051682165,
+      "mem_mb": 0.0,
+      "t": 12
+    },
+    {
+      "alive": 998,
+      "fps": 447.778797274147,
+      "mem_mb": 0.0,
+      "t": 13
+    },
+    {
+      "alive": 1000,
+      "fps": 481.024962401213,
+      "mem_mb": 0.0,
+      "t": 14
+    },
+    {
+      "alive": 999,
+      "fps": 462.569347937071,
+      "mem_mb": 0.0,
+      "t": 15
+    },
+    {
+      "alive": 1000,
+      "fps": 488.695312904343,
+      "mem_mb": 0.0,
+      "t": 16
+    },
+    {
+      "alive": 999,
+      "fps": 442.637479903959,
+      "mem_mb": 0.0,
+      "t": 17
+    },
+    {
+      "alive": 1000,
+      "fps": 388.963437436881,
+      "mem_mb": 0.0,
+      "t": 18
+    },
+    {
+      "alive": 998,
+      "fps": 413.738505329867,
+      "mem_mb": 0.0,
+      "t": 19
+    },
+    {
+      "alive": 998,
+      "fps": 423.878066399604,
+      "mem_mb": 0.0,
+      "t": 20
+    },
+    {
+      "alive": 999,
+      "fps": 481.693642843152,
+      "mem_mb": 0.0,
+      "t": 21
+    },
+    {
+      "alive": 999,
+      "fps": 484.325818460703,
+      "mem_mb": 0.0,
+      "t": 22
+    },
+    {
+      "alive": 999,
+      "fps": 426.861270087222,
+      "mem_mb": 0.0,
+      "t": 23
+    },
+    {
+      "alive": 998,
+      "fps": 481.773566423781,
+      "mem_mb": 0.0,
+      "t": 24
+    },
+    {
+      "alive": 999,
+      "fps": 482.718575070734,
+      "mem_mb": 0.0,
+      "t": 25
+    },
+    {
+      "alive": 1000,
+      "fps": 459.2853519923,
+      "mem_mb": 0.0,
+      "t": 26
+    },
+    {
+      "alive": 998,
+      "fps": 375.866191635778,
+      "mem_mb": 0.0,
+      "t": 27
+    },
+    {
+      "alive": 999,
+      "fps": 428.291178100244,
+      "mem_mb": 0.0,
+      "t": 28
+    },
+    {
+      "alive": 1000,
+      "fps": 445.978147070794,
+      "mem_mb": 0.0,
+      "t": 29
+    },
+    {
+      "alive": 999,
+      "fps": 428.521173430491,
+      "mem_mb": 0.0,
+      "t": 30
+    },
+    {
+      "alive": 1000,
+      "fps": 434.865626521405,
+      "mem_mb": 0.0,
+      "t": 31
+    },
+    {
+      "alive": 1000,
+      "fps": 461.831431527492,
+      "mem_mb": 0.0,
+      "t": 32
+    },
+    {
+      "alive": 1000,
+      "fps": 490.94550504894,
+      "mem_mb": 0.0,
+      "t": 33
+    },
+    {
+      "alive": 1000,
+      "fps": 495.962802789791,
+      "mem_mb": 0.0,
+      "t": 34
+    },
+    {
+      "alive": 1000,
+      "fps": 454.476897091448,
+      "mem_mb": 0.0,
+      "t": 35
+    },
+    {
+      "alive": 1000,
+      "fps": 507.932444984817,
+      "mem_mb": 0.0,
+      "t": 36
+    },
+    {
+      "alive": 999,
+      "fps": 491.779337121193,
+      "mem_mb": 0.0,
+      "t": 37
+    },
+    {
+      "alive": 1000,
+      "fps": 472.571377760371,
+      "mem_mb": 0.0,
+      "t": 38
+    },
+    {
+      "alive": 997,
+      "fps": 396.617264339912,
+      "mem_mb": 0.0,
+      "t": 39
+    },
+    {
+      "alive": 1000,
+      "fps": 503.522660517829,
+      "mem_mb": 0.0,
+      "t": 40
+    },
+    {
+      "alive": 999,
+      "fps": 449.758030179763,
+      "mem_mb": 0.0,
+      "t": 41
+    },
+    {
+      "alive": 1000,
+      "fps": 461.784346710086,
+      "mem_mb": 0.0,
+      "t": 42
+    },
+    {
+      "alive": 1000,
+      "fps": 454.18960025339,
+      "mem_mb": 0.0,
+      "t": 43
+    },
+    {
+      "alive": 1000,
+      "fps": 479.99904000192,
+      "mem_mb": 0.0,
+      "t": 44
+    },
+    {
+      "alive": 1000,
+      "fps": 490.547224911407,
+      "mem_mb": 0.0,
+      "t": 45
+    },
+    {
+      "alive": 1000,
+      "fps": 462.474166872266,
+      "mem_mb": 0.0,
+      "t": 46
+    },
+    {
+      "alive": 1000,
+      "fps": 425.497062472158,
+      "mem_mb": 0.0,
+      "t": 47
+    },
+    {
+      "alive": 1000,
+      "fps": 380.868600332885,
+      "mem_mb": 0.0,
+      "t": 48
+    },
+    {
+      "alive": 999,
+      "fps": 465.868159310915,
+      "mem_mb": 0.0,
+      "t": 49
+    },
+    {
+      "alive": 1000,
+      "fps": 484.966537308926,
+      "mem_mb": 0.0,
+      "t": 50
+    },
+    {
+      "alive": 1000,
+      "fps": 442.416150182347,
+      "mem_mb": 0.0,
+      "t": 51
+    },
+    {
+      "alive": 1000,
+      "fps": 479.945286237369,
+      "mem_mb": 0.0,
+      "t": 52
+    },
+    {
+      "alive": 997,
+      "fps": 446.827524575514,
+      "mem_mb": 0.0,
+      "t": 53
+    },
+    {
+      "alive": 999,
+      "fps": 478.669239555467,
+      "mem_mb": 0.0,
+      "t": 54
+    },
+    {
+      "alive": 999,
+      "fps": 402.446635875671,
+      "mem_mb": 0.0,
+      "t": 55
+    },
+    {
+      "alive": 999,
+      "fps": 445.840389140688,
+      "mem_mb": 0.0,
+      "t": 56
+    },
+    {
+      "alive": 1000,
+      "fps": 429.969042228959,
+      "mem_mb": 0.0,
+      "t": 57
+    },
+    {
+      "alive": 999,
+      "fps": 432.552740466358,
+      "mem_mb": 0.0,
+      "t": 58
+    }
+  ],
+  "placement_refusals_scripted": 0,
+  "renderer": "gl_compatibility",
+  "rendering_driver": "opengl3",
+  "scenario": "move",
+  "screen_size": "(1920, 1080)",
+  "seed": 20260913,
+  "shots_total": 0,
+  "sim_step_ms_avg": 1.06755807853717,
+  "sim_step_ms_max": 2.976,
+  "sim_step_ms_p95": 1.38,
+  "sim_time_at_end": 70.0833334734975,
+  "spawned_total": 4337,
+  "target_alive": 1000,
+  "vsync_mode": 0,
+  "warmup_seconds": 10.0,
+  "window_mode": 0,
+  "window_size": "(1920, 1080)"
+}
