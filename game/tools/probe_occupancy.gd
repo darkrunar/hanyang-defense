@@ -20,7 +20,7 @@ func _initialize() -> void:
         if arg.begins_with("--out="):
             out_path = arg.substr("--out=".length())
 
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = true
     var b: Battle = Battle.new(cfg)
     b.run_for(30.0)

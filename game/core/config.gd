@@ -1,5 +1,5 @@
 extends RefCounted
-## All WP-001 balance and scenario numbers in one place.
+## All WP-001 / WP-002 balance and scenario numbers in one place.
 ##
 ## CLAUDE.md rule 4: balance values live in configuration data, not scattered in
 ## code, and every test scenario records its seed. Any field can be overridden on
@@ -25,6 +25,19 @@ const DEFAULTS: Dictionary = {
     "enemy_draw_size": 9.0,
     "goal_radius": 26.0,
 
+    # --- WP-002 bongsu network (D-012 / D-013) ---
+    # targeting_mode: "wp002" = each hwacha only knows enemies inside its own
+    # local detection radius plus what active sensors in its bongsu group see;
+    # "wp001" = the original global-density targeting, kept for the WP-001
+    # verification fixtures.
+    "targeting_mode": "wp002",
+    # fixture: initial structures. "b" = WP-002 fixture B (4 hwacha, 8 bongsu,
+    # 4 sensors); "wp001" = the 4 WP-001 hwachas; "none" = empty field.
+    "fixture": "b",
+    "bongsu_link_range": 180.0,   # bongsu-bongsu edge and terminal attachment
+    "sensor_range": 140.0,        # sensor centre -> living enemy position
+    "hwacha_local_range": 100.0,  # hwacha centre -> living enemy position
+
     # --- hwacha ---
     "hwacha_range": 200.0,
     "hwacha_blast_radius": 55.0,
@@ -42,6 +55,19 @@ var values: Dictionary = {}
 
 func _init() -> void:
     values = DEFAULTS.duplicate(true)
+
+
+## The WP-001 verification configuration: global-density targeting and the
+## four original hwachas, byte-for-byte the behaviour GPT approved in d9699aa.
+static func for_wp001():
+    var c = new()
+    c.values["targeting_mode"] = "wp001"
+    c.values["fixture"] = "wp001"
+    return c
+
+
+func get_str(key: String) -> String:
+    return str(values[key])
 
 
 func get_num(key: String) -> float:
@@ -67,6 +93,8 @@ func set_value(key: String, raw: String) -> bool:
         values[key] = raw == "1" or raw.to_lower() == "true"
     elif proto is int:
         values[key] = int(raw)
+    elif proto is String:
+        values[key] = raw
     else:
         values[key] = float(raw)
     return true

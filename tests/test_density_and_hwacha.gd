@@ -13,7 +13,7 @@ const SOUTH: int = 0
 
 
 static func _fresh(combat: bool = true) -> Battle:
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = combat
     return Battle.new(cfg)
 
@@ -195,7 +195,7 @@ func _ac05_blast_damage_counted_once(t: RefCounted) -> void:
 
 func _ac05_cooldown_gates_fire_rate(t: RefCounted) -> void:
     t.case("AC-05 cooldown gates the fire rate")
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = true
     cfg.values["hwacha_cooldown"] = 1.0
     cfg.values["enemy_hp"] = 1.0e9   # never dies, so the target zone stays full

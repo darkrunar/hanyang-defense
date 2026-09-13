@@ -18,6 +18,10 @@ var hp: PackedFloat32Array = PackedFloat32Array()
 var route: PackedInt32Array = PackedInt32Array()
 var cell: PackedInt32Array = PackedInt32Array()
 var alive: PackedByteArray = PackedByteArray()
+## Generation counter per slot: bumped on every spawn, so (slot, gen) names one
+## individual and a reused slot can never be mistaken for its predecessor
+## (WP-002 shared-target identity rule).
+var gen: PackedInt32Array = PackedInt32Array()
 
 var _free: PackedInt32Array = PackedInt32Array()
 var _live: PackedInt32Array = PackedInt32Array()
@@ -58,6 +62,7 @@ func _init(g: TerrainGrid, p: PathNetwork, cap: int) -> void:
     route.resize(cap)
     cell.resize(cap)
     alive.resize(cap)
+    gen.resize(cap)
     route_alive.resize(p.route_ids.size())
     route_spawned.resize(p.route_ids.size())
     route_leaked.resize(p.route_ids.size())
@@ -68,6 +73,7 @@ func reset(seed_value: int) -> void:
     _rng = RandomNumberGenerator.new()
     _rng.seed = seed_value
     alive.fill(0)
+    gen.fill(0)
     _live.clear()
     _free.resize(capacity)
     for i: int in range(capacity):
@@ -103,6 +109,7 @@ func spawn_at(route_index: int, spawn_cell: int) -> int:
     route[s] = route_index
     cell[s] = spawn_cell
     alive[s] = 1
+    gen[s] += 1
     _live.append(s)
     alive_count += 1
     spawned_total += 1
@@ -263,6 +270,17 @@ func apply_blast(center: Vector2, radius: float, damage: float) -> int:
 
 func live_slots() -> PackedInt32Array:
     return _live
+
+
+## Stable individual id for a living slot: generation in the high bits.
+func enemy_id(s: int) -> int:
+    return (gen[s] << 16) | s
+
+
+## True when `enemy_id` still names a living individual (same slot AND same generation).
+func is_id_alive(id: int) -> bool:
+    var s: int = id & 0xFFFF
+    return s < capacity and alive[s] == 1 and gen[s] == (id >> 16)
 
 
 ## True when any LIVING enemy's current position lies inside cell `ci`.

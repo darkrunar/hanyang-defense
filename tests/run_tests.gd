@@ -12,6 +12,7 @@ const SUITES: Array = [
     ["path + placement (AC-02, AC-03)", "res://tests/test_path_and_placement.gd"],
     ["density + hwacha (AC-04, AC-05)", "res://tests/test_density_and_hwacha.gd"],
     ["flow + determinism (AC-01, AC-06)", "res://tests/test_flow_and_determinism.gd"],
+    ["WP-002 bongsu network (AC-01..05, AC-07)", "res://tests/test_bongsu_network.gd"],
 ]
 
 

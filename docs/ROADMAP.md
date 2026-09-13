@@ -1,11 +1,11 @@
 # Roadmap
 
-현재: **WP-001 DONE** (2026-09-13, GPT 재리뷰 PASS `d9699aa`). 엔진은 Godot 4.7로 확정(D-007). **WP-002 READY (2026-09-14)**: 연결·탐지·단절·배치 규칙과 16시설/1000체 검증 fixture 확정. 다음은 Claude Code의 WP-002 구현·검증.
+현재: **WP-001 DONE** (2026-09-13, GPT 재리뷰 PASS `d9699aa`). 엔진은 Godot 4.7로 확정(D-007). **WP-002 REVIEW (2026-09-14)**: 봉수망 구현·검증 완료, GPT 리뷰 대기 ([results/WP-002-RESULT.md](../results/WP-002-RESULT.md)).
 
 | 단계 | WP | 상태 | 통과 조건 |
 |---|---|---|---|
 | M1 흐름과 섬멸 | [WP-001](../backlog/WP-001.md) | DONE | 1,000개체·세 경로·배치로 병목 형성·화차 집중 사격 및 성능 증거 |
-| M2 도시 연결 | [WP-002](../backlog/WP-002.md) | READY | 연결·해제로 표적 공유 동작이 달라지고 M1 회귀 없음 |
+| M2 도시 연결 | [WP-002](../backlog/WP-002.md) | REVIEW | 연결·해제로 표적 공유 동작이 달라지고 M1 회귀 없음 |
 | M3 검증과 재편 | [WP-003](../backlog/WP-003.md) | DRAFT | 외곽 붕괴 후 내곽 재배치, 계속 전투, 승패·재시작 검증 |
 
 WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002/003은 선행 작업의 GPT PASS 이후 실제 구현과 관측 결과에 맞춰 READY로 전환한다.

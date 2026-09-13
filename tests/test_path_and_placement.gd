@@ -16,7 +16,7 @@ const Z_SOUTH_EAST_LANE: int = 1
 
 
 static func _fresh(combat: bool = false, seed_value: int = 20260913) -> Battle:
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = combat
     cfg.values["seed"] = seed_value
     return Battle.new(cfg)
@@ -186,7 +186,7 @@ func _ac03_reject_enemy_occupied(t: RefCounted) -> void:
 func _ac03_occupancy_tracks_movement(t: RefCounted) -> void:
     t.case("AC-03 occupancy follows movement (R-01 regression, both edges)")
     var anchor: Vector2i = TestMap.AC_SCENARIO_ANCHORS["south_west_lane"]  # (44,36)
-    var dt: float = Config.new().get_num("fixed_dt")
+    var dt: float = Config.for_wp001().get_num("fixed_dt")
 
     # --- exact GPT reproduction: enemy just below the footprint steps into it ---
     var b: Battle = _fresh()

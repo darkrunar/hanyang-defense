@@ -7,11 +7,12 @@ extends SceneTree
 const TerrainGrid := preload("res://game/core/terrain_grid.gd")
 const TestMap := preload("res://game/maps/hanyang_test_map.gd")
 const Battle := preload("res://game/core/battle.gd")
+const Config := preload("res://game/core/config.gd")
 const Placement := preload("res://game/core/placement.gd")
 
 
 func _initialize() -> void:
-    var b: Battle = Battle.new()
+    var b: Battle = Battle.new(Config.for_wp001())
     var g: TerrainGrid = b.grid
 
     var hw_cells: Dictionary = {}

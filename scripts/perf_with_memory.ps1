@@ -6,7 +6,7 @@
 #
 # Writes <Out> (from the game) and <Out>.memory.json (from this sampler).
 param(
-    [ValidateSet("move", "combat")][string]$Scenario = "move",
+    [ValidateSet("move", "combat", "network_move", "network_combat")][string]$Scenario = "move",
     [string]$Exe = "build_out\windows\hanyang_defense_wp001.exe",
     [int]$Warmup = 10,
     [int]$Measure = 60,
