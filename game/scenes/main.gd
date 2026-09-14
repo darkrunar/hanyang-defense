@@ -123,6 +123,8 @@ func _parse_args() -> void:
             _perf.measure_seconds = float(arg.substr("--measure=".length()))
         elif arg.begins_with("--out="):
             _perf_out = arg.substr("--out=".length())
+        elif arg.begins_with("--sha="):
+            _build_sha = arg.substr("--sha=".length())
         elif arg.begins_with("--capture="):
             _capture_name = arg.substr("--capture=".length())
         elif arg.begins_with("--out-dir="):
@@ -273,7 +275,20 @@ func _process(delta: float) -> void:
     _overlay.place_mode = _place_mode
     _overlay.queue_redraw()
     if _perf != null:
+        var was_measuring: bool = _perf.phase() == "measure"
         _perf.tick(battle.sim.alive_count)
+        if not was_measuring and _perf.phase() == "measure" and _measure_start.is_empty():
+            # Snapshot at the start of the measured window, so window deltas
+            # can be separated from the warm-up (GPT review R-03).
+            _measure_start = {
+                "sim_time": battle.sim_time,
+                "shots_total": battle.hwacha.shots_total,
+                "shared_only_shots": battle.hwacha.shared_only_shots,
+                "killed_total": battle.sim.killed_total,
+                "spawned_total": battle.sim.spawned_total,
+                "candidate_evaluations": battle.hwacha.candidate_evaluations,
+                "state": _state_brief(),
+            }
         if _perf.is_done():
             _finish_perf()
 
@@ -477,37 +492,117 @@ var _perf_pv_start: int = 0
 var _perf_topology_start: int = 0
 
 
+## Per-event history (GPT review R-03): every scripted command with its
+## measure-relative time, result, and the B8 / S3 / path / topology state
+## before and after. Only commands that actually succeeded are counted.
+var _net_events: Array = []
+var _net_pending_retries: int = 0
+var _net_pending_reasons: Dictionary = {}
+var _measure_start: Dictionary = {}
+var _measured_shots: int = 0
+var _measured_shared_only: int = 0
+var _shared_only_samples: Array = []
+const SHARED_ONLY_SAMPLE_CAP: int = 300
+var _build_sha: String = "unknown"
+
+
+func _s3() -> Placement.Structure:
+    var sensors: Array = battle.placement.sensors()
+    return sensors[2] if sensors.size() >= 3 else null
+
+
+func _state_brief() -> Dictionary:
+    var s3: Placement.Structure = _s3()
+    return {
+        "path_version": battle.path.path_version,
+        "topology_version": battle.network.topology_version,
+        "groups": battle.network.groups(),
+        "links": battle.network.link_count(),
+        "s3_attached_to": s3.attached_to if s3 != null else -1,
+        "s3_group": s3.group_id if s3 != null else -1,
+    }
+
+
 func _perf_network_combat_step() -> void:
     if _perf.phase() != "measure":
         return
     var t: float = _perf.elapsed_in_phase()
     if _net_jang_pending:
+        var before: Dictionary = _state_brief()
         var res: Placement.Result = battle.place_jangseung(Vector2i(22, 28))
         if res.ok:
             _net_jang_id = res.structure.id
             _net_jang_pending = false
             _net_jang_changes += 1
             _perf_rebuilds += 1
+            _net_events.append({
+                "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+                "command": "place_jangseung", "anchor": "(22, 28)", "id": res.structure.id, "ok": true,
+                "retries_before_success": _net_pending_retries, "refusal_reasons": _net_pending_reasons.duplicate(),
+                "before": before, "after": _state_brief(),
+            })
+            _net_pending_retries = 0
+            _net_pending_reasons = {}
         else:
             _net_jang_refusals += 1
+            _net_pending_retries += 1
+            var rn: String = Placement.reject_name(res.reason)
+            _net_pending_reasons[rn] = int(_net_pending_reasons.get(rn, 0)) + 1
     if _net_events_done < 12 and t >= _net_next_event:
         _net_events_done += 1
         _net_next_event = float(_net_events_done) * 5.0
         var b8: Placement.Structure = battle.placement.bongsus()[7]
-        battle.set_active(b8.id, not b8.active)
-        _net_b8_toggles += 1
+        var before: Dictionary = _state_brief()
+        var b8_before: bool = b8.active
+        var ok: bool = battle.set_active(b8.id, not b8.active)
+        if ok:
+            _net_b8_toggles += 1
+        _net_events.append({
+            "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+            "command": "toggle_b8", "b8_id": b8.id, "active_before": b8_before, "active_after": b8.active, "ok": ok,
+            "before": before, "after": _state_brief(),
+        })
         if _net_jang_id >= 0:
-            battle.remove_structure(_net_jang_id)
-            _net_jang_id = -1
-            _net_jang_changes += 1
-            _perf_rebuilds += 1
+            var before_r: Dictionary = _state_brief()
+            var rid: int = _net_jang_id
+            var rres: Placement.Result = battle.remove_structure(rid)
+            if rres.ok:
+                _net_jang_id = -1
+                _net_jang_changes += 1
+                _perf_rebuilds += 1
+            _net_events.append({
+                "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+                "command": "remove_jangseung", "id": rid, "ok": rres.ok,
+                "reason": Placement.reject_name(rres.reason),
+                "before": before_r, "after": _state_brief(),
+            })
         else:
             _net_jang_pending = true
+            _net_pending_retries = 0
+            _net_pending_reasons = {}
+
+
+## Called after every simulation step in perf mode: collects the shots of the
+## measured window (shared-only samples with time / hwacha / zone / sources).
+func _perf_collect_shots() -> void:
+    if _perf == null or _perf.phase() != "measure":
+        return
+    for shot in battle.hwacha.last_shots:
+        _measured_shots += 1
+        if shot.local_in_zone == 0 and shot.shared_in_zone > 0:
+            _measured_shared_only += 1
+            if _shared_only_samples.size() < SHARED_ONLY_SAMPLE_CAP:
+                _shared_only_samples.append({
+                    "t_measure": _perf.elapsed_in_phase(), "sim_time": shot.sim_time,
+                    "hwacha_id": shot.hwacha_id, "zone": shot.zone_id,
+                    "local": shot.local_in_zone, "shared": shot.shared_in_zone, "kills": shot.kills,
+                })
 
 
 func _perf_script_step() -> void:
     if _perf == null:
         return
+    _perf_collect_shots()
     if _perf.scenario == "network_combat":
         _perf_network_combat_step()
         return
@@ -581,6 +676,34 @@ func _finish_perf() -> void:
         "shared_only_shots": battle.hwacha.shared_only_shots,
         "shared_only_shots_first_sim_time": _first_shared_shot_time,
         "activation_changes": battle.activation_changes,
+        "candidate_evaluations": battle.hwacha.candidate_evaluations,
+        "damage_applications": battle.sim.damage_applications,
+        # --- R-03: measured-window accounting (cumulative values above include warm-up) ---
+        "measure_start": _measure_start,
+        "measured_window": {
+            "shots": _measured_shots,
+            "shared_only_shots": _measured_shared_only,
+            "shots_total_delta": battle.hwacha.shots_total - int(_measure_start.get("shots_total", 0)),
+            "shared_only_delta": battle.hwacha.shared_only_shots - int(_measure_start.get("shared_only_shots", 0)),
+            "killed_delta": battle.sim.killed_total - int(_measure_start.get("killed_total", 0)),
+            "candidate_evaluations_delta": battle.hwacha.candidate_evaluations - int(_measure_start.get("candidate_evaluations", 0)),
+            "sim_seconds": battle.sim_time - float(_measure_start.get("sim_time", 0.0)),
+        },
+        "shared_only_samples": _shared_only_samples,
+        "shared_only_samples_cap": SHARED_ONLY_SAMPLE_CAP,
+        "events": _net_events,
+        "events_expected_t_measure": [0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0] if _perf.scenario == "network_combat" else [],
+        "manifest": {
+            "implementation_sha": _build_sha,
+            "config": config.to_dictionary(),
+            "fixture_b_hwachas": TestMap.HWACHAS,
+            "fixture_b_bongsu": TestMap.FIXTURE_B_BONGSU,
+            "fixture_b_sensors": TestMap.FIXTURE_B_SENSORS,
+            "jangseung_anchor": "(22, 28)",
+            "b8_id": battle.placement.bongsus()[7].id if battle.placement.bongsus().size() >= 8 else -1,
+            "s3_id": _s3().id if _s3() != null else -1,
+            "zones": TestMap.ZONES,
+        },
         "screen_size": str(DisplayServer.screen_get_size()),
     }
     var report: Dictionary = _perf.report()
@@ -655,12 +778,16 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "spawn", "pos": fa["enemy"]},
                 {"t": 2.0, "do": "capture", "name": "wp002_a1_disconnected_no_fire_t2"},
                 {"t": 2.0, "do": "set_active", "label": "B 봉수대", "active": true},
+                {"t": 2.5, "do": "hover", "label": "H 화차"},
                 {"t": 2.5, "do": "capture", "name": "wp002_a2_connected_shared_fire_t2.5"},
+                {"t": 2.5, "do": "hover", "label": ""},
                 {"t": 2.5, "do": "set_active", "label": "B 봉수대", "active": false},
                 {"t": 5.0, "do": "capture", "name": "wp002_a3_disconnected_again_no_stale_fire_t5"},
                 {"t": 5.0, "do": "place_kind", "kind": Placement.Kind.HWACHA, "anchor": Vector2i(48, 41), "label": "H2 화차(로컬)"},
                 {"t": 5.0, "do": "spawn", "pos": Vector2(980.0, 750.0)},
+                {"t": 5.5, "do": "hover", "label": "H2 화차(로컬)"},
                 {"t": 5.5, "do": "capture", "name": "wp002_a4_local_fire_while_disconnected_t5.5"},
+                {"t": 5.5, "do": "hover", "label": ""},
                 {"t": 5.5, "do": "set_active", "label": "B 봉수대", "active": true},
                 {"t": 7.0, "do": "capture", "name": "wp002_a5_reconnected_reacquired_t7"},
                 {"t": 7.0, "do": "quit"},
@@ -710,6 +837,15 @@ func _capture_script_step() -> void:
                 _capture_log.append({"t": battle.sim_time, "set_active": step["label"],
                     "active": step["active"], "ok": ok,
                     "topology_version": battle.network.topology_version})
+            "hover":
+                # Scripted stand-in for the mouse: show the hover panel of the
+                # labelled structure (empty label clears it).
+                _overlay.hover_override = Vector2.INF
+                for id: int in battle.placement.structures:
+                    var cand: Placement.Structure = battle.placement.structures[id]
+                    if step["label"] != "" and cand.label == step["label"]:
+                        _overlay.hover_override = cand.center
+                _capture_log.append({"t": battle.sim_time, "hover": step["label"]})
             "spawn":
                 var slot: int = battle.sim.force_spawn(0, step["pos"])
                 _capture_log.append({"t": battle.sim_time, "spawn": str(step["pos"]), "slot": slot,

@@ -38,6 +38,9 @@ var show_ranges: bool = true
 var show_cursor: bool = true
 var place_mode: int = 0
 var recent_shots: Array = []   # [aim, radius, age]
+## Scripted captures have no real cursor; set this to a world position to draw
+## the hover panel for the structure there (Vector2.INF = none).
+var hover_override: Vector2 = Vector2.INF
 
 
 func _draw() -> void:
@@ -148,6 +151,8 @@ func _draw() -> void:
         var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
         draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), COLOR_GHOST_OK if ok else COLOR_GHOST_BAD, false, 2.0)
         _draw_hover_panel(mouse)
+    elif hover_override != Vector2.INF:
+        _draw_hover_panel(hover_override)
 
 
 func _draw_dashed(a: Vector2, b: Vector2, col: Color, width: float, dash: float) -> void:

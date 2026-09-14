@@ -30,6 +30,8 @@ var alive_count: int = 0
 var spawned_total: int = 0
 var killed_total: int = 0
 var leaked_total: int = 0
+## Number of individual damage applications (one per enemy per volley).
+var damage_applications: int = 0
 var route_alive: PackedInt32Array = PackedInt32Array()
 var route_spawned: PackedInt32Array = PackedInt32Array()
 var route_leaked: PackedInt32Array = PackedInt32Array()
@@ -82,6 +84,7 @@ func reset(seed_value: int) -> void:
     spawned_total = 0
     killed_total = 0
     leaked_total = 0
+    damage_applications = 0
     route_alive.fill(0)
     route_spawned.fill(0)
     route_leaked.fill(0)
@@ -260,6 +263,7 @@ func apply_blast(center: Vector2, radius: float, damage: float) -> int:
         var dy: float = pos_y[s] - center.y
         if dx * dx + dy * dy <= r2:
             hp[s] -= damage
+            damage_applications += 1
             if hp[s] <= 0.0:
                 _despawn_at(i, false)
                 kills += 1

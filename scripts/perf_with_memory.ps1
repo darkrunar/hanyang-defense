@@ -17,7 +17,9 @@ Set-Location (Join-Path $PSScriptRoot "..")
 $outAbs = [System.IO.Path]::GetFullPath($Out)
 New-Item -ItemType Directory -Force (Split-Path $outAbs) | Out-Null
 
-$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs")
+$sha = (& git rev-parse HEAD 2>$null); if (-not $sha) { $sha = "unknown" }
+$dirty = (& git status --porcelain --untracked-files=no 2>$null); $shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
+$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag")
 $proc = Start-Process -FilePath (Resolve-Path $Exe) -ArgumentList $args -PassThru
 $samples = @()
 $t0 = Get-Date

@@ -53,8 +53,46 @@ func run(t: RefCounted) -> void:
     _ac03_source_loss_and_slot_reuse(t)
     _ac04_isolation_and_range(t)
     _ac05_no_amplification(t)
+    _ac06_move_scenario_pays_targeting_cost(t)
     _ac07_placement_rules(t)
     _determinism(t)
+
+
+## GPT review R-02: with combat disabled the per-hwacha candidate computation
+## and target selection must still run every tick (no volley, no damage, no
+## cooldown), so the move benchmark carries the targeting workload.
+func _ac06_move_scenario_pays_targeting_cost(t: RefCounted) -> void:
+    t.case("AC-06 combat-off ticks still evaluate per-hwacha candidates (R-02)")
+    var cfg: Config = Config.new()   # fixture B, wp002
+    cfg.values["combat_enabled"] = false
+    var b: Battle = Battle.new(cfg)
+    b.run_for(5.0)
+    var active_hwachas: int = 0
+    for h: Placement.Structure in b.placement.hwachas():
+        if h.active:
+            active_hwachas += 1
+    t.eq(b.hwacha.candidate_evaluations, b.steps * active_hwachas,
+        "one candidate evaluation per active hwacha per tick (%d ticks x %d)" % [b.steps, active_hwachas])
+    t.eq(b.hwacha.shots_total, 0, "no volley while combat is off")
+    t.eq(b.sim.damage_applications, 0, "no damage while combat is off")
+    t.eq(b.sim.killed_total, 0, "no kills while combat is off")
+    var any_target: bool = false
+    var any_known: bool = false
+    for h: Placement.Structure in b.placement.hwachas():
+        t.eq(h.cooldown_left, 0.0, "%s cooldown untouched" % h.label)
+        if h.last_zone >= 0:
+            any_target = true
+        if h.known_local + h.known_shared > 0:
+            any_known = true
+    t.check(any_known, "hwachas know enemies through the network with combat off")
+    t.check(any_target, "at least one hwacha selected a would-be target zone")
+    # Same tick count with combat on evaluates the same number of times (firing path).
+    var cfg2: Config = Config.new()
+    cfg2.values["combat_enabled"] = true
+    var c: Battle = Battle.new(cfg2)
+    c.run_for(5.0)
+    t.check(c.hwacha.candidate_evaluations <= c.steps * active_hwachas and c.hwacha.candidate_evaluations > 0,
+        "combat-on evaluations (%d) are bounded by ticks x hwachas; cooldown ticks skip evaluation" % c.hwacha.candidate_evaluations)
 
 
 # --------------------------------------------------------------------- AC-01 ---
@@ -345,16 +383,22 @@ func _ac04_isolation_and_range(t: RefCounted) -> void:
 
 func _ac05_no_amplification(t: RefCounted) -> void:
     t.case("AC-05 duplicate sensors / local overlap / cycles do not amplify; earlier kills excluded")
-    var one: Dictionary = _run_dup_case(1)
-    var two: Dictionary = _run_dup_case(2)
-    var cyc: Dictionary = _run_dup_case(3)
+    var one: Dictionary = _run_dup_case(1, t)
+    var two: Dictionary = _run_dup_case(2, t)
+    var cyc: Dictionary = _run_dup_case(3, t)
+    t.eq(one["known"], 6, "single sensor: hwacha knows the six enemies")
     t.eq(two["known"], one["known"], "two sensors seeing the same enemies: same known count")
     t.eq(two["zone"], one["zone"], "same zone density")
     t.eq(two["shots"], one["shots"], "same number of volleys over the window")
     t.eq(two["kills"], one["kills"], "same kills")
-    t.eq(cyc["known"], one["known"], "three bongsu in a cycle: no amplification")
+    t.eq(two["damage_events"], one["damage_events"], "same number of damage applications")
+    t.eq(cyc["known"], one["known"], "three bongsu in a cycle: no amplification of known enemies")
+    t.eq(cyc["zone"], one["zone"], "cycle: same zone density")
     t.eq(cyc["shots"], one["shots"], "cycle: same volleys")
-    t.note("dup case: known=%d zone=%d shots=%d kills=%d" % [one["known"], one["zone"], one["shots"], one["kills"]])
+    t.eq(cyc["kills"], one["kills"], "cycle: same kills")
+    t.eq(cyc["damage_events"], one["damage_events"], "cycle: same damage applications")
+    t.note("dup cases: known=%d zone=%d shots=%d kills=%d damage_events=%d" % [
+        one["known"], one["zone"], one["shots"], one["kills"], one["damage_events"]])
 
     # Local + shared overlap counts once.
     var b: Battle = _field(false)
@@ -383,24 +427,57 @@ func _ac05_no_amplification(t: RefCounted) -> void:
     t.check(kb.active and ks.active, "setup intact")
 
 
-static func _run_dup_case(variant: int) -> Dictionary:
+## Variants (GPT review R-01: every anchor must be OPEN ground and every
+## placement is asserted, so the three fixtures really differ):
+##   1: bongsu B0 (44,33)=(900,680), sensor S1 (44,39)=(900,800)          -> 1 sensor, 1 bongsu, 0 links
+##   2: + sensor S2 (48,37)=(980,760) in the east lane (to B0 113 px)   -> 2 sensors, 1 bongsu, 0 links
+##   3: + bongsu B2 (48,33)=(980,680) (B0 80 px) and B3 (46,27)=(940,560)
+##      (to B0 126.5, to B2 126.5)                                       -> 2 sensors, 3 bongsu, 3 links (triangle)
+## All six enemies sit at Z0 (895..905, 750): 50 px from S1, ~81 px from S2.
+static func _run_dup_case(variant: int, t: RefCounted) -> Dictionary:
     var b: Battle = _field(true)
-    var bongsu: Placement.Structure = b.place_structure(K_B, Vector2i(44, 33)).structure   # (900,680)
-    var h: Placement.Structure = b.place_structure(K_H, Vector2i(46, 29)).structure        # (940,600)
-    b.place_structure(K_S, Vector2i(44, 39))                                               # (900,800)
+    var placed: Array = []
+    placed.append(b.place_structure(K_B, Vector2i(44, 33), "B0"))
+    var h: Placement.Structure = b.place_structure(K_H, Vector2i(46, 29), "H").structure
+    placed.append(b.place_structure(K_S, Vector2i(44, 39), "S1"))
     if variant >= 2:
-        b.place_structure(K_S, Vector2i(41, 38))                                           # (840,780): to bongsu 116, to Z0 67
+        placed.append(b.place_structure(K_S, Vector2i(48, 37), "S2"))
     if variant == 3:
-        b.place_structure(K_B, Vector2i(40, 33))                                           # (820,680): 80 to bongsu
-        b.place_structure(K_B, Vector2i(42, 37))                                           # (860,760): 89 / 89 -> cycle
+        placed.append(b.place_structure(K_B, Vector2i(48, 33), "B2"))
+        placed.append(b.place_structure(K_B, Vector2i(46, 27), "B3"))
+    var all_ok: bool = h != null
+    for r: Placement.Result in placed:
+        if not r.ok:
+            all_ok = false
+            t.note("variant %d placement refused: %s" % [variant, Placement.reject_name(r.reason)])
+    t.check(all_ok, "variant %d: every fixture placement accepted" % variant)
+    var want_sensors: int = 1 if variant == 1 else 2
+    var want_bongsu: int = 3 if variant == 3 else 1
+    var want_links: int = 3 if variant == 3 else 0
+    t.eq(b.placement.count_of(K_S), want_sensors, "variant %d sensor count" % variant)
+    t.eq(b.placement.count_of(K_B), want_bongsu, "variant %d bongsu count" % variant)
+    t.eq(b.network.link_count(), want_links, "variant %d link count" % variant)
+    t.eq(b.network.groups().size(), 1, "variant %d: one group" % variant)
+    for s: Placement.Structure in b.placement.sensors() + [h]:
+        t.eq(s.group_id, b.placement.bongsus()[0].group_id, "variant %d: %s in the group" % [variant, s.label])
     for i: int in range(6):
         b.sim.force_spawn(SOUTH, Vector2(895.0 + float(i) * 2.0, 750.0))
     b.step(_dt(b))
+    # Every sensor must see the same six individuals (duplicate observations).
+    var first_seen: Array = []
+    for s: Placement.Structure in b.placement.sensors():
+        var seen: Array = (b.network.sensor_seen.get(s.id, {}) as Dictionary).keys()
+        seen.sort()
+        if first_seen.is_empty():
+            first_seen = seen
+        t.eq(seen.size(), 6, "variant %d: %s sees all six" % [variant, s.label])
+        t.eq(seen, first_seen, "variant %d: %s sees the same individuals" % [variant, s.label])
     var known: int = b.network.known_count(h.id)
     var out_local: PackedInt32Array = PackedInt32Array()
     var zone: int = b.network.known_zone_counts(h, b.density, b.sim, out_local)[Z0]
     b.run_for(2.0)
-    return {"known": known, "zone": zone, "shots": h.shots_fired, "kills": h.kills, "bongsu": bongsu.id}
+    return {"known": known, "zone": zone, "shots": h.shots_fired, "kills": h.kills,
+        "damage_events": b.sim.damage_applications}
 
 
 # --------------------------------------------------------------------- AC-07 ---

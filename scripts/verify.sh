@@ -106,13 +106,17 @@ for sc in network_move network_combat; do
     fps=$(json_num "$out" avg_fps); p95=$(json_num "$out" frame_ms_p95); held=$(json_bool "$out" load_held_all_frames)
     ok=1
     awk -v f="$fps" -v p="$p95" -v h="$held" 'BEGIN{exit !(f>=60 && p<=25 && h=="true")}' || ok=0
+    # R-02: the targeting workload must have been paid (measured-window candidate evaluations > 0).
+    evd=$(json_num "$out" candidate_evaluations_delta); [[ "${evd:-0}" -gt 0 ]] || ok=0
     if [[ "$sc" == "network_combat" ]]; then
         # WP-002 fixture B contract: 12 B8 toggles, 12 successful jangseung changes,
-        # path_version as expected, at least one shared-only volley.
+        # path_version as expected, at least one shared-only volley inside the measured window.
         b8=$(json_num "$out" b8_toggles); jc=$(json_num "$out" jangseung_changes)
-        pv=$(json_num "$out" path_version); pve=$(json_num "$out" path_version_expected); so=$(json_num "$out" shared_only_shots)
-        [[ "$b8" == "12" && "$jc" == "12" && "$pv" == "$pve" && "$so" -ge 1 ]] || ok=0
-        echo "perf $sc: b8_toggles=$b8 jangseung_changes=$jc path_version=$pv/$pve shared_only_shots=$so"
+        pv=$(json_num "$out" path_version); pve=$(json_num "$out" path_version_expected)
+        # "shared_only_shots" also appears in measure_start; the measured_window value is the 3rd match.
+        wso=$(grep -o '"shared_only_shots": *[0-9]*' "$out" | sed -n '3p' | sed 's/.*: *//')
+        [[ "$b8" == "12" && "$jc" == "12" && "$pv" == "$pve" && "${wso:-0}" -ge 1 ]] || ok=0
+        echo "perf $sc: b8_toggles=$b8 jangseung_changes=$jc path_version=$pv/$pve window_shared_only=$wso eval_delta=$evd"
     fi
     if [[ "$ok" == "1" ]]; then
         echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> PASS"

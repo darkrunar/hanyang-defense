@@ -142,11 +142,11 @@ func step(dt: float) -> void:
         else:
             hwacha.step(dt, placement, density, counts, sim, network, sim_time)
     else:
-        for s: Placement.Structure in placement.hwachas():
-            s.last_zone = -1
-            s.wait_reason = "전투 비활성"
-            if s.muzzle_timer > 0.0:
-                s.muzzle_timer = maxf(0.0, s.muzzle_timer - dt)
+        # Combat off: still run the per-hwacha candidate computation and target
+        # selection (no volley, no damage, no cooldown), so the "move" benchmark
+        # carries the same targeting workload as "combat" (GPT review R-02).
+        hwacha.evaluate_only(dt, placement, density, counts, sim,
+            null if targeting_mode == "wp001" else network)
     if benchmark_hold_alive and spawning_enabled:
         # Benchmark supplement (R-02): top the field back up to the target at
         # the END of the tick, so a frame sampled between ticks always sees the
@@ -342,6 +342,8 @@ func snapshot() -> Dictionary:
         "activation_changes": activation_changes,
         "shots_total": hwacha.shots_total,
         "shared_only_shots": hwacha.shared_only_shots,
+        "candidate_evaluations": hwacha.candidate_evaluations,
+        "damage_applications": sim.damage_applications,
         "routes": routes,
         "zones": zones,
         "hwachas": guns,

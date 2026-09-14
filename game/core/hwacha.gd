@@ -40,6 +40,10 @@ var shots_total: int = 0
 var kills_total: int = 0
 ## WP-002: volleys whose target zone count came entirely from shared detections.
 var shared_only_shots: int = 0
+## WP-002: per-hwacha candidate evaluations (known_zone_counts + select_zone),
+## counted in BOTH the firing path and the evaluate-only path so a benchmark
+## can prove the targeting cost was really paid (GPT review R-02).
+var candidate_evaluations: int = 0
 var last_shots: Array[Shot] = []
 ## [aim, radius] pairs waiting for the renderer; capped so headless runs never grow it.
 var render_queue: Array = []
@@ -50,8 +54,47 @@ func reset() -> void:
     shots_total = 0
     kills_total = 0
     shared_only_shots = 0
+    candidate_evaluations = 0
     last_shots.clear()
     render_queue.clear()
+
+
+## Evaluate-only pass (combat disabled): every active hwacha computes its
+## per-zone known counts and selects a target exactly as it would before
+## firing, but no volley, no damage and no cooldown change happen. This keeps
+## the targeting workload identical between the move and combat benchmarks.
+func evaluate_only(
+    dt: float,
+    placement: Placement,
+    density: DensityDetector,
+    counts: PackedInt32Array,
+    sim: EnemySim,
+    network: BongsuNetwork
+) -> void:
+    var scratch_local: PackedInt32Array = PackedInt32Array()
+    for s: Placement.Structure in placement.hwachas():
+        if s.muzzle_timer > 0.0:
+            s.muzzle_timer = maxf(0.0, s.muzzle_timer - dt)
+        if not s.active:
+            s.last_zone = -1
+            s.wait_reason = "비활성"
+            continue
+        var my_counts: PackedInt32Array
+        if network != null:
+            my_counts = network.known_zone_counts(s, density, sim, scratch_local)
+        else:
+            my_counts = counts
+        var zone_id: int = select_zone(s.center, s.fire_range, density.zones, my_counts)
+        candidate_evaluations += 1
+        if zone_id < 0:
+            s.last_zone = -1
+            s.wait_reason = _hold_reason(s, density, my_counts)
+        else:
+            s.last_zone = zone_id
+            s.last_aim = density.zones[zone_id].center
+            s.last_target_local = scratch_local[zone_id] if network != null else my_counts[zone_id]
+            s.last_target_shared = (my_counts[zone_id] - scratch_local[zone_id]) if network != null else 0
+            s.wait_reason = "전투 비활성 (표적 선택만)"
 
 
 ## Drain the pending shot visuals (renderer side).
@@ -124,6 +167,7 @@ func step(
             my_counts = live_counts
 
         var zone_id: int = select_zone(s.center, s.fire_range, density.zones, my_counts)
+        candidate_evaluations += 1
         if zone_id < 0:
             s.last_zone = -1
             s.wait_reason = _hold_reason(s, density, my_counts)

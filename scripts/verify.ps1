@@ -106,15 +106,20 @@ foreach ($sc in @("network_move", "network_combat")) {
     Assert-File "$out.memory.json" "perf $sc memory sampler"
     $r = Get-Content $out -Raw | ConvertFrom-Json
     $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames
+    # R-02: the targeting workload must have been paid in BOTH scenarios.
+    $ok = $ok -and ($r.measured_window.candidate_evaluations_delta -gt 0)
     if ($sc -eq "network_combat") {
         # WP-002 fixture B contract: 12 B8 toggles, 12 successful jangseung changes,
-        # path_version as expected, and at least one shared-only volley.
+        # path_version as expected, 12 logged events at 0,5,...,55 s, and at least
+        # one shared-only volley INSIDE the measured window (R-03).
+        $evOk = ($r.events | Where-Object { $_.command -eq "toggle_b8" -and $_.ok }).Count -eq 12
         $ok = $ok -and ($r.b8_toggles -eq 12) -and ($r.jangseung_changes -eq 12) -and `
-              ($r.path_version -eq $r.path_version_expected) -and ($r.shared_only_shots -ge 1)
+              ($r.path_version -eq $r.path_version_expected) -and $evOk -and `
+              ($r.measured_window.shared_only_shots -ge 1)
     }
     $verdict = if ($ok) { "PASS" } else { "FAIL" }
-    Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} load_held={4} b8_toggles={5} jangseung_changes={6} pv={7}/{8} shared_only_shots={9} -> {10}" -f `
-        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $r.b8_toggles, $r.jangseung_changes, $r.path_version, $r.path_version_expected, $r.shared_only_shots, $verdict)
+    Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} load_held={4} eval_delta={5} b8_toggles={6} jangseung_changes={7} pv={8}/{9} window_shared_only={10} -> {11}" -f `
+        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $r.measured_window.candidate_evaluations_delta, $r.b8_toggles, $r.jangseung_changes, $r.path_version, $r.path_version_expected, $r.measured_window.shared_only_shots, $verdict)
     if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-002 fixture B contract" }
 }
 Write-Host "done. evidence in $evid and $evid2"
