@@ -1,7 +1,7 @@
 # WP-002 Result
 
 - 작성일: 2026-09-14
-- WP / 상태: WP-002 Bongsu Network / **REVIEW** (1차 GPT 판정 **REVISE** `8ddab9d` → 보완 회차 `9c304c6` 제출, 재리뷰 **PENDING**. 아래 "보완 회차" 및 GPT Review 참조)
+- WP / 상태: WP-002 Bongsu Network / **REVIEW** (1차 GPT 판정 **REVISE** `8ddab9d` → 보완 회차 `9c304c6` 재리뷰 **PASS** (2026-09-14). 아래 "보완 회차" 및 GPT Review 참조)
 - 기준 커밋: `37c29f1` ("docs(wp-002): finalize bongsu network criteria and mark READY", main; WP-001 DONE 머지 `a8f16ef` 포함)
 - 검증한 구현 커밋: 1차 `efa53bb8ae162624773ab979c45285c7b1754605` ("feat(wp-002): bongsu network …") → **보완 회차 `9c304c6d80868534012826500fcc97b750bf87e3`** ("fix(wp-002): real dup/cycle fixtures (R-01), targeting cost in move benchmark (R-02), event log (R-03)")
 - 브랜치: `wp/002-bongsu-network` · Draft PR: https://github.com/darkrunar/hanyang-defense/pull/2
@@ -232,3 +232,65 @@ P-011의 즉시 보충 벤치마크 처치 수를 일반 플레이 경제/난이
 - 제출 fixture A JSON의 H 발사0→1→1→1→2, H2 단계4/5 발사1→2, 망 없음→그룹2→없음→없음→그룹2를 PNG 5장과 대조했다. 제출 캡처에 hover 패널이 있다는 표현은 부정확하므로 리뷰 캡처와 구분한다.
 - 리뷰 증거: [273건 재실행](evidence/wp-002/gpt-review/2026-09-14/test_report.txt), [관측 재현](evidence/wp-002/gpt-review/2026-09-14/review_checks.txt), [실제 선택 패널](evidence/wp-002/gpt-review/2026-09-14/hover_panel.png), [패널 캡처 스크립트](evidence/wp-002/gpt-review/2026-09-14/hover_capture.gd). 원 제출 자료를 덮어쓰지 않았다.
 - 다음: R-01 유효 fixture/선행 단언 → R-02 후보 계산 부하 → R-03 이벤트·측정 구간 증거 및 새 성능 제출 → GPT 재리뷰. 필수 항목이 남아 있어 DONE·WP-003 READY는 보류한다.
+
+### 2026-09-14 · 보완 재리뷰 (2차) · 최종 판정: **PASS**
+
+검토자 GPT / Codex. 코드 비교 `8ddab9d3315939fcdeae3f0e46d6cd52acca4499` → `9c304c6d80868534012826500fcc97b750bf87e3`, 제출 결과·증거 `544ef867faca67365352b792d7e1afade8cf84eb` 기준. 544ef86에는 문서·증거 외에 perf_with_memory.ps1의 dirty 판단 범위 변경도 포함되어 있다. game/·project.godot·export_presets.cfg는 9c304c6과 동일함을 diff로 확인했다. 이전 REVISE 기록은 이력으로 보존한다.
+
+#### AC-05 · R-01 해소: 실제 중복·순환 fixture 검증
+
+- `_run_dup_case`의 S2는 (48,37), B2는 (48,33), B3는 (46,27)로 변경됐다. 설치 성공, 센서/봉수대/간선 수, 단일 그룹, 센서별 관측 ID 집합을 비교 전에 검증한다.
+- 제출 리포트와 리뷰 재실행에서 variant 1/2/3의 센서 수 **1/2/2**, 봉수대 **1/1/3**, 간선 **0/0/3**을 확인했다. 모든 설치 성공, 센서들이 동일한 생존 개체 6개를 관측했다. 세 경우 인지6·영역 밀도6·발사2·처치6·피해 적용12로 같았다. 기존 로컬/공유 중복과 같은 틱 사망 제외도 통과했다.
+- 전체 테스트 재실행 **322 passed / 0 failed, 39.5초, 종료0**. 테스트 개수만이 아니라 실제 fixture 구성 및 비교 내용을 확인했으므로 이전 NOT RUN 사유는 해소됐다.
+
+#### AC-06 · R-02/R-03 검토: 후보 계산과 측정 구간 원시 자료
+
+전투 비활성 경로는 이제 `Hwacha.evaluate_only()`에서 화차별 known_zone_counts와 select_zone을 실제로 호출한다. 추가 회귀는 300틱×4화차=1200회 평가, 발사/피해/처치0, 쿨다운 보존 및 유효 표적 선택을 확인한다. 전투 활성은 기존대로 재장전 중 평가를 생략하므로 두 모드의 평가 횟수가 같을 필요는 없다.
+
+| 제출 시나리오 | 프레임/생존 배열 길이 | 간격 합계(초) | 재계산 FPS | 재계산 p95(ms) | alive min/max | 측정 구간 후보 평가 |
+|---|---|---|---|---|---|---|
+| network_move | 11779/11779 | 60.006020 | 196.296972 | 13.676 | 1000/1000 | 14400 (=3600틱×4) |
+| network_combat | 15068/15068 | 60.001211 | 251.128265 | 10.780 | 1000/1000 | 5527 |
+
+평균 FPS=N×1e6/sum(frame_us_raw), p95는 정렬한 배열의 ceil(0.95N)-1 원소/1000(nearest-rank)으로 재계산했다. 저장값과 일치하며 alive_raw 전체1000으로 부하 유지도 확인했다. 후보 평가 델타는 누적값−measure_start와 일치한다.
+
+- 전투 events **24건 전부 ok**: B8 전환12, 장승 설치6/제거6. before/after 상태가 사건 간 연속되고 path_version **3→15**, topology **16→28**이다. B8은 비활성/활성을 교대하며 S3 부착은 **12↔−1**, 그룹은 **5↔−1**로 바뀐다. 장승은 경로만, B8은 위상만 바꾼다.
+- B8 측정 상대시각은 0,5,…,55초 대비 **0.003347~0.012599초 지연**으로 다음 물리 틱에서 처리됐다. 장승 설치는 pending 후 다음 틱에 이루어져 첫 설치는0.027481초다. 정확히 같은 벽시계 순간의 원자적 명령이 아니라 연속된 틱에서 처리된 예약 시나리오로 수용한다. 거절·재시도0, 설치/제거 총12회가 모두 측정 구간 안에 있고 시각이 기록되어 부하 검증 목적을 충족한다.
+- 준비 포함 누적 공유전용123−준비 구간11 = **측정 구간112**. measured_window.shared_only_shots와 shared_only_delta 모두112이며 샘플도112개(상한300 미도달)다. 모든 샘플이 측정0~60초 안, local=0/shared>0이며 화차1의42건·화차2의70건이다. 전체 발사197−준비12=측정185도 로그 집계와 일치한다.
+- manifest의 fixture4/8/4와 앵커,8개 영역,180/140/100/200 범위,seed20260913,부하 보충 설정을 WP와 대조했다. 이전 회차 파일은 합격 근거로 사용하지 않았다.
+
+#### 제출 manifest 정정과 리뷰어의 추가 검증
+
+제출 move의 implementation_sha는 정확히9c304c6이지만 **combat은 `9c304c6d80868534012826500fcc97b750bf87e3-dirty`**다. 따라서 보완 회차의 “양쪽 SHA 일치” 표현을 그대로 승인하지 않는다. 당시 wrapper가 증거 파일 변경도 dirty로 세던 점은 확인되나 이 접미사만으로 과거 변경 범위를 확정할 수는 없다.
+
+리뷰에서 game/·project.godot·export_presets.cfg의 작업 트리가 깨끗하고 9c304c6과 동일함을 확인한 뒤 현재544ef86 체크아웃에서 새 Windows 릴리스를 export(종료0)했다. 이 바이너리로 network_combat을 준비10초+측정60초 실행해 출처 불확실성을 보완했다. 새 증거의 SHA는 실제 export한544ef86이며 임의로9c304c6으로 덮어쓰지 않았다. 제출 JSON은 원본 그대로 보존한다.
+
+#### 기획·범위
+
+P-010의 H2 보조 화차 승인과110.24px 기하 정정이 WP·DECISIONS에 반영됐다. 새 a2/a4 캡처를 직접 확인해 공유/로컬 출처·부착·사거리·재장전 패널이 실제로 표시됨을 확인했다. P-007 예약 설치와 P-011의 벤치마크 처치 수/게임 밸런스 구분은 유지한다.
+
+이동 시나리오의 평가 비용 증가와 단발 최대 프레임 지연은 기록하되 D-009의 평균/p95 예산과 구분한다. 60초 검증을 장기 누수 부재·다른 장비·5000체 보장으로 확대하지 않는다.
+
+#### 추가 릴리스 결과와 최신 AC 판정
+
+리뷰어 재측정 network_combat: exported release,1920×1080,10+60초,manifest SHA **544ef867faca67365352b792d7e1afade8cf84eb**(dirty 없음). 게임 코드 트리는 검토 대상9c304c6과 동일하다.
+
+- 원시 frame/alive 배열 **15848/15848**, 간격 합계 **60.003526초**, 재계산 평균 **264.117812 FPS**, p95 **10.017ms**, alive min/max **1000/1000**.
+- 측정 후보 평가 **5492회**, 발사185·공유전용112·샘플112, 이벤트24건 성공(전환12/장승변경12·거절0), path15·topology28. 샘플 모두 local0/shared>0·측정 구간 내. 실행 종료0, 외부 워킹셋 측정 시작207.2→종료212.1MB(프로세스 최대213.6MB).
+- 제출과의 평가/처치 수 소폭 차이는 벽시계 이벤트가 물리 틱에 걸리는 시점이 달라질 수 있는 시나리오에서 관측한 편차다. 같은 최종 수치를 강제하지 않고 실제 시각·이벤트·부하·예산으로 판정한다. 검토용 exe SHA256: `4ebc4ced470d17fa62c973078af90466d84ca22f760b98945f49d80bbd5e1eea`.
+- 재측정 실행은 `scripts/perf_with_memory.ps1 -Scenario network_combat -Exe build_out/windows/wp002_gpt_followup.exe -Warmup 10 -Measure 60 -Out <absolute-output.json>`과 동등한 설정이다. 실제 호출은 상대 Out을 사용했고 wrapper가 프로세스 작업 디렉터리 기준으로 만든 산출물을 리뷰 증거 폴더에 복사했다. 공개 증거의 로컬 절대 경로만 익명화했으며 원시 측정값은 변경하지 않았다.
+
+| AC | 최신 GPT 판정 | 근거 |
+|---|---|---|
+| AC-01 | **PASS 유지** | 연결/부착/분리/경계 회귀 재통과, 핵심 연결 알고리즘 변경 없음 |
+| AC-02 | **PASS 유지** | 동일 fixture 연결 사격 재통과, 새 공유 표적 패널 캡처 확인 |
+| AC-03 | **PASS 유지** | 단절·재획득·출처 소멸/유지·사망·쿨다운 회귀 재통과 |
+| AC-04 | **PASS 유지** | 부분 관측·분리망·범위·경계·동률·빈 표적 회귀 재통과 |
+| AC-05 | **PASS (NOT RUN 해소)** | 실제 variant별 설치/간선/관측 집합 단언 및 비증폭 비교 통과 |
+| AC-06 | **PASS (FAIL 해소)** | 후보 계산 실행, 원시 배열·24이벤트·측정구간112샘플 검산. 제출 move와 출처가 확인된 리뷰 추가 combat 릴리스가 D-009 충족 |
+| AC-07 | **PASS 유지** | 새 시설 배치 회귀 및 a2/a4 hover 패널 실제 표시 확인 |
+| AC-08 | **PASS 유지** | 전체322건 재실행, 새 릴리스 export/독립 실행·측정·종료 성공과 초기화 회귀 |
+
+**최신 합계 PASS8 / FAIL0 / NOT RUN0 — 최종 PASS.** R-01~03의 필수 보완이 해소됐다. 이 리뷰는 판정과 추가 증거를 기록하며 WP 상태 변경·PR 병합·WP-003 착수는 수행하지 않는다.
+
+리뷰 추가 증거: [전체 테스트](evidence/wp-002/gpt-review/2026-09-14-followup/test_report.txt), [제출 성능 검산](evidence/wp-002/gpt-review/2026-09-14-followup/submitted_perf_audit.json), [새 릴리스 전투 원시 자료](evidence/wp-002/gpt-review/2026-09-14-followup/perf_network_combat_clean.json), [외부 메모리](evidence/wp-002/gpt-review/2026-09-14-followup/perf_network_combat_clean.json.memory.json).
