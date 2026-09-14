@@ -44,10 +44,12 @@
     "active_count": 2,
     "alive": 1,
     "bongsu_count": 1,
+    "candidate_evaluations": 119,
     "capture": "wp002_a1_disconnected_no_fire_t2",
     "combat_enabled": true,
     "commands_accepted": 3,
     "commands_rejected": 0,
+    "damage_applications": 0,
     "fixture": "none",
     "hwacha_count": 1,
     "hwachas": [
@@ -204,14 +206,20 @@
     "topology_version": 5
   },
   {
+    "hover": "H 화차",
+    "t": 2.50000000499999
+  },
+  {
     "activation_changes": 2,
     "active_count": 3,
     "alive": 1,
     "bongsu_count": 1,
+    "candidate_evaluations": 121,
     "capture": "wp002_a2_connected_shared_fire_t2.5",
     "combat_enabled": true,
     "commands_accepted": 3,
     "commands_rejected": 0,
+    "damage_applications": 1,
     "fixture": "none",
     "hwacha_count": 1,
     "hwachas": [
@@ -365,6 +373,10 @@
     ]
   },
   {
+    "hover": "",
+    "t": 2.51666667169999
+  },
+  {
     "active": false,
     "ok": true,
     "set_active": "B 봉수대",
@@ -376,10 +388,12 @@
     "active_count": 2,
     "alive": 1,
     "bongsu_count": 1,
+    "candidate_evaluations": 251,
     "capture": "wp002_a3_disconnected_again_no_stale_fire_t5",
     "combat_enabled": true,
     "commands_accepted": 3,
     "commands_rejected": 0,
+    "damage_applications": 1,
     "fixture": "none",
     "hwacha_count": 1,
     "hwachas": [
@@ -544,14 +558,20 @@
     "t": 5.01666667669998
   },
   {
+    "hover": "H2 화차(로컬)",
+    "t": 5.50000001099998
+  },
+  {
     "activation_changes": 3,
     "active_count": 3,
     "alive": 2,
     "bongsu_count": 1,
+    "candidate_evaluations": 282,
     "capture": "wp002_a4_local_fire_while_disconnected_t5.5",
     "combat_enabled": true,
     "commands_accepted": 4,
     "commands_rejected": 0,
+    "damage_applications": 2,
     "fixture": "none",
     "hwacha_count": 2,
     "hwachas": [
@@ -730,6 +750,10 @@
     ]
   },
   {
+    "hover": "",
+    "t": 5.51666667769998
+  },
+  {
     "active": true,
     "ok": true,
     "set_active": "B 봉수대",
@@ -741,10 +765,12 @@
     "active_count": 4,
     "alive": 0,
     "bongsu_count": 1,
+    "candidate_evaluations": 346,
     "capture": "wp002_a5_reconnected_reacquired_t7",
     "combat_enabled": true,
     "commands_accepted": 4,
     "commands_rejected": 0,
+    "damage_applications": 4,
     "fixture": "none",
     "hwacha_count": 2,
     "hwachas": [

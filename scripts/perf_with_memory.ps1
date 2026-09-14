@@ -18,7 +18,10 @@ $outAbs = [System.IO.Path]::GetFullPath($Out)
 New-Item -ItemType Directory -Force (Split-Path $outAbs) | Out-Null
 
 $sha = (& git rev-parse HEAD 2>$null); if (-not $sha) { $sha = "unknown" }
-$dirty = (& git status --porcelain --untracked-files=no 2>$null); $shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
+# "-dirty" only when the code that goes into the exe differs from HEAD; evidence
+# files under results/ are expected to change during a verification run.
+$dirty = (& git status --porcelain --untracked-files=no -- game project.godot export_presets.cfg 2>$null)
+$shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
 $args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag")
 $proc = Start-Process -FilePath (Resolve-Path $Exe) -ArgumentList $args -PassThru
 $samples = @()

@@ -267,13 +267,51 @@
      PASS  relay and sensor active
      PASS  both enemies alive
   -- AC-05 duplicate sensors / local overlap / cycles do not amplify; earlier kills excluded
+     PASS  variant 1: every fixture placement accepted
+     PASS  variant 1 sensor count (= 1)
+     PASS  variant 1 bongsu count (= 1)
+     PASS  variant 1 link count (= 0)
+     PASS  variant 1: one group (= 1)
+     PASS  variant 1: S1 in the group (= 1)
+     PASS  variant 1: H in the group (= 1)
+     PASS  variant 1: S1 sees all six (= 6)
+     PASS  variant 1: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: every fixture placement accepted
+     PASS  variant 2 sensor count (= 2)
+     PASS  variant 2 bongsu count (= 1)
+     PASS  variant 2 link count (= 0)
+     PASS  variant 2: one group (= 1)
+     PASS  variant 2: S1 in the group (= 1)
+     PASS  variant 2: S2 in the group (= 1)
+     PASS  variant 2: H in the group (= 1)
+     PASS  variant 2: S1 sees all six (= 6)
+     PASS  variant 2: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: S2 sees all six (= 6)
+     PASS  variant 2: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: every fixture placement accepted
+     PASS  variant 3 sensor count (= 2)
+     PASS  variant 3 bongsu count (= 3)
+     PASS  variant 3 link count (= 3)
+     PASS  variant 3: one group (= 1)
+     PASS  variant 3: S1 in the group (= 1)
+     PASS  variant 3: S2 in the group (= 1)
+     PASS  variant 3: H in the group (= 1)
+     PASS  variant 3: S1 sees all six (= 6)
+     PASS  variant 3: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: S2 sees all six (= 6)
+     PASS  variant 3: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  single sensor: hwacha knows the six enemies (= 6)
      PASS  two sensors seeing the same enemies: same known count (= 6)
      PASS  same zone density (= 6)
      PASS  same number of volleys over the window (= 2)
      PASS  same kills (= 6)
-     PASS  three bongsu in a cycle: no amplification (= 6)
+     PASS  same number of damage applications (= 12)
+     PASS  three bongsu in a cycle: no amplification of known enemies (= 6)
+     PASS  cycle: same zone density (= 6)
      PASS  cycle: same volleys (= 2)
-     ....  dup case: known=6 zone=6 shots=2 kills=6
+     PASS  cycle: same kills (= 6)
+     PASS  cycle: same damage applications (= 12)
+     ....  dup cases: known=6 zone=6 shots=2 kills=6 damage_events=12
      PASS  enemy seen locally and by a sensor counts once (= 1)
      PASS  …as local (= 1)
      PASS  …and not again as shared (= 0)
@@ -282,6 +320,18 @@
      PASS  first hwacha killed all four (= 4)
      PASS  second hwacha saw no living enemy after the first volley (= 0)
      PASS  setup intact
+  -- AC-06 combat-off ticks still evaluate per-hwacha candidates (R-02)
+     PASS  one candidate evaluation per active hwacha per tick (300 ticks x 4) (= 1200)
+     PASS  no volley while combat is off (= 0)
+     PASS  no damage while combat is off (= 0)
+     PASS  no kills while combat is off (= 0)
+     PASS  화차·중영 cooldown untouched (= 0.0)
+     PASS  화차·서영 cooldown untouched (= 0.0)
+     PASS  화차·동영 cooldown untouched (= 0.0)
+     PASS  화차·궁성 cooldown untouched (= 0.0)
+     PASS  hwachas know enemies through the network with combat off
+     PASS  at least one hwacha selected a would-be target zone
+     PASS  combat-on evaluations (1142) are bounded by ticks x hwachas; cooldown ticks skip evaluation
   -- AC-07 bongsu/sensor placement: rejections, non-blocking, inactive keeps footprint, no path change
      PASS  bongsu placed inside a lane
      PASS  bongsu placement does not change the path version (= 2)
@@ -316,5 +366,5 @@
      PASS  reset clears known sets (= 0)
      PASS  reset restores activation
 
-TOTAL passed=273 failed=0
-elapsed 42.5 s
+TOTAL passed=322 failed=0
+elapsed 42.7 s
