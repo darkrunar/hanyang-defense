@@ -6,7 +6,7 @@
 #
 # Writes <Out> (from the game) and <Out>.memory.json (from this sampler).
 param(
-    [ValidateSet("move", "combat")][string]$Scenario = "move",
+    [ValidateSet("move", "combat", "network_move", "network_combat")][string]$Scenario = "move",
     [string]$Exe = "build_out\windows\hanyang_defense_wp001.exe",
     [int]$Warmup = 10,
     [int]$Measure = 60,
@@ -17,7 +17,12 @@ Set-Location (Join-Path $PSScriptRoot "..")
 $outAbs = [System.IO.Path]::GetFullPath($Out)
 New-Item -ItemType Directory -Force (Split-Path $outAbs) | Out-Null
 
-$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs")
+$sha = (& git rev-parse HEAD 2>$null); if (-not $sha) { $sha = "unknown" }
+# "-dirty" only when the code that goes into the exe differs from HEAD; evidence
+# files under results/ are expected to change during a verification run.
+$dirty = (& git status --porcelain --untracked-files=no -- game project.godot export_presets.cfg 2>$null)
+$shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
+$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag")
 $proc = Start-Process -FilePath (Resolve-Path $Exe) -ArgumentList $args -PassThru
 $samples = @()
 $t0 = Get-Date

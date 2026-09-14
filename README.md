@@ -2,7 +2,7 @@
 
 **한양 전체를 무기화하는 대규모 전투 디펜스.** 조선 사이버펑크 세계에서 적을 유도·압축하고 도시의 시설을 연결해 싸우는 로그라이트 디펜스 프로젝트입니다.
 
-현재 단계는 **WP-001 DONE (GPT 재리뷰 PASS, 2026-09-13) · WP-002 READY (2026-09-14, 구현 착수 가능)** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
+현재 단계는 **WP-001 DONE (2026-09-13) · WP-002 DONE (GPT 재리뷰 PASS, 2026-09-14) · WP-003 READY 전환 대기** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
 
 ## 게임의 중심
 
@@ -112,9 +112,25 @@ godot --headless --path . --script res://game/tools/probe_occupancy.gd -- --out=
 
 한 번에 전부 실행하려면 `scripts/verify.ps1`(Windows) 또는 `scripts/verify.sh`(Git Bash)를 사용한다. `verify.ps1`은 각 단계의 종료 코드·산출물·성능 합격 조건을 검사하고 실패 시 즉시 중단한다. 조작법과 명령행 옵션은 [game/scenes/main.gd](game/scenes/main.gd) 상단 주석, 밸런스·시드 설정값은 [game/core/config.gd](game/core/config.gd)에 있다. 기본 시드는 `20260913`.
 
+### WP-002 봉수망 (2026-09-14)
+
+기본 플레이는 **WP-002 모드**(`targeting_mode=wp002`: 화차는 로컬 100px + 같은 봉수망 그룹 센서의 탐지만 안다)와 **fixture B**(화차 4·봉수대 8·혼천의 4)로 시작한다. WP-001 검증 구성은 `--set targeting_mode=wp001 --set fixture=wp001`(테스트·캡처 `ac01/ac02/ac06`·성능 `move/combat`이 자동으로 고정)이다. 봉수대 연결 180px, 센서 탐지 140px, 화차 로컬 100px, 사거리 200px — 모두 `game/core/config.gd`.
+
+```bash
+# WP-002 fixture A 캡처: 비연결 → 연결(공유 사격) → 단절(오래된 표적 사격 없음) → 로컬 사격 → 복구
+godot --path . --rendering-driver opengl3 -- --capture=wp002_a --out-dir=D:/abs/path/results/evidence/wp-002/captures
+```
+
+```bash
+# WP-002 fixture B 성능 (16시설 + 1,000체). network_move / network_combat(B8 전환 12회 + 장승 (22,28) 12회)
+.\scripts\perf_with_memory.ps1 -Scenario network_combat -Out results\evidence\wp-002\perf\perf_network_combat_1000_release.json
+```
+
+증거는 `results/evidence/wp-002/{tests,captures,perf}/`에 두고 WP-001 증거는 보존한다. `scripts/verify.*`가 WP-001 단계에 이어 4b(fixture A 캡처)·6b(fixture B 성능, 계약 검사 포함)를 실행한다.
+
 ### 조작
 
-`LMB` 설치(누르고 있으면 셀이 빌 때까지 재시도) · `RMB` 제거 · `1/2` 장승/화차 모드 · `C` 전투 토글(처치 끔) · `Z` 밀도 존 표시 · `G` 화차 사거리 · `P` 일시정지 · `R` 초기화(같은 시드) · `H` HUD · `F12` 캡처(`%APPDATA%\Godot\app_userdata\...\captures`) · `Esc` 종료
+`LMB` 설치(누르고 있으면 셀이 빌 때까지 재시도) · `RMB` 제거 · `1/2/3/4` 장승/화차/봉수대/혼천의 모드 · `T` 커서 아래 시설 활성/비활성 전환(디버그 파괴·수리) · 시설에 커서를 올리면 부착 봉수대·그룹·로컬/공유 인지 수·표적 출처·대기 이유 패널 표시 · `C` 전투 토글(처치 끔) · `Z` 밀도 존 표시 · `G` 사거리/탐지/연결 반경 · `P` 일시정지 · `R` 초기화(같은 시드, 망·부착·표적 초기화 후 fixture 복원) · `H` HUD · `F12` 캡처(`%APPDATA%\Godot\app_userdata\...\captures`) · `Esc` 종료
 
 ## 공개 범위와 권리
 

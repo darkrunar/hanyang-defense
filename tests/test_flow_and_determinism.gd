@@ -22,7 +22,7 @@ func run(t: RefCounted) -> void:
 
 func _ac01_thousand_concurrent_on_three_routes(t: RefCounted) -> void:
     t.case("AC-01 1000 concurrent living enemies across all three entries")
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = false   # kills off: prove the concurrent count
     var b: Battle = Battle.new(cfg)
     b.run_for(30.0)
@@ -50,7 +50,7 @@ func _ac01_thousand_concurrent_on_three_routes(t: RefCounted) -> void:
 
 func _ac01_counts_are_consistent(t: RefCounted) -> void:
     t.case("AC-01 spawned = alive + killed + leaked at all times")
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = true
     var b: Battle = Battle.new(cfg)
     for _i: int in range(6):
@@ -106,7 +106,7 @@ func _ac06_chokepoint_raises_density_and_kills(t: RefCounted) -> void:
 ## arrives, because the occupancy rule makes mid-flood lane placement rare
 ## (measured in the AC-03 suite); the comparison window is identical either way.
 static func _run_choke_case(place: bool, settle: float, window: float, anchor: Vector2i) -> Dictionary:
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["combat_enabled"] = true
     var b: Battle = Battle.new(cfg)
     if place:
@@ -154,7 +154,7 @@ func _determinism_same_seed_same_result(t: RefCounted) -> void:
 
 
 static func _scripted_run(seed_value: int) -> Dictionary:
-    var cfg: Config = Config.new()
+    var cfg: Config = Config.for_wp001()
     cfg.values["seed"] = seed_value
     cfg.values["combat_enabled"] = true
     var b: Battle = Battle.new(cfg)

@@ -14,7 +14,13 @@ const TerrainGrid := preload("res://game/core/terrain_grid.gd")
 const PathNetwork := preload("res://game/core/path_network.gd")
 const EnemySim := preload("res://game/core/enemy_sim.gd")
 
-enum Kind { JANGSEUNG, HWACHA }
+## JANGSEUNG blocks traffic. HWACHA fires. BONGSU relays (WP-002 D-012).
+## SENSOR (혼천의) detects and shares enemy ids through its bongsu group.
+## Only JANGSEUNG blocks paths (D-011 / D-014).
+enum Kind { JANGSEUNG, HWACHA, BONGSU, SENSOR }
+
+const KIND_NAMES: Array[String] = ["JANGSEUNG", "HWACHA", "BONGSU", "SENSOR"]
+const KIND_LABELS: Array[String] = ["장승", "화차", "봉수대", "혼천의"]
 
 enum Reject {
     NONE,
@@ -61,6 +67,21 @@ class Structure:
     var muzzle_timer: float = 0.0
     ## True only for 장승. Cached so the inner class never reaches outward.
     var blocking: bool = true
+    # --- WP-002 network state ---
+    ## Inactive structures keep their footprint but stop detecting / relaying / firing.
+    var active: bool = true
+    ## Detection radius: sensor range for SENSOR, local range for HWACHA.
+    var detect_range: float = 0.0
+    ## Bongsu this terminal (sensor / hwacha) is attached to, or -1.
+    var attached_to: int = -1
+    ## Connected-component id (min bongsu id of the component), or -1.
+    var group_id: int = -1
+    ## Last targeting diagnostics for the overlay (WP-002 mode).
+    var known_local: int = 0
+    var known_shared: int = 0
+    var last_target_local: int = 0
+    var last_target_shared: int = 0
+    var wait_reason: String = ""
 
 
 class Result:
@@ -259,24 +280,59 @@ func remove(structure_id: int) -> Result:
     return r
 
 
-func hwachas() -> Array:
+## Structures of one kind, in ascending id order (the stable order every
+## tie-break in this project relies on).
+func of_kind(kind: int) -> Array:
     var out: Array = []
     for id: int in structures:
         var s: Structure = structures[id]
-        if s.kind == Kind.HWACHA:
+        if s.kind == kind:
             out.append(s)
     out.sort_custom(func(a: Structure, b: Structure) -> bool: return a.id < b.id)
     return out
+
+
+func hwachas() -> Array:
+    return of_kind(Kind.HWACHA)
 
 
 func jangseungs() -> Array:
-    var out: Array = []
-    for id: int in structures:
-        var s: Structure = structures[id]
-        if s.kind == Kind.JANGSEUNG:
-            out.append(s)
-    out.sort_custom(func(a: Structure, b: Structure) -> bool: return a.id < b.id)
-    return out
+    return of_kind(Kind.JANGSEUNG)
+
+
+func bongsus() -> Array:
+    return of_kind(Kind.BONGSU)
+
+
+func sensors() -> Array:
+    return of_kind(Kind.SENSOR)
+
+
+func get_structure(structure_id: int) -> Structure:
+    return structures.get(structure_id, null)
+
+
+## Debug "destroy" stand-in (WP-002 D-014): an inactive structure keeps its
+## footprint (overlap is still refused) but stops detecting / relaying / firing.
+## Returns false for an unknown id. Never touches the path field.
+func set_active(structure_id: int, active: bool) -> bool:
+    var s: Structure = structures.get(structure_id, null)
+    if s == null:
+        return false
+    s.active = active
+    return true
+
+
+static func kind_name(kind: int) -> String:
+    if kind < 0 or kind >= KIND_NAMES.size():
+        return "UNKNOWN"
+    return KIND_NAMES[kind]
+
+
+static func kind_label(kind: int) -> String:
+    if kind < 0 or kind >= KIND_LABELS.size():
+        return "?"
+    return KIND_LABELS[kind]
 
 
 func count_of(kind: int) -> int:

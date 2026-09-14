@@ -123,6 +123,8 @@ func _parse_args() -> void:
             _perf.measure_seconds = float(arg.substr("--measure=".length()))
         elif arg.begins_with("--out="):
             _perf_out = arg.substr("--out=".length())
+        elif arg.begins_with("--sha="):
+            _build_sha = arg.substr("--sha=".length())
         elif arg.begins_with("--capture="):
             _capture_name = arg.substr("--capture=".length())
         elif arg.begins_with("--out-dir="):
@@ -166,7 +168,7 @@ func _build_scene() -> void:
     _hud_bg = ColorRect.new()
     _hud_bg.color = Color(0.0, 0.0, 0.0, 0.55)
     _hud_bg.position = Vector2(8.0, 8.0)
-    _hud_bg.size = Vector2(980.0, 215.0)
+    _hud_bg.size = Vector2(1180.0, 262.0)
     _hud_layer.add_child(_hud_bg)
 
     _hud = Label.new()
@@ -183,15 +185,24 @@ func _build_scene() -> void:
 
 
 func _apply_run_mode() -> void:
-    var title: String = "Hanyang Defense WP-001"
+    var title: String = "Hanyang Defense WP-002"
     if _perf != null:
         _perf.scenario = _perf_scenario if _perf_scenario != "" else "move"
-        config.values["combat_enabled"] = _perf.scenario != "move"
-        battle.combat_enabled = config.get_bool("combat_enabled")
+        config.values["combat_enabled"] = not _perf.scenario.ends_with("move")
         # R-02: hold the D-009 load (alive >= target) for every measured frame.
         config.values["benchmark_hold_alive"] = true
-        battle.benchmark_hold_alive = true
+        if _perf.scenario.begins_with("network"):
+            # WP-002 fixture B: 4 hwacha + 8 bongsu + 4 sensors, local+shared targeting.
+            config.values["targeting_mode"] = "wp002"
+            config.values["fixture"] = "b"
+        else:
+            # WP-001 fixtures: global targeting + the four original hwachas.
+            config.values["targeting_mode"] = "wp001"
+            config.values["fixture"] = "wp001"
+        battle.reset()
         _perf_next_toggle = _perf.warmup_seconds
+        _perf_pv_start = battle.path.path_version
+        _perf_topology_start = battle.network.topology_version
         DisplayServer.window_set_size(Vector2i(1920, 1080))
         DisplayServer.window_set_position(Vector2i(0, 0))
         title += " [perf:%s]" % _perf.scenario
@@ -201,6 +212,11 @@ func _apply_run_mode() -> void:
             _perf.scenario, _perf.warmup_seconds, _perf.measure_seconds
         ])
     elif _capture_name != "":
+        if _capture_name.begins_with("ac0"):
+            # WP-001 evidence scenarios keep the approved configuration.
+            config.values["targeting_mode"] = "wp001"
+            config.values["fixture"] = "wp001"
+            battle.reset()
         DisplayServer.window_set_size(Vector2i(1920, 1080))
         DisplayServer.window_set_position(Vector2i(0, 0))
         _sim_speed = maxi(_sim_speed, 6)
@@ -239,6 +255,8 @@ func _process(delta: float) -> void:
         _fps_smoothed = fps if _fps_smoothed == 0.0 else lerpf(_fps_smoothed, fps, 0.08)
         _frame_ms_smoothed = lerpf(_frame_ms_smoothed, delta * 1000.0, 0.08)
     _upload_enemies()
+    if _first_shared_shot_time < 0.0 and battle.hwacha.shared_only_shots > 0:
+        _first_shared_shot_time = battle.sim_time
     for shot: Array in battle.hwacha.last_shots_for_render():
         _recent_shots.append([shot[0], shot[1], 0.0])
     var i: int = 0
@@ -257,7 +275,20 @@ func _process(delta: float) -> void:
     _overlay.place_mode = _place_mode
     _overlay.queue_redraw()
     if _perf != null:
+        var was_measuring: bool = _perf.phase() == "measure"
         _perf.tick(battle.sim.alive_count)
+        if not was_measuring and _perf.phase() == "measure" and _measure_start.is_empty():
+            # Snapshot at the start of the measured window, so window deltas
+            # can be separated from the warm-up (GPT review R-03).
+            _measure_start = {
+                "sim_time": battle.sim_time,
+                "shots_total": battle.hwacha.shots_total,
+                "shared_only_shots": battle.hwacha.shared_only_shots,
+                "killed_total": battle.sim.killed_total,
+                "spawned_total": battle.sim.spawned_total,
+                "candidate_evaluations": battle.hwacha.candidate_evaluations,
+                "state": _state_brief(),
+            }
         if _perf.is_done():
             _finish_perf()
 
@@ -321,6 +352,20 @@ func _unhandled_input(event: InputEvent) -> void:
             KEY_2:
                 _place_mode = Placement.Kind.HWACHA
                 _say("설치 모드: 화차 (광역 사격, 통행 비차단)")
+            KEY_3:
+                _place_mode = Placement.Kind.BONGSU
+                _say("설치 모드: 봉수대 (중계 180px, 통행 비차단)")
+            KEY_4:
+                _place_mode = Placement.Kind.SENSOR
+                _say("설치 모드: 혼천의 (탐지 140px, 통행 비차단)")
+            KEY_T:
+                var st: Placement.Structure = battle.toggle_active_at_world(get_global_mouse_position())
+                if st == null:
+                    _say("활성 전환 실패: 커서 아래 시설 없음")
+                else:
+                    _say("%s #%d → %s (그룹 %d, 부착 %d)" % [
+                        st.label, st.id, "활성" if st.active else "비활성", st.group_id, st.attached_to
+                    ])
             KEY_C:
                 battle.combat_enabled = not battle.combat_enabled
                 _say("전투 %s" % ("활성" if battle.combat_enabled else "비활성 (처치 끔)"))
@@ -346,11 +391,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _try_place_at_cursor() -> void:
     var anchor: Vector2i = battle.placement.anchor_for_world(get_global_mouse_position())
-    var res: Placement.Result
-    if _place_mode == Placement.Kind.JANGSEUNG:
-        res = battle.place_jangseung(anchor)
-    else:
-        res = battle.place_hwacha(anchor)
+    var res: Placement.Result = battle.place_structure(_place_mode, anchor)
     if res.ok:
         _mouse_down = false  # one placement per press
         _say("설치: %s #%d @%s  (경로 버전 %d)" % [
@@ -368,12 +409,28 @@ func _say(msg: String) -> void:
 
 # =================================================================== hud ===
 
+func _active_of(kind: int) -> int:
+    var n: int = 0
+    for st: Placement.Structure in battle.placement.of_kind(kind):
+        if st.active:
+            n += 1
+    return n
+
+
+func _active_total() -> int:
+    var n: int = 0
+    for id: int in battle.placement.structures:
+        if (battle.placement.structures[id] as Placement.Structure).active:
+            n += 1
+    return n
+
+
 func _update_hud() -> void:
     if not _show_hud:
         return
     var sim := battle.sim
     var lines: PackedStringArray = PackedStringArray()
-    lines.append("한양 디펜스 · WP-001 적 흐름 프로토타입   Godot %s / %s" % [
+    lines.append("한양 디펜스 · WP-002 봉수망 프로토타입   Godot %s / %s" % [
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
     ])
     lines.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s%s" % [
@@ -398,16 +455,158 @@ func _update_hud() -> void:
         battle.placement.count_of(Placement.Kind.JANGSEUNG),
         battle.placement.count_of(Placement.Kind.HWACHA),
         battle.placement.rejected_total,
-        "1 장승" if _place_mode == Placement.Kind.JANGSEUNG else "2 화차"
+        "%d %s" % [_place_mode + 1, Placement.kind_label(_place_mode)]
     ])
-    lines.append("LMB 설치  RMB 제거  1/2 모드  C 전투  Z 밀도  G 사거리  P 정지  R 초기화  H HUD  F12 캡처  Esc 종료")
+    var net: Dictionary = battle.network.snapshot(battle.placement)
+    var nparts: PackedStringArray = PackedStringArray()
+    for hw: Placement.Structure in battle.placement.hwachas():
+        nparts.append("%s g%d 로컬%d/공유%d%s" % [
+            hw.label.trim_prefix("화차·"), hw.group_id, hw.known_local, hw.known_shared,
+            ("" if hw.active else "[비활성]")
+        ])
+    lines.append("봉수망 [%s]: 봉수대 %d(활성 %d) 센서 %d 간선 %d 그룹 %s 위상 v%d | 공유전용 사격 %d" % [
+        battle.targeting_mode, battle.placement.count_of(Placement.Kind.BONGSU),
+        _active_of(Placement.Kind.BONGSU), battle.placement.count_of(Placement.Kind.SENSOR),
+        net["link_count"], str(net["groups"]), net["topology_version"], battle.hwacha.shared_only_shots
+    ])
+    lines.append("화차 인지: " + "  ".join(nparts))
+    lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  P 정지  R 초기화  H HUD  F12 캡처  Esc")
     _hud.text = "\n".join(lines)
 
 
 # ================================================================== perf ===
 
+## WP-002 fixture B combat script: at measure-relative 0,5,...,55 s toggle
+## bongsu B8 (the southern sensor's only relay) and place/remove a jangseung in
+## the west-south lane (22,28), alternating. A refused jangseung placement is
+## retried every tick until it succeeds; refusals are counted, never skipped.
+var _net_next_event: float = 0.0
+var _net_events_done: int = 0
+var _net_b8_toggles: int = 0
+var _net_jang_id: int = -1
+var _net_jang_pending: bool = false
+var _net_jang_changes: int = 0
+var _net_jang_refusals: int = 0
+var _first_shared_shot_time: float = -1.0
+var _perf_pv_start: int = 0
+var _perf_topology_start: int = 0
+
+
+## Per-event history (GPT review R-03): every scripted command with its
+## measure-relative time, result, and the B8 / S3 / path / topology state
+## before and after. Only commands that actually succeeded are counted.
+var _net_events: Array = []
+var _net_pending_retries: int = 0
+var _net_pending_reasons: Dictionary = {}
+var _measure_start: Dictionary = {}
+var _measured_shots: int = 0
+var _measured_shared_only: int = 0
+var _shared_only_samples: Array = []
+const SHARED_ONLY_SAMPLE_CAP: int = 300
+var _build_sha: String = "unknown"
+
+
+func _s3() -> Placement.Structure:
+    var sensors: Array = battle.placement.sensors()
+    return sensors[2] if sensors.size() >= 3 else null
+
+
+func _state_brief() -> Dictionary:
+    var s3: Placement.Structure = _s3()
+    return {
+        "path_version": battle.path.path_version,
+        "topology_version": battle.network.topology_version,
+        "groups": battle.network.groups(),
+        "links": battle.network.link_count(),
+        "s3_attached_to": s3.attached_to if s3 != null else -1,
+        "s3_group": s3.group_id if s3 != null else -1,
+    }
+
+
+func _perf_network_combat_step() -> void:
+    if _perf.phase() != "measure":
+        return
+    var t: float = _perf.elapsed_in_phase()
+    if _net_jang_pending:
+        var before: Dictionary = _state_brief()
+        var res: Placement.Result = battle.place_jangseung(Vector2i(22, 28))
+        if res.ok:
+            _net_jang_id = res.structure.id
+            _net_jang_pending = false
+            _net_jang_changes += 1
+            _perf_rebuilds += 1
+            _net_events.append({
+                "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+                "command": "place_jangseung", "anchor": "(22, 28)", "id": res.structure.id, "ok": true,
+                "retries_before_success": _net_pending_retries, "refusal_reasons": _net_pending_reasons.duplicate(),
+                "before": before, "after": _state_brief(),
+            })
+            _net_pending_retries = 0
+            _net_pending_reasons = {}
+        else:
+            _net_jang_refusals += 1
+            _net_pending_retries += 1
+            var rn: String = Placement.reject_name(res.reason)
+            _net_pending_reasons[rn] = int(_net_pending_reasons.get(rn, 0)) + 1
+    if _net_events_done < 12 and t >= _net_next_event:
+        _net_events_done += 1
+        _net_next_event = float(_net_events_done) * 5.0
+        var b8: Placement.Structure = battle.placement.bongsus()[7]
+        var before: Dictionary = _state_brief()
+        var b8_before: bool = b8.active
+        var ok: bool = battle.set_active(b8.id, not b8.active)
+        if ok:
+            _net_b8_toggles += 1
+        _net_events.append({
+            "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+            "command": "toggle_b8", "b8_id": b8.id, "active_before": b8_before, "active_after": b8.active, "ok": ok,
+            "before": before, "after": _state_brief(),
+        })
+        if _net_jang_id >= 0:
+            var before_r: Dictionary = _state_brief()
+            var rid: int = _net_jang_id
+            var rres: Placement.Result = battle.remove_structure(rid)
+            if rres.ok:
+                _net_jang_id = -1
+                _net_jang_changes += 1
+                _perf_rebuilds += 1
+            _net_events.append({
+                "event": _net_events_done, "t_measure": t, "sim_time": battle.sim_time,
+                "command": "remove_jangseung", "id": rid, "ok": rres.ok,
+                "reason": Placement.reject_name(rres.reason),
+                "before": before_r, "after": _state_brief(),
+            })
+        else:
+            _net_jang_pending = true
+            _net_pending_retries = 0
+            _net_pending_reasons = {}
+
+
+## Called after every simulation step in perf mode: collects the shots of the
+## measured window (shared-only samples with time / hwacha / zone / sources).
+func _perf_collect_shots() -> void:
+    if _perf == null or _perf.phase() != "measure":
+        return
+    for shot in battle.hwacha.last_shots:
+        _measured_shots += 1
+        if shot.local_in_zone == 0 and shot.shared_in_zone > 0:
+            _measured_shared_only += 1
+            if _shared_only_samples.size() < SHARED_ONLY_SAMPLE_CAP:
+                _shared_only_samples.append({
+                    "t_measure": _perf.elapsed_in_phase(), "sim_time": shot.sim_time,
+                    "hwacha_id": shot.hwacha_id, "zone": shot.zone_id,
+                    "local": shot.local_in_zone, "shared": shot.shared_in_zone, "kills": shot.kills,
+                })
+
+
 func _perf_script_step() -> void:
-    if _perf == null or _perf.scenario != "combat":
+    if _perf == null:
+        return
+    _perf_collect_shots()
+    if _perf.scenario == "network_combat":
+        _perf_network_combat_step()
+        return
+    if _perf.scenario != "combat":
         return
     # Combat scenario: every 10 s of wall time after warmup, tear the west-lane
     # jangseung down and put it back 1.5 s later (retrying while the lane is
@@ -451,13 +650,60 @@ func _finish_perf() -> void:
         "path_rebuilds_scripted": _perf_rebuilds,
         "placement_refusals_scripted": _perf_refusals,
         "path_version": battle.path.path_version,
-        # path_version must equal 2 + path_rebuilds_scripted; anything else
-        # means an unscripted rebuild happened during the run.
-        "path_version_expected": 2 + _perf_rebuilds,
+        # path_version must equal its value at perf start + the scripted
+        # rebuilds; anything else means an unscripted rebuild happened.
+        "path_version_at_start": _perf_pv_start,
+        "path_version_expected": _perf_pv_start + _perf_rebuilds,
+        "topology_version_at_start": _perf_topology_start,
         "jangseung_count_at_end": battle.placement.count_of(Placement.Kind.JANGSEUNG),
         "hwacha_count_at_end": battle.placement.count_of(Placement.Kind.HWACHA),
         "placement_rejected_total": battle.placement.rejected_total,
         "interactive_input_ignored": true,
+        "targeting_mode": battle.targeting_mode,
+        "fixture": config.get_str("fixture"),
+        "structure_count": battle.placement.structures.size(),
+        "active_structure_count": _active_total(),
+        "bongsu_count": battle.placement.count_of(Placement.Kind.BONGSU),
+        "sensor_count": battle.placement.count_of(Placement.Kind.SENSOR),
+        "network": battle.network.snapshot(battle.placement),
+        "topology_version": battle.network.topology_version,
+        "network_events_scripted": _net_events_done,
+        "b8_toggles": _net_b8_toggles,
+        "b8_toggles_expected": 12 if _perf.scenario == "network_combat" else 0,
+        "jangseung_changes": _net_jang_changes,
+        "jangseung_changes_expected": 12 if _perf.scenario == "network_combat" else 0,
+        "jangseung_refusals": _net_jang_refusals,
+        "shared_only_shots": battle.hwacha.shared_only_shots,
+        "shared_only_shots_first_sim_time": _first_shared_shot_time,
+        "activation_changes": battle.activation_changes,
+        "candidate_evaluations": battle.hwacha.candidate_evaluations,
+        "damage_applications": battle.sim.damage_applications,
+        # --- R-03: measured-window accounting (cumulative values above include warm-up) ---
+        "measure_start": _measure_start,
+        "measured_window": {
+            "shots": _measured_shots,
+            "shared_only_shots": _measured_shared_only,
+            "shots_total_delta": battle.hwacha.shots_total - int(_measure_start.get("shots_total", 0)),
+            "shared_only_delta": battle.hwacha.shared_only_shots - int(_measure_start.get("shared_only_shots", 0)),
+            "killed_delta": battle.sim.killed_total - int(_measure_start.get("killed_total", 0)),
+            "candidate_evaluations_delta": battle.hwacha.candidate_evaluations - int(_measure_start.get("candidate_evaluations", 0)),
+            "sim_seconds": battle.sim_time - float(_measure_start.get("sim_time", 0.0)),
+        },
+        "shared_only_samples": _shared_only_samples,
+        "shared_only_samples_cap": SHARED_ONLY_SAMPLE_CAP,
+        "events": _net_events,
+        "events_expected_t_measure": [0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0] if _perf.scenario == "network_combat" else [],
+        "manifest": {
+            "implementation_sha": _build_sha,
+            "config": config.to_dictionary(),
+            "fixture_b_hwachas": TestMap.HWACHAS,
+            "fixture_b_bongsu": TestMap.FIXTURE_B_BONGSU,
+            "fixture_b_sensors": TestMap.FIXTURE_B_SENSORS,
+            "jangseung_anchor": "(22, 28)",
+            "b8_id": battle.placement.bongsus()[7].id if battle.placement.bongsus().size() >= 8 else -1,
+            "s3_id": _s3().id if _s3() != null else -1,
+            "zones": TestMap.ZONES,
+        },
         "screen_size": str(DisplayServer.screen_get_size()),
     }
     var report: Dictionary = _perf.report()
@@ -513,6 +759,39 @@ func _setup_capture_steps() -> void:
                 {"t": 35.0, "do": "capture", "name": "ac06_b_after_t35"},
                 {"t": 35.0, "do": "quit"},
             ]
+        "wp002_a":
+            # Fixture A (backlog/WP-002.md): empty field, stationary enemy at Z0,
+            # H/B/S placed before the enemy. Combat on, no spawning.
+            config.values["targeting_mode"] = "wp002"
+            config.values["fixture"] = "none"
+            config.values["combat_enabled"] = true
+            config.values["enemy_speed"] = 0.0
+            battle.reset()
+            battle.spawning_enabled = false
+            _sim_speed = 1
+            var fa: Dictionary = TestMap.FIXTURE_A
+            _capture_steps = [
+                {"t": 0.0, "do": "place_kind", "kind": Placement.Kind.HWACHA, "anchor": fa["hwacha"], "label": "H 화차"},
+                {"t": 0.0, "do": "place_kind", "kind": Placement.Kind.BONGSU, "anchor": fa["bongsu"], "label": "B 봉수대"},
+                {"t": 0.0, "do": "place_kind", "kind": Placement.Kind.SENSOR, "anchor": fa["sensor"], "label": "S 혼천의"},
+                {"t": 0.0, "do": "set_active", "label": "B 봉수대", "active": false},
+                {"t": 0.0, "do": "spawn", "pos": fa["enemy"]},
+                {"t": 2.0, "do": "capture", "name": "wp002_a1_disconnected_no_fire_t2"},
+                {"t": 2.0, "do": "set_active", "label": "B 봉수대", "active": true},
+                {"t": 2.5, "do": "hover", "label": "H 화차"},
+                {"t": 2.5, "do": "capture", "name": "wp002_a2_connected_shared_fire_t2.5"},
+                {"t": 2.5, "do": "hover", "label": ""},
+                {"t": 2.5, "do": "set_active", "label": "B 봉수대", "active": false},
+                {"t": 5.0, "do": "capture", "name": "wp002_a3_disconnected_again_no_stale_fire_t5"},
+                {"t": 5.0, "do": "place_kind", "kind": Placement.Kind.HWACHA, "anchor": Vector2i(48, 41), "label": "H2 화차(로컬)"},
+                {"t": 5.0, "do": "spawn", "pos": Vector2(980.0, 750.0)},
+                {"t": 5.5, "do": "hover", "label": "H2 화차(로컬)"},
+                {"t": 5.5, "do": "capture", "name": "wp002_a4_local_fire_while_disconnected_t5.5"},
+                {"t": 5.5, "do": "hover", "label": ""},
+                {"t": 5.5, "do": "set_active", "label": "B 봉수대", "active": true},
+                {"t": 7.0, "do": "capture", "name": "wp002_a5_reconnected_reacquired_t7"},
+                {"t": 7.0, "do": "quit"},
+            ]
         _:
             printerr("unknown capture scenario: %s" % _capture_name)
             get_tree().quit()
@@ -542,6 +821,35 @@ func _capture_script_step() -> void:
                 for s: Placement.Structure in battle.placement.jangseungs():
                     battle.placement.remove(s.id)
                 _capture_log.append({"t": battle.sim_time, "remove_all_jangseung": true})
+            "place_kind":
+                var pr: Placement.Result = battle.place_structure(step["kind"], step["anchor"], step["label"])
+                _capture_log.append({"t": battle.sim_time, "place": str(step["anchor"]),
+                    "kind": Placement.kind_name(step["kind"]), "label": step["label"],
+                    "ok": pr.ok, "reason": Placement.reject_name(pr.reason),
+                    "id": pr.structure.id if pr.ok else -1})
+            "set_active":
+                var target: Placement.Structure = null
+                for id: int in battle.placement.structures:
+                    var cand: Placement.Structure = battle.placement.structures[id]
+                    if cand.label == step["label"]:
+                        target = cand
+                var ok: bool = target != null and battle.set_active(target.id, step["active"])
+                _capture_log.append({"t": battle.sim_time, "set_active": step["label"],
+                    "active": step["active"], "ok": ok,
+                    "topology_version": battle.network.topology_version})
+            "hover":
+                # Scripted stand-in for the mouse: show the hover panel of the
+                # labelled structure (empty label clears it).
+                _overlay.hover_override = Vector2.INF
+                for id: int in battle.placement.structures:
+                    var cand: Placement.Structure = battle.placement.structures[id]
+                    if step["label"] != "" and cand.label == step["label"]:
+                        _overlay.hover_override = cand.center
+                _capture_log.append({"t": battle.sim_time, "hover": step["label"]})
+            "spawn":
+                var slot: int = battle.sim.force_spawn(0, step["pos"])
+                _capture_log.append({"t": battle.sim_time, "spawn": str(step["pos"]), "slot": slot,
+                    "enemy_id": battle.sim.enemy_id(slot) if slot >= 0 else -1})
             "quit":
                 _write_capture_log()
                 get_tree().quit()

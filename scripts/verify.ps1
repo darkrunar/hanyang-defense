@@ -61,6 +61,22 @@ foreach ($png in @("ac01_t30_1000_alive_three_routes", "ac02_a_reference_t30", "
     Assert-File "$evid\captures\$png.png" "capture"
 }
 
+Write-Host "== 4b/6 WP-002 fixture A capture (connection effect)"
+$evid2 = Join-Path $evid "wp-002"
+New-Item -ItemType Directory -Force (Join-Path $evid2 "captures") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid2 "perf") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid2 "tests") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid2\captures\wp002_a*"
+Copy-Item -Force "$evid\test_report.txt" "$evid2\tests\test_report.txt"
+& godot --path . --rendering-driver opengl3 -- "--capture=wp002_a" "--out-dir=$evid2\captures"
+Assert-Exit "capture wp002_a"
+Assert-File "$evid2\captures\wp002_a_log.json" "capture wp002_a"
+foreach ($png in @("wp002_a1_disconnected_no_fire_t2", "wp002_a2_connected_shared_fire_t2.5",
+                   "wp002_a3_disconnected_again_no_stale_fire_t5", "wp002_a4_local_fire_while_disconnected_t5.5",
+                   "wp002_a5_reconnected_reacquired_t7")) {
+    Assert-File "$evid2\captures\$png.png" "capture wp002_a"
+}
+
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
 Write-Host "== 5/6 release export"
@@ -80,4 +96,30 @@ foreach ($sc in @("move", "combat")) {
         $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $verdict)
     if ($verdict -ne "PASS") { throw "perf $sc did not meet the D-009 budget" }
 }
-Write-Host "done. evidence in $evid"
+
+Write-Host "== 6b/6 WP-002 fixture B performance (network_move, network_combat)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid2\perf\perf_network_*"
+foreach ($sc in @("network_move", "network_combat")) {
+    $out = "results\evidence\wp-002\perf\perf_${sc}_1000_release.json"
+    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
+    Assert-File $out "perf $sc"
+    Assert-File "$out.memory.json" "perf $sc memory sampler"
+    $r = Get-Content $out -Raw | ConvertFrom-Json
+    $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames
+    # R-02: the targeting workload must have been paid in BOTH scenarios.
+    $ok = $ok -and ($r.measured_window.candidate_evaluations_delta -gt 0)
+    if ($sc -eq "network_combat") {
+        # WP-002 fixture B contract: 12 B8 toggles, 12 successful jangseung changes,
+        # path_version as expected, 12 logged events at 0,5,...,55 s, and at least
+        # one shared-only volley INSIDE the measured window (R-03).
+        $evOk = ($r.events | Where-Object { $_.command -eq "toggle_b8" -and $_.ok }).Count -eq 12
+        $ok = $ok -and ($r.b8_toggles -eq 12) -and ($r.jangseung_changes -eq 12) -and `
+              ($r.path_version -eq $r.path_version_expected) -and $evOk -and `
+              ($r.measured_window.shared_only_shots -ge 1)
+    }
+    $verdict = if ($ok) { "PASS" } else { "FAIL" }
+    Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} load_held={4} eval_delta={5} b8_toggles={6} jangseung_changes={7} pv={8}/{9} window_shared_only={10} -> {11}" -f `
+        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $r.measured_window.candidate_evaluations_delta, $r.b8_toggles, $r.jangseung_changes, $r.path_version, $r.path_version_expected, $r.measured_window.shared_only_shots, $verdict)
+    if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-002 fixture B contract" }
+}
+Write-Host "done. evidence in $evid and $evid2"

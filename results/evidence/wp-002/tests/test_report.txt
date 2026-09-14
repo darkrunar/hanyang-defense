@@ -1,0 +1,370 @@
+
+== path + placement (AC-02, AC-03) ==
+  -- AC-02 jangseung reroutes traffic and removal restores it
+     PASS  reference run: west lane carries traffic (5.0 > 0.0)
+     PASS  reference run: east lane carries traffic (6.0 > 0.0)
+     PASS  placing a jangseung in the south-west lane is accepted
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  blocked cell is impassable
+     PASS  south route still reaches the goal
+     PASS  blocked west lane holds no enemies (= 0)
+     PASS  east lane absorbs the diverted flow (detour observed) (13.0 > 6.0)
+     PASS  south route still reaches the objective by the detour (545.0 > 0.0)
+     ....  t=35s west lane: reference=5 blocked=0 | east lane: reference=6 blocked=13
+     ....  south-route objective arrivals at t=35s: reference=551 detoured=545
+     PASS  jangseung removal succeeds
+     PASS  removal bumps path_version (= 4)
+     PASS  removed cell is passable again
+     PASS  west lane carries traffic again after removal (20.0 > 0.0)
+     ....  after removal west lane=20 east lane=15
+  -- AC-03 a placement that would seal a route is refused, state intact
+     PASS  first jangseung plugs the west-north lane
+     PASS  west route still connected via the south lane
+     PASS  second jangseung sealing the last west lane is refused
+     PASS  rejection reason (= 5)
+     PASS  refused placement does not bump path_version (= 3)
+     PASS  refused placement adds no structure (= 5)
+     PASS  distance field unchanged after refusal
+     PASS  flow field unchanged after refusal
+     PASS  every refused footprint cell is left clear
+     PASS  west route is still reachable after the refusal
+     PASS  preview reports the sealing placement as not allowed
+     PASS  preview leaves path_version untouched (= 3)
+     PASS  preview leaves dist/flow untouched
+     PASS  preview leaves the tentative cells clear
+     PASS  preview allows a non-blocking hwacha on the same cells
+     PASS  preview allows a jangseung on open plaza ground
+     PASS  west route keeps producing traffic (351.0 > 0.0)
+     PASS  west route still reaches the objective (335.0 > 0.0)
+  -- AC-03 a cell occupied by a living enemy refuses a structure
+     PASS  test enemy placed inside the footprint
+     PASS  placement onto the occupied cell is refused
+     PASS  rejection reason (= 4)
+     PASS  refusal names the occupied cell (= 3504)
+     PASS  refusal does not bump path_version (= 2)
+     PASS  refusal adds no structure (= 4)
+     PASS  occupant removed (= 1)
+     PASS  the same placement is accepted once the cell is clear
+     PASS  accepted placement bumps path_version (= 3)
+  -- AC-03 occupancy follows movement (R-01 regression, both edges)
+     PASS  after one tick the enemy stands inside the footprint (cell 3596)
+     PASS  cached cell matches the post-move position (= 3596)
+     PASS  placement onto the just-entered cell is refused
+     PASS  rejection reason (= 4)
+     PASS  path_version unchanged by the refusal (= 2)
+     PASS  no structure added by the refusal (= 4)
+     PASS  footprint cells stay passable
+     PASS  enemy still outside: placement accepted
+     PASS  enemy crossed the footprint edge this tick (y=759.696)
+     PASS  entering edge: refused on the very tick the enemy crosses in
+     PASS  leaving edge: refused while the enemy is still inside
+     PASS  enemy left the footprint this tick (y=719.843)
+     PASS  leaving edge: accepted on the very tick the enemy steps out
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  cursor-side occupancy and placement agree on all 24 anchors (= 0)
+  -- AC-03 the occupancy rule under saturation (measured, known limitation)
+     PASS  field saturated before probing (1000.0 >= 1000.0)
+     PASS  every south-lane attempt is either accepted or refused for occupancy (= 720)
+     PASS  no other refusal reason appears on open lane cells (= 0)
+     ....  saturated south lanes: 38/720 anchors legal (5.28%) - measured, see P-007
+     PASS  every probe structure was removed again, state left clean (= 0)
+  -- AC-03 terrain, bounds and overlap refusals
+     PASS  placement on static terrain is refused
+     PASS  rejection reason (= 2)
+     PASS  placement crossing the grid edge is refused
+     PASS  rejection reason (= 1)
+     PASS  first structure on open ground accepted
+     PASS  overlapping structure is refused
+     PASS  rejection reason (= 3)
+     PASS  hwacha placed on open ground
+     PASS  all routes still reachable with a hwacha down
+     PASS  exactly one jangseung survived the refusals (= 1)
+  -- an enemy standing on a cell that becomes impassable still moves
+     PASS  jangseung placed
+     PASS  enemy teleported onto the blocked cell
+     PASS  stranded enemy escapes instead of freezing (moved 116.6 px) (116.572906494141 > 5.0)
+
+== density + hwacha (AC-04, AC-05) ==
+  -- AC-04 density counts known coordinates, boundary inclusive
+     PASS  8 enemies placed at known coordinates (= 8)
+     PASS  count = 3 inside + 2 exactly on the radius (= 5)
+     PASS  batch evaluate matches the single-zone count (= 5)
+  -- AC-04 dead enemies leave the density immediately
+     PASS  all six counted while alive (= 6)
+     PASS  one lethal volley kills all six (= 6)
+     PASS  density drops to zero, no dead enemy counted (= 0)
+     PASS  each death counted exactly once (= 6)
+     PASS  alive count consistent (= 0)
+  -- AC-05 hwacha aims at the densest in-range zone and ignores out-of-range
+     PASS  picks the densest zone inside the firing range (= 1)
+     PASS  follows the density when it moves to another in-range zone (= 0)
+     PASS  a zone exactly at the range boundary is targetable (= 0)
+     PASS  a zone just beyond the range is not (= -1)
+  -- AC-05 equal density ties break on the stable zone id
+     PASS  three-way tie picks the lowest zone id (= 0)
+     PASS  tie among the leaders picks the lowest of those ids (= 1)
+     PASS  tie-break is stable across repeated evaluations
+  -- AC-05 no enemies means no shot, and the cooldown is not burned
+     PASS  an empty zone is never targeted (= -1)
+     PASS  an empty field produces no shots (= 0)
+     PASS  hwacha #1 stays ready while holding fire (= 0.0)
+     PASS  hwacha #2 stays ready while holding fire (= 0.0)
+     PASS  hwacha #3 stays ready while holding fire (= 0.0)
+     PASS  hwacha #4 stays ready while holding fire (= 0.0)
+     PASS  fires on the first step after a target appears (= 1)
+  -- AC-05 a volley damages each enemy once and counts each death once
+     PASS  7 enemies staged (= 7)
+     PASS  first volley kills nobody (= 0)
+     PASS  enemy exactly on the blast edge took damage once (= 35.0)
+     PASS  enemy just outside took no damage (= 60.0)
+     PASS  distant enemy took no damage (= 60.0)
+     PASS  second volley still kills nobody (= 0)
+     PASS  damage accumulates once per volley (= 10.0)
+     PASS  third volley kills the five inside the blast (= 5)
+     PASS  kill counter totals five, no double counting (= 5)
+     PASS  the two outside survive (= 2)
+     PASS  firing again over the dead adds no kills (= 0)
+     PASS  kill counter unchanged (= 5)
+  -- AC-05 cooldown gates the fire rate
+     PASS  5 s at a 1 s cooldown produced 5 volleys
+
+== flow + determinism (AC-01, AC-06) ==
+  -- AC-01 1000 concurrent living enemies across all three entries
+     PASS  concurrent living enemies at t=30 s (1000.0 >= 1000.0)
+     PASS  peak concurrent living enemies (1000.0 >= 1000.0)
+     PASS  cumulative spawns exceed the concurrent count (the two are distinct) (2061.0 > 1000.0)
+     PASS  route 남대문 has living enemies (297.0 > 0.0)
+     PASS  route 남대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 서대문 has living enemies (352.0 > 0.0)
+     PASS  route 서대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 동대문 has living enemies (351.0 > 0.0)
+     PASS  route 동대문 has spawned enemies (687.0 > 0.0)
+     ....  alive=1000 peak=1000 spawned=2061 leaked=1061 killed=0 | per-route alive 남대문 297 / 서대문 352 / 동대문 351
+     PASS  south-west lane is in use (13.0 > 0.0)
+     PASS  south-east lane is in use (9.0 > 0.0)
+  -- AC-01 spawned = alive + killed + leaked at all times
+     PASS  book-keeping at t=5s (= 1000)
+     PASS  book-keeping at t=10s (= 1487)
+     PASS  book-keeping at t=15s (= 1996)
+     PASS  book-keeping at t=20s (= 2581)
+     PASS  book-keeping at t=25s (= 3117)
+     PASS  book-keeping at t=30s (= 3634)
+     PASS  per-route alive counts sum to the total (= 1000)
+  -- AC-06 same seed, same instant: the jangseung raises the fired-on density
+     ....  baseline : east-lane density avg 24.8 / west-lane avg 24.7 / 화차·중영 kills 231 / south arrivals 2
+     ....  with 장승 : east-lane density avg 44.1 / west-lane avg 0.0 / 화차·중영 kills 863 / south arrivals 0
+     PASS  blocking the west lane raises the density in the zone the hwacha fires on (44.1333333333333 > 24.8483333333333)
+     PASS  the same hwacha kills more over the same window (863.0 > 231.0)
+     PASS  fewer south-route enemies reach the objective (0 < 2)
+     PASS  the blocked lane stays empty in the choked case (= 0.0)
+  -- the same seed and the same inputs reproduce the same run
+     PASS  alive count reproduces (= 1000)
+     PASS  kill count reproduces (= 1578)
+     PASS  leak count reproduces (= 3)
+     PASS  per-zone densities reproduce (= [18, 15, 84, 22, 0, 54, 0, 23])
+     PASS  enemy positions reproduce (= 1026439.994)
+     PASS  a different seed gives a different run (1006834.965 != 1026439.994)
+
+== WP-002 bongsu network (AC-01..05, AC-07) ==
+  -- AC-01 bongsu links: exact 180 boundary, just outside, chain, cycle, split, inactive
+     PASS  exactly 180 px is linked (boundary inclusive) (= 1)
+     PASS  linked bongsu share a group (= 1)
+     PASS  group id is the smallest bongsu id of the component (= 1)
+     PASS  181.1 px is not linked (just outside) (= 0)
+     PASS  unlinked bongsu forms its own group (3 != 1)
+     PASS  chain d-e forms one group (= 3)
+     PASS  triangle cycle has 3 edges (= 3)
+     PASS  cycle collapses into one group
+     PASS  one group total (= 1)
+     PASS  s1 reaches s3 through s2 (multi-hop) (= 1)
+     PASS  deactivating a relay changes the topology version
+     PASS  inactive relay splits the component (1 != 3)
+     PASS  inactive bongsu has no group (= -1)
+     PASS  no edges through an inactive node (= 0)
+     PASS  reactivation restores the component (= 1)
+  -- AC-01 terminal attachment: nearest, ties by id, none beyond 180, re-attach on change
+     PASS  sensor attaches to the nearest bongsu (= 2)
+     PASS  sensor inherits the group (= 1)
+     PASS  equidistant bongsu: lowest id wins (= 1)
+     PASS  no bongsu within 180: unattached (= -1)
+     PASS  unattached terminal has no group (= -1)
+     PASS  re-attach after change: nearest active is out of range (= -1)
+     PASS  tie loser becomes the only candidate after the change (= 1)
+     PASS  re-attach after recovery (= 2)
+     PASS  terminal exactly at 180 px attaches (= 1)
+     PASS  terminal at 184.4 px does not attach (= -1)
+  -- AC-01 terminals never relay or merge groups
+     PASS  a sensor between two nets does not merge them (1 != 2)
+     PASS  sensor attaches to exactly one bongsu (lowest id on tie) (= 1)
+     PASS  hwacha 200 px from both bongsu attaches to none (= -1)
+     PASS  two groups remain (= 2)
+     PASS  hwacha attached to the right net (= 2)
+     PASS  no shared detection crosses from the other group (= 0)
+     PASS  mid sensor belongs to the left group only (= 1)
+  -- AC-02 fixture A: no fire disconnected, fire once connected, same position/seed/cooldown
+     PASS  enemy is outside local 100 and inside range 200 (155.24 px)
+     PASS  enemy is inside the sensor range
+     PASS  H attached to B (= 2)
+     PASS  S attached to B (= 2)
+     PASS  hwacha starts ready (= 0.0)
+     PASS  disconnected: hwacha knows nothing (= 0)
+     PASS  disconnected: no volley over 3 s (= 0)
+     PASS  wait reason reported (= 표적 없음)
+     PASS  cooldown untouched while holding fire (= 0.0)
+     PASS  connected: one shared enemy (= 1)
+     PASS  connected: still zero local (= 0)
+     PASS  connected: fired on the first tick (= 1)
+     PASS  fired at Z0 (= 0)
+     PASS  target came through the network (= 1)
+     PASS  counted as a shared-only volley (= 1)
+     PASS  enemy took one volley (no damage bonus from the network) (= 26.0)
+  -- AC-03 disconnection is honoured before the next volley; local fire continues; recovery re-acquires
+     PASS  first volley through the network (= 1)
+     PASS  cooldown is running after the volley
+     PASS  no stale shared volley after disconnection (ready for >1 s) (= 1)
+     PASS  cooldown ran down normally (not reset by the toggle) (= 0.0)
+     PASS  known set is empty while disconnected (= 0)
+     PASS  H2 has no group while the bongsu is inactive (= -1)
+     PASS  H2 detects the local enemy without any network (= 1)
+     PASS  H2 fires locally while disconnected (= 1)
+     PASS  …and the target was local (= 1)
+     PASS  fixture hwacha H still did not fire at the shared-only enemy (= 1)
+     PASS  recovery: shared target re-acquired and fired (1 -> 2)
+     PASS  local test enemy removed
+     PASS  H2 still active
+  -- AC-03 last source gone -> dropped; another source keeps it; slot reuse is not confused
+     PASS  known through two sensors counts once (= 1)
+     PASS  other sensor keeps the target after one source is lost (= 1)
+     PASS  last source gone: target dropped immediately (= 0)
+     PASS  source back: target re-acquired (= 1)
+     PASS  enemy left the sensor range: dropped (= 0)
+     PASS  back in range: known again (= 1)
+     PASS  dead enemy is not known (= 0)
+     PASS  pool reused the same slot (= 0)
+     PASS  reused slot has a new individual id (131072 != 65536)
+     PASS  new individual in the reused slot is not known (= 0)
+     PASS  old id is dead even though the slot is alive again
+     PASS  sensor/bongsu commands never touched the path field (= 2)
+  -- AC-04 other groups, out-of-range zones, partial observation, exact detection edges
+     PASS  sensor sees an enemy exactly at 140 px
+     PASS  sensor does not see 140.5 px
+     PASS  hwacha local detection exactly at 100 px
+     PASS  hwacha local does not see 100.5 px
+     PASS  bongsu still active (= true)
+     PASS  two separate groups (1 != 4)
+     PASS  hwacha knows only its own group's single enemy (= 1)
+     PASS  fires at its own Z0 (1) not the other net's Z5 (5) (= 0)
+     PASS  one volley (= 1)
+     PASS  other sensor is in the other group
+     PASS  enemy survives one volley (hp 60 > 34) (= 1)
+     PASS  sensor relayed through the second bongsu (= 1)
+     PASS  hwacha knows the three shared enemies (= 3)
+     PASS  but Z2 is 400 px away: no volley beyond the firing range (= 0)
+     PASS  wait reason explains it (= 알려진 표적이 사거리 밖)
+     PASS  both relays active
+     PASS  global density of Z7 is 2 (= 2)
+     PASS  hwacha counts only the observed enemy in Z7 (no global leak) (= 1)
+     PASS  relay and sensor active
+     PASS  both enemies alive
+  -- AC-05 duplicate sensors / local overlap / cycles do not amplify; earlier kills excluded
+     PASS  variant 1: every fixture placement accepted
+     PASS  variant 1 sensor count (= 1)
+     PASS  variant 1 bongsu count (= 1)
+     PASS  variant 1 link count (= 0)
+     PASS  variant 1: one group (= 1)
+     PASS  variant 1: S1 in the group (= 1)
+     PASS  variant 1: H in the group (= 1)
+     PASS  variant 1: S1 sees all six (= 6)
+     PASS  variant 1: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: every fixture placement accepted
+     PASS  variant 2 sensor count (= 2)
+     PASS  variant 2 bongsu count (= 1)
+     PASS  variant 2 link count (= 0)
+     PASS  variant 2: one group (= 1)
+     PASS  variant 2: S1 in the group (= 1)
+     PASS  variant 2: S2 in the group (= 1)
+     PASS  variant 2: H in the group (= 1)
+     PASS  variant 2: S1 sees all six (= 6)
+     PASS  variant 2: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: S2 sees all six (= 6)
+     PASS  variant 2: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: every fixture placement accepted
+     PASS  variant 3 sensor count (= 2)
+     PASS  variant 3 bongsu count (= 3)
+     PASS  variant 3 link count (= 3)
+     PASS  variant 3: one group (= 1)
+     PASS  variant 3: S1 in the group (= 1)
+     PASS  variant 3: S2 in the group (= 1)
+     PASS  variant 3: H in the group (= 1)
+     PASS  variant 3: S1 sees all six (= 6)
+     PASS  variant 3: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: S2 sees all six (= 6)
+     PASS  variant 3: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  single sensor: hwacha knows the six enemies (= 6)
+     PASS  two sensors seeing the same enemies: same known count (= 6)
+     PASS  same zone density (= 6)
+     PASS  same number of volleys over the window (= 2)
+     PASS  same kills (= 6)
+     PASS  same number of damage applications (= 12)
+     PASS  three bongsu in a cycle: no amplification of known enemies (= 6)
+     PASS  cycle: same zone density (= 6)
+     PASS  cycle: same volleys (= 2)
+     PASS  cycle: same kills (= 6)
+     PASS  cycle: same damage applications (= 12)
+     ....  dup cases: known=6 zone=6 shots=2 kills=6 damage_events=12
+     PASS  enemy seen locally and by a sensor counts once (= 1)
+     PASS  …as local (= 1)
+     PASS  …and not again as shared (= 0)
+     PASS  setup intact
+     PASS  first hwacha fired (= 1)
+     PASS  first hwacha killed all four (= 4)
+     PASS  second hwacha saw no living enemy after the first volley (= 0)
+     PASS  setup intact
+  -- AC-06 combat-off ticks still evaluate per-hwacha candidates (R-02)
+     PASS  one candidate evaluation per active hwacha per tick (300 ticks x 4) (= 1200)
+     PASS  no volley while combat is off (= 0)
+     PASS  no damage while combat is off (= 0)
+     PASS  no kills while combat is off (= 0)
+     PASS  화차·중영 cooldown untouched (= 0.0)
+     PASS  화차·서영 cooldown untouched (= 0.0)
+     PASS  화차·동영 cooldown untouched (= 0.0)
+     PASS  화차·궁성 cooldown untouched (= 0.0)
+     PASS  hwachas know enemies through the network with combat off
+     PASS  at least one hwacha selected a would-be target zone
+     PASS  combat-on evaluations (1142) are bounded by ticks x hwachas; cooldown ticks skip evaluation
+  -- AC-07 bongsu/sensor placement: rejections, non-blocking, inactive keeps footprint, no path change
+     PASS  bongsu placed inside a lane
+     PASS  bongsu placement does not change the path version (= 2)
+     PASS  lane stays passable (non-blocking)
+     PASS  footprint cell still reachable
+     PASS  sensor over the bongsu is refused (= 3)
+     PASS  inactive structure keeps its footprint (= 3)
+     PASS  activation change does not change the path version (= 2)
+     PASS  sensor on the solid block is refused (= 2)
+     PASS  bongsu crossing the edge is refused (= 1)
+     PASS  bongsu onto a living enemy is refused (= 4)
+     PASS  preview agrees
+     PASS  accepted once the cell is clear
+     PASS  removal succeeds
+     PASS  removal frees the entry (= 1)
+     PASS  removed footprint is placeable again
+     PASS  none of this touched the path version (= 2)
+     PASS  test enemy cleared
+     PASS  unknown structure id is refused for activation
+     PASS  unknown structure id is refused for removal
+  -- same seed + same command sequence reproduce groups, known ids, shots (fixture B)
+     PASS  groups reproduce (= [5])
+     PASS  known ids per hwacha reproduce (= [[65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131145, 131148, 131150, 131154, 131156, 131157, 131159, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131202, 131204, 131211, 131212, 131214, 131220, 131222, 131232, 131241, 131242, 131243, 131244, 131247, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131289, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131331, 131332, 131333, 131334, 131335, 131336, 131345, 131346, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131370, 131373, 131374, 131379, 131380, 131384, 131385, 131399, 131406, 131408, 131424, 131427, 131433, 131437, 131444, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131490, 131493, 131495, 131497, 131500, 131502, 131505, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131570, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131603, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131646, 131649, 131654, 131658, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131703, 131705, 131709, 131712, 131714, 131717, 131720, 131734, 131736, 131738, 131739, 131742, 131745, 131747, 131753, 131754, 131760, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131817, 131820, 131823, 131825, 131829, 131831, 131832, 131834, 131843, 131847, 131850, 131855, 131856, 131858, 131867, 131868, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131903, 131904, 131907, 131909, 131918, 131925, 131927, 131933, 131934, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 131991, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132050, 132053, 132054, 132059, 132063, 132066, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131168, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131285, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131529, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131652, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131898, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559]])
+     PASS  shots reproduce (= [17, 14, 0, 13])
+     PASS  shared-only volleys reproduce (= 31)
+     PASS  kills reproduce (= [184, 439, 0, 413])
+     PASS  a different seed differs ([[65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131085, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131160, 131162, 131163, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131226, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131258, 131261, 131262, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131319, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131432, 131433, 131441, 131442, 131445, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131499, 131504, 131505, 131506, 131507, 131508, 131514, 131517, 131519, 131525, 131529, 131532, 131534, 131544, 131546, 131553, 131562, 131565, 131570, 131571, 131573, 131577, 131583, 131585, 131588, 131592, 131598, 131604, 131606, 131610, 131612, 131615, 131621, 131622, 131624, 131628, 131629, 131630, 131631, 131633, 131634, 131636, 131643, 131654, 131657, 131658, 131664, 131665, 131666, 131667, 131676, 131691, 131693, 131696, 131702, 131704, 131711, 131718, 131723, 131724, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131772, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131822, 131823, 131828, 131844, 131849, 131856, 131858, 131859, 131865, 131867, 131870, 131876, 131879, 131882, 131885, 131894, 131895, 131896, 131901, 131903, 131904, 131906, 131909, 131913, 131918, 131919, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131991, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132069, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197013, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131844, 131849, 131856, 131858, 131865, 131870, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131180, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131259, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131286, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131366, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131835, 131844, 131849, 131856, 131858, 131865, 131870, 131871, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131844, 131849, 131856, 131858, 131865, 131870, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604]] != [[65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131145, 131148, 131150, 131154, 131156, 131157, 131159, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131202, 131204, 131211, 131212, 131214, 131220, 131222, 131232, 131241, 131242, 131243, 131244, 131247, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131289, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131331, 131332, 131333, 131334, 131335, 131336, 131345, 131346, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131370, 131373, 131374, 131379, 131380, 131384, 131385, 131399, 131406, 131408, 131424, 131427, 131433, 131437, 131444, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131490, 131493, 131495, 131497, 131500, 131502, 131505, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131570, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131603, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131646, 131649, 131654, 131658, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131703, 131705, 131709, 131712, 131714, 131717, 131720, 131734, 131736, 131738, 131739, 131742, 131745, 131747, 131753, 131754, 131760, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131817, 131820, 131823, 131825, 131829, 131831, 131832, 131834, 131843, 131847, 131850, 131855, 131856, 131858, 131867, 131868, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131903, 131904, 131907, 131909, 131918, 131925, 131927, 131933, 131934, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 131991, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132050, 132053, 132054, 132059, 132063, 132066, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131168, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131285, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131529, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131652, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131898, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559]])
+     PASS  fixture B produces shared-only volleys (31)
+     PASS  reset restores exactly the 16 fixture structures (= 16)
+     PASS  reset clears enemies (= 0)
+     PASS  reset clears shot counters (= 0)
+     PASS  reset clears known sets (= 0)
+     PASS  reset restores activation
+
+TOTAL passed=322 failed=0
+elapsed 42.7 s

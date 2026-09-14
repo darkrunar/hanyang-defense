@@ -46,6 +46,19 @@ for png in ac01_t30_1000_alive_three_routes ac02_a_reference_t30 ac02_b_west_lan
     [[ -s "$EVID/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
 done
 
+echo "== 4b/6 WP-002 fixture A capture (connection effect)"
+EVID2="$EVID/wp-002"
+mkdir -p "$EVID2/captures" "$EVID2/perf" "$EVID2/tests"
+rm -f "$EVID2"/captures/wp002_a*
+cp -f "$EVID/test_report.txt" "$EVID2/tests/test_report.txt"
+godot --path . --rendering-driver opengl3 -- --capture=wp002_a --out-dir="$(abs "$EVID2/captures")"
+[[ -s "$EVID2/captures/wp002_a_log.json" ]] || { echo "capture wp002_a produced no log"; exit 1; }
+for png in wp002_a1_disconnected_no_fire_t2 wp002_a2_connected_shared_fire_t2.5 \
+           wp002_a3_disconnected_again_no_stale_fire_t5 wp002_a4_local_fire_while_disconnected_t5.5 \
+           wp002_a5_reconnected_reacquired_t7; do
+    [[ -s "$EVID2/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
+done
+
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi
@@ -82,4 +95,33 @@ for sc in move combat; do
         echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> FAIL (budget: avg>=60, p95<=25ms, alive_min>=target)"; exit 1
     fi
 done
-echo "done. evidence in $EVID"
+
+echo "== 6b/6 WP-002 fixture B performance (network_move, network_combat)"
+rm -f "$EVID2"/perf/perf_network_*
+for sc in network_move network_combat; do
+    out="$EVID2/perf/perf_${sc}_1000_release.json"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1 \
+        -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/wp-002/perf/perf_${sc}_1000_release.json"
+    [[ -s "$out" ]] || { echo "perf $sc produced no JSON"; exit 1; }
+    fps=$(json_num "$out" avg_fps); p95=$(json_num "$out" frame_ms_p95); held=$(json_bool "$out" load_held_all_frames)
+    ok=1
+    awk -v f="$fps" -v p="$p95" -v h="$held" 'BEGIN{exit !(f>=60 && p<=25 && h=="true")}' || ok=0
+    # R-02: the targeting workload must have been paid (measured-window candidate evaluations > 0).
+    evd=$(json_num "$out" candidate_evaluations_delta); [[ "${evd:-0}" -gt 0 ]] || ok=0
+    if [[ "$sc" == "network_combat" ]]; then
+        # WP-002 fixture B contract: 12 B8 toggles, 12 successful jangseung changes,
+        # path_version as expected, at least one shared-only volley inside the measured window.
+        b8=$(json_num "$out" b8_toggles); jc=$(json_num "$out" jangseung_changes)
+        pv=$(json_num "$out" path_version); pve=$(json_num "$out" path_version_expected)
+        # "shared_only_shots" also appears in measure_start; the measured_window value is the 3rd match.
+        wso=$(grep -o '"shared_only_shots": *[0-9]*' "$out" | sed -n '3p' | sed 's/.*: *//')
+        [[ "$b8" == "12" && "$jc" == "12" && "$pv" == "$pve" && "${wso:-0}" -ge 1 ]] || ok=0
+        echo "perf $sc: b8_toggles=$b8 jangseung_changes=$jc path_version=$pv/$pve window_shared_only=$wso eval_delta=$evd"
+    fi
+    if [[ "$ok" == "1" ]]; then
+        echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> PASS"
+    else
+        echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> FAIL"; exit 1
+    fi
+done
+echo "done. evidence in $EVID and $EVID2"

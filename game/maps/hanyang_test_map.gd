@@ -86,6 +86,28 @@ const HWACHAS: Array = [
     ["화차·궁성", 46, 17],
 ]
 
+## WP-002 fixture B (backlog/WP-002.md): 4 hwachas + 8 bongsu + 4 sensors,
+## placed before any enemy spawns. Bongsu are listed B1..B8 in order; B8
+## (44,33) is the only relay of the southern sensor (44,39).
+const FIXTURE_B_BONGSU: Array = [
+    ["봉수 B1", 34, 21], ["봉수 B2", 42, 21], ["봉수 B3", 50, 21], ["봉수 B4", 58, 21],
+    ["봉수 B5", 34, 29], ["봉수 B6", 42, 29], ["봉수 B7", 58, 29], ["봉수 B8", 44, 33],
+]
+const FIXTURE_B_SENSORS: Array = [
+    ["혼천의 S1", 30, 27], ["혼천의 S2", 62, 27], ["혼천의 S3", 44, 39], ["혼천의 S4", 47, 15],
+]
+
+## WP-002 fixture A (connection effect): one hwacha, one bongsu, one sensor,
+## one stationary enemy at Z0 (900,750). H<->enemy 155.24 px (outside local
+## 100, inside range 200), S<->enemy 50 px, H<->B 89.44 px, B<->S 120 px.
+const FIXTURE_A: Dictionary = {
+    "hwacha": Vector2i(46, 29),
+    "bongsu": Vector2i(44, 33),
+    "sensor": Vector2i(44, 39),
+    "enemy": Vector2(900.0, 750.0),
+    "local_enemy": Vector2(940.0, 690.0),   # 90 px south of H: inside local 100
+}
+
 ## Reference anchors used by the scripted AC scenarios and the docs.
 const AC_SCENARIO_ANCHORS: Dictionary = {
     "south_west_lane": Vector2i(44, 36),
