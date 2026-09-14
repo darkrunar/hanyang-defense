@@ -2,7 +2,7 @@
 
 **한양 전체를 무기화하는 대규모 전투 디펜스.** 조선 사이버펑크 세계에서 적을 유도·압축하고 도시의 시설을 연결해 싸우는 로그라이트 디펜스 프로젝트입니다.
 
-현재 단계는 **WP-001 DONE (2026-09-13) · WP-002 DONE (GPT 재리뷰 PASS, 2026-09-14) · WP-003 READY 전환 대기** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
+현재 단계는 **WP-001 DONE (2026-09-13) · WP-002 DONE (GPT 재리뷰 PASS, 2026-09-14) · WP-003 DRAFT v0.2 (2026-09-15, 기획 검토 중)** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
 
 ## 게임의 중심
 
@@ -39,20 +39,18 @@
 
 첫 단계는 Git 문서를 통한 수동 핸드오프다. 이 저장소만으로 GPT나 Claude Code가 자동 실행되지는 않는다.
 
-### Claude Code에 전달할 요청
+### Claude Code에 전달할 사전 검토 요청 (WP-003 DRAFT)
 
 ```text
-README.md, CLAUDE.md, docs/GAME_DESIGN.md, docs/CORE_LOOP.md, docs/SYSTEM_SPEC.md, docs/DECISIONS.md와 backlog/WP-002.md를 읽는다.
-최신 main에서 wp/002-bongsu-network 브랜치를 만들고 READY인 WP-002만 구현한다. Godot 4.7을 사용한다.
-WP의 Scope만 구현하며 모든 Acceptance Criteria에 대해 증거를 남긴다.
-실제 실행 화면과 재현 가능한 테스트 결과를 확인한다.
-WP-001 회귀와 WP-002 AC-01~08을 검증한다. 새 증거는 results/evidence/wp-002/에 둔다.
-results/RESULT_TEMPLATE.md를 복사해 results/WP-002-RESULT.md에 결과를 기록한다.
-완료 후 REVIEW 및 Draft PR로 제출하고 GPT PASS 전에 병합하지 않는다.
-구현 커밋과 기준 커밋, 변경 파일, 미해결 문제를 함께 전달한다.
+CLAUDE.md, docs/SYSTEM_SPEC.md, docs/DECISIONS.md와 backlog/WP-003.md를 읽는다.
+WP-003은 DRAFT이므로 구현을 시작하지 않고 READY 체크리스트의 기술 검토 자료를 준비한다.
+구역/두 목표/시설 footprint/내곽 A·B 배치와 후보 영역의 기하를 검토한다.
+기존 적 도달 처리·시설 비활성·회수 상태·쿨다운 보존에 필요한 변경 영향을 정리한다.
+유한 웨이브와1000체 성능 모드를 구분하고, 고정 fixture·검증 시나리오·미결정을 보고한다.
+게임 규칙이나 수치를 몰래 확정하지 않으며 게임 코드 변경·구현 PR 생성은 READY 이후로 둔다.
 ```
 
-### GPT에 전달할 리뷰 요청
+### GPT에 전달할 리뷰 요청 (구현 결과 검토 예시: WP-002)
 
 ```text
 backlog/WP-002.md, results/WP-002-RESULT.md와 기록된 기준/구현 커밋의 diff를 검토한다.
