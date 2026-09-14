@@ -1,0 +1,4 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+DUP_FIXTURE {"attempts":[{"anchor":"(41, 38)","ok":false,"reason":"TERRAIN_BLOCKED"},{"anchor":"(40, 33)","ok":false,"reason":"TERRAIN_BLOCKED"},{"anchor":"(42, 37)","ok":false,"reason":"TERRAIN_BLOCKED"}],"bongsus":1,"links":0,"sensors":1}
+MOVE_WORKLOAD {"alive":1000,"candidate_calls":0,"combat_enabled":false,"detect_calls":60,"steps":60}
