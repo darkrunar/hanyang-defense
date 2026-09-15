@@ -22,11 +22,11 @@ godot --path . --rendering-driver opengl3
 
 ```bash
 # WP-002 sandbox (fixture B 16시설, 자유 설치)   /   WP-001 sandbox (화차 4, 전역 표적)
-godot --path . --rendering-driver opengl3 -- --set run_mode=sandbox --set fixture=b --set zone_set=wp001 --set arrival_mode=immediate --set district_rules=false
-godot --path . --rendering-driver opengl3 -- --set run_mode=sandbox --set fixture=wp001 --set targeting_mode=wp001 --set zone_set=wp001 --set arrival_mode=immediate --set district_rules=false
+godot --path . --rendering-driver opengl3 -- --set=run_mode=sandbox --set=fixture=b --set=zone_set=wp001 --set=arrival_mode=immediate --set=district_rules=false
+godot --path . --rendering-driver opengl3 -- --set=run_mode=sandbox --set=fixture=wp001 --set=targeting_mode=wp001 --set=zone_set=wp001 --set=arrival_mode=immediate --set=district_rules=false
 ```
 
-`--set key=value`는 `game/core/config.gd`의 어떤 값이든 덮어쓴다(6절). `--speed=N`은 물리 틱당 시뮬레이션 스텝 수, `--quit-after=초`는 자동 종료다.
+`--set=key=value`(한 인수, 등호로 연결)는 `game/core/config.gd`의 어떤 값이든 덮어쓴다(11절). `--set`과 `key=value`를 띄어 쓰면 파서가 다음 인수를 읽지 않아 조용히 무시된다. `--speed=N`은 물리 틱당 시뮬레이션 스텝 수, `--quit-after=초`는 자동 종료다.
 
 ## 3. 지도
 
@@ -166,10 +166,10 @@ godot --path . --rendering-driver opengl3 -- --set run_mode=sandbox --set fixtur
 ## 10. 연습 모드(sandbox)에서 해 볼 것
 
 1. **병목 만들기(WP-001)**: 남문 서편 골목 (44,36)에 장승을 놓고 동편 골목 밀도(Z1)와 중영의 처치 수가 오르는지 본다. 철거하면 흐름이 되돌아온다. 마지막 남은 골목을 막으려 하면 거절된다.
-2. **연결 효과(WP-002 fixture A)**: 빈 지도에 화차 (46,29)·봉수대 (44,33)·혼천의 (44,39)를 놓고 Z0 (900,750)에 적을 세운다. 봉수대를 `T`로 끄면 화차가 쏘지 않고, 켜면 공유 표적으로 쏜다. 화차 로컬 100px 안의 적은 연결과 무관하게 쏜다.
+2. **연결 효과(WP-002 fixture A)**: 정해진 위치에 적 하나를 세우는 조작은 없으므로 원래 시나리오는 스크립트로 본다: `-- --capture=wp002_a --out-dir=<abs>` 가 비연결 무사격 → 연결 공유 사격 → 재단절 → 로컬 사격 → 재연결을 자동 재생하고 PNG 5장을 남긴다. 손으로 해 보려면 빈 지도로 시작해(`--set=run_mode=sandbox --set=fixture=none --set=zone_set=wp001 --set=arrival_mode=immediate --set=district_rules=false`) 화차 (46,29)·봉수대 (44,33)·혼천의 (44,39)를 놓는다. 남대문에서 올라오는 적이 Z0/Z1 골목을 지날 때 화차(로컬 100px가 골목에 닿지 않음)는 혼천의의 공유 관측으로만 쏜다. 봉수대를 `T`로 끄면 사격이 멈추고 켜면 다시 쏜다.
 3. **봉수망 끊기(fixture B)**: B8 (44,33)은 남쪽 혼천의 S3의 유일한 중계다. `T`로 끄면 S3의 관측이 즉시 사라진다.
 
-## 11. 설정 값 (`game/core/config.gd`, `--set key=value`)
+## 11. 설정 값 (`game/core/config.gd`, `--set=key=value`)
 
 | 키 | 기본값 | 의미 |
 |---|---|---|
