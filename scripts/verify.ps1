@@ -22,6 +22,9 @@ New-Item -ItemType Directory -Force (Join-Path $evid "perf") | Out-Null
 New-Item -ItemType Directory -Force "build_out\windows" | Out-Null
 
 function Assert-Exit([string]$step) {
+    # godot.exe is a GUI-subsystem binary: every call below is piped (| Out-Host)
+    # so PowerShell waits for it and $LASTEXITCODE is really set.
+    if ($null -eq $LASTEXITCODE) { throw "$step: no exit code (the process was not awaited)" }
     if ($LASTEXITCODE -ne 0) { throw "$step failed (exit $LASTEXITCODE)" }
 }
 function Assert-File([string]$path, [string]$step) {
@@ -43,7 +46,7 @@ if ($Wp003) { $stale = @($report) }
 Remove-Item -Force -ErrorAction SilentlyContinue $stale
 
 Write-Host "== 1/6 headless test suite"
-& godot --headless --path . --script res://tests/run_tests.gd -- "--report=$report"
+& godot --headless --path . --script res://tests/run_tests.gd -- "--report=$report" | Out-Host
 Assert-Exit "test suite"
 Assert-File $report "test suite"
 if (-not (Select-String -Path $report -Pattern "failed=0" -Quiet)) { throw "test report does not say failed=0" }
@@ -55,13 +58,13 @@ Assert-Exit "map dump"
 Assert-File "$evid\map_dump.txt" "map dump"
 
 Write-Host "== 3/6 P-007 occupancy probe"
-& godot --headless --path . --script res://game/tools/probe_occupancy.gd -- "--out=$evid\occupancy_probe.json"
+& godot --headless --path . --script res://game/tools/probe_occupancy.gd -- "--out=$evid\occupancy_probe.json" | Out-Host
 Assert-Exit "occupancy probe"
 Assert-File "$evid\occupancy_probe.json" "occupancy probe"
 
 Write-Host "== 4/6 evidence captures (windowed)"
 foreach ($sc in @("ac01", "ac02", "ac06")) {
-    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid\captures"
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid\captures" | Out-Host
     Assert-Exit "capture $sc"
     Assert-File "$evid\captures\${sc}_log.json" "capture $sc"
 }
@@ -77,7 +80,7 @@ New-Item -ItemType Directory -Force (Join-Path $evid2 "perf") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid2 "tests") | Out-Null
 Remove-Item -Force -ErrorAction SilentlyContinue "$evid2\captures\wp002_a*"
 Copy-Item -Force "$evid\test_report.txt" "$evid2\tests\test_report.txt"
-& godot --path . --rendering-driver opengl3 -- "--capture=wp002_a" "--out-dir=$evid2\captures"
+& godot --path . --rendering-driver opengl3 -- "--capture=wp002_a" "--out-dir=$evid2\captures" | Out-Host
 Assert-Exit "capture wp002_a"
 Assert-File "$evid2\captures\wp002_a_log.json" "capture wp002_a"
 foreach ($png in @("wp002_a1_disconnected_no_fire_t2", "wp002_a2_connected_shared_fire_t2.5",
@@ -105,7 +108,7 @@ $f3 = Get-Content "$evid3\tests\f3_ab.json" -Raw | ConvertFrom-Json
 if (-not $f3.state_identical_before_placement) { throw "F3: A/B states differ before the placement" }
 if ($f3.summary.b_shared_only -lt 1 -or $f3.summary.kills_b_minus_a -lt 6 -or $f3.summary.core_damage_a_minus_b -lt 6) { throw "F3 pass lines not met: $($f3.summary | ConvertTo-Json -Compress)" }
 foreach ($sc in @("wp003_f2", "wp003_f3a", "wp003_f3b")) {
-    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid3\captures"
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid3\captures" | Out-Host
     Assert-Exit "capture $sc"
     Assert-File "$evid3\captures\${sc}_log.json" "capture $sc"
 }
@@ -120,7 +123,7 @@ if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
 Write-Host "== 5/6 release export"
-& godot --headless --path . --export-release "Windows Desktop Release" build_out\windows\hanyang_defense_wp001.exe
+& godot --headless --path . --export-release "Windows Desktop Release" build_out\windows\hanyang_defense_wp001.exe | Out-Host
 Assert-Exit "release export"
 Assert-File "build_out\windows\hanyang_defense_wp001.exe" "release export"
 
