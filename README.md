@@ -26,6 +26,8 @@
 | [WP-001](backlog/WP-001.md) | 대량 적 이동 → 병목 → 화차 사격 |
 | [WP-002](backlog/WP-002.md) | 봉수망과 시설 간 표적 공유 |
 | [WP-003](backlog/WP-003.md) | 웨이브 검증 → 붕괴 → 후퇴·재편 |
+| [GAME_GUIDE](docs/GAME_GUIDE.md) | 플레이어·테스터용 게임 가이드: 지도·적·시설·표적·봉수망·WP-003 런·조작·설정 (WP-001~003 기준) |
+| [TEST_REPORT](results/TEST_REPORT.md) | WP-001~003 통합 테스트 리포트: 스위트 780건, AC 최종 판정, 시나리오, 성능, 화면 증거, 리뷰 이력 |
 | [결과 양식](results/RESULT_TEMPLATE.md) | 구현 증거와 GPT 리뷰 기록 |
 | [WP-001 결과](results/WP-001-RESULT.md) | WP-001 구현·검증 결과, AC별 증거, 성능 측정 |
 
