@@ -153,34 +153,44 @@ func _wp003_scenarios(t: RefCounted, tree: SceneTree) -> void:
 
 
 func _restart_clears_input(t: RefCounted, tree: SceneTree) -> void:
-    t.case("R-03 real R key: held click / pause / stale run_id never carry into the new run")
+    t.case("R-03 real keys: held click / pause / stale run_id never carry into the new run (WP-004: R -> confirm -> new run)")
     var scene: Node2D = _new_scene(tree)
     scene._perf = null
     scene._capture_name = ""
+    var dt: float = scene.config.get_num("fixed_dt")
+    # Interactive launch starts on TITLE (WP-004); the game start button opens the run.
+    t.eq(scene.flow.state_name(), "TITLE", "interactive launch shows TITLE")
+    scene.menu.button("title_start").pressed.emit()
+    scene._physics_process(dt)
+    t.eq(scene.flow.state_name(), "PLAYING", "게임 시작 -> PLAYING")
     # No viewport / mouse headlessly: the cursor stands on recovery anchor B.
     scene._cursor_world_override = scene.battle.grid.cell_center(TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y)
-    var dt: float = scene.config.get_num("fixed_dt")
     scene.battle.run_for(1.0)
-    # Player holds the button (a refused recovery click keeps retrying) and pauses.
+    # Player holds the button (a refused recovery click keeps retrying), then pauses with P.
     scene._mouse_down = true
     scene._mouse_down_run_id = scene.battle.run.run_id
-    scene._paused = true
     var old_id: int = scene.battle.run.run_id
-    var key: InputEventKey = InputEventKey.new()
-    key.keycode = KEY_R
-    key.pressed = true
-    scene._unhandled_input(key)
-    t.eq(scene.battle.run.run_id, old_id + 1, "run_id advanced by the R key")
+    _press(scene, KEY_P)
+    scene._physics_process(dt)
+    t.eq(scene.flow.state_name(), "PAUSED", "P pauses")
+    t.eq(scene._mouse_down, false, "entering the menu drops the held click")
+    # R while paused -> restart confirmation; confirm -> exactly one new run.
+    scene.menu.button("pause_restart").pressed.emit()
+    scene._physics_process(dt)
+    t.eq(scene.flow.state_name(), "CONFIRM", "다시 시작 opens the confirmation")
+    scene.menu.button("confirm_ok").pressed.emit()
+    scene._physics_process(dt)
+    t.eq(scene.battle.run.run_id, old_id + 1, "run_id advanced by the confirmed restart")
+    t.eq(scene.flow.state_name(), "PLAYING", "new run is PLAYING (pause cleared)")
     t.eq(scene._mouse_down, false, "held click cleared by the restart")
     t.eq(scene._mouse_down_run_id, -1, "held-click run id cleared")
-    t.eq(scene._paused, false, "pause cleared: the new run is running")
-    t.eq(scene.battle.steps, 0, "new run at tick 0")
+    t.eq(scene.battle.steps, 1, "new run advanced exactly one tick in the frame that started it")
     var rejected: int = scene.battle.commands_rejected
     var accepted: int = scene.battle.commands_accepted
     scene._physics_process(dt)
     t.eq(scene.battle.commands_rejected, rejected, "no command retried in the new run on the next physics tick")
     t.eq(scene.battle.commands_accepted, accepted, "nothing placed in the new run")
-    t.eq(scene.battle.steps, 1, "the new run advanced one tick (not paused)")
+    t.eq(scene.battle.steps, 2, "the new run keeps advancing (not paused)")
     # A hold that somehow outlives a restart (stale run id) is dropped, not retried.
     scene._mouse_down = true
     scene._mouse_down_run_id = scene.battle.run.run_id - 1
@@ -194,12 +204,23 @@ func _restart_clears_input(t: RefCounted, tree: SceneTree) -> void:
     rejected = scene.battle.commands_rejected
     scene._physics_process(dt)
     t.check(scene.battle.commands_rejected > rejected, "current-run hold still retries (refused: no recovery right yet)")
-    # Sandbox reset path clears the same state.
+    # Sandbox reset path goes through the same confirmation and clears the same state.
     scene._apply_mode_preset(Config.new())
     scene.battle.reset()
     scene._mouse_down = true
-    scene._paused = true
-    scene._unhandled_input(key)
+    scene._mouse_down_run_id = scene.battle.run.run_id
+    _press(scene, KEY_R)
+    scene._physics_process(dt)
+    t.eq(scene.flow.state_name(), "CONFIRM", "sandbox R: confirmation first")
+    scene.menu.button("confirm_ok").pressed.emit()
+    scene._physics_process(dt)
+    t.eq(scene.flow.state_name(), "PLAYING", "sandbox R confirmed: playing")
     t.eq(scene._mouse_down, false, "sandbox R: held click cleared")
-    t.eq(scene._paused, false, "sandbox R: pause cleared")
     _drop(scene)
+
+
+static func _press(scene: Node2D, keycode: int) -> void:
+    var key: InputEventKey = InputEventKey.new()
+    key.keycode = keycode
+    key.pressed = true
+    scene._handle_key_event(key)
