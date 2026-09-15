@@ -1,0 +1,57 @@
+{
+  "duplicate_collapse_callback": {
+    "collapse_count": 1,
+    "collapse_events": 1,
+    "detached_again": false,
+    "path_delta_on_duplicate": 0,
+    "recovery_created_events": 1,
+    "right_after_already_successful_placement": 0
+  },
+  "f1_hp360_proposal_diagnostic_only": {
+    "alive": 0,
+    "collapse_count": 0,
+    "core_hp": 60.0,
+    "note": "Only outer_hp changed; not a pass under READY v1.0 HP120.",
+    "outer_arrivals": 314,
+    "outer_hp": 46.0,
+    "spawned": 1140,
+    "state": "WON",
+    "time": 99.8333335330054
+  },
+  "f1_large_hp_diagnostic_only": {
+    "alive": 0,
+    "core_hp": 60.0,
+    "killed": 826,
+    "note": "Not an AC pass; only HP changed to measure total outer leakage.",
+    "outer_arrivals": 314,
+    "outer_hp_initial": 1000000,
+    "spawned": 1140,
+    "state": "WON",
+    "time": 99.8333335330054
+  },
+  "legacy_mode_repro": [
+    {
+      "actual_zones": 8,
+      "arrival_mode": "immediate",
+      "declared_zone_set": "wp001",
+      "expected_zones": 8,
+      "run_mode": "sandbox",
+      "scenario": "move"
+    },
+    {
+      "actual_zones": 8,
+      "arrival_mode": "immediate",
+      "declared_zone_set": "wp001",
+      "expected_zones": 8,
+      "run_mode": "sandbox",
+      "scenario": "network_move"
+    }
+  ],
+  "restart_input": {
+    "held_click_after_restart": false,
+    "new_run_id": 2,
+    "old_hold_dispatched_in_new_run": false,
+    "old_run_id": 1,
+    "paused_after_restart": false
+  }
+}

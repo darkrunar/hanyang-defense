@@ -1,7 +1,7 @@
 # WP-003 Result
 
 - 작성일: 2026-09-15
-- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 1차 **REVISE** → **보완 회차 반영, 재리뷰 PENDING** — 문서 끝 "보완 회차" 절). 1차 회차의 HP 120 결과(F1 FAIL)는 아래에 그대로 보존한다.
+- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 1차 **REVISE** → **재리뷰 2차 PASS** — 문서 끝 GPT 재리뷰 절). 1차 회차의 HP 120 결과(F1 FAIL)는 아래에 그대로 보존한다.
 - 기준 커밋: `31193a3` ("docs(wp-003): finalize fixtures and acceptance criteria, mark READY", main)
 - 검증한 구현 커밋: `7fc75ab` ("feat(wp-003): …") → **Codex 리뷰 반영 `6e9240c`** ("fix(wp-003): scripted scenarios reapply every mode key; held click follows run mode; quit-after on run end; no stale goal marker"). 게임 코어(`game/core/`)는 두 커밋에서 동일하며 변경은 `game/scenes/`뿐이다.
 - 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (Ready for review, 병합 금지)
@@ -259,3 +259,33 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 
 - 검토일 / 검토한 구현 커밋: (PENDING) / `41ff91c` (보완 구현 `8ec66aa` → `2ed2e02` → `41ff91c`; 리뷰 대상 diff는 `f379bea..HEAD`)
 - 최종 판정: **PENDING**
+
+### 2026-09-15 · GPT 재리뷰 2차 — PASS
+
+- 검토 기준: 1차 REVISE `f379bea`와 D-032 외곽HP360. 보완 diff `f379bea..1598d23ff48348394088b439b581b76ed117ac9e` (PR #4).
+- 검증한 게임 구현: `41ff91c` (보완 `8ec66aa` → `2ed2e02` → `41ff91c`). 이후 `c1ff134`의 uid 추가를 제외하면 증거 head `1598d23`까지 게임 소스 변경 없음. 이번 리뷰는 게임 코드를 수정하지 않았다.
+- 최종 판정: **PASS — AC-01~08 모두 충족, R-01~07 해소.** 과거 HP120 실패/1차 REVISE는 이력으로 보존한다. PR 병합은 수행하지 않는다.
+
+| AC | GPT 판정 | 독립 확인 결과 |
+|---|---|---|
+| AC-01 | **PASS** | 실제 도달 피해·초과 미전달 회귀 통과. 중복 붕괴가 대기/배치/종료 상태에서 거절된다. 기존 reviewer 재현에서도 collapse/recovery_created 각1, 경로 추가 변화0 |
+| AC-02 | **PASS** | 생존/신규 목표 전환·ID/HP/좌표 보존·장승 유지 경로 회귀 통과. 이전 PASS 유지 |
+| AC-03 | **PASS** | 정상 회수/거절·분리 쿨다운·+5초 배치 통과. 배치 후 중복 콜백에도 H1 재분리 없음, 회수권0 유지 |
+| AC-04 | **PASS** | F3 도구 독립 재실행: A/B 사전 구조화 상태 동일, 처치0/12·핵심 피해12/0·공유전용0/1. 개체12개별 관측·사격·운명 JSON 및 A/B 실제 렌더 캡처 확인 |
+| AC-05 | **PASS** | D-032 기본HP360 F1: WON99.833초, 외곽46/핵심60/붕괴0/생존0/생성1140. F2: +5초 B배치/WON105.5초/핵심28. F4 패배 우선 통과 |
+| AC-06 | **PASS** | 종료120틱·구조화 상태/재시작 회귀 통과. 실제 R 입력과 기존 reviewer 재현에서 held=false/paused=false/이전 입력 재실행=false. 오래된 run_id 홀드 폐기 시험 포함 |
+| AC-07 | **PASS** | 전체 테스트780/0(기존 코어322 포함), 실제 scene 경로의8존 회귀 통과. 제출 release 양 모드의 원시 배열·구간·6이벤트·18시설/10존·H1 델타·실행파일 해시 일치 확인 |
+| AC-08 | **PASS** | F2 유효 미리보기/배치 후 화면에서 기본 HUD가 내곽·핵심·B를 가리지 않음. F3 B 첫 공유사격, A/B 종료 화면의 처치·핵심HP가 JSON과 일치. README/verify의 재현 절차 확인 |
+
+#### 재실행·검산 증거
+
+- `godot --headless --path . --script res://tests/run_tests.gd -- --report=<absolute-output>`: **780 PASS / 0 FAIL, 48.1초, 종료0**. [재리뷰 test_report](evidence/wp-003/gpt-review/2026-09-15-followup/test_report.txt).
+- 기존 reviewer probe는 출력 위치만 새 회차 폴더로 변경해 실행했다. [스크립트](evidence/wp-003/gpt-review/2026-09-15-followup/review_checks.gd), [결과](evidence/wp-003/gpt-review/2026-09-15-followup/review_checks.json). move/network_move 실제 존8/8, 재시작 잔존입력 없음, 중복 붕괴 이후 권리0·이벤트1·경로delta0·재분리false를 확인했다.
+- `godot --headless --path . --script res://game/tools/wp003_f3_evidence.gd -- --out=<absolute-output>`: 종료0. 출력 SHA256 **277de479b74fd09df26e98babba03c14fc20c1b1589076f4c9c91a5ec5c98cea**, 제출 `tests/f3_ab.json`과 바이트 동일하여 JSON은 중복 저장하지 않았다. B 첫 공유 볼리는 Z9, 이후 Z7에서12체 처치. A는12체 핵심 도달, 피해12. 이 F3 한정 운명 분류는 마지막 위치의 핵심 거리와 처치/도달 집계·사격 로그가 일치함을 확인했으며, 다른 미래 fixture의 일반 이벤트 추적기로 검증한 것은 아니다.
+- [성능 검산 JSON](evidence/wp-003/gpt-review/2026-09-15-followup/perf_audit.json): move **13,294프레임 / 60.004939초 / 221.548FPS / p95 12.720ms**, combat **14,838프레임 / 60.008629초 / 247.264FPS / p95 11.716ms**. 모든 frame_us>0, 원시 배열 길이=frames, 모든 alive≥1000.
+- 구간 인덱스가0부터 마지막 프레임까지 겹침/누락 없이 연속이며 각 구간 frames/FPS/p95를 원시 배열로 재계산해 일치를 확인했다. 세 구간 후보 평가 모두>0. 의미 이벤트 각1건·실제 도달 붕괴·배치 성공1회·path4→5. combat H1 델타 **75−33=42발**로 일치한다.
+- manifest 실제10존·18시설과 외부 메모리 리포트의 실행파일 SHA256 **56ce8e8c3cbabf138b3c96fad462e6afe5fddd801808b2c9716c23461c6810ce** 일치, 두 실행 종료0. 구현 SHA `41ff91c`, 증거 SHA `1598d23`으로 연결한다. 이번 재리뷰에서 release 성능 실행 자체를 다시 하지 않았으며 제출 원시 증거와 기록 코드를 검산했다.
+
+#### 기획 판단
+
+D-032의 HP360은 정상 외곽 방어와 붕괴 후 재편 승리를 함께 성립시키는 프로토타입 초기값으로 유지한다. F3 합격선을 변경하지 않았고 연결 효과를 개체별 증거로 확인했다. 중복 거절 진단 카운터의 증가는 게임 상태·권리·이벤트 변경과 구분하여 허용한다. R-01~07에 대한 추가 필수 수정 요청은 없다. 다중 시드 난이도·완성형 재화·최종 시각 품질은 이번 PASS 범위가 아니다.
