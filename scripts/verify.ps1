@@ -129,7 +129,7 @@ Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway
 New-Item -ItemType Directory -Force (Join-Path $evid4 "captures") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "perf") | Out-Null
 Remove-Item -Force -ErrorAction SilentlyContinue "$evid4\captures\wp004_ui*", "$evid4\captures\settings_capture.cfg"
-Copy-Item -Force $report "$evid4\tests\test_report.txt"
+if ($report -ne "$evid4\tests\test_report.txt") { Copy-Item -Force $report "$evid4\tests\test_report.txt" }
 foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
     & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid4\captures" "--settings=$evid4\captures\settings_capture.cfg" | Out-Host
     Assert-Exit "capture $sc"
