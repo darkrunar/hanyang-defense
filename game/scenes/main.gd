@@ -99,6 +99,22 @@ func _ready() -> void:
 
 var _explicit_sets: Dictionary = {}
 
+## Every key that selects a game mode. A scripted scenario must reapply ALL of
+## them from its own preset (Codex review on PR #4: the legacy WP-001/002
+## scenarios had inherited run_mode="waves" & co. from the WP-003 default).
+const MODE_KEYS: Array[String] = [
+    "targeting_mode", "fixture", "zone_set", "arrival_mode", "run_mode", "district_rules",
+    "outer_hp", "core_hp", "arrival_damage", "wave_gap_seconds", "benchmark_core_invulnerable",
+]
+
+
+## Copy the mode keys from `src` into the live config, except keys the user
+## pinned explicitly with --set.
+func _apply_mode_preset(src: Config) -> void:
+    for k: String in MODE_KEYS:
+        if not _explicit_sets.has(k):
+            config.values[k] = src.values[k]
+
 
 func _parse_args() -> void:
     for arg: String in OS.get_cmdline_user_args():
@@ -146,6 +162,7 @@ func _build_scene() -> void:
     add_child(_terrain)
     _terrain.setup(battle.grid, battle.grid.index_center(battle.path.goal_index),
         config.get_num("goal_radius"))
+    _sync_terrain_marker()
 
     _enemies = MultiMeshInstance2D.new()
     _enemies.name = "Enemies"
@@ -191,6 +208,15 @@ func _build_scene() -> void:
     _hud_layer.add_child(_notice)
 
 
+## The static terrain goal marker belongs to the sandbox modes only; in the
+## WP-003 run the overlay draws both objectives with their live state.
+func _sync_terrain_marker() -> void:
+    var show: bool = battle.run_mode != "waves"
+    if _terrain.show_goal_marker != show:
+        _terrain.show_goal_marker = show
+        _terrain.queue_redraw()
+
+
 func _apply_run_mode() -> void:
     var title: String = "Hanyang Defense WP-002"
     if _perf != null:
@@ -202,23 +228,17 @@ func _apply_run_mode() -> void:
             # WP-003 D-027 transition benchmark: fixture C + 10 zones, waves OFF,
             # 1000 held by top-up, outer HP 1e6 until the scripted trigger,
             # core invulnerable (attempts counted). All of it goes into the manifest.
-            # Only the WP-003 mode keys: the benchmark flags set above and the
-            # per-scenario combat switch must survive (an earlier version copied
-            # the whole preset and silently turned the load top-up off).
-            var wp3: Config = Config.for_wp003()
-            for k: String in ["targeting_mode", "fixture", "zone_set", "arrival_mode", "run_mode", "district_rules"]:
-                if not _explicit_sets.has(k):
-                    config.values[k] = wp3.values[k]
+            # Only the mode keys come from the preset: the benchmark flags set
+            # above and the per-scenario combat switch must survive.
+            _apply_mode_preset(Config.for_wp003())
             config.values["outer_hp"] = 1000000.0
             config.values["benchmark_core_invulnerable"] = true
         elif _perf.scenario.begins_with("network"):
-            # WP-002 fixture B: 4 hwacha + 8 bongsu + 4 sensors, local+shared targeting.
-            config.values["targeting_mode"] = "wp002"
-            config.values["fixture"] = "b"
+            # WP-002 sandbox: fixture B, local+shared targeting, immediate arrivals, no strongholds.
+            _apply_mode_preset(Config.new())
         else:
-            # WP-001 fixtures: global targeting + the four original hwachas.
-            config.values["targeting_mode"] = "wp001"
-            config.values["fixture"] = "wp001"
+            # WP-001 sandbox: global targeting + the four original hwachas.
+            _apply_mode_preset(Config.for_wp001())
         battle.reset()
         if _perf.scenario.begins_with("collapse"):
             battle.waves.enabled = false   # finite waves off: the load is the benchmark top-up
@@ -235,9 +255,11 @@ func _apply_run_mode() -> void:
         ])
     elif _capture_name != "":
         if _capture_name.begins_with("ac0"):
-            # WP-001 evidence scenarios keep the approved configuration.
-            config.values["targeting_mode"] = "wp001"
-            config.values["fixture"] = "wp001"
+            # WP-001 evidence scenarios keep the approved configuration (all mode keys).
+            _apply_mode_preset(Config.for_wp001())
+            battle.reset()
+        elif _capture_name.begins_with("wp002"):
+            _apply_mode_preset(Config.new())
             battle.reset()
         DisplayServer.window_set_size(Vector2i(1920, 1080))
         DisplayServer.window_set_position(Vector2i(0, 0))
@@ -246,6 +268,7 @@ func _apply_run_mode() -> void:
         _setup_capture_steps()
         title += " [capture:%s]" % _capture_name
     DisplayServer.window_set_title(title)
+    _sync_terrain_marker()
 
 
 # ================================================================== loop ===
@@ -262,12 +285,20 @@ func _physics_process(delta: float) -> void:
             if _capture_busy:
                 break
     if _mouse_down:
-        _try_place_at_cursor()
+        # Held-click retry dispatches by mode exactly like the initial press
+        # (Codex review on PR #4: a refused recovery click must never fall
+        # through to free construction in the WP-003 run).
+        if battle.run_mode == "waves":
+            _try_recovery_at_cursor()
+        else:
+            _try_place_at_cursor()
     if _notice_timer > 0.0:
         _notice_timer -= delta
         if _notice_timer <= 0.0:
             _notice.text = ""
-    if _quit_after >= 0.0 and battle.sim_time >= _quit_after:
+    # --quit-after: by simulated time, or as soon as a waves run has ended
+    # (sim_time freezes after WON/LOST, so waiting for it would hang).
+    if _quit_after >= 0.0 and (battle.sim_time >= _quit_after or battle.run.ended()):
         get_tree().quit()
 
 
@@ -419,6 +450,7 @@ func _unhandled_input(event: InputEvent) -> void:
                     battle.reset()
                     _recent_shots.clear()
                     _say("초기화 (seed %d)" % config.get_int("seed"))
+                _sync_terrain_marker()
             KEY_H:
                 _show_hud = not _show_hud
                 _hud_layer.visible = _show_hud
@@ -1042,9 +1074,7 @@ func _setup_capture_steps() -> void:
             # 20 s through real arrival damage, recovery at collapse + 5 s to B,
             # then play to the end. Times are absolute: the collapse follows the
             # trigger on the next tick (deterministic, see test_collapse_retreat).
-            var wp3: Config = Config.for_wp003()
-            for k: Variant in wp3.values:
-                config.values[k] = wp3.values[k]
+            _apply_mode_preset(Config.for_wp003())
             battle.reset()
             _sim_speed = 6
             _capture_steps = [
