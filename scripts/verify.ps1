@@ -12,7 +12,7 @@
 # stops the run, regenerated artifacts are deleted first so a stale file can
 # never pass as new evidence, and the perf JSON is checked against the D-009
 # budget (GPT review recommendations).
-param([switch]$Quick, [switch]$Wp003)
+param([switch]$Quick, [switch]$Wp003, [switch]$Wp004)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 $root = (Get-Location).Path
@@ -42,6 +42,7 @@ $stale = @(
     (Join-Path $evid "captures\ac0*_log.json"), (Join-Path $evid "captures\ac0*.png"),
     (Join-Path $evid "perf\perf_move_1000_release.json*"), (Join-Path $evid "perf\perf_combat_1000_release.json*")
 )
+if ($Wp004) { $Wp003 = $true }   # -Wp004 = the WP-003 evidence steps + the WP-004 captures, collapse perf JSON under wp-004/
 if ($Wp003) { $stale = @($report) }
 Remove-Item -Force -ErrorAction SilentlyContinue $stale
 
@@ -120,6 +121,36 @@ foreach ($png in @("wp003_f2_a_outer_defense_t15", "wp003_f2_b_collapse_notice_t
 }
 if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1 must not fire (it has no connection and no local target)" }
 
+Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
+$evid4 = Join-Path $evid "wp-004"
+New-Item -ItemType Directory -Force (Join-Path $evid4 "captures") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid4 "perf") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid4\captures\wp004_ui*", "$evid4\captures\settings_capture.cfg"
+Copy-Item -Force $report "$evid4\tests\test_report.txt"
+foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid4\captures" "--settings=$evid4\captures\settings_capture.cfg" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid4\captures\${sc}_log.json" "capture $sc"
+    foreach ($n in @("01_title", "02_settings_from_title", "03_playing_t12", "04_paused", "05_settings_from_pause", "06_confirm_restart",
+                     "07_confirm_to_title", "08_confirm_from_r_after_collapse", "09_result_lost", "10_result_won", "11_title_again")) {
+        Assert-File "$evid4\captures\${sc}_$n.png" "capture $sc"
+    }
+    $log = Get-Content "$evid4\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $states = @($log | Where-Object { $_.ui_state } | ForEach-Object { "$($_.label)=$($_.ui_state)" })
+    Write-Host ("capture {0}: {1}" -f $sc, ($states -join " "))
+    $expect = @{ launch="TITLE"; settings_esc_returns_to_title="TITLE"; esc_pauses="PAUSED"; settings_esc_returns_to_pause="PAUSED";
+                 confirm_cancel_returns_to_pause="PAUSED"; confirm_esc_cancels_only="PAUSED"; pause_esc_resumes="PLAYING";
+                 r_while_playing_opens_confirm="CONFIRM"; confirm_cancel_resumes_playing="PLAYING"; r_on_result_restarts_immediately="PLAYING";
+                 result_to_title_immediate="TITLE" }
+    foreach ($k in $expect.Keys) {
+        $row = $log | Where-Object { $_.label -eq $k } | Select-Object -First 1
+        if ($null -eq $row -or $row.ui_state -ne $expect[$k]) { throw "capture ${sc}: state after '$k' should be $($expect[$k]) (got $($row.ui_state))" }
+    }
+    $results = @($log | Where-Object { $_.wait_result })
+    if ($results.Count -ne 2 -or $results[0].result.outcome -ne "LOST" -or $results[1].result.outcome -ne "WON") { throw "capture ${sc}: expected a LOST then a WON result" }
+}
+
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
 Write-Host "== 5/6 release export"
@@ -168,9 +199,10 @@ foreach ($sc in @("network_move", "network_combat")) {
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
 Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
-Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\perf\perf_collapse_move_1000_release.json*", "$evid3\perf\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
+$perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
+Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
 foreach ($sc in @("collapse_move", "collapse_combat")) {
-    $out = "results\evidence\wp-003\perf\perf_${sc}_1000_release.json"
+    $out = "$perfDir\perf_${sc}_1000_release.json"
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
     Assert-File $out "perf $sc"
     Assert-File "$out.memory.json" "perf $sc memory sampler"

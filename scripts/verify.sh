@@ -83,6 +83,20 @@ for png in wp003_f2_a_outer_defense_t15 wp003_f2_b_collapse_notice_t20.5 wp003_f
 done
 [[ ! -e "$EVID3/captures/wp003_f3a_4_first_h1_shot.png" ]] || { echo "F3 A: H1 must not fire"; exit 1; }
 
+echo "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
+EVID4="$EVID/wp-004"
+mkdir -p "$EVID4/captures" "$EVID4/perf" "$EVID4/tests"
+rm -f "$EVID4"/captures/wp004_ui* "$EVID4/captures/settings_capture.cfg"
+cp -f "$EVID/test_report.txt" "$EVID4/tests/test_report.txt"
+for sc in wp004_ui wp004_ui_720; do
+    godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID4/captures")" --settings="$(abs "$EVID4/captures/settings_capture.cfg")"
+    [[ -s "$EVID4/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
+    for n in 01_title 02_settings_from_title 03_playing_t12 04_paused 05_settings_from_pause 06_confirm_restart              07_confirm_to_title 08_confirm_from_r_after_collapse 09_result_lost 10_result_won 11_title_again; do
+        [[ -s "$EVID4/captures/${sc}_$n.png" ]] || { echo "capture ${sc}_$n.png missing"; exit 1; }
+    done
+    grep -q '"label": *"r_on_result_restarts_immediately"' "$EVID4/captures/${sc}_log.json" || { echo "capture $sc: flow log incomplete"; exit 1; }
+done
+
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi
