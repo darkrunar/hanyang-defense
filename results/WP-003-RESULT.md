@@ -1,7 +1,7 @@
 # WP-003 Result
 
 - 작성일: 2026-09-15
-- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 판정 PENDING). **AC-05의 F1(정상 방어 승리)은 계약 수치로 FAIL** — 아래 분석과 P-017 제안 참조.
+- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 최종 **REVISE**, 아래 GPT Review 참조). **AC-05의 F1(정상 방어 승리)은 계약 수치로 FAIL** — 아래 분석과 P-017 제안 참조.
 - 기준 커밋: `31193a3` ("docs(wp-003): finalize fixtures and acceptance criteria, mark READY", main)
 - 검증한 구현 커밋: `7fc75ab` ("feat(wp-003): …") → **Codex 리뷰 반영 `6e9240c`** ("fix(wp-003): scripted scenarios reapply every mode key; held click follows run mode; quit-after on run end; no stale goal marker"). 게임 코어(`game/core/`)는 두 커밋에서 동일하며 변경은 `game/scenes/`뿐이다.
 - 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (Ready for review, 병합 금지)
@@ -149,3 +149,52 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - 보완 요청 또는 다음 WP 준비 사항: (PENDING) — 특히 P-017(F1 수치)에 대한 판단을 요청한다.
 
 이 문서는 구현·테스트 결과 기록이며, DONE 전환은 모든 필수 AC 충족과 GPT PASS 이후에만 한다.
+
+### 2026-09-15 · GPT 독립 리뷰 — REVISE
+
+- 기준: READY v1.0 `31193a3` → 구현 `7fc75ab` 및 수정 `6e9240c9f88b2f43da34c701299ed687da434ded`.
+- 증거/PR head: `57988c23803b07dfa76ff373193671ff1b890f30`, PR #4. 이 판정은 위 구현자 자체 PASS/PENDING보다 우선한다. 병합/DONE 승인 없음.
+- 재실행: Godot 4.7.stable 공식 headless 전체 테스트 **509 PASS / 5 FAIL, 종료1, 46.8초**. 기존 코어 회귀322건은 통과하지만 실제 scene에서 legacy 모드를 시작할 때의 회귀는 별도로 재현했다.
+- reviewer 증거: [test_report](evidence/wp-003/gpt-review/2026-09-15/test_report.txt), [review_checks.gd](evidence/wp-003/gpt-review/2026-09-15/review_checks.gd), [review_checks.json](evidence/wp-003/gpt-review/2026-09-15/review_checks.json), [perf_audit.json](evidence/wp-003/gpt-review/2026-09-15/perf_audit.json).
+- reviewer probe 재현: `godot --headless --path . --script res://results/evidence/wp-003/gpt-review/2026-09-15/review_checks.gd`. 게임 코드를 수정하지 않고 실제 scene 모드 전환/R 입력과 코어의 중복 콜백을 호출한다. 별도 HP 변경 진단은 원래 AC 통과 증거가 아니다.
+
+| AC | GPT 판정 | 근거 |
+|---|---|---|
+| AC-01 | **FAIL** | 정상 피해/초과 미전달은 통과. 그러나 명시된 중복 붕괴 콜백을 재실행하면 collapse/recovery_created 이벤트가 각각2건, 추가 경로 재계산 발생(R-04). count 필드가1이라는 것만으로 한 번의 전환을 증명하지 못함 |
+| AC-02 | **PASS** | 생존/신규 목표 전환, 좌표/HP/ID 보존, 장승 유지 경로·목표 전환 delta+1의 정상 경로를 코드와 재실행으로 확인 |
+| AC-03 | **FAIL** | 정상 회수·거절·쿨다운·+5초 배치는 통과. 배치 완료 후 중복 붕괴 콜백이 같은 H1을 다시 분리하고 소비한 회수권을1로 복구하여 1회 배치 계약 위반(R-04) |
+| AC-04 | **NOT RUN (필수 증거 일부)** | 수치 시험은 재실행 통과: A/B 처치0/12·핵심 피해12/0·공유사격0/1. 그러나 F3 실제 화면/독립 JSON, 개체 ID·관측 출처·target_zone·사격/처치/피해 시각 증거가 제출되지 않음. 현재 캡처는 F2만 있음(R-06) |
+| AC-05 | **FAIL** | F1 기존HP120에서 LOST92.2초, 생존264, 붕괴1·핵심0 재현. F2 +5초 B배치/WON105.5초·핵심28 및 F4 패배 우선은 통과. P-017은 아래 D-032로 보완 기준 확정(R-01) |
+| AC-06 | **FAIL** | 코어 초기화/종료 정지는 통과. 실제 scene의 R 재시작 후 이전 held click이 남아 새 run_id에서 재실행됨. 제출 테스트는 ID 증가만 확인하며 오래된 입력 무효화를 확인하지 않음(R-03) |
+| AC-07 | **FAIL** | 제출 release의 원시 성능 수치는 통과. 그러나 scene 모드 전환 후 WP-001/002 실제 존10개 회귀(R-02), 사격 집계·구간 샘플·manifest 불일치(R-05)가 있어 전체 계약 미충족 |
+| AC-08 | **FAIL** | F2의 붕괴/배치/승리 캡처와 로그는 있음. 기본 1280×340 HUD가 내곽 A/B 배치 지점·핵심 마커·유효 미리보기와 겹쳐 주요 조작 정보를 가림. d/e 캡처에서 직접 확인. F3 화면도 미제출(R-06/07) |
+
+#### 보완 요청 (현재 구현 기준 행)
+
+**R-01 · P1 · F1 정상 방어 승리 불성립.** `tests/test_collapse_retreat.gd:307`의 원래 F1은 재실행에서도 5건 실패했다. HP만 크게 잡아 붕괴를 막은 진단에서 전체1140체 중 처치826/외곽 도달314, 99.833초 종료였다. HP360만 적용한 별도 진단은 동일 도달314, outer46/core60, collapse0, alive0/WON. **D-032: P-017(a) 외곽 초기/최대HP360 채택**, 핵심60·피해1·웨이브·시설·존·F1 승리 조건 유지. 원래 HP120 실패를 소급 PASS로 바꾸지 않는다. 보완 구현에서 초기값·재시작 단언·UI HP/캡처를 일치시키고 F1/F2 전체 재측정한다. 자연 붕괴 시나리오와 다양한 시드 난이도는 이 단일 진단으로 보장하지 않는다.
+
+**R-02 · P1 · legacy 모드의 실제 존을 재생성하지 않음.** `game/core/battle.gd:65,78`, `game/scenes/main.gd:229` 주변. Battle 생성 때 WP-003의10존을 만든 뒤 `_apply_mode_preset`→`reset()`은 config의 zone_set만 바꾸고 density를 재생성하지 않는다. 실제 `_apply_run_mode()`로 move/network_move를 선택한 reviewer probe에서 선언은 wp001/sandbox/immediate지만 `density.zones.size()==10`이다. 새 Config로 직접 Battle을 만드는322건 코어 시험은 이를 잡지 못한다. 초기 모드 확정 후 Battle을 만들거나 reset에서 실제 zone_set에 맞춰 density를 재생성한다. move/combat/network_move/network_combat 및 ac0*/wp002 캡처 진입을 실제 scene 경로로 시험하고 **zone ID/중심/반경이 기존8개와 동일**함을 단언한다. 로그 문자열만 확인하지 않는다.
+
+**R-03 · P2 · 재시작이 이전 런의 입력 상태를 남김.** `game/scenes/main.gd:444`의 R 처리는 battle만 재시작하고 `_mouse_down`을 비우지 않는다. reviewer가 held click 상태에서 R을 전달하자 run_id1→2 뒤에도 `_mouse_down=true`, 다음 physics tick에 새 런의 commands_rejected가 증가했다. `_paused`도 유지되어 일시정지 중 R을 누르면 새 런이 멈춘 상태다. 재시작 시 pending/held 입력·선택 상태를 초기화하고, 지연 명령을 도입한 경로는 발행 run_id를 검사한다. 실제 R 입력을 통한 회귀로 이전 입력이 새 런에서 재시도/배치하지 않음을 확인한다. 새 런의 기본 진행 상태도 초기화한다.
+
+**R-04 · P2 · 붕괴 처리 진입점에 중복 방어가 없음.** `game/core/battle.gd:240`. 일반 `_process_arrivals` 호출자는 count를 검사하므로 자연 피해 경로에서는1회다. 하지만 WP가 별도로 요구한 중복 붕괴 호출 시험은 없고 `_collapse()` 자체는 멱등하지 않다. 실제 피해로 붕괴→B배치 성공→같은 `_collapse` 콜백 재호출 시 H1이 다시 분리되고 right0→1, collapse/recovery_created 이벤트 각2건, path+1이 발생했다. 전환 진입점에서 이미 붕괴/종료 상태를 거절하고, 회수 대기·배치 완료·종료 후 각각 중복 호출이 상태/권리/경로/망/이벤트를 바꾸지 않는지 시험한다. 이 재현은 명시된 중복 콜백 계약 시험이며 일반 플레이에서 해당 콜백이 두 번 발생한다고 주장하는 것은 아니다.
+
+**R-05 · P2 · 성능 증거의 집계와 출처가 계약에 맞지 않음.** `game/scenes/main.gd:333,896,974` 주변.
+
+- combat H1 배치 시 shots33, 최종75이므로 **배치 후42발**이다. 코드가 H1 누계75에서 전체 화차 shots_total66을 빼서9로 잘못 기록했다. 같은 H1 ID의 배치 직전 누계로 차감한다. 실제 사격≥1 자체는 충족한다.
+- global frame 배열은 move13173/combat14757, 구간 frames 합계는13172/14756으로 각각1개 부족하다. 마지막 `_perf.tick()`이 done으로 바뀌는 프레임은 global에 들어가고 구간 샘플에서 빠진다. 모든 global 샘플을 정확히 한 구간에 매핑하고 원시 인덱스/시각으로 검산 가능하게 한다.
+- manifest.zones는8개, jangseung_anchor는 `(22,28)`로 실제 WP-003의10존·J1(44,36)/J2(22,24)와 다르다. 실제 실행 데이터에서 전체 시설/존 manifest를 생성한다.
+- implementation_sha는 정확한 `6e9240c...`로 기록됐으나 필수 실행파일 SHA256과 별도 evidence_sha 연결이 없다. 실행 당시 파일 hash와 빌드 출처를 보존하고, evidence SHA는 자기참조를 피하여 별도 결과 커밋에서 연결해도 된다.
+
+원시 검산: move **219.522FPS/p95 12.861ms**, combat **245.925FPS/p95 11.605ms**, 각60초 이상·alive 최소1000·의미 이벤트6건. 전역 수치 자체를 성능 실패라고 해석하지 않는다. 이번 리뷰에서는 신규 release 성능 실행을 하지 않았으며 제출 원시값과 기록 코드를 검산했다. 수정 후 정확한 빌드에서 양 모드10+60초를 다시 제출한다.
+
+**R-06 · P2 · F3의 전체 상태 동일성과 화면/개체별 증거 보완.** `tests/test_collapse_retreat.gd:374,423`, `game/core/battle.gd:510`. 현재는 같은 초기 설정을 두 번 재생한 결과를 부분적인 `state_hash` 문자열로 비교한다. 이 값은 적 좌표/HP의 가중합(소수3자리), 일부 화차 상태/remaining만 포함하며 시설 좌표·센서/봉수 상태·전체 개체 ID별 상태·웨이브 누산기/타이머·망 등을 포함하지 않는다. 실제 스냅샷 복원 또는 동일한 초기/입력 재생과 완전한 구조화 상태 비교를 사용한다. A/B 각각 setup/최초 관측/공유 발사/관측 종료 JSON과 실제 렌더 캡처를 남긴다. 현재 기능 수치의 성공은 인정하나 미실행 화면·누락 상태 검증을 PASS로 대체하지 않는다.
+
+**R-07 · P2 · 내곽 배치 영역을 HUD에서 분리.** `game/scenes/main.gd:183` HUD 크기와 `captures/wp003_f2_d_valid_inner_preview_t23.5.png`, `...e_recovery_placed_t25.5.png`. HUD가 x8~1288/y8~348을 덮어 A(1060,260)/B(900,280), 핵심(950,210)과 미리보기/HP/hover가 겹친다. 상세 디버그를 접거나 빈 공간으로 옮겨 기본 상태에서 회수 가능 구역·유효/거절 사유·연결과 핵심 HP를 동시에 읽을 수 있게 한다. HUD를 통째로 숨겨 안내까지 없어지는 방식만으로 완료하지 않는다. 수정 화면을 실제 실행에서 다시 캡처한다.
+
+#### 기획 판단·최종 처리
+
+- **P-017:** 외곽 유지 승리와 붕괴 후 승리를 별도 경로로 유지한다. 합격 조건을 붕괴 후 승리로 완화하는 안(d)은 채택하지 않는다. 최소 변경안(a) HP360을 D-032로 채택하고 재측정한다. HP 조정은 외곽 방어 여유만 주며, 화력/센서/웨이브/새 존을 동시에 바꾸지 않는다.
+- **P-018:** 실제 실패를 종료1로 보고한 처리는 적절하다. 성공 코드 강제·F1 제외·verify 우회로 해결하지 않는다. 보완 후 모든 필수 테스트 종료0을 요구한다.
+- 기존 D-019~027의 존·회수 대상·분리 중 쿨다운·HP 버퍼·5초 배치 기준은 유지한다. D-032의 HP 변경만 후속 보완 기준이다.
+- 최종 **REVISE**. 기능의 큰 흐름과 F2/F3 수치는 성립하나 회귀·중복 호출·입력 초기화·필수 증거·가독성을 보완해야 한다. 위 수정을 적용한 구현 SHA와 새 결과로 재리뷰한다.
