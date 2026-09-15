@@ -1,0 +1,5449 @@
+{
+  "rows": [
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 0,
+      "spawned": 0,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 30,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 1,
+      "spawned": 30,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 60,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 2,
+      "spawned": 60,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 90,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 3,
+      "spawned": 90,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 120,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 4,
+      "spawned": 120,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 150,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          1,
+          0,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 0,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 5,
+      "spawned": 150,
+      "state": "SPAWNING",
+      "wave": "W1"
+    },
+    {
+      "alive": 179,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          2,
+          1,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 1,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 6,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 173,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          3,
+          7,
+          true
+        ],
+        [
+          "화차·서영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 7,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 7,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 159,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          5,
+          18,
+          true
+        ],
+        [
+          "화차·서영",
+          2,
+          3,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 21,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 8,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 141,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          6,
+          29,
+          true
+        ],
+        [
+          "화차·서영",
+          3,
+          10,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 39,
+      "outer_arrivals": 0,
+      "outer_hp": 120.0,
+      "run": "RUNNING",
+      "sec": 9,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 129,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          7,
+          36,
+          true
+        ],
+        [
+          "화차·서영",
+          4,
+          14,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 50,
+      "outer_arrivals": 1,
+      "outer_hp": 119.0,
+      "run": "RUNNING",
+      "sec": 10,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 114,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          8,
+          44,
+          true
+        ],
+        [
+          "화차·서영",
+          5,
+          20,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 64,
+      "outer_arrivals": 2,
+      "outer_hp": 118.0,
+      "run": "RUNNING",
+      "sec": 11,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 94,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          10,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          6,
+          26,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 83,
+      "outer_arrivals": 3,
+      "outer_hp": 117.0,
+      "run": "RUNNING",
+      "sec": 12,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 77,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          10,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          8,
+          43,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 100,
+      "outer_arrivals": 3,
+      "outer_hp": 117.0,
+      "run": "RUNNING",
+      "sec": 13,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 69,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          11,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          9,
+          49,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 106,
+      "outer_arrivals": 5,
+      "outer_hp": 115.0,
+      "run": "RUNNING",
+      "sec": 14,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 62,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          10,
+          55,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 112,
+      "outer_arrivals": 6,
+      "outer_hp": 114.0,
+      "run": "RUNNING",
+      "sec": 15,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 59,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          14,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          10,
+          55,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 112,
+      "outer_arrivals": 9,
+      "outer_hp": 111.0,
+      "run": "RUNNING",
+      "sec": 16,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 53,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          15,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 13,
+      "outer_hp": 107.0,
+      "run": "RUNNING",
+      "sec": 17,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 43,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          16,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 23,
+      "outer_hp": 97.0,
+      "run": "RUNNING",
+      "sec": 18,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 36,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          17,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 30,
+      "outer_hp": 90.0,
+      "run": "RUNNING",
+      "sec": 19,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 31,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          18,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 35,
+      "outer_hp": 85.0,
+      "run": "RUNNING",
+      "sec": 20,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 21,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          20,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 45,
+      "outer_hp": 75.0,
+      "run": "RUNNING",
+      "sec": 21,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 14,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          21,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 52,
+      "outer_hp": 68.0,
+      "run": "RUNNING",
+      "sec": 22,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 7,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          22,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 59,
+      "outer_hp": 61.0,
+      "run": "RUNNING",
+      "sec": 23,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 5,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          23,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 61,
+      "outer_hp": 59.0,
+      "run": "RUNNING",
+      "sec": 24,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 2,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          25,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 64,
+      "outer_hp": 56.0,
+      "run": "RUNNING",
+      "sec": 25,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 1,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 65,
+      "outer_hp": 55.0,
+      "run": "RUNNING",
+      "sec": 26,
+      "spawned": 180,
+      "state": "WAITING_CLEAR",
+      "wave": "W1"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 27,
+      "spawned": 180,
+      "state": "GAP",
+      "wave": "W1"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 28,
+      "spawned": 180,
+      "state": "GAP",
+      "wave": "W1"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 29,
+      "spawned": 180,
+      "state": "GAP",
+      "wave": "W1"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 30,
+      "spawned": 180,
+      "state": "GAP",
+      "wave": "W1"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 31,
+      "spawned": 180,
+      "state": "GAP",
+      "wave": "W1"
+    },
+    {
+      "alive": 21,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 32,
+      "spawned": 201,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 51,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 33,
+      "spawned": 231,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 81,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 34,
+      "spawned": 261,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 111,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          26,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 35,
+      "spawned": 291,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 141,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          27,
+          57,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 114,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 36,
+      "spawned": 321,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 170,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          28,
+          58,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 115,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 37,
+      "spawned": 351,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 195,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          29,
+          63,
+          true
+        ],
+        [
+          "화차·서영",
+          12,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 120,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 38,
+      "spawned": 381,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 213,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          31,
+          75,
+          true
+        ],
+        [
+          "화차·서영",
+          13,
+          57,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 132,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 39,
+      "spawned": 411,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 227,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          32,
+          85,
+          true
+        ],
+        [
+          "화차·서영",
+          15,
+          63,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 148,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 40,
+      "spawned": 441,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 242,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          33,
+          92,
+          true
+        ],
+        [
+          "화차·서영",
+          16,
+          71,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 163,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 41,
+      "spawned": 471,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 257,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          34,
+          98,
+          true
+        ],
+        [
+          "화차·서영",
+          17,
+          80,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 178,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 42,
+      "spawned": 501,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 255,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          36,
+          118,
+          true
+        ],
+        [
+          "화차·서영",
+          18,
+          92,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 210,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 43,
+      "spawned": 531,
+      "state": "SPAWNING",
+      "wave": "W2"
+    },
+    {
+      "alive": 256,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          37,
+          124,
+          true
+        ],
+        [
+          "화차·서영",
+          19,
+          94,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 218,
+      "outer_arrivals": 66,
+      "outer_hp": 54.0,
+      "run": "RUNNING",
+      "sec": 44,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 227,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          38,
+          133,
+          true
+        ],
+        [
+          "화차·서영",
+          21,
+          113,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 246,
+      "outer_arrivals": 67,
+      "outer_hp": 53.0,
+      "run": "RUNNING",
+      "sec": 45,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 211,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          39,
+          140,
+          true
+        ],
+        [
+          "화차·서영",
+          22,
+          122,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 262,
+      "outer_arrivals": 67,
+      "outer_hp": 53.0,
+      "run": "RUNNING",
+      "sec": 46,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 185,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          41,
+          155,
+          true
+        ],
+        [
+          "화차·서영",
+          23,
+          127,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 282,
+      "outer_arrivals": 73,
+      "outer_hp": 47.0,
+      "run": "RUNNING",
+      "sec": 47,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 161,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          42,
+          163,
+          true
+        ],
+        [
+          "화차·서영",
+          24,
+          136,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 299,
+      "outer_arrivals": 80,
+      "outer_hp": 40.0,
+      "run": "RUNNING",
+      "sec": 48,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 125,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          43,
+          169,
+          true
+        ],
+        [
+          "화차·서영",
+          26,
+          155,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 324,
+      "outer_arrivals": 91,
+      "outer_hp": 29.0,
+      "run": "RUNNING",
+      "sec": 49,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 110,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          44,
+          176,
+          true
+        ],
+        [
+          "화차·서영",
+          27,
+          159,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 335,
+      "outer_arrivals": 95,
+      "outer_hp": 25.0,
+      "run": "RUNNING",
+      "sec": 50,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 98,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          45,
+          176,
+          true
+        ],
+        [
+          "화차·서영",
+          28,
+          165,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 341,
+      "outer_arrivals": 101,
+      "outer_hp": 19.0,
+      "run": "RUNNING",
+      "sec": 51,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 81,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "OUTER_ACTIVE",
+      "hwachas": [
+        [
+          "화차·중영",
+          47,
+          176,
+          true
+        ],
+        [
+          "화차·서영",
+          29,
+          170,
+          true
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          true
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 346,
+      "outer_arrivals": 113,
+      "outer_hp": 7.0,
+      "run": "RUNNING",
+      "sec": 52,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 71,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          0,
+          0,
+          true
+        ]
+      ],
+      "killed": 349,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 53,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 71,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          1,
+          0,
+          true
+        ]
+      ],
+      "killed": 349,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 54,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 67,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          2,
+          4,
+          true
+        ]
+      ],
+      "killed": 353,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 55,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 57,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          3,
+          14,
+          true
+        ]
+      ],
+      "killed": 363,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 56,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 51,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          4,
+          20,
+          true
+        ]
+      ],
+      "killed": 369,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 57,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 49,
+      "collapse_tick": 3167,
+      "core_arrivals": 0,
+      "core_hp": 60.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          5,
+          22,
+          true
+        ]
+      ],
+      "killed": 371,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 58,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 33,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          7,
+          37,
+          true
+        ]
+      ],
+      "killed": 386,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 59,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 26,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          8,
+          44,
+          true
+        ]
+      ],
+      "killed": 393,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 60,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 25,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          9,
+          45,
+          true
+        ]
+      ],
+      "killed": 394,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 61,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 21,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          10,
+          49,
+          true
+        ]
+      ],
+      "killed": 398,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 62,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 8,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          12,
+          62,
+          true
+        ]
+      ],
+      "killed": 411,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 63,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 5,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          13,
+          65,
+          true
+        ]
+      ],
+      "killed": 414,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 64,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 2,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          14,
+          68,
+          true
+        ]
+      ],
+      "killed": 417,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 65,
+      "spawned": 540,
+      "state": "WAITING_CLEAR",
+      "wave": "W2"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 66,
+      "spawned": 540,
+      "state": "GAP",
+      "wave": "W2"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 67,
+      "spawned": 540,
+      "state": "GAP",
+      "wave": "W2"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 68,
+      "spawned": 540,
+      "state": "GAP",
+      "wave": "W2"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 69,
+      "spawned": 540,
+      "state": "GAP",
+      "wave": "W2"
+    },
+    {
+      "alive": 0,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 70,
+      "spawned": 540,
+      "state": "GAP",
+      "wave": "W2"
+    },
+    {
+      "alive": 30,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 71,
+      "spawned": 570,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 80,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 72,
+      "spawned": 620,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 130,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 73,
+      "spawned": 670,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 180,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 74,
+      "spawned": 720,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 230,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 75,
+      "spawned": 770,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 280,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 76,
+      "spawned": 820,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 330,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 77,
+      "spawned": 870,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 380,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 78,
+      "spawned": 920,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 430,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          15,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 79,
+      "spawned": 970,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 480,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          16,
+          70,
+          true
+        ]
+      ],
+      "killed": 419,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 80,
+      "spawned": 1020,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 527,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          17,
+          73,
+          true
+        ]
+      ],
+      "killed": 422,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 81,
+      "spawned": 1070,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 569,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          18,
+          81,
+          true
+        ]
+      ],
+      "killed": 430,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 82,
+      "spawned": 1120,
+      "state": "SPAWNING",
+      "wave": "W3"
+    },
+    {
+      "alive": 575,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          19,
+          95,
+          true
+        ]
+      ],
+      "killed": 444,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 83,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 549,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          21,
+          121,
+          true
+        ]
+      ],
+      "killed": 470,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 84,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 518,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          22,
+          152,
+          true
+        ]
+      ],
+      "killed": 501,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 85,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 497,
+      "collapse_tick": 3167,
+      "core_arrivals": 1,
+      "core_hp": 59.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          23,
+          173,
+          true
+        ]
+      ],
+      "killed": 522,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 86,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 472,
+      "collapse_tick": 3167,
+      "core_arrivals": 3,
+      "core_hp": 57.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          24,
+          196,
+          true
+        ]
+      ],
+      "killed": 545,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 87,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 430,
+      "collapse_tick": 3167,
+      "core_arrivals": 5,
+      "core_hp": 55.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          26,
+          236,
+          true
+        ]
+      ],
+      "killed": 585,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 88,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 404,
+      "collapse_tick": 3167,
+      "core_arrivals": 8,
+      "core_hp": 52.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          27,
+          259,
+          true
+        ]
+      ],
+      "killed": 608,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 89,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 368,
+      "collapse_tick": 3167,
+      "core_arrivals": 20,
+      "core_hp": 40.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          28,
+          283,
+          true
+        ]
+      ],
+      "killed": 632,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 90,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 314,
+      "collapse_tick": 3167,
+      "core_arrivals": 40,
+      "core_hp": 20.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          29,
+          317,
+          true
+        ]
+      ],
+      "killed": 666,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 91,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    },
+    {
+      "alive": 273,
+      "collapse_tick": 3167,
+      "core_arrivals": 55,
+      "core_hp": 5.0,
+      "defense": "INNER_ONLY",
+      "hwachas": [
+        [
+          "화차·서영",
+          30,
+          173,
+          false
+        ],
+        [
+          "화차·동영",
+          0,
+          0,
+          false
+        ],
+        [
+          "화차·궁성",
+          30,
+          343,
+          true
+        ]
+      ],
+      "killed": 692,
+      "outer_arrivals": 120,
+      "outer_hp": 0.0,
+      "run": "RUNNING",
+      "sec": 92,
+      "spawned": 1140,
+      "state": "WAITING_CLEAR",
+      "wave": "W3"
+    }
+  ],
+  "summary": {
+    "collapse_sim_time": 52.7833334388978,
+    "collapse_tick": 3167,
+    "core_arrivals": 61,
+    "core_hp": 0.0,
+    "ended_at": 92.1833335177034,
+    "events": [
+      {
+        "core_hp": 60.0,
+        "fixture": "c",
+        "goal": [
+          47,
+          26
+        ],
+        "outer_hp": 120.0,
+        "path_version": 4,
+        "run_id": 1,
+        "run_mode": "waves",
+        "seq": 1,
+        "sim_time": 0.0,
+        "structures": 18,
+        "tick": 0,
+        "type": "run_start"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 119.0,
+        "run_id": 1,
+        "seq": 2,
+        "sim_time": 9.98333335330007,
+        "tick": 599,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 118.0,
+        "run_id": 1,
+        "seq": 3,
+        "sim_time": 10.0333333534001,
+        "tick": 602,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 117.0,
+        "run_id": 1,
+        "seq": 4,
+        "sim_time": 11.6000000232002,
+        "tick": 696,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 116.0,
+        "run_id": 1,
+        "seq": 5,
+        "sim_time": 13.6000000272003,
+        "tick": 816,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 115.0,
+        "run_id": 1,
+        "seq": 6,
+        "sim_time": 13.7166666941003,
+        "tick": 823,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 114.0,
+        "run_id": 1,
+        "seq": 7,
+        "sim_time": 14.6833333627003,
+        "tick": 881,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 113.0,
+        "run_id": 1,
+        "seq": 8,
+        "sim_time": 15.6666666980004,
+        "tick": 940,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 112.0,
+        "run_id": 1,
+        "seq": 9,
+        "sim_time": 15.7166666981004,
+        "tick": 943,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 111.0,
+        "run_id": 1,
+        "seq": 10,
+        "sim_time": 15.8500000317004,
+        "tick": 951,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 110.0,
+        "run_id": 1,
+        "seq": 11,
+        "sim_time": 16.1000000322004,
+        "tick": 966,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 109.0,
+        "run_id": 1,
+        "seq": 12,
+        "sim_time": 16.3166666993004,
+        "tick": 979,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 108.0,
+        "run_id": 1,
+        "seq": 13,
+        "sim_time": 16.5000000330004,
+        "tick": 990,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 107.0,
+        "run_id": 1,
+        "seq": 14,
+        "sim_time": 16.6000000332004,
+        "tick": 996,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 106.0,
+        "run_id": 1,
+        "seq": 15,
+        "sim_time": 17.0666667008004,
+        "tick": 1024,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 105.0,
+        "run_id": 1,
+        "seq": 16,
+        "sim_time": 17.3333333680004,
+        "tick": 1040,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 104.0,
+        "run_id": 1,
+        "seq": 17,
+        "sim_time": 17.3666667014004,
+        "tick": 1042,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 103.0,
+        "run_id": 1,
+        "seq": 18,
+        "sim_time": 17.3833333681004,
+        "tick": 1043,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 102.0,
+        "run_id": 1,
+        "seq": 19,
+        "sim_time": 17.4000000348004,
+        "tick": 1044,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 101.0,
+        "run_id": 1,
+        "seq": 20,
+        "sim_time": 17.4333333682004,
+        "tick": 1046,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 100.0,
+        "run_id": 1,
+        "seq": 21,
+        "sim_time": 17.5166667017004,
+        "tick": 1051,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 99.0,
+        "run_id": 1,
+        "seq": 22,
+        "sim_time": 17.5833333685005,
+        "tick": 1055,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 98.0,
+        "run_id": 1,
+        "seq": 23,
+        "sim_time": 17.9166667025005,
+        "tick": 1075,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 97.0,
+        "run_id": 1,
+        "seq": 24,
+        "sim_time": 17.9833333693005,
+        "tick": 1079,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 96.0,
+        "run_id": 1,
+        "seq": 25,
+        "sim_time": 18.0000000360005,
+        "tick": 1080,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 95.0,
+        "run_id": 1,
+        "seq": 26,
+        "sim_time": 18.1500000363005,
+        "tick": 1089,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 94.0,
+        "run_id": 1,
+        "seq": 27,
+        "sim_time": 18.2333333698005,
+        "tick": 1094,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 93.0,
+        "run_id": 1,
+        "seq": 28,
+        "sim_time": 18.4000000368005,
+        "tick": 1104,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 92.0,
+        "run_id": 1,
+        "seq": 29,
+        "sim_time": 18.4333333702005,
+        "tick": 1106,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 91.0,
+        "run_id": 1,
+        "seq": 30,
+        "sim_time": 18.8500000377005,
+        "tick": 1131,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 90.0,
+        "run_id": 1,
+        "seq": 31,
+        "sim_time": 18.8833333711005,
+        "tick": 1133,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 89.0,
+        "run_id": 1,
+        "seq": 32,
+        "sim_time": 19.1166667049005,
+        "tick": 1147,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 88.0,
+        "run_id": 1,
+        "seq": 33,
+        "sim_time": 19.5500000391005,
+        "tick": 1173,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 2,
+        "dealt": 2.0,
+        "outer_hp": 86.0,
+        "run_id": 1,
+        "seq": 34,
+        "sim_time": 19.7333333728006,
+        "tick": 1184,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 85.0,
+        "run_id": 1,
+        "seq": 35,
+        "sim_time": 19.9333333732006,
+        "tick": 1196,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 84.0,
+        "run_id": 1,
+        "seq": 36,
+        "sim_time": 20.0500000401006,
+        "tick": 1203,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 83.0,
+        "run_id": 1,
+        "seq": 37,
+        "sim_time": 20.1500000403006,
+        "tick": 1209,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 82.0,
+        "run_id": 1,
+        "seq": 38,
+        "sim_time": 20.2166667071006,
+        "tick": 1213,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 81.0,
+        "run_id": 1,
+        "seq": 39,
+        "sim_time": 20.2500000405006,
+        "tick": 1215,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 80.0,
+        "run_id": 1,
+        "seq": 40,
+        "sim_time": 20.4500000409006,
+        "tick": 1227,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 79.0,
+        "run_id": 1,
+        "seq": 41,
+        "sim_time": 20.6333333746006,
+        "tick": 1238,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 78.0,
+        "run_id": 1,
+        "seq": 42,
+        "sim_time": 20.7666667082006,
+        "tick": 1246,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 77.0,
+        "run_id": 1,
+        "seq": 43,
+        "sim_time": 20.8833333751006,
+        "tick": 1253,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 76.0,
+        "run_id": 1,
+        "seq": 44,
+        "sim_time": 20.9500000419006,
+        "tick": 1257,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 75.0,
+        "run_id": 1,
+        "seq": 45,
+        "sim_time": 20.9833333753006,
+        "tick": 1259,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 2,
+        "dealt": 2.0,
+        "outer_hp": 73.0,
+        "run_id": 1,
+        "seq": 46,
+        "sim_time": 21.1000000422006,
+        "tick": 1266,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 72.0,
+        "run_id": 1,
+        "seq": 47,
+        "sim_time": 21.2500000425006,
+        "tick": 1275,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 71.0,
+        "run_id": 1,
+        "seq": 48,
+        "sim_time": 21.6000000432007,
+        "tick": 1296,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 70.0,
+        "run_id": 1,
+        "seq": 49,
+        "sim_time": 21.7166667101007,
+        "tick": 1303,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 69.0,
+        "run_id": 1,
+        "seq": 50,
+        "sim_time": 21.9666667106007,
+        "tick": 1318,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 68.0,
+        "run_id": 1,
+        "seq": 51,
+        "sim_time": 21.9833333773007,
+        "tick": 1319,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 67.0,
+        "run_id": 1,
+        "seq": 52,
+        "sim_time": 22.0166667107007,
+        "tick": 1321,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 66.0,
+        "run_id": 1,
+        "seq": 53,
+        "sim_time": 22.0833333775007,
+        "tick": 1325,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 65.0,
+        "run_id": 1,
+        "seq": 54,
+        "sim_time": 22.1833333777007,
+        "tick": 1331,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 64.0,
+        "run_id": 1,
+        "seq": 55,
+        "sim_time": 22.2000000444007,
+        "tick": 1332,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 63.0,
+        "run_id": 1,
+        "seq": 56,
+        "sim_time": 22.2666667112007,
+        "tick": 1336,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 62.0,
+        "run_id": 1,
+        "seq": 57,
+        "sim_time": 22.5666667118007,
+        "tick": 1354,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 61.0,
+        "run_id": 1,
+        "seq": 58,
+        "sim_time": 22.9166667125007,
+        "tick": 1375,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 60.0,
+        "run_id": 1,
+        "seq": 59,
+        "sim_time": 23.1333333796007,
+        "tick": 1388,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 59.0,
+        "run_id": 1,
+        "seq": 60,
+        "sim_time": 23.3833333801007,
+        "tick": 1403,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 58.0,
+        "run_id": 1,
+        "seq": 61,
+        "sim_time": 24.1166667149008,
+        "tick": 1447,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 57.0,
+        "run_id": 1,
+        "seq": 62,
+        "sim_time": 24.3166667153008,
+        "tick": 1459,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 56.0,
+        "run_id": 1,
+        "seq": 63,
+        "sim_time": 24.6833333827008,
+        "tick": 1481,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 55.0,
+        "run_id": 1,
+        "seq": 64,
+        "sim_time": 25.2833333839008,
+        "tick": 1517,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 54.0,
+        "run_id": 1,
+        "seq": 65,
+        "sim_time": 26.1833333857009,
+        "tick": 1571,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 53.0,
+        "run_id": 1,
+        "seq": 66,
+        "sim_time": 44.7500000894991,
+        "tick": 2685,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 52.0,
+        "run_id": 1,
+        "seq": 67,
+        "sim_time": 46.2333334257988,
+        "tick": 2774,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 51.0,
+        "run_id": 1,
+        "seq": 68,
+        "sim_time": 46.3500000926988,
+        "tick": 2781,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 50.0,
+        "run_id": 1,
+        "seq": 69,
+        "sim_time": 46.7000000933988,
+        "tick": 2802,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 49.0,
+        "run_id": 1,
+        "seq": 70,
+        "sim_time": 46.7166667600988,
+        "tick": 2803,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 48.0,
+        "run_id": 1,
+        "seq": 71,
+        "sim_time": 46.8166667602988,
+        "tick": 2809,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 47.0,
+        "run_id": 1,
+        "seq": 72,
+        "sim_time": 46.8666667603987,
+        "tick": 2812,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 46.0,
+        "run_id": 1,
+        "seq": 73,
+        "sim_time": 47.0166667606987,
+        "tick": 2821,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 45.0,
+        "run_id": 1,
+        "seq": 74,
+        "sim_time": 47.0333334273987,
+        "tick": 2822,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 44.0,
+        "run_id": 1,
+        "seq": 75,
+        "sim_time": 47.0500000940987,
+        "tick": 2823,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 43.0,
+        "run_id": 1,
+        "seq": 76,
+        "sim_time": 47.3166667612987,
+        "tick": 2839,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 42.0,
+        "run_id": 1,
+        "seq": 77,
+        "sim_time": 47.4500000948986,
+        "tick": 2847,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 41.0,
+        "run_id": 1,
+        "seq": 78,
+        "sim_time": 47.7166667620986,
+        "tick": 2863,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 40.0,
+        "run_id": 1,
+        "seq": 79,
+        "sim_time": 47.8500000956986,
+        "tick": 2871,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 39.0,
+        "run_id": 1,
+        "seq": 80,
+        "sim_time": 48.0500000960986,
+        "tick": 2883,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 38.0,
+        "run_id": 1,
+        "seq": 81,
+        "sim_time": 48.1166667628985,
+        "tick": 2887,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 37.0,
+        "run_id": 1,
+        "seq": 82,
+        "sim_time": 48.1333334295985,
+        "tick": 2888,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 36.0,
+        "run_id": 1,
+        "seq": 83,
+        "sim_time": 48.1833334296985,
+        "tick": 2891,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 2,
+        "dealt": 2.0,
+        "outer_hp": 34.0,
+        "run_id": 1,
+        "seq": 84,
+        "sim_time": 48.3666667633985,
+        "tick": 2902,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 33.0,
+        "run_id": 1,
+        "seq": 85,
+        "sim_time": 48.5333334303985,
+        "tick": 2912,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 32.0,
+        "run_id": 1,
+        "seq": 86,
+        "sim_time": 48.7333334307984,
+        "tick": 2924,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 31.0,
+        "run_id": 1,
+        "seq": 87,
+        "sim_time": 48.7833334308984,
+        "tick": 2927,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 30.0,
+        "run_id": 1,
+        "seq": 88,
+        "sim_time": 48.8166667642984,
+        "tick": 2929,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 29.0,
+        "run_id": 1,
+        "seq": 89,
+        "sim_time": 48.9000000977984,
+        "tick": 2934,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 28.0,
+        "run_id": 1,
+        "seq": 90,
+        "sim_time": 49.1166667648984,
+        "tick": 2947,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 27.0,
+        "run_id": 1,
+        "seq": 91,
+        "sim_time": 49.3666667653983,
+        "tick": 2962,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 26.0,
+        "run_id": 1,
+        "seq": 92,
+        "sim_time": 49.5333334323983,
+        "tick": 2972,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 25.0,
+        "run_id": 1,
+        "seq": 93,
+        "sim_time": 49.9166667664982,
+        "tick": 2995,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 24.0,
+        "run_id": 1,
+        "seq": 94,
+        "sim_time": 50.0666667667982,
+        "tick": 3004,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 23.0,
+        "run_id": 1,
+        "seq": 95,
+        "sim_time": 50.1333334335982,
+        "tick": 3008,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 22.0,
+        "run_id": 1,
+        "seq": 96,
+        "sim_time": 50.1500001002982,
+        "tick": 3009,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 21.0,
+        "run_id": 1,
+        "seq": 97,
+        "sim_time": 50.2833334338982,
+        "tick": 3017,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 20.0,
+        "run_id": 1,
+        "seq": 98,
+        "sim_time": 50.4000001007982,
+        "tick": 3024,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 19.0,
+        "run_id": 1,
+        "seq": 99,
+        "sim_time": 50.7000001013981,
+        "tick": 3042,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 18.0,
+        "run_id": 1,
+        "seq": 100,
+        "sim_time": 51.0500001020981,
+        "tick": 3063,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 17.0,
+        "run_id": 1,
+        "seq": 101,
+        "sim_time": 51.0666667687981,
+        "tick": 3064,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 16.0,
+        "run_id": 1,
+        "seq": 102,
+        "sim_time": 51.150000102298,
+        "tick": 3069,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 15.0,
+        "run_id": 1,
+        "seq": 103,
+        "sim_time": 51.283333435898,
+        "tick": 3077,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 14.0,
+        "run_id": 1,
+        "seq": 104,
+        "sim_time": 51.416666769498,
+        "tick": 3085,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 13.0,
+        "run_id": 1,
+        "seq": 105,
+        "sim_time": 51.550000103098,
+        "tick": 3093,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 12.0,
+        "run_id": 1,
+        "seq": 106,
+        "sim_time": 51.566666769798,
+        "tick": 3094,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 11.0,
+        "run_id": 1,
+        "seq": 107,
+        "sim_time": 51.616666769898,
+        "tick": 3097,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 10.0,
+        "run_id": 1,
+        "seq": 108,
+        "sim_time": 51.7833334368979,
+        "tick": 3107,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 9.0,
+        "run_id": 1,
+        "seq": 109,
+        "sim_time": 51.8000001035979,
+        "tick": 3108,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 8.0,
+        "run_id": 1,
+        "seq": 110,
+        "sim_time": 51.8666667703979,
+        "tick": 3112,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 7.0,
+        "run_id": 1,
+        "seq": 111,
+        "sim_time": 51.9000001037979,
+        "tick": 3114,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 6.0,
+        "run_id": 1,
+        "seq": 112,
+        "sim_time": 52.0166667706979,
+        "tick": 3121,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 5.0,
+        "run_id": 1,
+        "seq": 113,
+        "sim_time": 52.0333334373979,
+        "tick": 3122,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 4.0,
+        "run_id": 1,
+        "seq": 114,
+        "sim_time": 52.1000001041979,
+        "tick": 3126,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 3.0,
+        "run_id": 1,
+        "seq": 115,
+        "sim_time": 52.3166667712979,
+        "tick": 3139,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 1,
+        "dealt": 1.0,
+        "outer_hp": 2.0,
+        "run_id": 1,
+        "seq": 116,
+        "sim_time": 52.4500001048978,
+        "tick": 3147,
+        "type": "outer_damage"
+      },
+      {
+        "arrivals": 2,
+        "dealt": 2.0,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 117,
+        "sim_time": 52.7833334388978,
+        "tick": 3167,
+        "type": "outer_damage"
+      },
+      {
+        "alive": 71,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 118,
+        "sim_time": 52.7833334388978,
+        "tick": 3167,
+        "type": "collapse"
+      },
+      {
+        "cooldown_left": 0.7166666665,
+        "hwacha_id": 1,
+        "kills": 176,
+        "label": "화차·중영",
+        "run_id": 1,
+        "seq": 119,
+        "shots": 48,
+        "sim_time": 52.7833334388978,
+        "tick": 3167,
+        "type": "recovery_created"
+      },
+      {
+        "count": 13,
+        "ids": [
+          2,
+          3,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18
+        ],
+        "run_id": 1,
+        "seq": 120,
+        "sim_time": 52.7833334388978,
+        "tick": 3167,
+        "type": "outer_deactivated_batch"
+      },
+      {
+        "goal": [
+          47,
+          10
+        ],
+        "path_version_after": 5,
+        "path_version_before": 4,
+        "run_id": 1,
+        "seq": 121,
+        "sim_time": 52.7833334388978,
+        "tick": 3167,
+        "type": "target_changed"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 59.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 122,
+        "sim_time": 58.3000001165969,
+        "tick": 3498,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 57.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 123,
+        "sim_time": 86.7500001735019,
+        "tick": 5205,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 56.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 124,
+        "sim_time": 87.7000001754022,
+        "tick": 5262,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 55.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 125,
+        "sim_time": 87.8333335090022,
+        "tick": 5270,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 54.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 126,
+        "sim_time": 88.0333335094023,
+        "tick": 5282,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 52.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 127,
+        "sim_time": 88.7500001775025,
+        "tick": 5325,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 51.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 128,
+        "sim_time": 89.1000001782025,
+        "tick": 5346,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 50.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 129,
+        "sim_time": 89.1166668449026,
+        "tick": 5347,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 49.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 130,
+        "sim_time": 89.1666668450026,
+        "tick": 5350,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 47.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 131,
+        "sim_time": 89.3500001787026,
+        "tick": 5361,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 46.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 132,
+        "sim_time": 89.6000001792027,
+        "tick": 5376,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 45.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 133,
+        "sim_time": 89.7166668461027,
+        "tick": 5383,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 43.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 134,
+        "sim_time": 89.7500001795027,
+        "tick": 5385,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 42.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 135,
+        "sim_time": 89.7666668462027,
+        "tick": 5386,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 41.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 136,
+        "sim_time": 89.9000001798028,
+        "tick": 5394,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 40.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 137,
+        "sim_time": 89.9166668465028,
+        "tick": 5395,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 39.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 138,
+        "sim_time": 90.1166668469028,
+        "tick": 5407,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 38.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 139,
+        "sim_time": 90.2000001804028,
+        "tick": 5412,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 37.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 140,
+        "sim_time": 90.2500001805029,
+        "tick": 5415,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 36.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 141,
+        "sim_time": 90.3333335140029,
+        "tick": 5420,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 35.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 142,
+        "sim_time": 90.3500001807029,
+        "tick": 5421,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 34.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 143,
+        "sim_time": 90.4500001809029,
+        "tick": 5427,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 33.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 144,
+        "sim_time": 90.4666668476029,
+        "tick": 5428,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 32.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 145,
+        "sim_time": 90.4833335143029,
+        "tick": 5429,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 31.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 146,
+        "sim_time": 90.6166668479029,
+        "tick": 5437,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 30.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 147,
+        "sim_time": 90.633333514603,
+        "tick": 5438,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 29.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 148,
+        "sim_time": 90.683333514703,
+        "tick": 5441,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 28.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 149,
+        "sim_time": 90.766666848203,
+        "tick": 5446,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 26.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 150,
+        "sim_time": 90.783333514903,
+        "tick": 5447,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 25.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 151,
+        "sim_time": 90.833333515003,
+        "tick": 5450,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 24.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 152,
+        "sim_time": 90.850000181703,
+        "tick": 5451,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 23.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 153,
+        "sim_time": 90.916666848503,
+        "tick": 5455,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 22.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 154,
+        "sim_time": 90.933333515203,
+        "tick": 5456,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 21.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 155,
+        "sim_time": 90.950000181903,
+        "tick": 5457,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 20.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 156,
+        "sim_time": 90.966666848603,
+        "tick": 5458,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 18.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 157,
+        "sim_time": 91.0833335155031,
+        "tick": 5465,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 17.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 158,
+        "sim_time": 91.1000001822031,
+        "tick": 5466,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 16.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 159,
+        "sim_time": 91.1166668489031,
+        "tick": 5467,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 15.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 160,
+        "sim_time": 91.1333335156031,
+        "tick": 5468,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 14.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 161,
+        "sim_time": 91.1666668490031,
+        "tick": 5470,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 12.0,
+        "dealt": 2.0,
+        "run_id": 1,
+        "seq": 162,
+        "sim_time": 91.2666668492031,
+        "tick": 5476,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 11.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 163,
+        "sim_time": 91.3166668493031,
+        "tick": 5479,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 10.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 164,
+        "sim_time": 91.3666668494031,
+        "tick": 5482,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 9.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 165,
+        "sim_time": 91.4000001828032,
+        "tick": 5484,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 8.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 166,
+        "sim_time": 91.4500001829032,
+        "tick": 5487,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 7.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 167,
+        "sim_time": 91.8000001836033,
+        "tick": 5508,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 6.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 168,
+        "sim_time": 91.9500001839033,
+        "tick": 5517,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 5.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 169,
+        "sim_time": 91.9666668506033,
+        "tick": 5518,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 4.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 170,
+        "sim_time": 92.0666668508033,
+        "tick": 5524,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 3.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 171,
+        "sim_time": 92.0833335175033,
+        "tick": 5525,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 2.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 172,
+        "sim_time": 92.1000001842033,
+        "tick": 5526,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 1,
+        "core_hp": 1.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 173,
+        "sim_time": 92.1333335176033,
+        "tick": 5528,
+        "type": "core_damage"
+      },
+      {
+        "absorbed": false,
+        "arrivals": 2,
+        "core_hp": 0.0,
+        "dealt": 1.0,
+        "run_id": 1,
+        "seq": 174,
+        "sim_time": 92.1666668510034,
+        "tick": 5530,
+        "type": "core_damage"
+      },
+      {
+        "alive": 264,
+        "core_hp": 0.0,
+        "run_id": 1,
+        "seq": 175,
+        "sim_time": 92.1666668510034,
+        "tick": 5530,
+        "type": "run_lost"
+      }
+    ],
+    "killed": 695,
+    "outer_arrivals": 120,
+    "outer_hp": 0.0,
+    "peak_alive": 581,
+    "run": "LOST",
+    "spawned": 1140,
+    "waves": {
+      "enabled": true,
+      "gap_left": -0.000000009999984784681,
+      "remaining": [
+        0,
+        0,
+        0
+      ],
+      "scheduled_complete": true,
+      "spawned_by_wave": [
+        180,
+        360,
+        600
+      ],
+      "spawned_extra": 0,
+      "spawned_scheduled": 1140,
+      "state": "WAITING_CLEAR",
+      "total_budget": 1140,
+      "wave_index": 2,
+      "wave_name": "W3",
+      "wave_spent_tick": [
+        359,
+        2592,
+        4942
+      ],
+      "wave_started_tick": [
+        0,
+        1872,
+        4222
+      ]
+    }
+  }
+}
