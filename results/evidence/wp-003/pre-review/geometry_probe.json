@@ -1,0 +1,3225 @@
+{
+  "goals": {
+    "core": {
+      "cell": [
+        47,
+        10
+      ],
+      "open": true,
+      "routes": {
+        "E_DONGDAEMUN": {
+          "min_cost": 560,
+          "reachable": true
+        },
+        "S_NAMDAEMUN": {
+          "min_cost": 434,
+          "reachable": true
+        },
+        "W_SEODAEMUN": {
+          "min_cost": 556,
+          "reachable": true
+        }
+      },
+      "world": [
+        950.0,
+        210.0
+      ]
+    },
+    "outer": {
+      "cell": [
+        47,
+        26
+      ],
+      "open": true,
+      "routes": {
+        "E_DONGDAEMUN": {
+          "min_cost": 484,
+          "reachable": true
+        },
+        "S_NAMDAEMUN": {
+          "min_cost": 274,
+          "reachable": true
+        },
+        "W_SEODAEMUN": {
+          "min_cost": 474,
+          "reachable": true
+        }
+      },
+      "world": [
+        950.0,
+        530.0
+      ]
+    }
+  },
+  "inner_hwacha_options": [
+    {
+      "anchor": [
+        42,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        43,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        44,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        45,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        46,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        47,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        49,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        50,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        51,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        52,
+        6
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        140.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        42,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        43,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        7
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        160.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": []
+    },
+    {
+      "anchor": [
+        42,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        8
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        180.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        9
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        200.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        10
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        220.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        860.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1020.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        11
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        240.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        12
+      ],
+      "attach_dist": 180.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        880.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        900.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        920.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        940.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        960.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        980.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1000.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        12
+      ],
+      "attach_dist": 180.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1040.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        12
+      ],
+      "attach_dist": -1.0,
+      "attachable_bongsu": -1,
+      "center": [
+        1060.0,
+        260.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        13
+      ],
+      "attach_dist": 160.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        13
+      ],
+      "attach_dist": 161.245147705078,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        13
+      ],
+      "attach_dist": 164.924224853516,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        13
+      ],
+      "attach_dist": 170.880081176758,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        13
+      ],
+      "attach_dist": 178.885437011719,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        13
+      ],
+      "attach_dist": 170.880081176758,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        13
+      ],
+      "attach_dist": 164.924224853516,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        13
+      ],
+      "attach_dist": 161.245147705078,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        13
+      ],
+      "attach_dist": 160.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        13
+      ],
+      "attach_dist": 161.245147705078,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        13
+      ],
+      "attach_dist": 164.924224853516,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        280.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        14
+      ],
+      "attach_dist": 161.245147705078,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        300.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        14
+      ],
+      "attach_dist": 152.315460205078,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        300.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        14
+      ],
+      "attach_dist": 145.602203369141,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        300.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        15
+      ],
+      "attach_dist": 144.222045898438,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        320.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        15
+      ],
+      "attach_dist": 134.164077758789,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        320.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        15
+      ],
+      "attach_dist": 126.491104125977,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        320.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        16
+      ],
+      "attach_dist": 100.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        16
+      ],
+      "attach_dist": 101.980392456055,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        16
+      ],
+      "attach_dist": 107.70329284668,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        16
+      ],
+      "attach_dist": 116.619041442871,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        16
+      ],
+      "attach_dist": 128.062484741211,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        16
+      ],
+      "attach_dist": 116.619041442871,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        16
+      ],
+      "attach_dist": 107.70329284668,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        16
+      ],
+      "attach_dist": 101.980392456055,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        16
+      ],
+      "attach_dist": 100.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        16
+      ],
+      "attach_dist": 101.980392456055,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        16
+      ],
+      "attach_dist": 107.70329284668,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        340.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        17
+      ],
+      "attach_dist": 80.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        17
+      ],
+      "attach_dist": 82.4621124267578,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        17
+      ],
+      "attach_dist": 89.4427185058594,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        17
+      ],
+      "attach_dist": 100.0,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        17
+      ],
+      "attach_dist": 113.137084960938,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        17
+      ],
+      "attach_dist": 100.0,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        17
+      ],
+      "attach_dist": 89.4427185058594,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        17
+      ],
+      "attach_dist": 82.4621124267578,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        17
+      ],
+      "attach_dist": 80.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        17
+      ],
+      "attach_dist": 82.4621124267578,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        17
+      ],
+      "attach_dist": 89.4427185058594,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        360.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        18
+      ],
+      "attach_dist": 60.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        18
+      ],
+      "attach_dist": 63.2455520629883,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        18
+      ],
+      "attach_dist": 72.1110229492188,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        18
+      ],
+      "attach_dist": 84.8528137207031,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        18
+      ],
+      "attach_dist": 100.0,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        18
+      ],
+      "attach_dist": 84.8528137207031,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        18
+      ],
+      "attach_dist": 72.1110229492188,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        18
+      ],
+      "attach_dist": 63.2455520629883,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        18
+      ],
+      "attach_dist": 60.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        18
+      ],
+      "attach_dist": 63.2455520629883,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        18
+      ],
+      "attach_dist": 72.1110229492188,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        380.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        19
+      ],
+      "attach_dist": 40.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        19
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        19
+      ],
+      "attach_dist": 56.5685424804688,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        19
+      ],
+      "attach_dist": 72.1110229492188,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        19
+      ],
+      "attach_dist": 89.4427185058594,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        19
+      ],
+      "attach_dist": 72.1110229492188,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        19
+      ],
+      "attach_dist": 56.5685424804688,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        19
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        19
+      ],
+      "attach_dist": 40.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        19
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        19
+      ],
+      "attach_dist": 56.5685424804688,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        400.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        20
+      ],
+      "attach_dist": 20.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        20
+      ],
+      "attach_dist": 28.2842712402344,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        20
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        20
+      ],
+      "attach_dist": 63.2455520629883,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        20
+      ],
+      "attach_dist": 82.4621124267578,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        20
+      ],
+      "attach_dist": 63.2455520629883,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        20
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        20
+      ],
+      "attach_dist": 28.2842712402344,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        20
+      ],
+      "attach_dist": 20.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        20
+      ],
+      "attach_dist": 28.2842712402344,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        20
+      ],
+      "attach_dist": 44.7213592529297,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        420.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        42,
+        21
+      ],
+      "attach_dist": 0.0,
+      "attachable_bongsu": 6,
+      "center": [
+        860.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        43,
+        21
+      ],
+      "attach_dist": 20.0,
+      "attachable_bongsu": 6,
+      "center": [
+        880.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        44,
+        21
+      ],
+      "attach_dist": 40.0,
+      "attachable_bongsu": 6,
+      "center": [
+        900.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        45,
+        21
+      ],
+      "attach_dist": 60.0,
+      "attachable_bongsu": 6,
+      "center": [
+        920.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        46,
+        21
+      ],
+      "attach_dist": 80.0,
+      "attachable_bongsu": 6,
+      "center": [
+        940.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        47,
+        21
+      ],
+      "attach_dist": 60.0,
+      "attachable_bongsu": 7,
+      "center": [
+        960.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        48,
+        21
+      ],
+      "attach_dist": 40.0,
+      "attachable_bongsu": 7,
+      "center": [
+        980.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        49,
+        21
+      ],
+      "attach_dist": 20.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1000.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        50,
+        21
+      ],
+      "attach_dist": 0.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1020.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        51,
+        21
+      ],
+      "attach_dist": 20.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1040.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    },
+    {
+      "anchor": [
+        52,
+        21
+      ],
+      "attach_dist": 40.0,
+      "attachable_bongsu": 7,
+      "center": [
+        1060.0,
+        440.0
+      ],
+      "zones_in_range": [
+        7
+      ],
+      "zones_locally_coverable": [
+        7
+      ]
+    }
+  ],
+  "inner_region": {
+    "bounds": [
+      42,
+      6,
+      53,
+      22
+    ],
+    "fixture_b": [
+      {
+        "anchor": [
+          46,
+          29
+        ],
+        "district": "outer",
+        "id": 1,
+        "kind": "HWACHA",
+        "label": "화차·중영"
+      },
+      {
+        "anchor": [
+          30,
+          25
+        ],
+        "district": "outer",
+        "id": 2,
+        "kind": "HWACHA",
+        "label": "화차·서영"
+      },
+      {
+        "anchor": [
+          64,
+          25
+        ],
+        "district": "outer",
+        "id": 3,
+        "kind": "HWACHA",
+        "label": "화차·동영"
+      },
+      {
+        "anchor": [
+          46,
+          17
+        ],
+        "district": "inner",
+        "id": 4,
+        "kind": "HWACHA",
+        "label": "화차·궁성"
+      },
+      {
+        "anchor": [
+          34,
+          21
+        ],
+        "district": "outer",
+        "id": 5,
+        "kind": "BONGSU",
+        "label": "봉수 B1"
+      },
+      {
+        "anchor": [
+          42,
+          21
+        ],
+        "district": "inner",
+        "id": 6,
+        "kind": "BONGSU",
+        "label": "봉수 B2"
+      },
+      {
+        "anchor": [
+          50,
+          21
+        ],
+        "district": "inner",
+        "id": 7,
+        "kind": "BONGSU",
+        "label": "봉수 B3"
+      },
+      {
+        "anchor": [
+          58,
+          21
+        ],
+        "district": "outer",
+        "id": 8,
+        "kind": "BONGSU",
+        "label": "봉수 B4"
+      },
+      {
+        "anchor": [
+          34,
+          29
+        ],
+        "district": "outer",
+        "id": 9,
+        "kind": "BONGSU",
+        "label": "봉수 B5"
+      },
+      {
+        "anchor": [
+          42,
+          29
+        ],
+        "district": "outer",
+        "id": 10,
+        "kind": "BONGSU",
+        "label": "봉수 B6"
+      },
+      {
+        "anchor": [
+          58,
+          29
+        ],
+        "district": "outer",
+        "id": 11,
+        "kind": "BONGSU",
+        "label": "봉수 B7"
+      },
+      {
+        "anchor": [
+          44,
+          33
+        ],
+        "district": "outer",
+        "id": 12,
+        "kind": "BONGSU",
+        "label": "봉수 B8"
+      },
+      {
+        "anchor": [
+          30,
+          27
+        ],
+        "district": "outer",
+        "id": 13,
+        "kind": "SENSOR",
+        "label": "혼천의 S1"
+      },
+      {
+        "anchor": [
+          62,
+          27
+        ],
+        "district": "outer",
+        "id": 14,
+        "kind": "SENSOR",
+        "label": "혼천의 S2"
+      },
+      {
+        "anchor": [
+          44,
+          39
+        ],
+        "district": "outer",
+        "id": 15,
+        "kind": "SENSOR",
+        "label": "혼천의 S3"
+      },
+      {
+        "anchor": [
+          47,
+          15
+        ],
+        "district": "inner",
+        "id": 16,
+        "kind": "SENSOR",
+        "label": "혼천의 S4"
+      }
+    ],
+    "legal_2x2_anchors": 160,
+    "open_cells": 196,
+    "zones": [
+      {
+        "cell": [
+          45,
+          37
+        ],
+        "center": [
+          900.0,
+          750.0
+        ],
+        "id": 0,
+        "inside_inner": false,
+        "name": "남문 서편 골목"
+      },
+      {
+        "cell": [
+          49,
+          37
+        ],
+        "center": [
+          980.0,
+          750.0
+        ],
+        "id": 1,
+        "inside_inner": false,
+        "name": "남문 동편 골목"
+      },
+      {
+        "cell": [
+          47,
+          50
+        ],
+        "center": [
+          940.0,
+          1000.0
+        ],
+        "id": 2,
+        "inside_inner": false,
+        "name": "남대문 대로"
+      },
+      {
+        "cell": [
+          23,
+          25
+        ],
+        "center": [
+          460.0,
+          500.0
+        ],
+        "id": 3,
+        "inside_inner": false,
+        "name": "서문 북편 골목"
+      },
+      {
+        "cell": [
+          23,
+          29
+        ],
+        "center": [
+          460.0,
+          580.0
+        ],
+        "id": 4,
+        "inside_inner": false,
+        "name": "서문 남편 골목"
+      },
+      {
+        "cell": [
+          73,
+          25
+        ],
+        "center": [
+          1460.0,
+          500.0
+        ],
+        "id": 5,
+        "inside_inner": false,
+        "name": "동문 북편 골목"
+      },
+      {
+        "cell": [
+          73,
+          29
+        ],
+        "center": [
+          1460.0,
+          580.0
+        ],
+        "id": 6,
+        "inside_inner": false,
+        "name": "동문 남편 골목"
+      },
+      {
+        "cell": [
+          48,
+          15
+        ],
+        "center": [
+          960.0,
+          310.0
+        ],
+        "id": 7,
+        "inside_inner": true,
+        "name": "광화문 어귀"
+      }
+    ]
+  },
+  "outer_jangseung_kept": {
+    "all_routes_reach_core": true,
+    "path_version": 7,
+    "placed": [
+      {
+        "anchor": [
+          44,
+          36
+        ],
+        "ok": true
+      },
+      {
+        "anchor": [
+          22,
+          24
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "palace_door_open_cells_row15": 4,
+  "transit_to_core_with_two_jangseung": {
+    "E_DONGDAEMUN": {
+      "path_px": 1120,
+      "seconds_at_base_speed": 19.3103448275862
+    },
+    "S_NAMDAEMUN": {
+      "path_px": 868,
+      "seconds_at_base_speed": 14.9655172413793
+    },
+    "W_SEODAEMUN": {
+      "path_px": 1144,
+      "seconds_at_base_speed": 19.7241379310345
+    }
+  }
+}

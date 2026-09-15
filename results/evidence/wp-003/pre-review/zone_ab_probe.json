@@ -1,0 +1,546 @@
+{
+  "ab_checks": {
+    "A": {
+      "anchor": [
+        52,
+        12
+      ],
+      "bongsu_by_distance": [
+        {
+          "bongsu": "봉수 B3",
+          "dist": 184.390884399414,
+          "id": 7,
+          "inner": true,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B4",
+          "dist": 216.333084106445,
+          "id": 8,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B2",
+          "dist": 269.072479248047,
+          "id": 6,
+          "inner": true,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B7",
+          "dist": 360.555114746094,
+          "id": 11,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B6",
+          "dist": 394.461669921875,
+          "id": 10,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B1",
+          "dist": 402.492248535156,
+          "id": 5,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B8",
+          "dist": 449.444091796875,
+          "id": 12,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B5",
+          "dist": 495.176727294922,
+          "id": 9,
+          "inner": false,
+          "within_link": false
+        }
+      ],
+      "center": [
+        1060.0,
+        260.0
+      ],
+      "legal_now": true,
+      "z8_center_dist": 319.530914306641,
+      "z8_in_fire_range": false,
+      "z9_center_dist": 186.010757446289,
+      "z9_in_fire_range": true,
+      "z9_locally_coverable": false,
+      "z9_nearest_point_dist": 136.010757446289
+    },
+    "B": {
+      "anchor": [
+        44,
+        13
+      ],
+      "bongsu_by_distance": [
+        {
+          "bongsu": "봉수 B2",
+          "dist": 164.924224853516,
+          "id": 6,
+          "inner": true,
+          "within_link": true
+        },
+        {
+          "bongsu": "봉수 B3",
+          "dist": 200.0,
+          "id": 7,
+          "inner": true,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B1",
+          "dist": 256.124969482422,
+          "id": 5,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B4",
+          "dist": 322.490295410156,
+          "id": 8,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B6",
+          "dist": 322.490295410156,
+          "id": 10,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B5",
+          "dist": 377.359252929688,
+          "id": 9,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B8",
+          "dist": 400.0,
+          "id": 12,
+          "inner": false,
+          "within_link": false
+        },
+        {
+          "bongsu": "봉수 B7",
+          "dist": 425.205841064453,
+          "id": 11,
+          "inner": false,
+          "within_link": false
+        }
+      ],
+      "center": [
+        900.0,
+        280.0
+      ],
+      "legal_now": true,
+      "z8_center_dist": 284.429260253906,
+      "z8_in_fire_range": false,
+      "z9_center_dist": 139.283889770508,
+      "z9_in_fire_range": true,
+      "z9_locally_coverable": true,
+      "z9_nearest_point_dist": 89.2838897705078
+    }
+  },
+  "fixture_b": [
+    {
+      "anchor": [
+        46,
+        29
+      ],
+      "attached_to": 10,
+      "center": [
+        940.0,
+        600.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 1,
+      "kind": "HWACHA",
+      "label": "화차·중영"
+    },
+    {
+      "anchor": [
+        30,
+        25
+      ],
+      "attached_to": 5,
+      "center": [
+        620.0,
+        520.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 2,
+      "kind": "HWACHA",
+      "label": "화차·서영"
+    },
+    {
+      "anchor": [
+        64,
+        25
+      ],
+      "attached_to": 8,
+      "center": [
+        1300.0,
+        520.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 3,
+      "kind": "HWACHA",
+      "label": "화차·동영"
+    },
+    {
+      "anchor": [
+        46,
+        17
+      ],
+      "attached_to": 6,
+      "center": [
+        940.0,
+        360.0
+      ],
+      "district": "inner",
+      "group": 5,
+      "id": 4,
+      "kind": "HWACHA",
+      "label": "화차·궁성"
+    },
+    {
+      "anchor": [
+        34,
+        21
+      ],
+      "attached_to": -1,
+      "center": [
+        700.0,
+        440.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 5,
+      "kind": "BONGSU",
+      "label": "봉수 B1"
+    },
+    {
+      "anchor": [
+        42,
+        21
+      ],
+      "attached_to": -1,
+      "center": [
+        860.0,
+        440.0
+      ],
+      "district": "inner",
+      "group": 5,
+      "id": 6,
+      "kind": "BONGSU",
+      "label": "봉수 B2"
+    },
+    {
+      "anchor": [
+        50,
+        21
+      ],
+      "attached_to": -1,
+      "center": [
+        1020.0,
+        440.0
+      ],
+      "district": "inner",
+      "group": 5,
+      "id": 7,
+      "kind": "BONGSU",
+      "label": "봉수 B3"
+    },
+    {
+      "anchor": [
+        58,
+        21
+      ],
+      "attached_to": -1,
+      "center": [
+        1180.0,
+        440.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 8,
+      "kind": "BONGSU",
+      "label": "봉수 B4"
+    },
+    {
+      "anchor": [
+        34,
+        29
+      ],
+      "attached_to": -1,
+      "center": [
+        700.0,
+        600.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 9,
+      "kind": "BONGSU",
+      "label": "봉수 B5"
+    },
+    {
+      "anchor": [
+        42,
+        29
+      ],
+      "attached_to": -1,
+      "center": [
+        860.0,
+        600.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 10,
+      "kind": "BONGSU",
+      "label": "봉수 B6"
+    },
+    {
+      "anchor": [
+        58,
+        29
+      ],
+      "attached_to": -1,
+      "center": [
+        1180.0,
+        600.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 11,
+      "kind": "BONGSU",
+      "label": "봉수 B7"
+    },
+    {
+      "anchor": [
+        44,
+        33
+      ],
+      "attached_to": -1,
+      "center": [
+        900.0,
+        680.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 12,
+      "kind": "BONGSU",
+      "label": "봉수 B8"
+    },
+    {
+      "anchor": [
+        30,
+        27
+      ],
+      "attached_to": 9,
+      "center": [
+        620.0,
+        560.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 13,
+      "kind": "SENSOR",
+      "label": "혼천의 S1"
+    },
+    {
+      "anchor": [
+        62,
+        27
+      ],
+      "attached_to": 11,
+      "center": [
+        1260.0,
+        560.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 14,
+      "kind": "SENSOR",
+      "label": "혼천의 S2"
+    },
+    {
+      "anchor": [
+        44,
+        39
+      ],
+      "attached_to": 12,
+      "center": [
+        900.0,
+        800.0
+      ],
+      "district": "outer",
+      "group": 5,
+      "id": 15,
+      "kind": "SENSOR",
+      "label": "혼천의 S3"
+    },
+    {
+      "anchor": [
+        47,
+        15
+      ],
+      "attached_to": 7,
+      "center": [
+        960.0,
+        320.0
+      ],
+      "district": "inner",
+      "group": 5,
+      "id": 16,
+      "kind": "SENSOR",
+      "label": "혼천의 S4"
+    }
+  ],
+  "inner_network": {
+    "b2_b3_dist": 160.0,
+    "b2_b3_linked": true,
+    "b2_center": [
+      860.0,
+      440.0
+    ],
+    "b3_center": [
+      1020.0,
+      440.0
+    ],
+    "s4_attached_to": 7,
+    "s4_center": [
+      960.0,
+      320.0
+    ],
+    "s4_group": 5,
+    "s4_sees_all_of_z9": false,
+    "s4_sees_z8_center": false,
+    "s4_sees_z9_center": true,
+    "s4_to_z8_center": 240.208236694336,
+    "s4_to_z9_center": 90.5538482666016
+  },
+  "jungyeong": {
+    "center": [
+      940.0,
+      600.0
+    ],
+    "outer_goal_inside_z8": true,
+    "outer_goal_local": true,
+    "to_outer_goal": 70.7106781005859,
+    "to_z8_center": 41.2310562133789,
+    "z8_in_fire_range": true
+  },
+  "ranges": {
+    "fire": 200.0,
+    "link": 180.0,
+    "local": 100.0,
+    "sensor": 140.0
+  },
+  "z8_cells": {
+    "open_cells": 39,
+    "wall_cells": 1
+  },
+  "z9_cells": {
+    "open_cells": 21,
+    "wall_cells": 0
+  },
+  "z9_open_cells_list": [
+    [
+      46,
+      18
+    ],
+    [
+      47,
+      18
+    ],
+    [
+      48,
+      18
+    ],
+    [
+      45,
+      19
+    ],
+    [
+      46,
+      19
+    ],
+    [
+      47,
+      19
+    ],
+    [
+      48,
+      19
+    ],
+    [
+      49,
+      19
+    ],
+    [
+      45,
+      20
+    ],
+    [
+      46,
+      20
+    ],
+    [
+      47,
+      20
+    ],
+    [
+      48,
+      20
+    ],
+    [
+      49,
+      20
+    ],
+    [
+      45,
+      21
+    ],
+    [
+      46,
+      21
+    ],
+    [
+      47,
+      21
+    ],
+    [
+      48,
+      21
+    ],
+    [
+      49,
+      21
+    ],
+    [
+      46,
+      22
+    ],
+    [
+      47,
+      22
+    ],
+    [
+      48,
+      22
+    ]
+  ]
+}
