@@ -4,7 +4,7 @@
 - WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 판정 PENDING). **AC-05의 F1(정상 방어 승리)은 계약 수치로 FAIL** — 아래 분석과 P-017 제안 참조.
 - 기준 커밋: `31193a3` ("docs(wp-003): finalize fixtures and acceptance criteria, mark READY", main)
 - 검증한 구현 커밋: `7fc75ab` ("feat(wp-003): strongholds, collapse, retreat, recovery, finite waves, win/lose (READY v1.0)")
-- 브랜치: `wp/003-collapse-retreat` · Draft PR: (PR 생성 후 기록)
+- 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (Ready for review, 병합 금지)
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility / OpenGL 3.3) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 (6C/12T) · NVIDIA GeForce RTX 4070 SUPER (driver 591.86) · 63.2 GB RAM · 1920×1080 · Parsec 가상 디스플레이 어댑터 공존(vsync off로 측정)
 
 이 문서는 `results/RESULT_TEMPLATE.md` 양식을 따른다. 수치는 전부 `results/evidence/wp-003/` 원시 파일에서 가져왔고, WP-001/002 증거와 사전 검토 증거(`wp-003/pre-review/`)는 손대지 않았다. 문서 커밋은 구현 커밋과 분리한다.
@@ -62,7 +62,7 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 | AC-04 | **PASS** | F3 A/B 사전 합격선 | 같은 스냅샷(state_hash 동일) 후 A/B 배치 성공, A 미부착/B B2 부착, 첫 인지에서 S4가 12체 전부 관측, A/B 로컬 0, B의 Z9 인지 12 / A 0. 관측 30초: **B 공유전용 사격 1, 처치 B−A = 12−0, 핵심 피해 A−B = 12−0, B 핵심 HP 60 > 0** (합격선 ≥1 / ≥6 / ≥6) | 테스트 "F3" 16건 |
 | AC-05 | **FAIL (F1) / PASS (F2·F4)** | F1 외곽 유지 승리, F2 붕괴 후 승리, F4 최종 패배 | **F1 FAIL**: 입력·강제 피해 없이 **LOST at 92.2 s** — W1 도달 66/180(외곽 120→54), W2 중 **52.8초 자연 붕괴**, W3에서 핵심 0(도달 61), 처치 695, 생존 264. 아래 분석·P-017. **F2 PASS**: 20초 강제(외곽 HP 1 + 실제 도달) → 붕괴 tick 1200, +5초(tick 1500) B 배치 성공(핵심 60), **WON 105.5초** INNER_ONLY 핵심 HP 28, 생성 1141(=1140+1), 생존 0; +0/+10초 배치도 성공(핵심 60/59). **F4 PASS**: 핵심 HP 1 + 마지막 적 도달 → 같은 틱 alive 0·핵심 0 → **LOST 우선**; 도달 위치 사격 처치 대조군 피해 0 | `test_report.txt` "F1"(5 FAIL)·"F2"·"F4"; `tests/f1_timeline.json`; 캡처 `wp003_f2_*` 7장 + 로그 |
 | AC-06 | **PASS** | 종료 후 120틱 불변·명령 거절·재시작 초기화·결정성 | LOST/WON 각각 120틱 state_hash 불변·틱 미진행, 회수/설치/철거/활성 `RUN_ENDED` 거절, 재시작 후 run_id+1·HP·18시설·회수권 0·적 0·웨이브·목표·이벤트 로그 초기화·전원 활성, 재시작 런 = 새 런 state_hash 동일 | 테스트 "F4" 33건 |
-| AC-07 | **NOT RUN (재측정 진행 중)** | WP-001/002 회귀 + collapse_move/combat D-009·D-027 | WP-001/002 회귀 **322/322 동일**(wp001/sandbox 모드). 성능: 아래 표 | `wp-003/tests/test_report.txt`; `wp-003/perf/perf_collapse_*_1000_release.json`, `*.memory.json` |
+| AC-07 | **PASS** | WP-001/002 회귀 + collapse_move/combat D-009·D-027 | WP-001/002 회귀 **322/322 동일**(wp001/sandbox 모드). 전환 성능 회차 2: **collapse_move 207.8 FPS / p95 13.19 ms, collapse_combat 241.4 FPS / p95 11.60 ms**, 전 프레임 alive ≥1000, 의미 이벤트 6건·순서 정상, 트리거→붕괴 0틱, 붕괴→배치 300/299틱, 배치 1회 성공, 경로 버전 기대+1, 세 구간 후보 평가 >0, combat 배치 후 H1 9발. 회차 1은 부하 미유지로 무효(보관). 아래 표 | `wp-003/tests/test_report.txt`; `wp-003/perf/perf_collapse_*_1000_release.json`, `*.memory.json` |
 | AC-08 | **PASS** | 화면·JSON·조작 안내·새 체크아웃 재현 | F2 캡처 7장: 외곽 방어(HP 114/120·도달)·붕괴 알림(회수 1/1·내곽 테두리·외곽 음영)·외곽 미리보기 거절(`DISTRICT_LOST`)·내곽 유효 미리보기·배치 완료(부착 6·hover 패널)·내곽 사격·승리 배너. README·이 절·`scripts/verify.*`(4c/6c). 결정성 테스트 | `wp-003/captures/`, README |
 
 자동 검증 합계: **509 passed / 5 failed**(실패 5건 = F1) + WP-001/002 회귀 322/322 포함. 스위트 종료 코드 1은 의도된 정직 보고(P-018).
@@ -84,7 +84,17 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - OS / CPU / GPU / RAM / 해상도 / 빌드 설정: 위 실행 환경. `exported release`, x86_64, pck 내장, gl_compatibility, 창 1920×1080, vsync 0.
 - 시나리오: fixture C(18시설·10존·시드 20260913), `run_mode=waves`이나 웨이브 끔, `benchmark_hold_alive`(매 틱 끝 1,000 보충), 외곽 HP 1,000,000 → 측정 20초 첫 틱에 검증용 1로 설정 + 정상 적 1체를 외곽 거점에 생성(실제 도달로 붕괴), 측정 25초 첫 틱에 회수 배치 B(1회 시도, 거절이면 FAIL), `benchmark_core_invulnerable`(시도량 집계). 10초 준비 + 60초 측정, Esc 외 입력 무시. 구현 SHA는 `--sha`로 manifest에 기록.
 
-**상태: NOT RUN — 재측정 진행 중.** 회차 1()은 perf 모드 설정 복사 오류로 가 꺼져 alive_min 0으로 측정되어 **무효**(계약의 "모든 기록 프레임 생존 ≥1000" 미충족). 원인(main.gd 의 프리셋 전체 복사)을 수정해 구현 커밋에 반영했고, 수정 빌드로 collapse_move / collapse_combat 회차 2를 실행 중이다. 결과는 다음 문서 커밋에서 이 절에 기록한다. 회차 1의 참고값: 의미 이벤트 6건·순서 정상, 트리거→붕괴 0틱, 배치 ok(+300틱), 경로 버전 기대+1 — 부하만 무효.
+| 회차 | 시나리오 | 프레임 / 초 | 생존 min / avg / max | 부하 유지 | 평균 FPS | 프레임 ms p50 / **p95** / p99 / max | sim step ms avg / p95 / max | 구간 [0,20) / [20,25) / [25,60] avg FPS · p95 · max · 평가 | 이벤트·전환 | 워킹셋 MB 시작→종료 (최대) | 종료 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **2 (채택)** | collapse_move | 12,468 / 60.01 | **1000 / 1000.0 / 1001** | true | **207.8** | 3.08 / **13.19** / 17.21 / 44.33 | 4.06 / 8.48 / 9.59 | 153.9·16.41·44.33·4,804 / 248.7·11.89·18.00·303 / 232.7·12.47·27.50·4,200 | 6건 tick 1806(trigger·collapse·recovery_created·outer_deactivated·target_changed) + recovery_placed 2106; 트리거→붕괴 0틱, 붕괴→배치 300틱, 배치 ok(1회), pv 4→5, 위상 v16→v18, 핵심 흡수 2,074(무적) | 180.4→183.1 (183.1) | 0 |
+| **2 (채택)** | collapse_combat | 14,487 / 60.00 | **1000 / 1000.0 / 1001** | true | **241.4** | 2.68 / **11.60** / 14.06 / 20.65 | 2.51 / 4.83 / 7.00 | 201.4·13.17·19.56·2,500 / 263.9·11.09·20.65·80 / 261.1·11.08·16.96·85 | 6건 tick 1806 + recovery_placed 2105; 트리거→붕괴 0틱, 붕괴→배치 299틱, 배치 ok(1회), pv 4→5, 위상 v16→v18; 구간 발사 138(공유전용 44: 붕괴 전 43·대기 1·배치 후 0), **배치 후 H1 9발**(총 75발·1,932처치), 핵심 흡수 6 | 172.7→181.2 (181.2) | 0 |
+| 1 (무효, 보관) | collapse_move / combat | — | **0 / 0 / 1** | **false** | 275.1 / — | — | — | — | perf 모드가 프리셋 전체를 복사해 `benchmark_hold_alive`가 꺼짐(main.gd `_apply_run_mode` 수정으로 해소). 이벤트·배치·경로 버전은 정상이었으나 부하 조건 미충족 → 무효. `perf/*_run1_hold_off.json` | — | 0 |
+
+- 예산 대비: 평균 60 FPS 이상 → **207.8 / 241.4 (통과)**, p95 25 ms 이하 → **13.19 / 11.60 ms (통과)**, 모든 기록 프레임 alive ≥1000 → `alive_raw` 전 원소 ≥1000 (통과, 트리거 적 1체로 최대 1001). 원시 배열 길이 = frames, 모든 간격 > 0, 합계 60.01/60.00 s, 재계산 FPS 207.8 / 241.4, p95 13.187 / 11.600 ms — 저장값과 일치.
+- D-027 이벤트: `benchmark_trigger` → `collapse` → `recovery_created` → `outer_deactivated_batch` → `target_changed`(같은 틱, 순번으로 구분) → `recovery_placed`, 각 1건, 실패 이벤트 0(`recovery_refused` 없음). 자연 붕괴 0(트리거 전 `collapse_count` 0). 스냅샷 5개(measure_start / before_trigger_20s / after_collapse / after_placement_25s / end): 시설 18→17(대기 1)→18, 활성 18→4→5, 구역 내곽 5 활성 / 외곽 13 비활성.
+- 출처: 실행 파일은 `7fc75ab`(구현 커밋) 트리에서 export(15:02:50). manifest `implementation_sha`는 collapse_move `7fc75ab`, collapse_combat `2322a62`(실행 중 문서·증거 커밋이 HEAD가 됨; `git diff 7fc75ab 2322a62 -- game project.godot export_presets.cfg` 비어 있음 → 게임 코드 트리 동일). 두 파일 모두 `-dirty` 없음.
+- 정직 기록: collapse_move의 붕괴 전 구간(0~20초)은 평균 153.9 FPS / p95 16.41 ms / 최대 44.33 ms로 다른 구간보다 무겁다 — 외곽 목표 단계에서 1,000체가 광장 남단(Z8)에 수렴하며 화차 4대가 매 틱 후보를 평가하는 비용(sim step 평균 4.06 ms). 예산 안이지만 WP-002에서 기록한 "이동 시나리오 후보 계산 비용" 항목의 연장선이다. 최대 44.33 ms 단발 스파이크 1회는 원인 미측정(프레임 시간 이봉 분포와 함께 미해결).
+- 벤치마크 전용 설정은 정상 승패 증거에 쓰지 않았다(F1/F2/F4는 보호·보충 없음).
 
 ## 실제 화면 확인
 
@@ -117,7 +127,7 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 
 ## PR
 
-- Draft PR: (PR 생성 후 기록)
+- PR #4: https://github.com/darkrunar/hanyang-defense/pull/4 · 구현 `7fc75ab` · 결과·증거 `2322a62` + 성능 보완 커밋(이 문서의 커밋)
 
 ## GPT Review
 
