@@ -1,14 +1,14 @@
 # Roadmap
 
-현재: **WP-001 DONE** (2026-09-13, GPT 재리뷰 PASS `d9699aa`). 엔진은 Godot 4.7로 확정(D-007). **WP-002 DONE (2026-09-14, GPT 재리뷰 PASS `869788b`)**: 봉수망 연결·탐지·단절·배치와 16시설/1,000체 성능 검증 완료 ([results/WP-002-RESULT.md](../results/WP-002-RESULT.md)). **WP-003 REVIEW (2026-09-15)**: READY v1.0 구현 후 GPT 1차 리뷰 REVISE(`f379bea`, R-01~07·D-032 외곽 HP 360) → Claude Code 보완 회차(`8ec66aa`) 반영, 재리뷰 대기 ([results/WP-003-RESULT.md](../results/WP-003-RESULT.md)).
+현재: **WP-001 DONE** (2026-09-13, GPT 재리뷰 PASS `d9699aa`). 엔진은 Godot 4.7로 확정(D-007). **WP-002 DONE (2026-09-14, GPT 재리뷰 PASS `869788b`)**: 봉수망 연결·탐지·단절·배치와 16시설/1,000체 성능 검증 완료 ([results/WP-002-RESULT.md](../results/WP-002-RESULT.md)). **WP-003 DONE (2026-09-15, GPT 재리뷰 PASS `f5d7e69`)**: 외곽 붕괴·후퇴·회수 재배치·유한 웨이브·승패·재시작과 전환 중 1,000체 성능 검증 완료. 1차 REVISE(`f379bea`, D-032 외곽 HP 360) 후 보완 회차(`41ff91c`)로 R-01~07 해소 ([results/WP-003-RESULT.md](../results/WP-003-RESULT.md)).
 
 | 단계 | WP | 상태 | 통과 조건 |
 |---|---|---|---|
 | M1 흐름과 섬멸 | [WP-001](../backlog/WP-001.md) | DONE | 1,000개체·세 경로·배치로 병목 형성·화차 집중 사격 및 성능 증거 |
 | M2 도시 연결 | [WP-002](../backlog/WP-002.md) | DONE | 연결·해제로 표적 공유 동작이 달라지고 M1 회귀 없음 |
-| M3 검증과 재편 | [WP-003](../backlog/WP-003.md) | REVIEW | 외곽 붕괴 후 내곽 재배치, 계속 전투, 승패·재시작 검증 |
+| M3 검증과 재편 | [WP-003](../backlog/WP-003.md) | DONE | 외곽 붕괴 후 내곽 재배치, 계속 전투, 승패·재시작 검증 |
 
-WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002는 DONE, WP-003은 REVIEW(보완 회차 재리뷰 대기)다. GPT 재리뷰 PASS일 때 DONE으로 전환한다.
+WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002·WP-003은 DONE이다. M1~M3의 세 경험 검증이 끝났으며 다음 WP는 GPT가 "이후 후보"에서 선택해 DRAFT→READY로 전환한다.
 
 ## 이후 후보
 

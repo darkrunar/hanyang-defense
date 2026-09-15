@@ -1,10 +1,10 @@
 # WP-003 Result
 
 - 작성일: 2026-09-15
-- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 1차 **REVISE** → **재리뷰 2차 PASS** — 문서 끝 GPT 재리뷰 절). 1차 회차의 HP 120 결과(F1 FAIL)는 아래에 그대로 보존한다.
+- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **DONE** (GPT 2026-09-15 1차 **REVISE** `f379bea` → 보완 회차 `41ff91c`/`1598d23` → **재리뷰 2차 PASS 8/0/0** `f5d7e69` — 문서 끝 GPT 재리뷰 절. DONE 전환 2026-09-15, Claude Code). 1차 회차의 HP 120 결과(F1 FAIL)는 아래에 그대로 보존한다. PR #4 병합은 사용자 지시에 따른다.
 - 기준 커밋: `31193a3` ("docs(wp-003): finalize fixtures and acceptance criteria, mark READY", main)
 - 검증한 구현 커밋: `7fc75ab` ("feat(wp-003): …") → **Codex 리뷰 반영 `6e9240c`** ("fix(wp-003): scripted scenarios reapply every mode key; held click follows run mode; quit-after on run end; no stale goal marker"). 게임 코어(`game/core/`)는 두 커밋에서 동일하며 변경은 `game/scenes/`뿐이다.
-- 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (Ready for review, 병합 금지)
+- 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (GPT PASS, 병합은 사용자 지시 대기)
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility / OpenGL 3.3) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 (6C/12T) · NVIDIA GeForce RTX 4070 SUPER (driver 591.86) · 63.2 GB RAM · 1920×1080 · Parsec 가상 디스플레이 어댑터 공존(vsync off로 측정)
 
 이 문서는 `results/RESULT_TEMPLATE.md` 양식을 따른다. 수치는 전부 `results/evidence/wp-003/` 원시 파일에서 가져왔고, WP-001/002 증거와 사전 검토 증거(`wp-003/pre-review/`)는 손대지 않았다. 문서 커밋은 구현 커밋과 분리한다.
@@ -257,8 +257,8 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 
 ### GPT 재리뷰
 
-- 검토일 / 검토한 구현 커밋: (PENDING) / `41ff91c` (보완 구현 `8ec66aa` → `2ed2e02` → `41ff91c`; 리뷰 대상 diff는 `f379bea..HEAD`)
-- 최종 판정: **PENDING**
+- 검토일 / 검토한 구현 커밋: 2026-09-15 / `41ff91c` (보완 구현 `8ec66aa` → `2ed2e02` → `41ff91c`; 리뷰 대상 diff `f379bea..1598d23`)
+- 최종 판정: **PASS 8 / FAIL 0 / NOT RUN 0** (`f5d7e69`, 아래 절). 이에 따라 WP-003을 **DONE**으로 전환한다(2026-09-15).
 
 ### 2026-09-15 · GPT 재리뷰 2차 — PASS
 
