@@ -91,6 +91,7 @@ foreach ($png in @("wp002_a1_disconnected_no_fire_t2", "wp002_a2_connected_share
 }
 }   # end of the WP-001/002 block skipped by -Wp003
 
+if (-not $Wp004) {   # -Wp004 leaves the approved WP-003 evidence files untouched
 Write-Host "== 4c/6 WP-003 F1 timeline + F3 A/B ledger + F2 / F3 captures"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "captures") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid3 "perf") | Out-Null
@@ -120,6 +121,7 @@ foreach ($png in @("wp003_f2_a_outer_defense_t15", "wp003_f2_b_collapse_notice_t
     Assert-File "$evid3\captures\$png.png" "capture wp003"
 }
 if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1 must not fire (it has no connection and no local target)" }
+}   # end of the WP-003 evidence block skipped by -Wp004
 
 Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
 $evid4 = Join-Path $evid "wp-004"
