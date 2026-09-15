@@ -98,13 +98,13 @@ if (-not $Wp003) { Copy-Item -Force "$evid\test_report.txt" "$evid3\tests\test_r
 & godot --headless --path . --script res://game/tools/wp003_timeline.gd -- "--out=$evid3\tests\f1_timeline.json" | Out-Null
 Assert-Exit "F1 timeline"
 Assert-File "$evid3\tests\f1_timeline.json" "F1 timeline"
-$f1 = Get-Content "$evid3\tests\f1_timeline.json" -Raw | ConvertFrom-Json
+$f1 = Get-Content "$evid3\tests\f1_timeline.json" -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($f1.summary.run -ne "WON" -or $f1.summary.collapse_tick -ne -1) { throw "F1 timeline is not a WON-without-collapse run (run=$($f1.summary.run), collapse_tick=$($f1.summary.collapse_tick))" }
 # R-06: independent F3 A/B ledger (exit 1 when the pre-placement states differ).
 & godot --headless --path . --script res://game/tools/wp003_f3_evidence.gd -- "--out=$evid3\tests\f3_ab.json" | Out-Null
 Assert-Exit "F3 A/B ledger"
 Assert-File "$evid3\tests\f3_ab.json" "F3 A/B ledger"
-$f3 = Get-Content "$evid3\tests\f3_ab.json" -Raw | ConvertFrom-Json
+$f3 = Get-Content "$evid3\tests\f3_ab.json" -Raw -Encoding UTF8 | ConvertFrom-Json
 if (-not $f3.state_identical_before_placement) { throw "F3: A/B states differ before the placement" }
 if ($f3.summary.b_shared_only -lt 1 -or $f3.summary.kills_b_minus_a -lt 6 -or $f3.summary.core_damage_a_minus_b -lt 6) { throw "F3 pass lines not met: $($f3.summary | ConvertTo-Json -Compress)" }
 foreach ($sc in @("wp003_f2", "wp003_f3a", "wp003_f3b")) {
