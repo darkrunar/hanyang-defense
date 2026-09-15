@@ -1,0 +1,270 @@
+[
+  {
+    "exit_code": 0,
+    "implementation_sha": "41ff91c9b17cb55deca4e176c7821df7ed77223c",
+    "exe_hash": "56ce8e8c3cbabf138b3c96fad462e6afe5fddd801808b2c9716c23461c6810ce",
+    "seconds": 60.004939,
+    "p95_ms": 12.72,
+    "fps": 221.54842953844184,
+    "zones": 10,
+    "segments_cover": true,
+    "alive_min": 1000.0,
+    "frames": 13294,
+    "raw_lengths_match": true,
+    "structures": 18,
+    "segments": [
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 3354,
+        "frames_match": true,
+        "eval_delta": 4804,
+        "fps_match": true
+      },
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 1354,
+        "frames_match": true,
+        "eval_delta": 307,
+        "fps_match": true
+      },
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 8586,
+        "frames_match": true,
+        "eval_delta": 4199,
+        "fps_match": true
+      }
+    ],
+    "events": [
+      {
+        "outer_hp_set": 1.0,
+        "run_id": 1,
+        "seq": 913,
+        "sim_time": 30.1000000602011,
+        "t_measure": 20.007237,
+        "tick": 1806,
+        "trigger_enemy": [
+          950.0,
+          530.0
+        ],
+        "type": "benchmark_trigger"
+      },
+      {
+        "alive": 1000,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 915,
+        "sim_time": 30.1000000602011,
+        "tick": 1806,
+        "type": "collapse"
+      },
+      {
+        "cooldown_left": 0.0,
+        "hwacha_id": 1,
+        "kills": 0,
+        "label": "화차·중영",
+        "run_id": 1,
+        "seq": 916,
+        "shots": 0,
+        "sim_time": 30.1000000602011,
+        "tick": 1806,
+        "type": "recovery_created"
+      },
+      {
+        "count": 13,
+        "ids": [
+          2,
+          3,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18
+        ],
+        "run_id": 1,
+        "seq": 917,
+        "sim_time": 30.1000000602011,
+        "tick": 1806,
+        "type": "outer_deactivated_batch"
+      },
+      {
+        "goal": [
+          47,
+          10
+        ],
+        "path_version_after": 5,
+        "path_version_before": 4,
+        "run_id": 1,
+        "seq": 918,
+        "sim_time": 30.1000000602011,
+        "tick": 1806,
+        "type": "target_changed"
+      },
+      {
+        "anchor": [
+          44,
+          13
+        ],
+        "attached_to": 6,
+        "cooldown_left": 0.0,
+        "group": 6,
+        "hwacha_id": 1,
+        "kills": 0,
+        "run_id": 1,
+        "seq": 935,
+        "shots": 0,
+        "sim_time": 35.1000000702007,
+        "tick": 2106,
+        "type": "recovery_placed"
+      }
+    ],
+    "scenario": "collapse_move",
+    "h1_delta": 0,
+    "h1_recomputed": 0,
+    "hash_matches_external": true,
+    "positive_frames": true
+  },
+  {
+    "exit_code": 0,
+    "implementation_sha": "41ff91c9b17cb55deca4e176c7821df7ed77223c",
+    "exe_hash": "56ce8e8c3cbabf138b3c96fad462e6afe5fddd801808b2c9716c23461c6810ce",
+    "seconds": 60.008629,
+    "p95_ms": 11.716,
+    "fps": 247.2644392525615,
+    "zones": 10,
+    "segments_cover": true,
+    "alive_min": 1000.0,
+    "frames": 14838,
+    "raw_lengths_match": true,
+    "structures": 18,
+    "segments": [
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 4145,
+        "frames_match": true,
+        "eval_delta": 2498,
+        "fps_match": true
+      },
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 1372,
+        "frames_match": true,
+        "eval_delta": 78,
+        "fps_match": true
+      },
+      {
+        "contiguous": true,
+        "p95_match": true,
+        "frames": 9321,
+        "frames_match": true,
+        "eval_delta": 85,
+        "fps_match": true
+      }
+    ],
+    "events": [
+      {
+        "outer_hp_set": 1.0,
+        "run_id": 1,
+        "seq": 514,
+        "sim_time": 30.0833333935011,
+        "t_measure": 20.001653,
+        "tick": 1805,
+        "trigger_enemy": [
+          950.0,
+          530.0
+        ],
+        "type": "benchmark_trigger"
+      },
+      {
+        "alive": 1000,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 516,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "collapse"
+      },
+      {
+        "cooldown_left": 0.7333333332,
+        "hwacha_id": 1,
+        "kills": 882,
+        "label": "화차·중영",
+        "run_id": 1,
+        "seq": 517,
+        "shots": 33,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "recovery_created"
+      },
+      {
+        "count": 13,
+        "ids": [
+          2,
+          3,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18
+        ],
+        "run_id": 1,
+        "seq": 518,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "outer_deactivated_batch"
+      },
+      {
+        "goal": [
+          47,
+          10
+        ],
+        "path_version_after": 5,
+        "path_version_before": 4,
+        "run_id": 1,
+        "seq": 519,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "target_changed"
+      },
+      {
+        "anchor": [
+          44,
+          13
+        ],
+        "attached_to": 6,
+        "cooldown_left": 0.7333333332,
+        "group": 6,
+        "hwacha_id": 1,
+        "kills": 882,
+        "run_id": 1,
+        "seq": 521,
+        "shots": 33,
+        "sim_time": 35.1000000702007,
+        "tick": 2106,
+        "type": "recovery_placed"
+      }
+    ],
+    "scenario": "collapse_combat",
+    "h1_delta": 42,
+    "h1_recomputed": 42,
+    "hash_matches_external": true,
+    "positive_frames": true
+  }
+]

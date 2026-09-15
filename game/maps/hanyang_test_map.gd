@@ -108,6 +108,60 @@ const FIXTURE_A: Dictionary = {
     "local_enemy": Vector2(940.0, 690.0),   # 90 px south of H: inside local 100
 }
 
+## ---------------------------------------------------------------- WP-003 ---
+## Fixed map data for backlog/WP-003.md READY v1.0 (D-019 / D-020 / D-022 /
+## D-025). WP-001/002 data above is untouched.
+
+## Two objectives: the outer stronghold and the core.
+const OUTER_GOAL_CELL: Vector2i = Vector2i(47, 26)   # centre (950,530)
+const CORE_GOAL_CELL: Vector2i = Vector2i(47, 10)    # centre (950,210)
+
+## Inner district, inclusive cell bounds. Everything else walkable is outer.
+const INNER_RECT: Rect2i = Rect2i(42, 6, 12, 17)      # x42..53, y6..22
+const DISTRICT_OUTER: int = 0
+const DISTRICT_INNER: int = 1
+
+## WP-003 only: the 8 original zones plus Z8 / Z9 (D-019).
+const WP003_EXTRA_ZONES: Array = [
+    ["광장 남단", 950.0, 560.0, 70.0],   # Z8
+    ["광화문 앞", 950.0, 410.0, 50.0],   # Z9
+]
+
+## Fixture C = fixture B (4 hwacha, 8 bongsu, 4 sensors, in that order) plus two
+## outer jangseung. The recovery target is the FIRST hwacha placed (H1 중영);
+## its stable id is captured at creation, never looked up by name later.
+const FIXTURE_C_JANGSEUNG: Array = [
+    ["장승 J1", 44, 36],
+    ["장승 J2", 22, 24],
+]
+
+## Recovery placements used by the F2/F3/perf scenarios (D-022).
+const RECOVERY_A: Vector2i = Vector2i(52, 12)   # (1060,260), no bongsu within 180
+const RECOVERY_B: Vector2i = Vector2i(44, 13)   # (900,280), attaches to B2
+
+## Finite waves (D-025): [south, west, east] counts and per-second rates.
+const WAVES: Array = [
+    {"name": "W1", "count": [60, 60, 60], "rate": [10.0, 10.0, 10.0]},
+    {"name": "W2", "count": [120, 120, 120], "rate": [10.0, 10.0, 10.0]},
+    {"name": "W3", "count": [360, 120, 120], "rate": [30.0, 10.0, 10.0]},
+]
+const WAVES_TOTAL: int = 1140
+
+## F3 controlled spawn point (D-026): 12 enemies at (950,450).
+const F3_SPAWN_POINT: Vector2 = Vector2(950.0, 450.0)
+const F3_SPAWN_COUNT: int = 12
+
+
+static func district_of_cell(cx: int, cy: int) -> int:
+    if INNER_RECT.has_point(Vector2i(cx, cy)):
+        return DISTRICT_INNER
+    return DISTRICT_OUTER
+
+
+static func district_name(d: int) -> String:
+    return "내곽" if d == DISTRICT_INNER else "외곽"
+
+
 ## Reference anchors used by the scripted AC scenarios and the docs.
 const AC_SCENARIO_ANCHORS: Dictionary = {
     "south_west_lane": Vector2i(44, 36),
@@ -139,11 +193,30 @@ static func build_path(g: TerrainGrid) -> PathNetwork:
     return p
 
 
-static func build_zones() -> DensityDetector:
+static func build_zones(zone_set: String = "wp001") -> DensityDetector:
     var d: DensityDetector = DensityDetector.new()
     for z: Array in ZONES:
         d.add_zone(z[0], Vector2(z[1], z[2]), z[3])
+    if zone_set == "wp003":
+        for z: Array in WP003_EXTRA_ZONES:
+            d.add_zone(z[0], Vector2(z[1], z[2]), z[3])
     return d
+
+
+## Path network with the given goal cell (WP-003 starts on the outer stronghold).
+static func build_path_to(g: TerrainGrid, goal: Vector2i) -> PathNetwork:
+    var p: PathNetwork = PathNetwork.new(g)
+    p.set_goal(goal.x, goal.y)
+    for r: Array in ROUTES:
+        var a: Vector2i = r[2]
+        var b: Vector2i = r[3]
+        var cells: PackedInt32Array = PackedInt32Array()
+        for cy: int in range(mini(a.y, b.y), maxi(a.y, b.y) + 1):
+            for cx: int in range(mini(a.x, b.x), maxi(a.x, b.x) + 1):
+                cells.append(g.idx(cx, cy))
+        p.add_route(r[0], cells)
+    p.rebuild()
+    return p
 
 
 static func route_display_name(route_index: int) -> String:

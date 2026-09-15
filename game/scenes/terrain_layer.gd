@@ -17,6 +17,10 @@ var _grid: TerrainGrid = null
 var _open_rects: Array[Rect2] = []
 var _goal_center: Vector2 = Vector2.ZERO
 var _goal_radius: float = 26.0
+## WP-001/002 draw the single static goal here. WP-003 has two objectives whose
+## state changes (outer -> core), drawn by the overlay instead; the main scene
+## turns this off in waves mode so the labels never overlap or go stale.
+var show_goal_marker: bool = true
 var _gates: Array[Rect2] = []
 var _font: Font = null
 
@@ -52,6 +56,8 @@ func _draw() -> void:
         draw_rect(r, COLOR_EDGE, false, 1.0)
     for g: Rect2 in _gates:
         draw_rect(g, COLOR_GATE, false, 2.0)
+    if not show_goal_marker:
+        return
     draw_circle(_goal_center, _goal_radius, COLOR_GOAL_RING)
     draw_rect(Rect2(_goal_center - Vector2(14.0, 14.0), Vector2(28.0, 28.0)), COLOR_GOAL, true)
     draw_rect(Rect2(_goal_center - Vector2(14.0, 14.0), Vector2(28.0, 28.0)), Color.BLACK, false, 2.0)

@@ -2,7 +2,7 @@
 
 **한양 전체를 무기화하는 대규모 전투 디펜스.** 조선 사이버펑크 세계에서 적을 유도·압축하고 도시의 시설을 연결해 싸우는 로그라이트 디펜스 프로젝트입니다.
 
-현재 단계는 **WP-001 DONE (2026-09-13) · WP-002 DONE (GPT 재리뷰 PASS, 2026-09-14) · WP-003 READY v1.0 (2026-09-15, 구현 기준 확정)** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
+현재 단계는 **WP-001 DONE (2026-09-13) · WP-002 DONE (2026-09-14) · WP-003 DONE (GPT 재리뷰 PASS `f5d7e69`, 2026-09-15 — D-032 외곽 HP 360)** 입니다. Godot 4.7 프로젝트로 실행 가능한 회색상자 프로토타입(1,000개체 · 세 경로 · 장승 병목 · 화차 집중 사격)과 헤드리스 테스트, 릴리스 빌드·성능 측정 절차가 있습니다. 자동 에이전트 연동은 없습니다.
 
 ## 게임의 중심
 
@@ -130,7 +130,36 @@ godot --path . --rendering-driver opengl3 -- --capture=wp002_a --out-dir=D:/abs/
 
 증거는 `results/evidence/wp-002/{tests,captures,perf}/`에 두고 WP-001 증거는 보존한다. `scripts/verify.*`가 WP-001 단계에 이어 4b(fixture A 캡처)·6b(fixture B 성능, 계약 검사 포함)를 실행한다.
 
+### WP-003 검증·붕괴·후퇴·재편 (2026-09-15)
+
+기본 플레이는 이제 **WP-003 런**(`Config.for_wp003()`: fixture C = fixture B 16 + 외곽 장승 2, 10존, 사격 후 도달 처리, 유한 3웨이브 1,140체, 외곽 HP 360(D-032, READY v1.0의 120은 GPT 리뷰로 대체) / 핵심 HP 60)이다. 외곽 거점 (47,26)이 HP 0이 되면 한 번 붕괴: 화차·중영이 회수 대기로 빠지고 나머지 외곽 시설은 비활성(점유·장승 차단 유지), 목표가 핵심 (47,10)으로 바뀐다. 플레이어는 내곽(노란 테두리)의 빈 칸을 클릭해 회수 화차 1대를 배치한다(`R` 재시작). WP-001/002 구성은 `Config.for_wp001()` / `Config.new()`(sandbox)로 보존된다.
+
+```bash
+# F1 정상 방어 타임라인 (헤드리스, 초 단위 장부 + 이벤트 JSON)
+godot --headless --path . --script res://game/tools/wp003_timeline.gd -- --out=D:/abs/path/results/evidence/wp-003/tests/f1_timeline.json
+```
+
+```bash
+# F2 캡처: 외곽 방어 → 20초 강제 붕괴(실제 도달 피해) → 무효/유효 미리보기 → 25초 회수 배치 B → 내곽 사격 → 종료
+godot --path . --rendering-driver opengl3 -- --capture=wp003_f2 --out-dir=D:/abs/path/results/evidence/wp-003/captures
+```
+
+```bash
+# D-027 전환 성능: collapse_move / collapse_combat (18시설·10존·1,000체 유지, 측정 20초 붕괴·25초 배치, 핵심 무적·기록)
+.\scripts\perf_with_memory.ps1 -Scenario collapse_combat -Out results\evidence\wp-003\perf\perf_collapse_combat_1000_release.json
+```
+
+```bash
+# F3 통제 A/B 비교: 헤드리스 개체별 장부(JSON) + 실제 화면 캡처(A: 비연결, B: B2 부착)
+godot --headless --path . --script res://game/tools/wp003_f3_evidence.gd -- --out=D:/abs/path/results/evidence/wp-003/tests/f3_ab.json
+godot --path . --rendering-driver opengl3 -- --capture=wp003_f3b --out-dir=D:/abs/path/results/evidence/wp-003/captures
+```
+
+증거는 `results/evidence/wp-003/{tests,captures,perf}/`. `scripts/verify.*`가 4c(F1 타임라인·F3 A/B 장부·F2/F3 캡처)·6c(전환 성능, D-027 계약 검사 + 구간 프레임 완전 매핑·실행파일 SHA-256)를 추가로 실행한다. `.\scriptserify.ps1 -Wp003`은 승인된 WP-001/002 증거를 건드리지 않고 WP-003 증거만 재생성한다. 테스트 스위트(WP-001/002 회귀 + WP-003 + 실제 scene 진입 경로)는 종료 코드 0이어야 한다.
+
 ### 조작
+
+WP-003 런: `LMB` 회수 화차 배치(내곽만, 누르고 있으면 셀이 빌 때까지 재시도; 재시작하면 누르고 있던 입력은 버려짐) · `R` 재시작(일시정지·홀드 입력 초기화) · `D` 상세 패널(경로·밀도·화차·봉수망, 좌하단) 접기 · `Z/G/P/H/F12/Esc` 동일 · 자유 설치/철거/`T`/`C`는 비활성. HUD는 좌상단(런 상태·HP·회수 안내·조작)과 좌하단(상세)으로 나뉘어 내곽·핵심 시설을 가리지 않는다. 시설에 커서를 올리면 정보 패널. 아래는 WP-001/002 sandbox 조작(`--set run_mode=sandbox --set fixture=b` 등).
 
 `LMB` 설치(누르고 있으면 셀이 빌 때까지 재시도) · `RMB` 제거 · `1/2/3/4` 장승/화차/봉수대/혼천의 모드 · `T` 커서 아래 시설 활성/비활성 전환(디버그 파괴·수리) · 시설에 커서를 올리면 부착 봉수대·그룹·로컬/공유 인지 수·표적 출처·대기 이유 패널 표시 · `C` 전투 토글(처치 끔) · `Z` 밀도 존 표시 · `G` 사거리/탐지/연결 반경 · `P` 일시정지 · `R` 초기화(같은 시드, 망·부착·표적 초기화 후 fixture 복원) · `H` HUD · `F12` 캡처(`%APPDATA%\Godot\app_userdata\...\captures`) · `Esc` 종료
 

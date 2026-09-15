@@ -30,6 +30,13 @@ enum Reject {
     ENEMY_OCCUPIES_CELL,
     WOULD_BLOCK_ALL_PATHS,
     UNKNOWN_STRUCTURE,
+    # --- WP-003 (D-022 / D-023 / D-024) ---
+    DISTRICT_SPLIT,        # footprint straddles two districts
+    DISTRICT_LOST,         # district is lost (outer after collapse)
+    WRONG_DISTRICT,        # recovery placement outside the allowed district
+    RUN_ENDED,             # run is WON / LOST
+    NO_RECOVERY_RIGHT,     # no recovery right left (already placed / no collapse)
+    NOT_DETACHED,          # restore() on a structure that is not detached
 }
 
 const REJECT_NAMES: Array[String] = [
@@ -40,6 +47,12 @@ const REJECT_NAMES: Array[String] = [
     "ENEMY_OCCUPIES_CELL",
     "WOULD_BLOCK_ALL_PATHS",
     "UNKNOWN_STRUCTURE",
+    "DISTRICT_SPLIT",
+    "DISTRICT_LOST",
+    "WRONG_DISTRICT",
+    "RUN_ENDED",
+    "NO_RECOVERY_RIGHT",
+    "NOT_DETACHED",
 ]
 
 ## Every structure is a 2x2 cell footprint (40x40 px at the default cell size).
@@ -82,6 +95,12 @@ class Structure:
     var last_target_local: int = 0
     var last_target_shared: int = 0
     var wait_reason: String = ""
+    # --- WP-003 ---
+    ## District the footprint lies in (TestMap.DISTRICT_*), -1 when unknown.
+    var district: int = -1
+    ## Detached = recovered and waiting: no footprint, no detection, no fire,
+    ## cooldown frozen (the structure is not in `structures` while detached).
+    var detached: bool = false
 
 
 class Result:
@@ -98,6 +117,12 @@ var path: PathNetwork = null
 var structures: Dictionary = {}      # id -> Structure
 var _cell_owner: Dictionary = {}     # cell index -> structure id (all kinds)
 var _next_id: int = 1
+## Detached (recovered, waiting) structures: id -> Structure. Not in `structures`.
+var detached: Dictionary = {}
+## WP-003 district rules. `district_fn(cx, cy) -> int`; invalid = no rule.
+var district_fn: Callable = Callable()
+## District where every new placement / restore is refused (outer after collapse).
+var locked_district: int = -1
 
 var rejected_total: int = 0
 var last_result: Result = null
@@ -111,10 +136,26 @@ func _init(g: TerrainGrid, p: PathNetwork) -> void:
 func reset() -> void:
     structures.clear()
     _cell_owner.clear()
+    detached.clear()
     grid.clear_structures()
     _next_id = 1
     rejected_total = 0
     last_result = null
+    locked_district = -1
+
+
+## District of a footprint, or -1 when the rule is off / the footprint straddles.
+func footprint_district(cells: PackedInt32Array) -> int:
+    if not district_fn.is_valid():
+        return -1
+    var d: int = -2
+    for ci: int in cells:
+        var cd: int = district_fn.call(ci % grid.width, int(ci / grid.width))
+        if d == -2:
+            d = cd
+        elif cd != d:
+            return -1
+    return d
 
 
 static func reject_name(reason: int) -> String:
@@ -163,7 +204,7 @@ func _fail(reason: int, blocked_cell: int = -1) -> Result:
 ## Run every placement rule without mutating anything. Returns Reject.NONE
 ## when the placement would be accepted. The cursor ghost and `try_place`
 ## share this so the preview can never disagree with the command.
-func validate(kind: int, anchor: Vector2i, sim: EnemySim) -> int:
+func validate(kind: int, anchor: Vector2i, sim: EnemySim, restrict_district: int = -1) -> int:
     var cells: PackedInt32Array = footprint_cells(anchor)
     if cells.is_empty():
         return Reject.OUT_OF_BOUNDS
@@ -177,6 +218,14 @@ func validate(kind: int, anchor: Vector2i, sim: EnemySim) -> int:
         for ci: int in cells:
             if sim.is_cell_occupied(ci):
                 return Reject.ENEMY_OCCUPIES_CELL
+    if district_fn.is_valid():
+        var d: int = footprint_district(cells)
+        if d < 0:
+            return Reject.DISTRICT_SPLIT
+        if locked_district >= 0 and d == locked_district:
+            return Reject.DISTRICT_LOST
+        if restrict_district >= 0 and d != restrict_district:
+            return Reject.WRONG_DISTRICT
     if kind == Kind.JANGSEUNG:
         # Tentatively block, probe reachability without touching dist/flow/version,
         # then restore. The probe uses scratch arrays only.
@@ -227,6 +276,7 @@ func try_place(kind: int, anchor: Vector2i, sim: EnemySim, label: String = "") -
     s.cells = cells
     s.center = footprint_center(anchor)
     s.label = label
+    s.district = footprint_district(cells)
     structures[s.id] = s
     for ci: int in cells:
         _cell_owner[ci] = s.id
@@ -290,6 +340,85 @@ func of_kind(kind: int) -> Array:
             out.append(s)
     out.sort_custom(func(a: Structure, b: Structure) -> bool: return a.id < b.id)
     return out
+
+
+## WP-003 D-024: take a structure off the map but keep the SAME object (id,
+## stats, counters, cooldown_left). While detached it is absent from
+## `structures`, so nothing detects, attaches, fires or decrements its cooldown.
+func detach(structure_id: int) -> bool:
+    var s: Structure = structures.get(structure_id, null)
+    if s == null:
+        return false
+    for ci: int in s.cells:
+        _cell_owner.erase(ci)
+        if s.blocking:
+            grid.set_structure_i(ci, -1)
+    structures.erase(structure_id)
+    s.detached = true
+    s.active = false
+    detached[structure_id] = s
+    if s.blocking:
+        path.rebuild()
+    return true
+
+
+## Put a detached structure back at `anchor` through the FULL placement
+## validation (terrain, overlap, current enemy occupancy, districts). On
+## failure nothing changes. On success the same object re-occupies the map.
+func restore(structure_id: int, anchor: Vector2i, sim: EnemySim, restrict_district: int = -1) -> Result:
+    var s: Structure = detached.get(structure_id, null)
+    if s == null:
+        return _fail(Reject.NOT_DETACHED)
+    var reason: int = validate(s.kind, anchor, sim, restrict_district)
+    if reason != Reject.NONE:
+        return _fail(reason)
+    var cells: PackedInt32Array = footprint_cells(anchor)
+    s.anchor = anchor
+    s.cells = cells
+    s.center = footprint_center(anchor)
+    s.district = footprint_district(cells)
+    s.detached = false
+    s.active = true
+    s.attached_to = -1
+    s.group_id = -1
+    # Targeting diagnostics belong to the old position: a restored hwacha has
+    # no target until its next decision (counters and cooldown_left are kept).
+    s.last_zone = -1
+    s.last_aim = Vector2.ZERO
+    s.last_target_local = 0
+    s.last_target_shared = 0
+    s.known_local = 0
+    s.known_shared = 0
+    s.wait_reason = ""
+    s.muzzle_timer = 0.0
+    for ci: int in cells:
+        _cell_owner[ci] = s.id
+        if s.blocking:
+            grid.set_structure_i(ci, s.id)
+    detached.erase(structure_id)
+    structures[structure_id] = s
+    if s.blocking:
+        path.rebuild()
+    var r: Result = Result.new()
+    r.ok = true
+    r.structure = s
+    last_result = r
+    return r
+
+
+## Preview for a restore (same rules, no side effects, no counters).
+func preview_restore(structure_id: int, anchor: Vector2i, sim: EnemySim, restrict_district: int = -1) -> int:
+    var s: Structure = detached.get(structure_id, null)
+    if s == null:
+        return Reject.NOT_DETACHED
+    return validate(s.kind, anchor, sim, restrict_district)
+
+
+func get_any(structure_id: int) -> Structure:
+    var s: Structure = structures.get(structure_id, null)
+    if s == null:
+        s = detached.get(structure_id, null)
+    return s
 
 
 func hwachas() -> Array:

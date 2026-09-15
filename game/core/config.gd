@@ -38,6 +38,26 @@ const DEFAULTS: Dictionary = {
     "sensor_range": 140.0,        # sensor centre -> living enemy position
     "hwacha_local_range": 100.0,  # hwacha centre -> living enemy position
 
+    # --- WP-003 collapse / retreat (D-022..D-027) ---
+    # zone_set: "wp001" = the 8 original zones; "wp003" = those + Z8/Z9.
+    "zone_set": "wp001",
+    # arrival_mode: "immediate" = an enemy inside the goal radius is consumed
+    # during movement (WP-001/002); "after_fire" = arrivals are collected after
+    # the hwachas have fired, so an enemy killed on the doorstep deals no damage.
+    "arrival_mode": "immediate",
+    # run_mode: "sandbox" = top-up spawning, no strongholds (WP-001/002);
+    # "waves" = finite waves, stronghold HP, collapse, win/lose (WP-003).
+    "run_mode": "sandbox",
+    # district_rules: footprint must lie in one district; outer refused after collapse.
+    "district_rules": false,
+    # D-032 (GPT review of PR #4): outer stronghold HP 360 (was 120 in READY v1.0).
+    "outer_hp": 360.0,
+    "core_hp": 60.0,
+    "arrival_damage": 1.0,
+    "wave_gap_seconds": 5.0,
+    # Benchmark-only (D-027): core HP is held, attempts are counted.
+    "benchmark_core_invulnerable": false,
+
     # --- hwacha ---
     "hwacha_range": 200.0,
     "hwacha_blast_radius": 55.0,
@@ -63,6 +83,20 @@ static func for_wp001():
     var c = new()
     c.values["targeting_mode"] = "wp001"
     c.values["fixture"] = "wp001"
+    return c
+
+
+## The WP-003 contract (backlog/WP-003.md READY v1.0): fixture C (16 + 2 outer
+## jangseung), 10 zones, arrival after fire, finite waves, districts.
+static func for_wp003():
+    var c = new()
+    c.values["targeting_mode"] = "wp002"
+    c.values["fixture"] = "c"
+    c.values["zone_set"] = "wp003"
+    c.values["arrival_mode"] = "after_fire"
+    c.values["run_mode"] = "waves"
+    c.values["district_rules"] = true
+    c.values["combat_enabled"] = true
     return c
 
 

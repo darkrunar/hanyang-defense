@@ -1,0 +1,324 @@
+[
+  {
+    "scenario": "collapse_move",
+    "frames": 13173,
+    "raw_length": 13173,
+    "alive_length": 13173,
+    "alive_min": 1000.0,
+    "seconds": 60.00759,
+    "fps": 219.5222304378496,
+    "p95_ms": 12.861,
+    "semantic_events": 6,
+    "segment_frames": 13172.0,
+    "missing_segment_frames": 1.0,
+    "implementation_sha": "6e9240c9f88b2f43da34c701299ed687da434ded",
+    "manifest_zone_count": 8,
+    "manifest_jangseung": "(22, 28)",
+    "has_exe_sha256": false,
+    "h1_after_reported": 0,
+    "h1_at_placement": 0,
+    "h1_final": 0,
+    "h1_after_recomputed": 0,
+    "candidate_evals": 9306,
+    "segments": {
+      "post_placement_25_60": {
+        "alive_min": 1000,
+        "avg_fps": 248.968540536358,
+        "closed": true,
+        "eval_delta": 4200,
+        "eval_start": 7522,
+        "frames": 8714,
+        "max_ms": 20.686,
+        "p95_ms": 12.016,
+        "shared_only_delta": 0,
+        "shared_start": 0,
+        "shots_delta": 0,
+        "shots_start": 0,
+        "sim_time_end": 70.0666668067975,
+        "sim_time_start": 35.0666667368007
+      },
+      "pre_collapse_0_20": {
+        "alive_min": 1000,
+        "avg_fps": 159.32487857979,
+        "closed": true,
+        "eval_delta": 4800,
+        "eval_start": 2420,
+        "frames": 3186,
+        "max_ms": 27.814,
+        "p95_ms": 16.525,
+        "shared_only_delta": 0,
+        "shared_start": 0,
+        "shots_delta": 0,
+        "shots_start": 0,
+        "sim_time_end": 30.0833333935011,
+        "sim_time_start": 10.0833333535001
+      },
+      "waiting_20_25": {
+        "alive_min": 1000,
+        "avg_fps": 254.399694720366,
+        "closed": true,
+        "eval_delta": 302,
+        "eval_start": 7220,
+        "frames": 1272,
+        "max_ms": 25.306,
+        "p95_ms": 12.163,
+        "shared_only_delta": 0,
+        "shared_start": 0,
+        "shots_delta": 0,
+        "shots_start": 0,
+        "sim_time_end": 35.0666667368007,
+        "sim_time_start": 30.0833333935011
+      }
+    },
+    "event_details": [
+      {
+        "outer_hp_set": 1.0,
+        "run_id": 1,
+        "seq": 913,
+        "sim_time": 30.0833333935011,
+        "t_measure": 20.004138,
+        "tick": 1805,
+        "trigger_enemy": [
+          950.0,
+          530.0
+        ],
+        "type": "benchmark_trigger"
+      },
+      {
+        "alive": 1000,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 915,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "collapse"
+      },
+      {
+        "cooldown_left": 0.0,
+        "hwacha_id": 1,
+        "kills": 0,
+        "label": "화차·중영",
+        "run_id": 1,
+        "seq": 916,
+        "shots": 0,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "recovery_created"
+      },
+      {
+        "count": 13,
+        "ids": [
+          2,
+          3,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18
+        ],
+        "run_id": 1,
+        "seq": 917,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "outer_deactivated_batch"
+      },
+      {
+        "goal": [
+          47,
+          10
+        ],
+        "path_version_after": 5,
+        "path_version_before": 4,
+        "run_id": 1,
+        "seq": 918,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "target_changed"
+      },
+      {
+        "anchor": [
+          44,
+          13
+        ],
+        "attached_to": 6,
+        "cooldown_left": 0.0,
+        "group": 6,
+        "hwacha_id": 1,
+        "kills": 0,
+        "run_id": 1,
+        "seq": 934,
+        "shots": 0,
+        "sim_time": 35.0666667368007,
+        "tick": 2104,
+        "type": "recovery_placed"
+      }
+    ]
+  },
+  {
+    "scenario": "collapse_combat",
+    "frames": 14757,
+    "raw_length": 14757,
+    "alive_length": 14757,
+    "alive_min": 1000.0,
+    "seconds": 60.006133,
+    "fps": 245.92486238031702,
+    "p95_ms": 11.605,
+    "semantic_events": 6,
+    "segment_frames": 14756.0,
+    "missing_segment_frames": 1.0,
+    "implementation_sha": "6e9240c9f88b2f43da34c701299ed687da434ded",
+    "manifest_zone_count": 8,
+    "manifest_jangseung": "(22, 28)",
+    "has_exe_sha256": false,
+    "h1_after_reported": 9,
+    "h1_at_placement": 33,
+    "h1_final": 75,
+    "h1_after_recomputed": 42,
+    "candidate_evals": 2663,
+    "segments": {
+      "post_placement_25_60": {
+        "alive_min": 1000,
+        "avg_fps": 263.630395670428,
+        "closed": true,
+        "eval_delta": 85,
+        "eval_start": 4428,
+        "frames": 9228,
+        "max_ms": 20.053,
+        "p95_ms": 11.222,
+        "shared_only_delta": 0,
+        "shared_start": 57,
+        "shots_delta": 85,
+        "shots_start": 66,
+        "sim_time_end": 70.0666668067975,
+        "sim_time_start": 35.0833334035007
+      },
+      "pre_collapse_0_20": {
+        "alive_min": 1000,
+        "avg_fps": 209.092132064611,
+        "closed": true,
+        "eval_delta": 2500,
+        "eval_start": 1850,
+        "frames": 4181,
+        "max_ms": 37.371,
+        "p95_ms": 12.951,
+        "shared_only_delta": 43,
+        "shared_start": 13,
+        "shots_delta": 48,
+        "shots_start": 13,
+        "sim_time_end": 30.0833333935011,
+        "sim_time_start": 10.0666666868001
+      },
+      "waiting_20_25": {
+        "alive_min": 1000,
+        "avg_fps": 269.57085400727,
+        "closed": true,
+        "eval_delta": 78,
+        "eval_start": 4350,
+        "frames": 1347,
+        "max_ms": 17.477,
+        "p95_ms": 11.205,
+        "shared_only_delta": 1,
+        "shared_start": 56,
+        "shots_delta": 5,
+        "shots_start": 61,
+        "sim_time_end": 35.0833334035007,
+        "sim_time_start": 30.0833333935011
+      }
+    },
+    "event_details": [
+      {
+        "outer_hp_set": 1.0,
+        "run_id": 1,
+        "seq": 514,
+        "sim_time": 30.0833333935011,
+        "t_measure": 20.001102,
+        "tick": 1805,
+        "trigger_enemy": [
+          950.0,
+          530.0
+        ],
+        "type": "benchmark_trigger"
+      },
+      {
+        "alive": 1000,
+        "outer_hp": 0.0,
+        "run_id": 1,
+        "seq": 516,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "collapse"
+      },
+      {
+        "cooldown_left": 0.7333333332,
+        "hwacha_id": 1,
+        "kills": 882,
+        "label": "화차·중영",
+        "run_id": 1,
+        "seq": 517,
+        "shots": 33,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "recovery_created"
+      },
+      {
+        "count": 13,
+        "ids": [
+          2,
+          3,
+          5,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18
+        ],
+        "run_id": 1,
+        "seq": 518,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "outer_deactivated_batch"
+      },
+      {
+        "goal": [
+          47,
+          10
+        ],
+        "path_version_after": 5,
+        "path_version_before": 4,
+        "run_id": 1,
+        "seq": 519,
+        "sim_time": 30.0833333935011,
+        "tick": 1805,
+        "type": "target_changed"
+      },
+      {
+        "anchor": [
+          44,
+          13
+        ],
+        "attached_to": 6,
+        "cooldown_left": 0.7333333332,
+        "group": 6,
+        "hwacha_id": 1,
+        "kills": 882,
+        "run_id": 1,
+        "seq": 521,
+        "shots": 33,
+        "sim_time": 35.0833334035007,
+        "tick": 2105,
+        "type": "recovery_placed"
+      }
+    ]
+  }
+]

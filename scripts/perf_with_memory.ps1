@@ -6,7 +6,7 @@
 #
 # Writes <Out> (from the game) and <Out>.memory.json (from this sampler).
 param(
-    [ValidateSet("move", "combat", "network_move", "network_combat")][string]$Scenario = "move",
+    [ValidateSet("move", "combat", "network_move", "network_combat", "collapse_move", "collapse_combat")][string]$Scenario = "move",
     [string]$Exe = "build_out\windows\hanyang_defense_wp001.exe",
     [int]$Warmup = 10,
     [int]$Measure = 60,
@@ -23,7 +23,11 @@ $sha = (& git rev-parse HEAD 2>$null); if (-not $sha) { $sha = "unknown" }
 $dirty = (& git status --porcelain --untracked-files=no -- game project.godot export_presets.cfg 2>$null)
 $shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
 $args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag")
-$proc = Start-Process -FilePath (Resolve-Path $Exe) -ArgumentList $args -PassThru
+# R-05: hash the executable that is about to run, independently of the game's
+# own self-hash in the perf JSON manifest (the two must agree).
+$exeItem = Get-Item (Resolve-Path $Exe)
+$exeSha256 = (Get-FileHash -Algorithm SHA256 $exeItem.FullName).Hash.ToLower()
+$proc = Start-Process -FilePath $exeItem.FullName -ArgumentList $args -PassThru
 $samples = @()
 $t0 = Get-Date
 while (-not $proc.HasExited) {
@@ -43,7 +47,11 @@ $measureStart = $Warmup  # sampler t≈0 is process start; the game's window beg
 $inWindow = $samples | Where-Object { $_.t_s -ge $measureStart }
 $report = [ordered]@{
     scenario            = $Scenario
-    exe                 = (Resolve-Path $Exe).Path
+    exe                 = $exeItem.Name          # basename only: no local paths in evidence
+    exe_sha256          = $exeSha256
+    exe_size_bytes      = $exeItem.Length
+    exe_modified_utc    = $exeItem.LastWriteTimeUtc.ToString("o")
+    implementation_sha  = $shaTag
     sampler             = "Get-Process WorkingSet64 / PrivateMemorySize64, 1 Hz, external"
     samples             = $samples.Count
     working_set_mb_min  = ($ws | Measure-Object -Minimum).Minimum
@@ -62,3 +70,8 @@ Write-Host ("MEMORY {0}: working set {1} -> {2} MB (min {3}, max {4}), private m
     $report.working_set_mb_min, $report.working_set_mb_max, $report.private_mb_max, $samples.Count)
 if ($proc.ExitCode -ne 0) { throw "game exited with code $($proc.ExitCode)" }
 if (-not (Test-Path $outAbs)) { throw "game did not write $outAbs" }
+# The game's self-hash of its executable must match the external hash.
+$game = Get-Content $outAbs -Raw -Encoding UTF8 | ConvertFrom-Json
+$selfSha = $game.manifest.executable.sha256
+if ($selfSha -ne $exeSha256) { throw "executable hash mismatch: game reports '$selfSha', sampler computed '$exeSha256'" }
+Write-Host ("EXE {0}: sha256 {1} ({2} bytes) matches the game's self-hash" -f $exeItem.Name, $exeSha256, $exeItem.Length)
