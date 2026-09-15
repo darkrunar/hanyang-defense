@@ -168,7 +168,7 @@ foreach ($sc in @("network_move", "network_combat")) {
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
 Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
-Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\perf\perf_collapse_*"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\perf\perf_collapse_move_1000_release.json*", "$evid3\perf\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
 foreach ($sc in @("collapse_move", "collapse_combat")) {
     $out = "results\evidence\wp-003\perf\perf_${sc}_1000_release.json"
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out

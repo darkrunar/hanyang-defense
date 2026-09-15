@@ -149,7 +149,7 @@ for sc in network_move network_combat; do
     fi
 done
 echo "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
-rm -f "$EVID3"/perf/perf_collapse_*
+rm -f "$EVID3"/perf/perf_collapse_move_1000_release.json* "$EVID3"/perf/perf_collapse_combat_1000_release.json*   # archived *_runN_* files are kept
 for sc in collapse_move collapse_combat; do
     out="$EVID3/perf/perf_${sc}_1000_release.json"
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1         -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/wp-003/perf/perf_${sc}_1000_release.json"

@@ -527,9 +527,20 @@ func _reset_input_state() -> void:
         _overlay.preview_override = Vector2i(-1, -1)
 
 
+## World position of the placement cursor. Headless tests / scripts that have
+## no viewport set `_cursor_world_override` instead of a real mouse.
+var _cursor_world_override: Vector2 = Vector2.INF
+
+
+func _cursor_world() -> Vector2:
+    if _cursor_world_override != Vector2.INF or get_viewport() == null:
+        return _cursor_world_override
+    return get_global_mouse_position()
+
+
 ## WP-003: the only player placement is the recovered H1 into the inner district.
 func _try_recovery_at_cursor() -> void:
-    var anchor: Vector2i = battle.placement.anchor_for_world(get_global_mouse_position())
+    var anchor: Vector2i = battle.placement.anchor_for_world(_cursor_world())
     var res: Placement.Result = battle.place_recovery(anchor)
     if res.ok:
         _mouse_down = false
@@ -555,7 +566,7 @@ static func _reason_ko(reason: int) -> String:
 
 
 func _try_place_at_cursor() -> void:
-    var anchor: Vector2i = battle.placement.anchor_for_world(get_global_mouse_position())
+    var anchor: Vector2i = battle.placement.anchor_for_world(_cursor_world())
     var res: Placement.Result = battle.place_structure(_place_mode, anchor)
     if res.ok:
         _mouse_down = false  # one placement per press

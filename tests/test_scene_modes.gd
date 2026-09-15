@@ -157,6 +157,8 @@ func _restart_clears_input(t: RefCounted, tree: SceneTree) -> void:
     var scene: Node2D = _new_scene(tree)
     scene._perf = null
     scene._capture_name = ""
+    # No viewport / mouse headlessly: the cursor stands on recovery anchor B.
+    scene._cursor_world_override = scene.battle.grid.cell_center(TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y)
     var dt: float = scene.config.get_num("fixed_dt")
     scene.battle.run_for(1.0)
     # Player holds the button (a refused recovery click keeps retrying) and pauses.
