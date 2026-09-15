@@ -26,6 +26,8 @@
 | [WP-001](backlog/WP-001.md) | 대량 적 이동 → 병목 → 화차 사격 |
 | [WP-002](backlog/WP-002.md) | 봉수망과 시설 간 표적 공유 |
 | [WP-003](backlog/WP-003.md) | 웨이브 검증 → 붕괴 → 후퇴·재편 |
+| [GAME_GUIDE](docs/GAME_GUIDE.md) | 플레이어·테스터용 게임 가이드: 지도·적·시설·표적·봉수망·WP-003 런·조작·설정 (WP-001~003 기준) |
+| [TEST_REPORT](results/TEST_REPORT.md) | WP-001~003 통합 테스트 리포트: 스위트 780건, AC 최종 판정, 시나리오, 성능, 화면 증거, 리뷰 이력 |
 | [결과 양식](results/RESULT_TEMPLATE.md) | 구현 증거와 GPT 리뷰 기록 |
 | [WP-001 결과](results/WP-001-RESULT.md) | WP-001 구현·검증 결과, AC별 증거, 성능 측정 |
 
@@ -116,7 +118,7 @@ godot --headless --path . --script res://game/tools/probe_occupancy.gd -- --out=
 
 ### WP-002 봉수망 (2026-09-14)
 
-기본 플레이는 **WP-002 모드**(`targeting_mode=wp002`: 화차는 로컬 100px + 같은 봉수망 그룹 센서의 탐지만 안다)와 **fixture B**(화차 4·봉수대 8·혼천의 4)로 시작한다. WP-001 검증 구성은 `--set targeting_mode=wp001 --set fixture=wp001`(테스트·캡처 `ac01/ac02/ac06`·성능 `move/combat`이 자동으로 고정)이다. 봉수대 연결 180px, 센서 탐지 140px, 화차 로컬 100px, 사거리 200px — 모두 `game/core/config.gd`.
+기본 플레이는 **WP-002 모드**(`targeting_mode=wp002`: 화차는 로컬 100px + 같은 봉수망 그룹 센서의 탐지만 안다)와 **fixture B**(화차 4·봉수대 8·혼천의 4)로 시작한다. WP-001 검증 구성은 `--set=targeting_mode=wp001 --set=fixture=wp001`(테스트·캡처 `ac01/ac02/ac06`·성능 `move/combat`이 자동으로 고정)이다. 봉수대 연결 180px, 센서 탐지 140px, 화차 로컬 100px, 사거리 200px — 모두 `game/core/config.gd`.
 
 ```bash
 # WP-002 fixture A 캡처: 비연결 → 연결(공유 사격) → 단절(오래된 표적 사격 없음) → 로컬 사격 → 복구
@@ -159,7 +161,7 @@ godot --path . --rendering-driver opengl3 -- --capture=wp003_f3b --out-dir=D:/ab
 
 ### 조작
 
-WP-003 런: `LMB` 회수 화차 배치(내곽만, 누르고 있으면 셀이 빌 때까지 재시도; 재시작하면 누르고 있던 입력은 버려짐) · `R` 재시작(일시정지·홀드 입력 초기화) · `D` 상세 패널(경로·밀도·화차·봉수망, 좌하단) 접기 · `Z/G/P/H/F12/Esc` 동일 · 자유 설치/철거/`T`/`C`는 비활성. HUD는 좌상단(런 상태·HP·회수 안내·조작)과 좌하단(상세)으로 나뉘어 내곽·핵심 시설을 가리지 않는다. 시설에 커서를 올리면 정보 패널. 아래는 WP-001/002 sandbox 조작(`--set run_mode=sandbox --set fixture=b` 등).
+WP-003 런: `LMB` 회수 화차 배치(내곽만, 누르고 있으면 셀이 빌 때까지 재시도; 재시작하면 누르고 있던 입력은 버려짐) · `R` 재시작(일시정지·홀드 입력 초기화) · `D` 상세 패널(경로·밀도·화차·봉수망, 좌하단) 접기 · `Z/G/P/H/F12/Esc` 동일 · 자유 설치/철거/`T`/`C`는 비활성. HUD는 좌상단(런 상태·HP·회수 안내·조작)과 좌하단(상세)으로 나뉘어 내곽·핵심 시설을 가리지 않는다. 시설에 커서를 올리면 정보 패널. 아래는 WP-001/002 sandbox 조작(`--set=run_mode=sandbox --set=fixture=b` 등).
 
 `LMB` 설치(누르고 있으면 셀이 빌 때까지 재시도) · `RMB` 제거 · `1/2/3/4` 장승/화차/봉수대/혼천의 모드 · `T` 커서 아래 시설 활성/비활성 전환(디버그 파괴·수리) · 시설에 커서를 올리면 부착 봉수대·그룹·로컬/공유 인지 수·표적 출처·대기 이유 패널 표시 · `C` 전투 토글(처치 끔) · `Z` 밀도 존 표시 · `G` 사거리/탐지/연결 반경 · `P` 일시정지 · `R` 초기화(같은 시드, 망·부착·표적 초기화 후 fixture 복원) · `H` HUD · `F12` 캡처(`%APPDATA%\Godot\app_userdata\...\captures`) · `Esc` 종료
 
