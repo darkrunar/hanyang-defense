@@ -1,7 +1,7 @@
 # WP-003 Result
 
 - 작성일: 2026-09-15
-- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 최종 **REVISE**, 아래 GPT Review 참조). **AC-05의 F1(정상 방어 승리)은 계약 수치로 FAIL** — 아래 분석과 P-017 제안 참조.
+- WP / 상태: WP-003 검증·붕괴·후퇴·재편 / **REVIEW** (GPT 2026-09-15 1차 **REVISE** → **보완 회차 반영, 재리뷰 PENDING** — 문서 끝 "보완 회차" 절). 1차 회차의 HP 120 결과(F1 FAIL)는 아래에 그대로 보존한다.
 - 기준 커밋: `31193a3` ("docs(wp-003): finalize fixtures and acceptance criteria, mark READY", main)
 - 검증한 구현 커밋: `7fc75ab` ("feat(wp-003): …") → **Codex 리뷰 반영 `6e9240c`** ("fix(wp-003): scripted scenarios reapply every mode key; held click follows run mode; quit-after on run end; no stale goal marker"). 게임 코어(`game/core/`)는 두 커밋에서 동일하며 변경은 `game/scenes/`뿐이다.
 - 브랜치: `wp/003-collapse-retreat` · PR: https://github.com/darkrunar/hanyang-defense/pull/4 (Ready for review, 병합 금지)
@@ -198,3 +198,64 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - **P-018:** 실제 실패를 종료1로 보고한 처리는 적절하다. 성공 코드 강제·F1 제외·verify 우회로 해결하지 않는다. 보완 후 모든 필수 테스트 종료0을 요구한다.
 - 기존 D-019~027의 존·회수 대상·분리 중 쿨다운·HP 버퍼·5초 배치 기준은 유지한다. D-032의 HP 변경만 후속 보완 기준이다.
 - 최종 **REVISE**. 기능의 큰 흐름과 F2/F3 수치는 성립하나 회귀·중복 호출·입력 초기화·필수 증거·가독성을 보완해야 한다. 위 수정을 적용한 구현 SHA와 새 결과로 재리뷰한다.
+
+## 보완 회차 · 2026-09-15 · GPT 1차 리뷰(REVISE `f379bea`) R-01~07 반영 — 재리뷰 PENDING
+
+- 기준: GPT 리뷰 커밋 `f379bea`(D-032 외곽 HP 360, R-01~07) · 보완 구현 커밋 **`8ec66aa`**(R-01~07) → `2ed2e02`(헤드리스 커서) → **`41ff91c`**(마지막 측정 프레임 구간 포함; 검증한 게임 트리) → `c1ff134`(uid) · 스크립트 `0406922`/`c5f9347`/`649f328`/`a89d538` · 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피)
+- 원칙: HP 이외의 수치(핵심 60·피해 1·웨이브·시설·존·F3 합격선)는 그대로다. D-032가 대체한 것은 외곽 HP 120→360 하나뿐이며, 이전 회차의 HP 120 결과(F1 FAIL)는 위 절에 보존한다.
+- 자동 검증: `godot --headless --path . --script res://tests/run_tests.gd` → **780 passed / 0 failed (47.7 s; WP-001/002 회귀 322 + WP-003 코어 + scene 진입 경로)**, 종료 코드 **0**(P-018 해소: F1이 실제로 통과하므로). 신규 스위트 `tests/test_scene_modes.gd`(실제 scene 진입 경로) 포함. 리포트: `wp-003/tests/test_report.txt`.
+- 일괄: `.\scripts\verify.ps1 -Wp003`(테스트 → F1 타임라인 → F3 A/B 장부 → F2/F3 캡처 → 릴리스 export → collapse 성능 2종, 각 단계 계약 검사)가 종료 코드 0으로 끝났다. 승인된 WP-001/002 증거 파일은 건드리지 않았다.
+
+### R-항목별 조치
+
+| R | 조치 (파일) | 검증·증거 |
+|---|---|---|
+| **R-01** F1 불성립 → D-032 | `config.gd` `outer_hp` 360, `run_state.gd` 기본값, 테스트 단언(setup·F4 복원·doorstep 359)·HUD/캡처 자동 반영 | **F1 WON 99.8 s, 붕괴 0, 외곽 HP 46/360, 핵심 60, 처치 826 / 도달 314, 생성 1140=처치+도달+생존** — GPT 진단(99.833 s / 46 / 314)과 일치. `tests/f1_timeline.json`. F2 재실행: 붕괴 tick 1200, +5 s B 배치, WON 105.5 s 핵심 28(변화 없음: 20 s 강제 HP 1은 초기값과 무관) |
+| **R-02** legacy 모드 존 재생성 | `battle.gd` `reset()`이 `config.zone_set`으로 DensityDetector 재생성(`zone_set` 필드, `zone_state()`); D-033 | `tests/test_scene_modes.gd`: 실제 `_apply_run_mode()`로 `--perf move/combat/network_move/network_combat`·`--capture ac01/ac02/ac06/wp002_a` 진입 → live DensityDetector 8존, **Z0~Z7 id/이름/중심/반경이 WP-001 표와 동일**, sandbox/immediate/구역 규칙 off/웨이브 off/목표 (47,10)/fixture·시설 수 확인. WP-003 시나리오(collapse_*, f2, f3a/b)는 10존·waves 확인. 리뷰어 프로브 `review_checks.gd`를 이 빌드에서 재실행하면 `actual_zones` 8 (아래) |
+| **R-03** 재시작 입력 잔존 | `main.gd` `_reset_input_state()`(홀드 클릭+발행 run_id·일시정지·잔상·알림·오버라이드 초기화), 홀드 재시도는 발행 run_id==현재 run_id일 때만; 스크립트 `reset`도 동일; D-035 | `test_scene_modes.gd` "R-03": 홀드+일시정지 상태에서 실제 `KEY_R` → run_id+1, `_mouse_down` false, `_paused` false, 다음 physics tick에 명령 0건·틱 진행; 오래된 run_id 홀드는 명령 없이 폐기; 현재 런 홀드는 계속 재시도(기존 동작) |
+| **R-04** 붕괴 멱등 | `battle.gd` `_collapse()` 진입 시 `collapse_count>0`/INNER_ONLY/종료면 false·무변경(`RunState.collapse_calls_ignored`만 증가, 이벤트 없음); 공개 `collapse()`; D-034 | 테스트 "R-04": 실제 도달 붕괴 후 (a) 대기, (b) B 배치 후, (c) LOST 후 각각 중복 호출 → false, **`full_state_json()` 동일**, 권리 1/0/0 유지, H1 재분리 없음, collapse/recovery_created 이벤트 각 1, path_version·topology_version 불변; 재시작이 카운터 초기화 |
+| **R-05** 성능 집계·출처 | `main.gd`: H1 배치 시점 누계 기록(`h1_shots_at_placement`) 후 H1 자신의 델타; 마지막 측정 프레임도 구간에 포함(`segments_cover_all_frames`, 구간별 `frame_index_start/end`·`t_measure_start/end`); manifest를 live 데이터로 생성(`zones` 10, `structures_at_start/end`, `scripted_commands`, `fixture`); 실행파일 `executable{basename, sha256, size_bytes}` 자체 기록 + `perf_with_memory.ps1`이 Get-FileHash로 독립 계산·대조(불일치 시 실패); `verify.*` 6c에 검사 추가; D-038 | 회차 4 JSON(아래 표): `segments_frames_total == frames`, H1 배치 후 42발(배치 시 33 → 최종 75), manifest 존 10·시설 18·J1 (44,36)/J2 (22,24)·회수 B (44,13), exe SHA-256 `56ce8e8c3cbabf138b3c96fad462e6afe5fddd801808b2c9716c23461c6810ce`(게임 자체 기록 = 외부 계산, `.memory.json`) |
+| **R-06** F3 전체 상태·개체별 증거·화면 | `battle.gd` `full_state()/full_state_json()`(D-036: 모든 적 id·좌표·HP·속도·오프셋, 모든 시설·대기, 망 간선·센서별 관측 id·화차별 인지 id, 경로, 존, 런(run_id 제외), 웨이브 누산기, RNG, 카운터); F3 테스트가 A/B 사전 상태를 **완전 상태 문자열로 비교**, F4 종료 불변·재시작 재현성도 동일; `game/tools/f3_tracker.gd` + `wp003_f3_evidence.gd` → `tests/f3_ab.json`; `--capture=wp003_f3a|wp003_f3b` | `f3_ab.json`: `state_identical_before_placement: true`(sha256 `1f3010ab077ba28b…`), A/B 각각 setup(배치 직후 full_state)·최초 관측(개체 12 id별 S4 관측/H1 인지/출처, H1 인지 존 카운트 Z9=12(B)/0(A))·첫 H1 볼리(B: tick 349, Z9, 로컬 0/공유 12, 처치 0 → tick 398 Z7 로컬 12 처치 12; A: 없음)·종료(개체별 운명: B 12 처치(tick 398, 첫 인지 출처 shared, tick 301) / A 12 핵심 도달(tick 522)). 요약 **B 공유전용 1 / 처치 B−A 12 / 핵심 피해 A−B 12**. 캡처 A 4장·B 5장(`wp003_f3a_*`, `wp003_f3b_*` + 로그 JSON에 3개 시점 full_state) |
+| **R-07** HUD 분리 | `main.gd`: 좌상단 패널(≤816 px, 광장·경복궁 밖)에 런/방어 상태·HP·회수 안내·조작, 좌하단 패널(y≥600, x<880)에 상세(경로·밀도·화차·봉수망·인지, `D`로 접기)와 알림; `overlay_layer.gd` 핵심 HP 바·라벨을 마커 위로; 복원 화차의 이전 표적 진단 초기화(`placement.gd` restore); D-037 | 재캡처 `wp003_f2_d/e`: 내곽 전체·핵심 마커·B (44,13) 미리보기/배치·hover 패널이 HUD와 겹치지 않음. F3 캡처도 동일 레이아웃 |
+
+### 리뷰어 프로브 재실행 (`results/evidence/wp-003/gpt-review/2026-09-15/review_checks.gd`, 보완 빌드)
+
+`results/evidence/wp-003/followup/review_checks_rerun_8ec66aa.json` (리뷰어 스크립트를 그대로 실행, 출력만 별도 파일에 보관 — 리뷰어 디렉터리는 손대지 않음):
+
+| 프로브 | 1차 리뷰(6e9240c) | 보완 빌드 |
+|---|---|---|
+| `legacy_mode_repro` move / network_move `actual_zones` | 10 / 10 | **8 / 8** (declared wp001, sandbox, immediate) |
+| `restart_input` held_click / paused / old_hold_dispatched | true / true / true | **false / false / false** (run_id 1→2) |
+| `duplicate_collapse_callback` collapse_events / recovery_created_events / detached_again / right / path_delta | 2 / 2 / true / 1 / 1 | **1 / 1 / false / 0 / 0** |
+| `f1_hp360_proposal_diagnostic_only` | WON 99.833 s, 외곽 46, 도달 314 | 동일(이제 기본값) |
+
+### 성능 회차 4 (보완 빌드 `41ff91c`; manifest `implementation_sha` 41ff91c, `-dirty` 없음)
+
+환경은 위와 동일(Godot 4.7.stable 릴리스 export, gl_compatibility, 1920×1080, vsync off, Ryzen 5 7600 / RTX 4070 SUPER / 63 GB). 시나리오·설정은 D-027 그대로(fixture C 18시설·10존·`benchmark_hold_alive`·외곽 HP 1e6→측정 20 s에 1·25 s B 배치·핵심 무적 집계). 실행 파일 SHA-256 `56ce8e8c3cbabf138b3c96fad462e6afe5fddd801808b2c9716c23461c6810ce`(게임 자체 기록과 외부 Get-FileHash 일치, 기준 SHA `41ff91c`).
+
+| 시나리오 | 프레임 / 초 | 생존 min / avg / max | 부하 유지 | 평균 FPS | 프레임 ms p50 / **p95** / p99 / max | sim step ms avg / p95 | 구간 [0,20) / [20,25) / [25,60] avg FPS · p95 · 프레임 수 (원시 인덱스) | 구간 합 = 전체 | 이벤트·전환 | 워킹셋 MB 시작→종료 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| collapse_move | 13,294 / 60.00 | **1000 / 1000.0 / 1001** | true | **221.5** | 2.67 / **12.72** / 16.13 / 34.01 | 3.79 / 7.37 | 167.7·15.62·3,354 (0–3353) / 270.7·11.55·1,354 (3354–4707) / 245.3·12.19·8,586 (4708–13293) | **13,294 = 13,294** | 6건 tick 1806(trigger·collapse·recovery_created·outer_deactivated·target_changed) + recovery_placed 2106; 트리거→붕괴 0틱, 붕괴→배치 300틱, 배치 ok(1회), pv 4→5, 위상 v16→v18, 핵심 흡수 2,073(무적), 후보 평가 9,305 | 179.8→183.2 |
+| collapse_combat | 14,838 / 60.01 | **1000 / 1000.0 / 1001** | true | **247.3** | 2.54 / **11.72** / 13.97 / 19.32 | 2.42 / 4.49 | 207.4·13.28·4,145 (0–4144) / 273.8·11.26·1,372 (4145–5516) / 266.2·11.21·9,321 (5517–14837) | **14,838 = 14,838** | 6건 tick 1805 + recovery_placed 2106; 트리거→붕괴 0틱, 붕괴→배치 301틱, 배치 ok(1회), pv 4→5, 위상 v16→v18; 구간 발사 138(공유전용 44: 붕괴 전 43·대기 1·배치 후 0), **H1 배치 후 42발 / 954처치**(배치 시 33 → 최종 75), 핵심 흡수 5 | 173.2→181.6 |
+
+- 예산: 평균 ≥60 FPS·p95 ≤25 ms·전 프레임 alive ≥1000 → 두 시나리오 모두 충족. D-027 6 이벤트 각 1건(`recovery_refused` 0), 트리거→붕괴 0틱, 배치 1회 성공, 경로 버전 기대+1.
+- R-05 검산: 각 시나리오 `frame_us_raw` 길이 = 구간 `frames` 합 = `global_frames`; 구간 `frame_index_start/end`로 원시 배열을 잘라 재계산 가능. combat의 H1 배치 후 사격 42발은 `h1_shots_at_placement`(33) 대비 `h1_final.shots`(75)의 델타이며 스냅샷 `after_placement_25s.hwacha_brief`의 H1 shots와 같다.
+- 이전 회차(1 무효·2·3)는 `*_run1_hold_off`, `*_run2_pre_codex`, `*_run3_6e9240c` 파일로 보존한다.
+
+### 보완 후 AC 자체 판정 (GPT 재리뷰 대상)
+
+| AC | 보완 후 | 근거 |
+|---|---|---|
+| AC-01 | PASS(자체) | 실제 피해 붕괴 1회 + R-04 중복 콜백 3상태 무변경(full_state 동일) |
+| AC-02 | PASS(자체) | 변경 없음(GPT PASS), 회귀 통과 |
+| AC-03 | PASS(자체) | 배치 완료 후 중복 콜백이 H1을 재분리하지 않고 권리 0 유지(R-04) |
+| AC-04 | PASS(자체) | F3 완전 상태 동일성 + 개체별 장부 JSON + A/B 실제 화면(R-06) |
+| AC-05 | PASS(자체) | F1 WON(HP 360, D-032) / F2 WON / F4 LOST 우선; 스위트 종료 0 |
+| AC-06 | PASS(자체) | 실제 R 입력 후 홀드·일시정지 초기화, 오래된 run_id 입력 폐기(R-03) + 코어 재시작 완전 상태 재현 |
+| AC-07 | PASS(자체) | 실제 scene 경로 8존 회귀(R-02), 회차 4 성능·집계·manifest·exe 해시(R-05), 회귀 780 passed / 0 failed (47.7 s; WP-001/002 회귀 322 + WP-003 코어 + scene 진입 경로) |
+| AC-08 | PASS(자체) | HUD 분리 재캡처(R-07), F3 화면 제출(R-06) |
+
+### GPT 재리뷰
+
+- 검토일 / 검토한 구현 커밋: (PENDING) / `41ff91c` (보완 구현 `8ec66aa` → `2ed2e02` → `41ff91c`; 리뷰 대상 diff는 `f379bea..HEAD`)
+- 최종 판정: **PENDING**

@@ -294,3 +294,78 @@ D-031 / 2026-09-15 / 채택:
 D-025의 외곽HP 값만 대체한다. 보완 구현의 초기값·재시작 테스트·UI/증거를 갱신하고 F1/F2를 재실행한다. F2/성능의 시각별 검증용 HP 강제 설정은 그대로다. 원래 HP120 기준 구현은 FAIL이며 이 결정으로 소급 PASS하지 않는다. 기존 제출 diff의 최종 판정은 `results/WP-003-RESULT.md`의 GPT Review **REVISE**다.
 
 P-018의 실패 종료1 정책은 유지한다. R-01~07 수정 및 필수 증거 확보 전 DONE/병합을 승인하지 않는다.
+
+## WP-003 보완 회차 기술 결정 (2026-09-15, GPT 리뷰 R-01~07 반영)
+
+```text
+D-033 / 2026-09-15 / 채택:
+문제와 선택: R-02 — 존 집합은 모드의 일부다. Battle.reset()이 config.zone_set으로 DensityDetector를 다시 만든다(_init 한 번이 아니라
+  매 reset). 실제 scene이 프리셋을 바꾸고 reset()을 부르는 경로(--perf move 등)에서 WP-001/002 시나리오가 8존을 갖는다.
+근거와 고려한 대안: "모드 확정 후 Battle 생성"은 scene의 생성 순서를 바꿔야 하고 --set 오버라이드 시점과 얽힌다. reset에서
+  재생성하면 코어 시험과 scene 경로가 같은 코드로 보장된다. 새 스위트 tests/test_scene_modes.gd가 실제 _apply_run_mode()로
+  8존의 id/이름/중심/반경을 WP-001 표와 대조한다(로그 문자열이 아니라 live DensityDetector).
+영향받는 명세·WP: 성능 manifest.zones는 live 존 표에서 생성.
+결정 주체와 검증 증거: Claude Code. test_scene_modes.gd, perf JSON manifest.
+대체하는 이전 결정: 없음(D-028 보완).
+```
+
+```text
+D-034 / 2026-09-15 / 채택:
+문제와 선택: R-04 — 붕괴 진입점 멱등. Battle._collapse()는 collapse_count>0 / INNER_ONLY / 종료 상태에서 즉시 false를 돌려주고
+  상태·권리·경로·망·이벤트를 바꾸지 않는다(RunState.collapse_calls_ignored만 증가, 이벤트 없음). 공개 별칭 collapse()로
+  계약 시험·리뷰어 프로브가 직접 호출한다. 일반 플레이의 자연 경로(_process_arrivals)는 그대로 1회다.
+근거와 고려한 대안: 호출자 검사에만 의존하면 새 호출자가 생길 때 깨진다. 진입점 자체가 거절하면 구조적으로 1회다.
+영향받는 명세·WP: AC-01/AC-03 중복 콜백 계약 시험(대기·배치 완료·종료 3상태, full_state 동일).
+결정 주체와 검증 증거: Claude Code. test_collapse_retreat.gd "R-04".
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-035 / 2026-09-15 / 채택:
+문제와 선택: R-03 — 재시작이 scene 입력 상태를 초기화한다. R/reset은 _reset_input_state()로 홀드 클릭(+발행 run_id)·일시정지·
+  잔상·알림·스크립트 오버라이드를 비운다. 홀드 재시도는 발행 run_id가 현재 run_id와 같을 때만 실행되며 다르면 버린다.
+근거와 고려한 대안: 코어 run_id 검사만으로는 scene의 홀드 상태가 새 런에서 재시도되는 것을 막지 못했다(리뷰어 재현).
+영향받는 명세·WP: AC-06. test_scene_modes.gd가 실제 KEY_R 이벤트로 검증.
+결정 주체와 검증 증거: Claude Code.
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-036 / 2026-09-15 / 채택:
+문제와 선택: R-06 — 전체 구조화 상태 Battle.full_state(). 모든 생존 적(id·slot·경로·좌표·HP·속도·오프셋·셀), 모든 시설(지도·대기,
+  좌표·구역·활성·부착·그룹·쿨다운·카운터·표적 진단), 망(간선·그룹·센서별 관측 id·화차별 인지 id), 경로(목표·버전), 존 표·카운트,
+  런 상태(run_id 제외), 웨이브(누산기 포함), RNG 상태, 명령 카운터. 소수 반올림 없음. F3 A/B 사전 상태 동일성과 F4 종료 불변·
+  재시작 재현성은 full_state_json() 문자열 동일성으로 판정한다(기존 state_hash는 보조).
+근거와 고려한 대안: 스냅샷 복원(직렬화→복원)은 EnemySim 내부 자유 목록/RNG 복원이 필요해 범위가 크다. 같은 시드·입력 재생 +
+  완전 상태 비교가 계약("동일 시드 재편 전후")에 직접 대응한다.
+영향받는 명세·WP: F3 증거 game/tools/wp003_f3_evidence.gd(f3_ab.json: A/B setup·최초 관측·첫 볼리·종료 상태 + 개체별 장부),
+  game/tools/f3_tracker.gd(개체 id별 관측 출처·볼리·처치/도달 시각), --capture=wp003_f3a|wp003_f3b 실제 화면.
+결정 주체와 검증 증거: Claude Code.
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-037 / 2026-09-15 / 채택:
+문제와 선택: R-07 — HUD 분리. 좌상단 패널(폭 ≤ 816px, 광장(y≥320)·경복궁(x≥840) 밖): 런/방어 상태·양 거점 HP·회수 안내·조작.
+  좌하단 패널(서대문 회랑 아래 y≥600, 남대문 회랑 왼쪽 x<880): 경로별 생존·밀도·화차·봉수망·인지 상세(D로 접기)와 알림.
+  핵심 시설 HP 바·라벨은 마커 위쪽에 그려 바로 아래의 회수 후보 A/B와 겹치지 않는다. HUD 전체를 숨기는 방식은 쓰지 않았다.
+근거와 고려한 대안: 1280×340 단일 패널이 내곽·핵심·미리보기를 덮었다(리뷰어 캡처 d/e). PanelContainer+autowrap Label로
+  내용에 맞게 크기가 정해지므로 긴 줄이 패널 밖으로 나가지 않는다.
+영향받는 명세·WP: AC-08 캡처 재생성.
+결정 주체와 검증 증거: Claude Code. results/evidence/wp-003/captures/wp003_f2_d/e, wp003_f3*.
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-038 / 2026-09-15 / 채택:
+문제와 선택: R-05 — 성능 증거 집계·출처. (1) H1 배치 후 사격 = H1 자신의 배치 시점 누계 대비 델타(h1_shots_at_placement 기록).
+  (2) 마지막 측정 프레임(recorder가 done으로 바뀌는 프레임)도 구간에 넣어 global 프레임 = 구간 합(segments_cover_all_frames)이며
+  구간마다 frame_us_raw 인덱스 범위·t_measure 범위를 기록한다. (3) manifest는 live 데이터(존 표, 시작/종료 시설 목록, 시나리오별
+  스크립트 명령·앵커)로 생성한다. (4) 실행 파일 SHA-256·크기를 게임이 자체 기록하고 perf_with_memory.ps1이 Get-FileHash로
+  독립 계산해 대조한다(불일치 시 실패). 경로는 basename만 기록(개인 경로 금지). evidence SHA는 자기참조를 피해 결과 문서
+  커밋에서 연결한다.
+근거와 고려한 대안: 리뷰어 검산과 같은 방법(원시 배열 인덱스)으로 재계산 가능해야 한다.
+영향받는 명세·WP: scripts/verify.*(6c 검사 추가).
+결정 주체와 검증 증거: Claude Code.
+대체하는 이전 결정: 없음.
+```

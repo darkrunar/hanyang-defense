@@ -493,6 +493,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 0,
       "collapse_sim_time": -1.0,
       "collapse_tick": -1,
@@ -509,8 +510,8 @@
       "forced_hp_writes": 0,
       "outer_arrivals": 6,
       "outer_damage_total": 6.0,
-      "outer_hp": 114.0,
-      "outer_hp_max": 120.0,
+      "outer_hp": 354.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         -1,
         -1
@@ -901,6 +902,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -918,7 +920,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         -1,
         -1
@@ -1315,6 +1317,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -1332,7 +1335,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         -1,
         -1
@@ -1731,6 +1734,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -1748,7 +1752,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         -1,
         -1
@@ -1920,10 +1924,10 @@
         "known_local": 1,
         "known_shared": 4,
         "label": "화차·중영",
-        "last_target_local": 7,
+        "last_target_local": 0,
         "last_target_shared": 0,
         "shots": 19,
-        "target_zone": 8,
+        "target_zone": -1,
         "wait_reason": "재장전"
       },
       {
@@ -2179,6 +2183,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -2196,7 +2201,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         44,
         13
@@ -2612,6 +2617,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -2629,7 +2635,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         44,
         13
@@ -3049,6 +3055,7 @@
     ],
     "run": {
       "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
       "collapse_count": 1,
       "collapse_sim_time": 20.0000000400006,
       "collapse_tick": 1200,
@@ -3066,7 +3073,7 @@
       "outer_arrivals": 36,
       "outer_damage_total": 36.0,
       "outer_hp": 0.0,
-      "outer_hp_max": 120.0,
+      "outer_hp_max": 360.0,
       "recovery_anchor": [
         44,
         13
