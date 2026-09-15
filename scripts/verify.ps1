@@ -32,9 +32,12 @@ function Assert-File([string]$path, [string]$step) {
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
 
+if ($Wp004) { $Wp003 = $true }   # -Wp004 = WP-004 captures + new release collapse perf under wp-004/; approved WP-001/002/003 evidence untouched
 $evid3 = Join-Path $evid "wp-003"
+$evid4 = Join-Path $evid "wp-004"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
-$report = if ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
+New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
+$report = if ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
 
 # Freshness: remove every artifact this script regenerates.
 $stale = @(
@@ -42,7 +45,6 @@ $stale = @(
     (Join-Path $evid "captures\ac0*_log.json"), (Join-Path $evid "captures\ac0*.png"),
     (Join-Path $evid "perf\perf_move_1000_release.json*"), (Join-Path $evid "perf\perf_combat_1000_release.json*")
 )
-if ($Wp004) { $Wp003 = $true }   # -Wp004 = the WP-003 evidence steps + the WP-004 captures, collapse perf JSON under wp-004/
 if ($Wp003) { $stale = @($report) }
 Remove-Item -Force -ErrorAction SilentlyContinue $stale
 
@@ -124,10 +126,8 @@ if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1
 }   # end of the WP-003 evidence block skipped by -Wp004
 
 Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
-$evid4 = Join-Path $evid "wp-004"
 New-Item -ItemType Directory -Force (Join-Path $evid4 "captures") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "perf") | Out-Null
-New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
 Remove-Item -Force -ErrorAction SilentlyContinue "$evid4\captures\wp004_ui*", "$evid4\captures\settings_capture.cfg"
 Copy-Item -Force $report "$evid4\tests\test_report.txt"
 foreach ($sc in @("wp004_ui", "wp004_ui_720")) {

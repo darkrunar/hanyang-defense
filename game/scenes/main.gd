@@ -489,7 +489,9 @@ func _sync_menu() -> void:
     menu.show_state(st, ctx)
     if flow.menu_open():
         _clear_field_input()
-    _hud_layer.visible = _show_hud and st != "TITLE"
+    # No HUD before a run exists: TITLE and the settings opened from TITLE.
+    var before_run: bool = st == "TITLE" or (st == "SETTINGS" and flow.settings_return == PlayFlow.State.TITLE)
+    _hud_layer.visible = _show_hud and not before_run
     if _hud_pause_button != null:
         _hud_pause_button.visible = st == "PLAYING"
 
