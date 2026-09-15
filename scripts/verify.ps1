@@ -134,7 +134,7 @@ foreach ($sc in @("move", "combat")) {
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
     Assert-File $out "perf $sc"
     Assert-File "$out.memory.json" "perf $sc memory sampler"
-    $r = Get-Content $out -Raw | ConvertFrom-Json
+    $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $verdict = if ($r.avg_fps -ge 60 -and $r.frame_ms_p95 -le 25 -and $r.load_held_all_frames) { "PASS" } else { "FAIL" }
     Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} load_held={4} -> {5} (budget: avg>=60, p95<=25ms, alive_min>=target)" -f `
         $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $verdict)
@@ -148,7 +148,7 @@ foreach ($sc in @("network_move", "network_combat")) {
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
     Assert-File $out "perf $sc"
     Assert-File "$out.memory.json" "perf $sc memory sampler"
-    $r = Get-Content $out -Raw | ConvertFrom-Json
+    $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames
     # R-02: the targeting workload must have been paid in BOTH scenarios.
     $ok = $ok -and ($r.measured_window.candidate_evaluations_delta -gt 0)
@@ -174,7 +174,7 @@ foreach ($sc in @("collapse_move", "collapse_combat")) {
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
     Assert-File $out "perf $sc"
     Assert-File "$out.memory.json" "perf $sc memory sampler"
-    $r = Get-Content $out -Raw | ConvertFrom-Json
+    $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $c = $r.collapse
     $types = @($c.semantic_events | ForEach-Object { $_.type })
     $six = @("benchmark_trigger", "collapse", "outer_deactivated_batch", "target_changed", "recovery_created", "recovery_placed")

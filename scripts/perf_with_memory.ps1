@@ -71,7 +71,7 @@ Write-Host ("MEMORY {0}: working set {1} -> {2} MB (min {3}, max {4}), private m
 if ($proc.ExitCode -ne 0) { throw "game exited with code $($proc.ExitCode)" }
 if (-not (Test-Path $outAbs)) { throw "game did not write $outAbs" }
 # The game's self-hash of its executable must match the external hash.
-$game = Get-Content $outAbs -Raw | ConvertFrom-Json
+$game = Get-Content $outAbs -Raw -Encoding UTF8 | ConvertFrom-Json
 $selfSha = $game.manifest.executable.sha256
 if ($selfSha -ne $exeSha256) { throw "executable hash mismatch: game reports '$selfSha', sampler computed '$exeSha256'" }
 Write-Host ("EXE {0}: sha256 {1} ({2} bytes) matches the game's self-hash" -f $exeItem.Name, $exeSha256, $exeItem.Length)
