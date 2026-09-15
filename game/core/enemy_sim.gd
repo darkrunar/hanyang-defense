@@ -46,6 +46,12 @@ var speed_jitter: float = 0.22
 var lane_offset: float = 7.0
 var max_hp: float = 60.0
 var goal_radius: float = 26.0
+## "immediate": an enemy inside the goal radius is consumed during movement
+## (WP-001/002 behaviour, unchanged). "after_fire": it stops and waits; the
+## battle consumes the survivors with collect_arrivals() after the hwachas fired
+## (WP-003 D-023).
+var arrival_mode: String = "immediate"
+var _route_cursor: PackedInt32Array = PackedInt32Array()
 
 var _spawn_cursor: int = 0
 var _spawn_accum: float = 0.0
@@ -68,6 +74,7 @@ func _init(g: TerrainGrid, p: PathNetwork, cap: int) -> void:
     route_alive.resize(p.route_ids.size())
     route_spawned.resize(p.route_ids.size())
     route_leaked.resize(p.route_ids.size())
+    _route_cursor.resize(p.route_ids.size())
     reset(0)
 
 
@@ -90,9 +97,31 @@ func reset(seed_value: int) -> void:
     route_leaked.fill(0)
     _spawn_cursor = 0
     _spawn_accum = 0.0
+    _route_cursor.fill(0)
+
+
+## Current RNG state (for state-equality checks between two deterministic runs).
+func rng_state() -> int:
+    return _rng.state
 
 
 # ----------------------------------------------------------------- spawning ---
+
+## Spawn `count` enemies on ONE route, cycling that route's spawn cells in
+## their stable order (WP-003 waves: order south -> west -> east per tick is
+## the caller's responsibility). Returns how many were spawned.
+func spawn_on_route(route_index: int, count: int) -> int:
+    var cells: PackedInt32Array = _path.route_spawn_cells[route_index]
+    var made: int = 0
+    for _n: int in range(count):
+        var ci: int = cells[_route_cursor[route_index] % cells.size()]
+        _route_cursor[route_index] += 1
+        if not _path.is_reachable_index(ci):
+            continue
+        if spawn_at(route_index, ci) < 0:
+            break
+        made += 1
+    return made
 
 ## Spawn one enemy on `route_index` at `spawn_cell`. Returns the slot or -1.
 func spawn_at(route_index: int, spawn_cell: int) -> int:
@@ -190,7 +219,11 @@ func step_movement(dt: float) -> void:
         var dxg: float = goal_c.x - px
         var dyg: float = goal_c.y - py
         if dxg * dxg + dyg * dyg <= gr2:
-            _despawn_at(i, true)
+            if arrival_mode == "immediate":
+                _despawn_at(i, true)
+                continue
+            # after_fire: stay on the doorstep; the battle consumes survivors later.
+            i += 1
             continue
 
         var ni: int = flow_field[ci]
@@ -229,6 +262,27 @@ func step_movement(dt: float) -> void:
                 ncy = h - 1
             cell[s] = ncy * w + ncx
         i += 1
+
+
+## WP-003 D-023: consume every LIVING enemy inside the goal radius, once each,
+## and return their individual ids. Called after the hwachas fired, so an enemy
+## killed on the doorstep this tick is not here. Arrivals count as leaks
+## (`leaked_total`), never as kills.
+func collect_arrivals() -> PackedInt64Array:
+    var out: PackedInt64Array = PackedInt64Array()
+    var goal_c: Vector2 = _grid.index_center(_path.goal_index)
+    var gr2: float = goal_radius * goal_radius
+    var i: int = 0
+    while i < _live.size():
+        var s: int = _live[i]
+        var dx: float = pos_x[s] - goal_c.x
+        var dy: float = pos_y[s] - goal_c.y
+        if dx * dx + dy * dy <= gr2:
+            out.append(enemy_id(s))
+            _despawn_at(i, true)
+            continue
+        i += 1
+    return out
 
 
 func _despawn_at(live_index: int, leaked: bool) -> void:

@@ -59,6 +59,19 @@ for png in wp002_a1_disconnected_no_fire_t2 wp002_a2_connected_shared_fire_t2.5 
     [[ -s "$EVID2/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
 done
 
+echo "== 4c/6 WP-003 F1 timeline + F2 capture"
+EVID3="$EVID/wp-003"
+mkdir -p "$EVID3/captures" "$EVID3/perf" "$EVID3/tests"
+rm -f "$EVID3"/captures/wp003_f2* "$EVID3/tests/f1_timeline.json"
+cp -f "$EVID/test_report.txt" "$EVID3/tests/test_report.txt"
+godot --headless --path . --script res://game/tools/wp003_timeline.gd -- --out="$(abs "$EVID3/tests/f1_timeline.json")" > /dev/null
+[[ -s "$EVID3/tests/f1_timeline.json" ]] || { echo "F1 timeline missing"; exit 1; }
+godot --path . --rendering-driver opengl3 -- --capture=wp003_f2 --out-dir="$(abs "$EVID3/captures")"
+[[ -s "$EVID3/captures/wp003_f2_log.json" ]] || { echo "capture wp003_f2 produced no log"; exit 1; }
+for png in wp003_f2_a_outer_defense_t15 wp003_f2_b_collapse_notice_t20.5 wp003_f2_c_invalid_outer_preview_t23            wp003_f2_d_valid_inner_preview_t23.5 wp003_f2_e_recovery_placed_t25.5 wp003_f2_f_inner_fire_t45 wp003_f2_g_run_end; do
+    [[ -s "$EVID3/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
+done
+
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi
@@ -124,4 +137,23 @@ for sc in network_move network_combat; do
         echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held -> FAIL"; exit 1
     fi
 done
-echo "done. evidence in $EVID and $EVID2"
+echo "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
+rm -f "$EVID3"/perf/perf_collapse_*
+for sc in collapse_move collapse_combat; do
+    out="$EVID3/perf/perf_${sc}_1000_release.json"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf_with_memory.ps1         -Scenario "$sc" -Warmup 10 -Measure 60 -Out "results/evidence/wp-003/perf/perf_${sc}_1000_release.json"
+    [[ -s "$out" ]] || { echo "perf $sc produced no JSON"; exit 1; }
+    fps=$(json_num "$out" avg_fps); p95=$(json_num "$out" frame_ms_p95); held=$(json_bool "$out" load_held_all_frames)
+    ok=1
+    awk -v f="$fps" -v p="$p95" -v h="$held" 'BEGIN{exit !(f>=60 && p<=25 && h=="true")}' || ok=0
+    pr=$(grep -o '"placement_result": *"[^"]*"' "$out" | head -1 | sed 's/.*: *"//; s/"$//')
+    t2c=$(json_num "$out" ticks_trigger_to_collapse)
+    nat=$(json_bool "$out" natural_collapse_before_trigger)
+    [[ "$pr" == "ok" && "${t2c:--1}" -ge 0 && "${t2c:--1}" -le 2 && "$nat" == "false" ]] || ok=0
+    for ty in benchmark_trigger collapse outer_deactivated_batch target_changed recovery_created recovery_placed; do
+        n=$(grep -o "\"type\": *\"$ty\"" "$out" | wc -l); [[ "$n" -ge 1 ]] || ok=0
+    done
+    echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held placement=$pr trigger->collapse=$t2c ticks natural_before_trigger=$nat"
+    if [[ "$ok" == "1" ]]; then echo "perf $sc -> PASS"; else echo "perf $sc -> FAIL"; exit 1; fi
+done
+echo "done. evidence in $EVID, $EVID2 and $EVID3"

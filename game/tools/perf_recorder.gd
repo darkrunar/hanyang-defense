@@ -47,10 +47,16 @@ func start() -> void:
 
 
 ## Call once per rendered frame with the current concurrent alive count.
+## Wall-clock interval of the most recent frame (microseconds), for callers
+## that keep their own per-segment statistics.
+var last_frame_us: int = 0
+
+
 func tick(alive: int) -> void:
     var now: int = Time.get_ticks_usec()
     var dt_us: int = now - _last_frame_usec
     _last_frame_usec = now
+    last_frame_us = dt_us
     match _phase:
         "warmup":
             if float(now - _phase_started_usec) / 1e6 >= warmup_seconds:

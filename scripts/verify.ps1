@@ -77,6 +77,24 @@ foreach ($png in @("wp002_a1_disconnected_no_fire_t2", "wp002_a2_connected_share
     Assert-File "$evid2\captures\$png.png" "capture wp002_a"
 }
 
+Write-Host "== 4c/6 WP-003 F1 timeline + F2 capture"
+$evid3 = Join-Path $evid "wp-003"
+New-Item -ItemType Directory -Force (Join-Path $evid3 "captures") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid3 "perf") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\captures\wp003_f2*", "$evid3\tests\f1_timeline.json"
+Copy-Item -Force "$evid\test_report.txt" "$evid3\tests\test_report.txt"
+& godot --headless --path . --script res://game/tools/wp003_timeline.gd -- "--out=$evid3\tests\f1_timeline.json" | Out-Null
+Assert-Exit "F1 timeline"
+Assert-File "$evid3\tests\f1_timeline.json" "F1 timeline"
+& godot --path . --rendering-driver opengl3 -- "--capture=wp003_f2" "--out-dir=$evid3\captures"
+Assert-Exit "capture wp003_f2"
+Assert-File "$evid3\captures\wp003_f2_log.json" "capture wp003_f2"
+foreach ($png in @("wp003_f2_a_outer_defense_t15", "wp003_f2_b_collapse_notice_t20.5", "wp003_f2_c_invalid_outer_preview_t23",
+                   "wp003_f2_d_valid_inner_preview_t23.5", "wp003_f2_e_recovery_placed_t25.5", "wp003_f2_f_inner_fire_t45", "wp003_f2_g_run_end")) {
+    Assert-File "$evid3\captures\$png.png" "capture wp003_f2"
+}
+
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
 Write-Host "== 5/6 release export"
@@ -122,4 +140,26 @@ foreach ($sc in @("network_move", "network_combat")) {
         $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $r.load_held_all_frames, $r.measured_window.candidate_evaluations_delta, $r.b8_toggles, $r.jangseung_changes, $r.path_version, $r.path_version_expected, $r.measured_window.shared_only_shots, $verdict)
     if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-002 fixture B contract" }
 }
-Write-Host "done. evidence in $evid and $evid2"
+Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\perf\perf_collapse_*"
+foreach ($sc in @("collapse_move", "collapse_combat")) {
+    $out = "results\evidence\wp-003\perf\perf_${sc}_1000_release.json"
+    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
+    Assert-File $out "perf $sc"
+    Assert-File "$out.memory.json" "perf $sc memory sampler"
+    $r = Get-Content $out -Raw | ConvertFrom-Json
+    $c = $r.collapse
+    $types = @($c.semantic_events | ForEach-Object { $_.type })
+    $six = @("benchmark_trigger", "collapse", "outer_deactivated_batch", "target_changed", "recovery_created", "recovery_placed")
+    $sixOk = $true; foreach ($ty in $six) { if (@($types | Where-Object { $_ -eq $ty }).Count -ne 1) { $sixOk = $false } }
+    $segOk = ($c.segments.pre_collapse_0_20.eval_delta -gt 0) -and ($c.segments.waiting_20_25.eval_delta -gt 0) -and ($c.segments.post_placement_25_60.eval_delta -gt 0)
+    $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames -and $sixOk -and $segOk -and `
+          ($c.placement_result -eq "ok") -and (-not $c.natural_collapse_before_trigger) -and ($c.ticks_trigger_to_collapse -ge 0) -and ($c.ticks_trigger_to_collapse -le 2) -and `
+          ($r.path_version -eq $r.path_version_expected + 1)
+    if ($sc -eq "collapse_combat") { $ok = $ok -and ($c.h1_shots_after_placement -ge 1) }
+    $verdict = if ($ok) { "PASS" } else { "FAIL" }
+    Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} six_events={4} segments_eval={5} placement={6} trigger->collapse={7} ticks h1_shots_after={8} -> {9}" -f `
+        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $sixOk, $segOk, $c.placement_result, $c.ticks_trigger_to_collapse, $c.h1_shots_after_placement, $verdict)
+    if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-003 D-027 contract" }
+}
+Write-Host "done. evidence in $evid, $evid2 and $evid3"
