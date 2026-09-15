@@ -24,7 +24,7 @@ New-Item -ItemType Directory -Force "build_out\windows" | Out-Null
 function Assert-Exit([string]$step) {
     # godot.exe is a GUI-subsystem binary: every call below is piped (| Out-Host)
     # so PowerShell waits for it and $LASTEXITCODE is really set.
-    if ($null -eq $LASTEXITCODE) { throw "$step: no exit code (the process was not awaited)" }
+    if ($null -eq $LASTEXITCODE) { throw "${step}: no exit code (the process was not awaited)" }
     if ($LASTEXITCODE -ne 0) { throw "$step failed (exit $LASTEXITCODE)" }
 }
 function Assert-File([string]$path, [string]$step) {
