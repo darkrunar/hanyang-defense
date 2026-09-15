@@ -381,6 +381,16 @@ func restore(structure_id: int, anchor: Vector2i, sim: EnemySim, restrict_distri
     s.active = true
     s.attached_to = -1
     s.group_id = -1
+    # Targeting diagnostics belong to the old position: a restored hwacha has
+    # no target until its next decision (counters and cooldown_left are kept).
+    s.last_zone = -1
+    s.last_aim = Vector2.ZERO
+    s.last_target_local = 0
+    s.last_target_shared = 0
+    s.known_local = 0
+    s.known_shared = 0
+    s.wait_reason = ""
+    s.muzzle_timer = 0.0
     for ci: int in cells:
         _cell_owner[ci] = s.id
         if s.blocking:

@@ -191,8 +191,10 @@ func _draw_wp003_layer() -> void:
     # objectives
     var outer_c: Vector2 = battle.grid.cell_center(TestMap.OUTER_GOAL_CELL.x, TestMap.OUTER_GOAL_CELL.y)
     var core_c: Vector2 = battle.grid.cell_center(TestMap.CORE_GOAL_CELL.x, TestMap.CORE_GOAL_CELL.y)
-    _draw_objective(outer_c, "외곽 거점", rs.outer_hp, rs.outer_hp_max, COLOR_GOAL_OUTER, COLOR_HP_OUTER, rs.defense == 0)
-    _draw_objective(core_c, "핵심 시설", rs.core_hp, rs.core_hp_max, COLOR_GOAL_CORE, COLOR_HP_CORE, rs.defense == 1)
+    _draw_objective(outer_c, "외곽 거점", rs.outer_hp, rs.outer_hp_max, COLOR_GOAL_OUTER, COLOR_HP_OUTER, rs.defense == 0, false)
+    # The core's bar and label go ABOVE its marker: the legal recovery anchors
+    # (A / B) lie right below it and must stay readable (R-07).
+    _draw_objective(core_c, "핵심 시설", rs.core_hp, rs.core_hp_max, COLOR_GOAL_CORE, COLOR_HP_CORE, rs.defense == 1, true)
     # waiting H1
     if rs.recovery_right > 0:
         var d: Placement.Structure = battle.placement.get_any(rs.recovery_target_id)
@@ -204,16 +206,23 @@ func _draw_wp003_layer() -> void:
             draw_string(font, p + Vector2(28.0, 12.0), "재장전 잔여 %.2fs 동결 · 발사 %d · 처치 %d" % [d.cooldown_left, d.shots_fired, d.kills], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, COLOR_TEXT)
 
 
-func _draw_objective(c: Vector2, name: String, hp: float, hp_max: float, col: Color, bar: Color, is_target: bool) -> void:
+func _draw_objective(c: Vector2, name: String, hp: float, hp_max: float, col: Color, bar: Color, is_target: bool, above: bool) -> void:
     draw_arc(c, battle.sim.goal_radius, 0.0, TAU, 32, col, 2.5 if is_target else 1.0)
     if is_target:
         draw_arc(c, battle.sim.goal_radius + 6.0, 0.0, TAU, 32, Color(col.r, col.g, col.b, 0.5), 1.0)
     var w: float = 120.0
-    var origin: Vector2 = c + Vector2(-w * 0.5, battle.sim.goal_radius + 10.0)
+    var origin: Vector2
+    var text_pos: Vector2
+    if above:
+        origin = c + Vector2(-w * 0.5, -battle.sim.goal_radius - 20.0)
+        text_pos = origin + Vector2(0.0, -6.0)
+    else:
+        origin = c + Vector2(-w * 0.5, battle.sim.goal_radius + 10.0)
+        text_pos = origin + Vector2(0.0, 24.0)
     draw_rect(Rect2(origin, Vector2(w, 10.0)), COLOR_HP_BG, true)
     if hp_max > 0.0:
         draw_rect(Rect2(origin, Vector2(w * clampf(hp / hp_max, 0.0, 1.0), 10.0)), bar, true)
-    draw_string(font, origin + Vector2(0.0, 24.0), "%s HP %.0f/%.0f%s" % [name, hp, hp_max, "  ◀ 현재 목표" if is_target else ""],
+    draw_string(font, text_pos, "%s HP %.0f/%.0f%s" % [name, hp, hp_max, "  ◀ 현재 목표" if is_target else ""],
         HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
 
 

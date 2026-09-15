@@ -14,6 +14,7 @@ const SUITES: Array = [
     ["flow + determinism (AC-01, AC-06)", "res://tests/test_flow_and_determinism.gd"],
     ["WP-002 bongsu network (AC-01..05, AC-07)", "res://tests/test_bongsu_network.gd"],
     ["WP-003 collapse / retreat (AC-01..06, F1..F4)", "res://tests/test_collapse_retreat.gd"],
+    ["WP-003 scene entry paths (R-02 zones, R-03 restart input)", "res://tests/test_scene_modes.gd"],
 ]
 
 

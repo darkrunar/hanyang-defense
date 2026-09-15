@@ -28,6 +28,11 @@ func is_done() -> bool:
     return _phase == "done"
 
 
+## Number of measured frames recorded so far (= frame_us_raw.size()).
+func frames() -> int:
+    return _frame_us.size()
+
+
 func phase() -> String:
     return _phase
 

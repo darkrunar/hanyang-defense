@@ -45,6 +45,8 @@ var targeting_mode: String = "wp002"
 var run_mode: String = "sandbox"
 var arrival_mode: String = "immediate"
 var district_rules: bool = false
+## "wp001" (8 zones) or "wp003" (8 + Z8/Z9); the zones are rebuilt on reset().
+var zone_set: String = "wp001"
 var _network_dirty: bool = true
 ## Target at the start of the current tick (arrivals are attributed to it).
 var _tick_target_core: bool = false
@@ -85,6 +87,11 @@ func reset(keep_run_id: bool = true) -> void:
     arrival_mode = config.get_str("arrival_mode")
     district_rules = config.get_bool("district_rules")
     targeting_mode = config.get_str("targeting_mode")
+    # R-02 (GPT review of PR #4): the zone set is part of the mode. A scene that
+    # switches presets calls reset(), so the zones must follow the config here,
+    # not only in _init(); otherwise a WP-001/002 scenario keeps WP-003's Z8/Z9.
+    zone_set = config.get_str("zone_set")
+    density = TestMap.build_zones(zone_set)
     sim.arrival_mode = arrival_mode
     placement.district_fn = Callable(TestMap, "district_of_cell") if district_rules else Callable()
     placement.locked_district = -1
@@ -237,7 +244,13 @@ func _process_arrivals() -> void:
 
 
 ## The collapse: exactly once, all in this tick, before the next decision.
-func _collapse() -> void:
+## The entry point itself is idempotent (R-04): a second call - from any
+## path, in the waiting, placed or ended state - is refused and changes no
+## state, right, path, network or event. Returns whether the collapse ran.
+func _collapse() -> bool:
+    if run.collapse_count > 0 or run.defense == RunState.Defense.INNER_ONLY or run.ended():
+        run.collapse_calls_ignored += 1
+        return false
     run.collapse_count = 1
     run.collapse_tick = steps
     run.collapse_sim_time = sim_time
@@ -277,6 +290,14 @@ func _collapse() -> void:
     _network_dirty = true
     refresh_network()
     network.detect(placement, sim)
+    return true
+
+
+## Public alias for the collapse entry point (the duplicate-callback contract
+## test and reviewer probes call it directly; the game only reaches it through
+## real outer damage in _process_arrivals).
+func collapse() -> bool:
+    return _collapse()
 
 
 func _update_run_end() -> void:
@@ -525,6 +546,107 @@ func state_hash() -> String:
     parts.append(str(path.path_version))
     parts.append(str(waves.snapshot()["remaining"]))
     return "|".join(parts)
+
+
+## Complete structured simulation state (R-06): every living enemy by id,
+## every structure (on the map and detached) with position / district /
+## activity / network / hwacha counters, the network edges + per-sensor
+## observations, path, run, waves and counters. Two runs with the same seed
+## and inputs must produce identical dictionaries; `run_id` is excluded so a
+## restarted run can be compared with a fresh one. Floats are exact (no
+## rounding) so a one-ulp divergence is visible.
+func full_state() -> Dictionary:
+    var enemies: Array = []
+    var live: Array = Array(sim.live_slots())
+    live.sort()
+    for s: int in live:
+        enemies.append({"id": sim.enemy_id(s), "slot": s, "route": sim.route[s], "x": sim.pos_x[s], "y": sim.pos_y[s],
+            "hp": sim.hp[s], "speed": sim.speed[s], "off_x": sim.off_x[s], "off_y": sim.off_y[s], "cell": sim.cell[s]})
+    var structs: Array = []
+    var ids: Array = placement.structures.keys()
+    ids.sort()
+    for id: int in ids:
+        structs.append(_structure_state(placement.structures[id]))
+    var waiting: Array = []
+    var dids: Array = placement.detached.keys()
+    dids.sort()
+    for id: int in dids:
+        waiting.append(_structure_state(placement.detached[id]))
+    var sensors_seen: Dictionary = {}
+    for sid: Variant in network.sensor_seen:
+        var seen: Array = (network.sensor_seen[sid] as Dictionary).keys()
+        seen.sort()
+        sensors_seen[str(sid)] = seen
+    var known: Dictionary = {}
+    for hid: Variant in network.hwacha_known:
+        known[str(hid)] = network.known_ids(hid)
+    var edges: Dictionary = {}
+    var eids: Array = network.edges.keys()
+    eids.sort()
+    for bid: int in eids:
+        var nb: Array = (network.edges[bid] as Array).duplicate()
+        nb.sort()
+        edges[str(bid)] = nb
+    var run_snap: Dictionary = run.snapshot()
+    run_snap.erase("run_id")
+    # Diagnostic counter of refused duplicate collapse calls: not simulation
+    # state (the test asserts it separately).
+    run_snap.erase("collapse_calls_ignored")
+    return {
+        "config": config.to_dictionary(),
+        "sim_time": sim_time, "steps": steps, "run_mode": run_mode, "arrival_mode": arrival_mode,
+        "targeting_mode": targeting_mode, "zone_set": zone_set, "combat_enabled": combat_enabled,
+        "spawning_enabled": spawning_enabled,
+        "rng_state": sim.rng_state(),
+        "alive": sim.alive_count, "spawned_total": sim.spawned_total, "killed_total": sim.killed_total,
+        "leaked_total": sim.leaked_total, "damage_applications": sim.damage_applications,
+        "route_alive": Array(sim.route_alive), "route_spawned": Array(sim.route_spawned), "route_leaked": Array(sim.route_leaked),
+        "enemies": enemies,
+        "structures": structs,
+        "detached": waiting,
+        "path": {"goal": [path.goal_cell.x, path.goal_cell.y], "path_version": path.path_version},
+        "zones": _zone_state(),
+        "zone_counts": Array(density.counts),
+        "network": {"topology_version": network.topology_version, "groups": network.groups(), "edges": edges,
+            "sensor_seen": sensors_seen, "hwacha_known": known},
+        "hwacha_totals": {"shots": hwacha.shots_total, "kills": hwacha.kills_total,
+            "shared_only": hwacha.shared_only_shots, "candidate_evaluations": hwacha.candidate_evaluations},
+        "placement_counters": {"rejected_total": placement.rejected_total, "next_id": placement._next_id,
+            "locked_district": placement.locked_district, "commands_accepted": commands_accepted,
+            "commands_rejected": commands_rejected, "activation_changes": activation_changes},
+        "run": run_snap,
+        "waves": waves.snapshot(),
+        "waves_accum": Array(waves.accum),
+    }
+
+
+func _structure_state(s: Placement.Structure) -> Dictionary:
+    return {"id": s.id, "kind": Placement.kind_name(s.kind), "label": s.label,
+        "anchor": [s.anchor.x, s.anchor.y], "center": [s.center.x, s.center.y], "district": s.district,
+        "active": s.active, "detached": s.detached, "attached_to": s.attached_to, "group": s.group_id,
+        "detect_range": s.detect_range, "fire_range": s.fire_range, "blast_radius": s.blast_radius,
+        "damage": s.damage, "cooldown": s.cooldown, "cooldown_left": s.cooldown_left,
+        "shots": s.shots_fired, "kills": s.kills, "last_zone": s.last_zone,
+        "last_aim": [s.last_aim.x, s.last_aim.y], "known_local": s.known_local, "known_shared": s.known_shared,
+        "last_target_local": s.last_target_local, "last_target_shared": s.last_target_shared,
+        "wait_reason": s.wait_reason, "muzzle_timer": s.muzzle_timer}
+
+
+## Zone table exactly as the simulation uses it (id / name / centre / radius).
+func zone_state() -> Array:
+    return _zone_state()
+
+
+func _zone_state() -> Array:
+    var out: Array = []
+    for z: DensityDetector.Zone in density.zones:
+        out.append({"id": z.id, "name": z.name, "center": [z.center.x, z.center.y], "radius": z.radius})
+    return out
+
+
+## Stable text form of full_state() for equality checks and evidence files.
+func full_state_json() -> String:
+    return JSON.stringify(full_state(), "", true, true)
 
 
 func snapshot() -> Dictionary:

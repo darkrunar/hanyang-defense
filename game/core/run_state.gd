@@ -18,9 +18,9 @@ var run: int = Run.RUNNING
 var defense: int = Defense.OUTER_ACTIVE
 var run_id: int = 1
 
-var outer_hp: float = 120.0
+var outer_hp: float = 360.0
 var core_hp: float = 60.0
-var outer_hp_max: float = 120.0
+var outer_hp_max: float = 360.0
 var core_hp_max: float = 60.0
 var arrival_damage: float = 1.0
 
@@ -46,6 +46,9 @@ var core_invulnerable: bool = false
 
 var end_tick: int = -1
 var end_sim_time: float = -1.0
+## Collapse entry calls refused because the run had already collapsed / ended
+## (R-04: the transition entry point is idempotent; duplicates change nothing).
+var collapse_calls_ignored: int = 0
 
 var events: Array = []
 var _seq: int = 0
@@ -78,6 +81,7 @@ func reset(outer: float, core: float, dmg: float, keep_run_id: bool) -> void:
     core_damage_absorbed = 0.0
     end_tick = -1
     end_sim_time = -1.0
+    collapse_calls_ignored = 0
     events.clear()
     _seq = 0
     forced_hp_writes = 0
@@ -168,5 +172,6 @@ func snapshot() -> Dictionary:
         "end_tick": end_tick,
         "end_sim_time": end_sim_time,
         "forced_hp_writes": forced_hp_writes,
+        "collapse_calls_ignored": collapse_calls_ignored,
         "event_count": events.size(),
     }

@@ -59,18 +59,29 @@ for png in wp002_a1_disconnected_no_fire_t2 wp002_a2_connected_shared_fire_t2.5 
     [[ -s "$EVID2/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
 done
 
-echo "== 4c/6 WP-003 F1 timeline + F2 capture"
+echo "== 4c/6 WP-003 F1 timeline + F3 A/B ledger + F2 / F3 captures"
 EVID3="$EVID/wp-003"
 mkdir -p "$EVID3/captures" "$EVID3/perf" "$EVID3/tests"
-rm -f "$EVID3"/captures/wp003_f2* "$EVID3/tests/f1_timeline.json"
+rm -f "$EVID3"/captures/wp003_f2* "$EVID3"/captures/wp003_f3* "$EVID3/tests/f1_timeline.json" "$EVID3/tests/f3_ab.json"
 cp -f "$EVID/test_report.txt" "$EVID3/tests/test_report.txt"
 godot --headless --path . --script res://game/tools/wp003_timeline.gd -- --out="$(abs "$EVID3/tests/f1_timeline.json")" > /dev/null
 [[ -s "$EVID3/tests/f1_timeline.json" ]] || { echo "F1 timeline missing"; exit 1; }
-godot --path . --rendering-driver opengl3 -- --capture=wp003_f2 --out-dir="$(abs "$EVID3/captures")"
-[[ -s "$EVID3/captures/wp003_f2_log.json" ]] || { echo "capture wp003_f2 produced no log"; exit 1; }
-for png in wp003_f2_a_outer_defense_t15 wp003_f2_b_collapse_notice_t20.5 wp003_f2_c_invalid_outer_preview_t23            wp003_f2_d_valid_inner_preview_t23.5 wp003_f2_e_recovery_placed_t25.5 wp003_f2_f_inner_fire_t45 wp003_f2_g_run_end; do
+grep -q '"run": *"WON"' "$EVID3/tests/f1_timeline.json" || { echo "F1 timeline is not a WON run"; exit 1; }
+# R-06: independent F3 A/B ledger (the tool exits 1 when the pre-placement states differ).
+godot --headless --path . --script res://game/tools/wp003_f3_evidence.gd -- --out="$(abs "$EVID3/tests/f3_ab.json")" > /dev/null
+[[ -s "$EVID3/tests/f3_ab.json" ]] || { echo "F3 A/B ledger missing"; exit 1; }
+grep -q '"state_identical_before_placement": *true' "$EVID3/tests/f3_ab.json" || { echo "F3: A/B states differ before the placement"; exit 1; }
+for sc in wp003_f2 wp003_f3a wp003_f3b; do
+    godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID3/captures")"
+    [[ -s "$EVID3/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
+done
+for png in wp003_f2_a_outer_defense_t15 wp003_f2_b_collapse_notice_t20.5 wp003_f2_c_invalid_outer_preview_t23 \
+           wp003_f2_d_valid_inner_preview_t23.5 wp003_f2_e_recovery_placed_t25.5 wp003_f2_f_inner_fire_t45 wp003_f2_g_run_end \
+           wp003_f3a_1_collapsed_t0 wp003_f3a_2_placed_t5 wp003_f3a_3_first_observation_t5.02 wp003_f3a_5_end_t35 \
+           wp003_f3b_1_collapsed_t0 wp003_f3b_2_placed_t5 wp003_f3b_3_first_observation_t5.02 wp003_f3b_4_first_h1_shot wp003_f3b_5_end_t35; do
     [[ -s "$EVID3/captures/$png.png" ]] || { echo "capture $png.png missing"; exit 1; }
 done
+[[ ! -e "$EVID3/captures/wp003_f3a_4_first_h1_shot.png" ]] || { echo "F3 A: H1 must not fire"; exit 1; }
 
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
@@ -153,7 +164,11 @@ for sc in collapse_move collapse_combat; do
     for ty in benchmark_trigger collapse outer_deactivated_batch target_changed recovery_created recovery_placed; do
         n=$(grep -o "\"type\": *\"$ty\"" "$out" | wc -l); [[ "$n" -ge 1 ]] || ok=0
     done
-    echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held placement=$pr trigger->collapse=$t2c ticks natural_before_trigger=$nat"
+    # R-05: every measured frame in exactly one segment; executable hash recorded.
+    cov=$(json_bool "$out" segments_cover_all_frames); [[ "$cov" == "true" ]] || ok=0
+    grep -q '"sha256": *"[0-9a-f]\{64\}"' "$out" || ok=0
+    if [[ "$sc" == "collapse_combat" ]]; then h1=$(json_num "$out" h1_shots_after_placement); [[ "${h1:-0}" -ge 1 ]] || ok=0; fi
+    echo "perf $sc: avg_fps=$fps p95=${p95}ms load_held=$held placement=$pr trigger->collapse=$t2c ticks natural_before_trigger=$nat frames_covered=$cov"
     if [[ "$ok" == "1" ]]; then echo "perf $sc -> PASS"; else echo "perf $sc -> FAIL"; exit 1; fi
 done
 echo "done. evidence in $EVID, $EVID2 and $EVID3"

@@ -50,7 +50,8 @@ const DEFAULTS: Dictionary = {
     "run_mode": "sandbox",
     # district_rules: footprint must lie in one district; outer refused after collapse.
     "district_rules": false,
-    "outer_hp": 120.0,
+    # D-032 (GPT review of PR #4): outer stronghold HP 360 (was 120 in READY v1.0).
+    "outer_hp": 360.0,
     "core_hp": 60.0,
     "arrival_damage": 1.0,
     "wave_gap_seconds": 5.0,

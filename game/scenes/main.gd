@@ -11,8 +11,9 @@ extends Node2D
 ##   Z           toggle density zone overlay
 ##   G           toggle hwacha range rings
 ##   P           pause / resume the simulation
-##   R           reset the run (same seed)
+##   R           reset the run (same seed; clears held / pending input and pause)
 ##   H           toggle HUD
+##   D           toggle the detail panel (routes, densities, per-hwacha, network)
 ##   F12         save a screenshot next to the project (user://captures)
 ##   Esc         quit
 ##
@@ -22,7 +23,8 @@ extends Node2D
 ##   --speed=N             simulation steps per physics tick (default 1)
 ##   --quit-after=SEC      quit after SEC seconds of simulated time
 ##   --perf --scenario=move|combat [--warmup=10] [--measure=60] --out=path.json
-##   --capture=ac01|ac02|ac06 --out-dir=dir   scripted evidence captures
+##   --capture=ac01|ac02|ac06|wp002_a|wp003_f2|wp003_f3a|wp003_f3b --out-dir=dir
+##                         scripted evidence captures
 
 const Battle := preload("res://game/core/battle.gd")
 const Config := preload("res://game/core/config.gd")
@@ -34,6 +36,7 @@ const TestMap := preload("res://game/maps/hanyang_test_map.gd")
 const TerrainLayer := preload("res://game/scenes/terrain_layer.gd")
 const OverlayLayer := preload("res://game/scenes/overlay_layer.gd")
 const PerfRecorder := preload("res://game/tools/perf_recorder.gd")
+const F3Tracker := preload("res://game/tools/f3_tracker.gd")
 
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 
@@ -46,9 +49,16 @@ var _enemies: MultiMeshInstance2D = null
 var _multimesh: MultiMesh = null
 var _buffer: PackedFloat32Array = PackedFloat32Array()
 var _hud_layer: CanvasLayer = null
+## R-07: two panels that never cover the inner district / objectives.
+## Top-left (x 8..~824, above the plaza): run state, HP, recovery guidance, controls.
+## Bottom-left (x 8..~854, below the west corridor): detail / debug lines + notices.
+var _hud_top: PanelContainer = null
 var _hud: Label = null
-var _hud_bg: ColorRect = null
+var _hud_bottom: PanelContainer = null
+var _detail: Label = null
 var _notice: Label = null
+const HUD_TOP_WIDTH: float = 800.0
+const HUD_DETAIL_WIDTH: float = 830.0
 var _font: Font = null
 
 var _place_mode: int = Placement.Kind.JANGSEUNG
@@ -56,7 +66,10 @@ var _paused: bool = false
 var _show_zones: bool = true
 var _show_ranges: bool = true
 var _show_hud: bool = true
+var _show_detail: bool = true
 var _mouse_down: bool = false
+## run_id the held click was issued in (R-03): a retry never crosses a restart.
+var _mouse_down_run_id: int = -1
 var _sim_speed: int = 1
 var _quit_after: float = -1.0
 var _last_notice: String = ""
@@ -189,23 +202,51 @@ func _build_scene() -> void:
     _hud_layer.name = "HUD"
     add_child(_hud_layer)
 
-    _hud_bg = ColorRect.new()
-    _hud_bg.color = Color(0.0, 0.0, 0.0, 0.55)
-    _hud_bg.position = Vector2(8.0, 8.0)
-    _hud_bg.size = Vector2(1280.0, 340.0 if battle.run_mode == "waves" else 262.0)
-    _hud_layer.add_child(_hud_bg)
+    # Top-left panel: sized by its content, capped at HUD_TOP_WIDTH so it ends
+    # left of the 경복궁 compound (x >= 840) and above the plaza (y >= 320).
+    _hud_top = _make_panel()
+    _hud_top.position = Vector2(8.0, 8.0)
+    _hud_layer.add_child(_hud_top)
+    _hud = _make_hud_label(HUD_TOP_WIDTH, 15)
+    _hud_top.add_child(_hud)
 
-    _hud = Label.new()
-    _hud.position = Vector2(16.0, 12.0)
-    _hud.add_theme_font_size_override("font_size", 16)
-    _hud.add_theme_color_override("font_color", COLOR_TEXT)
-    _hud_layer.add_child(_hud)
-
-    _notice = Label.new()
-    _notice.position = Vector2(16.0, 1040.0)
-    _notice.add_theme_font_size_override("font_size", 18)
+    # Bottom-left panel: anchored to the bottom edge and growing upward, in the
+    # solid block below the 서대문 corridor (y >= 600) and left of 남대문 (x < 880).
+    _hud_bottom = _make_panel()
+    _hud_bottom.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+    _hud_bottom.grow_vertical = Control.GROW_DIRECTION_BEGIN
+    _hud_bottom.offset_left = 8.0
+    _hud_bottom.offset_bottom = -8.0
+    _hud_layer.add_child(_hud_bottom)
+    var vbox: VBoxContainer = VBoxContainer.new()
+    _hud_bottom.add_child(vbox)
+    _detail = _make_hud_label(HUD_DETAIL_WIDTH, 14)
+    vbox.add_child(_detail)
+    _notice = _make_hud_label(HUD_DETAIL_WIDTH, 17)
     _notice.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
-    _hud_layer.add_child(_notice)
+    vbox.add_child(_notice)
+
+
+static func _make_panel() -> PanelContainer:
+    var p: PanelContainer = PanelContainer.new()
+    var sb: StyleBoxFlat = StyleBoxFlat.new()
+    sb.bg_color = Color(0.0, 0.0, 0.0, 0.55)
+    sb.content_margin_left = 8.0
+    sb.content_margin_right = 8.0
+    sb.content_margin_top = 4.0
+    sb.content_margin_bottom = 4.0
+    p.add_theme_stylebox_override("panel", sb)
+    return p
+
+
+static func _make_hud_label(width: float, font_size: int) -> Label:
+    var l: Label = Label.new()
+    l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    l.custom_minimum_size = Vector2(width, 0.0)
+    l.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+    l.add_theme_font_size_override("font_size", font_size)
+    l.add_theme_color_override("font_color", COLOR_TEXT)
+    return l
 
 
 ## The static terrain goal marker belongs to the sandbox modes only; in the
@@ -242,6 +283,7 @@ func _apply_run_mode() -> void:
         battle.reset()
         if _perf.scenario.begins_with("collapse"):
             battle.waves.enabled = false   # finite waves off: the load is the benchmark top-up
+        _perf_structures_at_start = _structure_manifest()
         _perf_next_toggle = _perf.warmup_seconds
         _perf_pv_start = battle.path.path_version
         _perf_topology_start = battle.network.topology_version
@@ -287,8 +329,11 @@ func _physics_process(delta: float) -> void:
     if _mouse_down:
         # Held-click retry dispatches by mode exactly like the initial press
         # (Codex review on PR #4: a refused recovery click must never fall
-        # through to free construction in the WP-003 run).
-        if battle.run_mode == "waves":
+        # through to free construction in the WP-003 run). A hold issued in a
+        # previous run is dropped, never retried in the new one (R-03).
+        if _mouse_down_run_id != battle.run.run_id:
+            _mouse_down = false
+        elif battle.run_mode == "waves":
             _try_recovery_at_cursor()
         else:
             _try_place_at_cursor()
@@ -330,7 +375,10 @@ func _process(delta: float) -> void:
     if _perf != null:
         var was_measuring: bool = _perf.phase() == "measure"
         _perf.tick(battle.sim.alive_count)
-        if was_measuring and _perf.phase() == "measure":
+        if was_measuring:
+            # The recorder appended this frame (it was measuring on entry), even
+            # when this very tick flipped the phase to "done": every global
+            # sample lands in exactly one segment (R-05).
             _col_sample_frame(_perf.last_frame_us)
         if not was_measuring and _perf.phase() == "measure" and _measure_start.is_empty():
             # Snapshot at the start of the measured window, so window deltas
@@ -391,6 +439,7 @@ func _unhandled_input(event: InputEvent) -> void:
         var mb: InputEventMouseButton = event
         if mb.button_index == MOUSE_BUTTON_LEFT:
             _mouse_down = mb.pressed
+            _mouse_down_run_id = battle.run.run_id
             if mb.pressed:
                 if waves_mode:
                     _try_recovery_at_cursor()
@@ -444,20 +493,38 @@ func _unhandled_input(event: InputEvent) -> void:
             KEY_R:
                 if waves_mode:
                     battle.restart()
-                    _recent_shots.clear()
+                    _reset_input_state()
                     _say("재시작 (run #%d, seed %d)" % [battle.run.run_id, config.get_int("seed")])
                 else:
                     battle.reset()
-                    _recent_shots.clear()
+                    _reset_input_state()
                     _say("초기화 (seed %d)" % config.get_int("seed"))
                 _sync_terrain_marker()
             KEY_H:
                 _show_hud = not _show_hud
                 _hud_layer.visible = _show_hud
+            KEY_D:
+                _show_detail = not _show_detail
+                _detail.visible = _show_detail
             KEY_F12:
                 _screenshot_to_user()
             KEY_ESCAPE:
                 get_tree().quit()
+
+
+## R-03: a restart / reset drops everything the previous run left in the
+## scene: the held click (and its run id), the pause, pending visuals and the
+## scripted overrides. The new run starts running with no pending command.
+func _reset_input_state() -> void:
+    _mouse_down = false
+    _mouse_down_run_id = -1
+    _paused = false
+    _recent_shots.clear()
+    _notice_timer = 0.0
+    _notice.text = ""
+    if _overlay != null:
+        _overlay.hover_override = Vector2.INF
+        _overlay.preview_override = Vector2i(-1, -1)
 
 
 ## WP-003: the only player placement is the recovered H1 into the inner district.
@@ -528,6 +595,7 @@ func _update_hud() -> void:
         return
     var sim := battle.sim
     var lines: PackedStringArray = PackedStringArray()
+    var detail: PackedStringArray = PackedStringArray()
     lines.append("한양 디펜스 · %s   Godot %s / %s" % [
         "WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
@@ -539,18 +607,18 @@ func _update_hud() -> void:
     lines.append("동시 생존 %d (최고 %d)   생성 누계 %d   처치 %d   누수 %d" % [
         sim.alive_count, battle.peak_alive, sim.spawned_total, sim.killed_total, sim.leaked_total
     ])
-    lines.append("경로별 생존: %s   경로 버전 %d" % [battle.route_summary(), battle.path.path_version])
+    detail.append("경로별 생존: %s   경로 버전 %d" % [battle.route_summary(), battle.path.path_version])
     var zparts: PackedStringArray = PackedStringArray()
     for z: DensityDetector.Zone in battle.density.zones:
         zparts.append("Z%d %d" % [z.id, battle.density.counts[z.id]])
-    lines.append("밀도: " + "  ".join(zparts))
+    detail.append("밀도: " + "  ".join(zparts))
     var hparts: PackedStringArray = PackedStringArray()
     for s: Placement.Structure in battle.placement.hwachas():
         hparts.append("%s→%s %d발/%d처치" % [
             s.label, ("Z%d" % s.last_zone) if s.last_zone >= 0 else "--", s.shots_fired, s.kills
         ])
-    lines.append("화차: " + "   ".join(hparts))
-    lines.append("장승 %d   화차 %d   거절 누계 %d   설치 모드 [%s]" % [
+    detail.append("화차: " + "   ".join(hparts))
+    detail.append("장승 %d   화차 %d   거절 누계 %d   설치 모드 [%s]" % [
         battle.placement.count_of(Placement.Kind.JANGSEUNG),
         battle.placement.count_of(Placement.Kind.HWACHA),
         battle.placement.rejected_total,
@@ -586,17 +654,18 @@ func _update_hud() -> void:
                 battle.placement.get_any(rs.recovery_target_id).attached_to if battle.placement.get_any(rs.recovery_target_id) != null else -1]
         lines.append(rec + "   시설: 내곽 %d(활성 %d) / 외곽 %d(활성 %d) / 대기 %d" % [
             dc["inner_total"], dc["inner_active"], dc["outer_total"], dc["outer_active"], dc["detached"]])
-    lines.append("봉수망 [%s]: 봉수대 %d(활성 %d) 센서 %d 간선 %d 그룹 %s 위상 v%d | 공유전용 사격 %d" % [
+    detail.append("봉수망 [%s]: 봉수대 %d(활성 %d) 센서 %d 간선 %d 그룹 %s 위상 v%d | 공유전용 사격 %d" % [
         battle.targeting_mode, battle.placement.count_of(Placement.Kind.BONGSU),
         _active_of(Placement.Kind.BONGSU), battle.placement.count_of(Placement.Kind.SENSOR),
         net["link_count"], str(net["groups"]), net["topology_version"], battle.hwacha.shared_only_shots
     ])
-    lines.append("화차 인지: " + "  ".join(nparts))
+    detail.append("화차 인지: " + "  ".join(nparts))
     if battle.run_mode == "waves":
-        lines.append("LMB 회수 화차 배치(내곽)  R 재시작  Z 밀도  G 사거리  P 정지  H HUD  F12 캡처  Esc   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
+        lines.append("LMB 회수 화차 배치(내곽)  R 재시작  Z 밀도  G 사거리  P 정지  H HUD  D 상세  F12 캡처  Esc   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
     else:
-        lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  P 정지  R 초기화  H HUD  F12 캡처  Esc")
+        lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  P 정지  R 초기화  H HUD  D 상세  F12 캡처  Esc")
     _hud.text = "\n".join(lines)
+    _detail.text = "\n".join(detail)
 
 
 # ================================================================== perf ===
@@ -737,6 +806,14 @@ var _col_place_result: String = ""
 var _col_snapshots: Dictionary = {}
 var _col_segments: Dictionary = {}
 var _col_events: Array = []
+## H1's own shot counter right after the recovery placement (R-05: the
+## "shots after placement" figure is H1's delta, not a cross-hwacha subtraction).
+var _col_h1_shots_at_placement: int = -1
+var _col_h1_kills_at_placement: int = -1
+## Global measured-frame index (0-based) so every segment can name the raw
+## frame range it covers and a reviewer can recompute it from frame_us_raw.
+var _col_frame_index: int = -1
+var _perf_structures_at_start: Array = []
 
 
 func _col_seg_name(t_measure: float) -> String:
@@ -751,7 +828,8 @@ func _col_segment(name: String) -> Dictionary:
     if not _col_segments.has(name):
         _col_segments[name] = {"frames": 0, "frame_us": [], "eval_start": battle.hwacha.candidate_evaluations,
             "shots_start": battle.hwacha.shots_total, "shared_start": battle.hwacha.shared_only_shots,
-            "alive_min": 999999, "sim_time_start": battle.sim_time}
+            "alive_min": 999999, "sim_time_start": battle.sim_time,
+            "frame_index_start": -1, "frame_index_end": -1, "t_measure_start": -1.0, "t_measure_end": -1.0}
     return _col_segments[name]
 
 
@@ -815,6 +893,10 @@ func _perf_collapse_step() -> void:
         var res: Placement.Result = battle.place_recovery(TestMap.RECOVERY_B)
         _col_place_result = "ok" if res.ok else Placement.reject_name(res.reason)
         _col_placed = true     # one attempt only: a refusal is a FAIL, never retried silently
+        var h1p: Placement.Structure = battle.placement.get_any(battle.run.recovery_target_id)
+        if h1p != null:
+            _col_h1_shots_at_placement = h1p.shots_fired
+            _col_h1_kills_at_placement = h1p.kills
         _col_state_snapshot("after_placement_25s", t)
 
 
@@ -823,7 +905,13 @@ func _col_sample_frame(frame_us: int) -> void:
     if _perf == null or _perf.phase() != "measure" or not _perf.scenario.begins_with("collapse"):
         return
     var t: float = _perf.elapsed_in_phase()
+    _col_frame_index += 1
     var seg: Dictionary = _col_segment(_col_seg_name(t))
+    if int(seg["frame_index_start"]) < 0:
+        seg["frame_index_start"] = _col_frame_index
+        seg["t_measure_start"] = t
+    seg["frame_index_end"] = _col_frame_index
+    seg["t_measure_end"] = t
     seg["frames"] = int(seg["frames"]) + 1
     (seg["frame_us"] as Array).append(frame_us)
     seg["alive_min"] = mini(int(seg["alive_min"]), battle.sim.alive_count)
@@ -883,7 +971,16 @@ func _collapse_perf_extra() -> Dictionary:
             semantic.append(e)
     var h1: Placement.Structure = battle.placement.get_any(battle.run.recovery_target_id)
     var placed_tick: int = battle.run.recovery_placed_tick
+    var seg_frames: int = 0
+    for k: Variant in segs:
+        seg_frames += int((segs[k] as Dictionary)["frames"])
+    var global_frames: int = _perf.frames()
     return {
+        # R-05: every global measured frame is in exactly one contiguous segment
+        # (frame_index_start..end are indices into frame_us_raw / alive_raw).
+        "global_frames": global_frames,
+        "segments_frames_total": seg_frames,
+        "segments_cover_all_frames": seg_frames == global_frames,
         "trigger_tick": _col_trigger_tick,
         "collapse_tick": battle.run.collapse_tick,
         "collapse_sim_time": battle.run.collapse_sim_time,
@@ -893,7 +990,12 @@ func _collapse_perf_extra() -> Dictionary:
         "placement_attempts": _col_place_attempts,
         "placement_result": _col_place_result,
         "placement_anchor": [TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y],
-        "h1_shots_after_placement": (h1.shots_fired - int(_col_snapshots.get("after_placement_25s", {}).get("shots_total", 0))) if h1 != null and _col_snapshots.has("after_placement_25s") else -1,
+        # R-05: H1's own counter delta since the placement (was wrongly derived
+        # from the all-hwacha shots_total before).
+        "h1_shots_at_placement": _col_h1_shots_at_placement,
+        "h1_kills_at_placement": _col_h1_kills_at_placement,
+        "h1_shots_after_placement": (h1.shots_fired - _col_h1_shots_at_placement) if h1 != null and _col_h1_shots_at_placement >= 0 else -1,
+        "h1_kills_after_placement": (h1.kills - _col_h1_kills_at_placement) if h1 != null and _col_h1_kills_at_placement >= 0 else -1,
         "h1_final": {"id": h1.id, "attached_to": h1.attached_to, "group": h1.group_id, "shots": h1.shots_fired, "kills": h1.kills, "cooldown_left": h1.cooldown_left} if h1 != null else {},
         "semantic_events": semantic,
         "semantic_event_types_expected": ["benchmark_trigger", "collapse", "outer_deactivated_batch", "target_changed", "recovery_created", "recovery_placed"],
@@ -905,6 +1007,60 @@ func _collapse_perf_extra() -> Dictionary:
         "core_damage_absorbed": battle.run.core_damage_absorbed,
         "natural_collapse_before_trigger": battle.run.collapse_tick >= 0 and _col_trigger_tick >= 0 and battle.run.collapse_tick < _col_trigger_tick,
     }
+
+
+## Structures as the placement holds them right now (on the map + detached).
+func _structure_manifest() -> Array:
+    var out: Array = []
+    var ids: Array = battle.placement.structures.keys()
+    ids.sort()
+    for id: int in ids:
+        var st: Placement.Structure = battle.placement.structures[id]
+        out.append({"id": st.id, "kind": Placement.kind_name(st.kind), "label": st.label,
+            "anchor": [st.anchor.x, st.anchor.y], "center": [st.center.x, st.center.y],
+            "district": st.district, "active": st.active, "detached": false})
+    var dids: Array = battle.placement.detached.keys()
+    dids.sort()
+    for id: int in dids:
+        var d: Placement.Structure = battle.placement.detached[id]
+        out.append({"id": d.id, "kind": Placement.kind_name(d.kind), "label": d.label,
+            "anchor": [d.anchor.x, d.anchor.y], "center": [d.center.x, d.center.y],
+            "district": d.district, "active": d.active, "detached": true})
+    return out
+
+
+## The commands each scripted scenario issues (so the manifest names the real
+## anchors: WP-001 combat (44,36), WP-002 network_combat (22,28), WP-003 B (44,13)).
+func _scripted_command_manifest() -> Dictionary:
+    if _perf == null:
+        return {}
+    match _perf.scenario:
+        "combat":
+            var a: Vector2i = TestMap.AC_SCENARIO_ANCHORS["south_west_lane"]
+            return {"jangseung_anchor": [a.x, a.y], "cadence": "remove at 10 s wall cadence, re-place 1.5 s later"}
+        "network_combat":
+            return {"jangseung_anchor": [22, 28], "b8_toggle_every_s": 5.0, "events": 12}
+        "collapse_move", "collapse_combat":
+            return {"trigger_t_measure": 20.0, "trigger_outer_hp": 1.0, "trigger_enemy": [950.0, 530.0],
+                "recovery_t_measure": 25.0, "recovery_anchor": [TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y],
+                "waves_enabled": battle.waves.enabled}
+        _:
+            return {}
+
+
+## Hash and size of the running executable (basename only: no local paths in
+## evidence). In an editor run this is the editor binary and says so.
+func _executable_manifest() -> Dictionary:
+    var exe: String = OS.get_executable_path()
+    var out: Dictionary = {"basename": exe.get_file(), "is_editor_binary": OS.has_feature("editor"),
+        "sha256": "", "size_bytes": -1}
+    if FileAccess.file_exists(exe):
+        out["sha256"] = FileAccess.get_sha256(exe)
+        var f: FileAccess = FileAccess.open(exe, FileAccess.READ)
+        if f != null:
+            out["size_bytes"] = f.get_length()
+            f.close()
+    return out
 
 
 func _finish_perf() -> void:
@@ -970,16 +1126,21 @@ func _finish_perf() -> void:
         "events": _net_events,
         "events_expected_t_measure": [0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0] if _perf.scenario == "network_combat" else [],
         "collapse": _collapse_perf_extra(),
+        # R-05: the manifest is generated from the LIVE run (zones the detector
+        # holds, structures as placed at perf start and at the end), plus the
+        # executable's hash so the build behind the numbers is provable.
         "manifest": {
             "implementation_sha": _build_sha,
+            "executable": _executable_manifest(),
             "config": config.to_dictionary(),
-            "fixture_b_hwachas": TestMap.HWACHAS,
-            "fixture_b_bongsu": TestMap.FIXTURE_B_BONGSU,
-            "fixture_b_sensors": TestMap.FIXTURE_B_SENSORS,
-            "jangseung_anchor": "(22, 28)",
+            "fixture": config.get_str("fixture"),
+            "zone_set": battle.zone_set,
+            "zones": battle.zone_state(),
+            "structures_at_start": _perf_structures_at_start,
+            "structures_at_end": _structure_manifest(),
+            "scripted_commands": _scripted_command_manifest(),
             "b8_id": battle.placement.bongsus()[7].id if battle.placement.bongsus().size() >= 8 else -1,
             "s3_id": _s3().id if _s3() != null else -1,
-            "zones": TestMap.ZONES,
         },
         "screen_size": str(DisplayServer.screen_get_size()),
     }
@@ -1069,6 +1230,47 @@ func _setup_capture_steps() -> void:
                 {"t": 7.0, "do": "capture", "name": "wp002_a5_reconnected_reacquired_t7"},
                 {"t": 7.0, "do": "quit"},
             ]
+        "wp003_f3a", "wp003_f3b":
+            # WP-003 F3 (D-026, R-06): the controlled A/B comparison exactly as
+            # tests/test_collapse_retreat.gd runs it (jitter 0, lane offset 0,
+            # H4 off, waves off, forced collapse at tick 0, placement at
+            # collapse + 300 ticks, 12 enemies at (950,450) the next tick,
+            # 30 s of observation) with real renders and per-entity evidence.
+            _apply_mode_preset(Config.for_wp003())
+            if not _explicit_sets.has("enemy_speed_jitter"):
+                config.values["enemy_speed_jitter"] = 0.0
+            if not _explicit_sets.has("enemy_lane_offset"):
+                config.values["enemy_lane_offset"] = 0.0
+            battle.reset()
+            battle.waves.enabled = false
+            var h4_off: bool = battle.set_active(4, false)
+            battle.force_outer_hp(1.0, "F3 forced collapse")
+            battle.spawn_extra(Vector2(950.0, 530.0), 1, "F3 trigger enemy")
+            _capture_log.append({"t": battle.sim_time, "f3_setup": _capture_name, "h4_deactivated": h4_off,
+                "enemy_speed_jitter": config.get_num("enemy_speed_jitter"), "enemy_lane_offset": config.get_num("enemy_lane_offset"),
+                "waves_enabled": battle.waves.enabled, "outer_hp": battle.run.outer_hp})
+            _sim_speed = 6
+            var variant: String = "a" if _capture_name.ends_with("a") else "b"
+            var anchor: Vector2i = TestMap.RECOVERY_A if variant == "a" else TestMap.RECOVERY_B
+            var pfx: String = "wp003_f3%s" % variant
+            _capture_steps = [
+                {"t": 0.0, "do": "f3_check_collapse"},
+                {"t": 0.0, "do": "capture", "name": pfx + "_1_collapsed_t0"},
+                {"t": 5.0, "do": "place_recovery", "anchor": anchor},
+                {"t": 5.0, "do": "f3_spawn_group"},
+                {"t": 5.0, "do": "f3_state", "label": "setup_after_placement"},
+                {"t": 5.0, "do": "hover", "label": "화차·중영"},
+                {"t": 5.0, "do": "capture", "name": pfx + "_2_placed_t5"},
+                {"t": 5.0, "do": "hover", "label": ""},
+                {"t": 5.01, "do": "f3_first_observation"},
+                {"t": 5.01, "do": "f3_state", "label": "first_observation"},
+                {"t": 5.01, "do": "capture", "name": pfx + "_3_first_observation_t5.02"},
+                {"t": 5.01, "do": "f3_capture_on_h1_shot", "name": pfx + "_4_first_h1_shot", "deadline": 35.0},
+                {"t": 35.0, "do": "f3_state", "label": "end_of_observation"},
+                {"t": 35.0, "do": "f3_end"},
+                {"t": 35.0, "do": "capture", "name": pfx + "_5_end_t35"},
+                {"t": 35.0, "do": "quit"},
+            ]
         "wp003_f2":
             # WP-003 F2 (D-026): the real run, verification-forced collapse at
             # 20 s through real arrival damage, recovery at collapse + 5 s to B,
@@ -1099,9 +1301,14 @@ func _setup_capture_steps() -> void:
             get_tree().quit()
 
 
+var _f3: F3Tracker = null
+
+
 func _capture_script_step() -> void:
     if _capture_name == "" or _capture_busy:
         return
+    if _f3 != null:
+        _f3.after_tick(battle)
     while _capture_index < _capture_steps.size():
         var step: Dictionary = _capture_steps[_capture_index]
         if step["do"] == "capture_on_end":
@@ -1125,7 +1332,7 @@ func _capture_script_step() -> void:
                 return
             "reset":
                 battle.reset()
-                _recent_shots.clear()
+                _reset_input_state()
             "place":
                 var res: Placement.Result = battle.place_jangseung(step["anchor"])
                 _capture_log.append({"t": battle.sim_time, "place": str(step["anchor"]),
@@ -1182,6 +1389,38 @@ func _capture_script_step() -> void:
                 var slot: int = battle.sim.force_spawn(0, step["pos"])
                 _capture_log.append({"t": battle.sim_time, "spawn": str(step["pos"]), "slot": slot,
                     "enemy_id": battle.sim.enemy_id(slot) if slot >= 0 else -1})
+            "f3_check_collapse":
+                _capture_log.append({"t": battle.sim_time, "f3_check_collapse": true, "tick": battle.steps,
+                    "collapse_count": battle.run.collapse_count, "collapse_tick": battle.run.collapse_tick,
+                    "recovery_right": battle.run.recovery_right, "h1_detached": battle.placement.detached.has(1)})
+            "f3_spawn_group":
+                var slots: PackedInt32Array = battle.spawn_extra(TestMap.F3_SPAWN_POINT, TestMap.F3_SPAWN_COUNT, "F3 controlled group")
+                _f3 = F3Tracker.new()
+                _f3.begin(battle, slots)
+                _capture_log.append({"t": battle.sim_time, "f3_spawn_group": slots.size(), "tick": battle.steps,
+                    "pos": [TestMap.F3_SPAWN_POINT.x, TestMap.F3_SPAWN_POINT.y], "ids": _f3.ids})
+            "f3_first_observation":
+                _capture_log.append({"t": battle.sim_time, "f3_first_observation": _f3.first_observation(battle), "tick": battle.steps})
+            "f3_state":
+                _capture_log.append({"t": battle.sim_time, "f3_state": step["label"], "tick": battle.steps,
+                    "full_state": battle.full_state()})
+            "f3_capture_on_h1_shot":
+                # Wait (re-check every tick) until H1 fires for the first time
+                # after the placement, then capture that very tick; give up at
+                # the deadline and record that no volley happened (variant A).
+                var h1s: Placement.Structure = battle.placement.get_any(battle.run.recovery_target_id)
+                var fired: bool = h1s != null and _f3 != null and h1s.shots_fired > _f3.h1_shots_at_begin
+                if not fired and battle.sim_time + 1e-6 < float(step["deadline"]):
+                    _capture_index -= 1
+                    return
+                _capture_log.append({"t": battle.sim_time, "f3_h1_first_shot": fired, "tick": battle.steps,
+                    "shot": _f3.last_h1_shot if _f3 != null else {}, "deadline": step["deadline"]})
+                if fired:
+                    _capture_busy = true
+                    _do_capture(step["name"])
+                    return
+            "f3_end":
+                _capture_log.append({"t": battle.sim_time, "f3_end": _f3.report(battle) if _f3 != null else {}, "tick": battle.steps})
             "quit":
                 _write_capture_log()
                 get_tree().quit()

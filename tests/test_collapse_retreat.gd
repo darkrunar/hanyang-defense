@@ -49,6 +49,7 @@ func run(t: RefCounted) -> void:
     _setup_fixture_c(t)
     _ac01_collapse_once(t)
     _ac01_doorstep_kill_deals_no_damage(t)
+    _ac01_duplicate_collapse_callback(t)
     _ac02_targets_and_state_preserved(t)
     _ac03_recovery_rules(t)
     _ac03_cooldown_freeze_vs_inactive(t)
@@ -88,7 +89,8 @@ func _setup_fixture_c(t: RefCounted) -> void:
         t.check(b.path.route_reachable(r), "route %d reaches the outer goal with the jangseung standing" % r)
     t.eq(b.run.run_name(), "RUNNING", "run state")
     t.eq(b.run.defense_name(), "OUTER_ACTIVE", "defense state")
-    t.eq(b.run.outer_hp, 120.0, "outer HP 120")
+    t.eq(b.run.outer_hp, 360.0, "outer HP 360 (D-032)")
+    t.eq(b.run.outer_hp_max, 360.0, "outer HP max 360 (D-032)")
     t.eq(b.run.core_hp, 60.0, "core HP 60")
     t.eq(b.run.recovery_target_id, H1, "recovery target bound to H1's id at creation")
     t.eq(b.run.recovery_right, 0, "no recovery right before the collapse")
@@ -155,14 +157,77 @@ func _ac01_doorstep_kill_deals_no_damage(t: RefCounted) -> void:
     b.sim.force_spawn(SOUTH, OUTER_GOAL, 1.0)
     b.step(_dt(b))
     t.eq(b.sim.killed_total, 1, "H1 killed it on the doorstep")
-    t.eq(b.run.outer_hp, 120.0, "no stronghold damage")
+    t.eq(b.run.outer_hp, 360.0, "no stronghold damage")
     t.eq(b.run.outer_arrivals, 0, "no arrival recorded")
     t.eq(b.run.collapse_count, 0, "no collapse")
     # Same position, sturdy enemy: survives the volley (34 < 60) and arrives.
     b.sim.force_spawn(SOUTH, OUTER_GOAL)
     b.step(_dt(b))
-    t.eq(b.run.outer_hp, 119.0, "a surviving arrival deals exactly arrival_damage 1")
+    t.eq(b.run.outer_hp, 359.0, "a surviving arrival deals exactly arrival_damage 1")
     t.eq(b.run.outer_arrivals, 1, "one arrival")
+
+
+## R-04 (GPT review): the collapse entry point is idempotent. A duplicate call
+## in the waiting state, after the placement and after the run has ended
+## changes no state, right, path, network or event.
+func _ac01_duplicate_collapse_callback(t: RefCounted) -> void:
+    t.case("AC-01/AC-03 R-04 duplicate collapse callback: refused in waiting / placed / ended states, nothing changes")
+    var b: Battle = _wp003()
+    b.spawning_enabled = false
+    b.force_outer_hp(1.0, "R-04 verification")
+    b.sim.force_spawn(SOUTH, OUTER_GOAL)
+    b.step(_dt(b))
+    t.eq(b.run.collapse_count, 1, "real collapse through arrival damage")
+    t.eq(b.run.collapse_calls_ignored, 0, "no ignored call yet")
+    # (a) waiting state: H1 detached, right 1
+    var before: String = b.full_state_json()
+    var pv: int = b.path.path_version
+    var topo: int = b.network.topology_version
+    var ev: int = b.run.events.size()
+    t.eq(b.collapse(), false, "duplicate call in the waiting state is refused")
+    t.eq(b.full_state_json(), before, "waiting: full state unchanged")
+    t.eq(b.run.recovery_right, 1, "waiting: right still 1")
+    t.eq(b.run.events_of("collapse").size(), 1, "waiting: one collapse event")
+    t.eq(b.run.events_of("recovery_created").size(), 1, "waiting: one recovery_created event")
+    t.eq(b.run.events.size(), ev, "waiting: no new event")
+    t.eq(b.path.path_version, pv, "waiting: no path rebuild")
+    t.eq(b.network.topology_version, topo, "waiting: network topology unchanged")
+    t.eq(b.run.collapse_calls_ignored, 1, "waiting: ignored counter 1")
+    # (b) placed state: right consumed, H1 on the map at B
+    var ok: Placement.Result = b.place_recovery(TestMap.RECOVERY_B)
+    t.check(ok.ok, "placement at B accepted")
+    before = b.full_state_json()
+    pv = b.path.path_version
+    topo = b.network.topology_version
+    ev = b.run.events.size()
+    t.eq(b.collapse(), false, "duplicate call after the placement is refused")
+    t.eq(b.full_state_json(), before, "placed: full state unchanged")
+    t.eq(b.run.recovery_right, 0, "placed: right stays consumed (0)")
+    t.check(b.placement.structures.has(H1) and not b.placement.detached.has(H1), "placed: H1 stays on the map, not detached again")
+    t.eq(b.placement.structures.size(), 18, "placed: 18 structures")
+    t.eq(b.run.events_of("collapse").size(), 1, "placed: still one collapse event")
+    t.eq(b.run.events_of("recovery_created").size(), 1, "placed: still one recovery_created event")
+    t.eq(b.run.events.size(), ev, "placed: no new event")
+    t.eq(b.path.path_version, pv, "placed: no path rebuild")
+    t.eq(b.network.topology_version, topo, "placed: network topology unchanged")
+    t.eq(b.run.collapse_calls_ignored, 2, "placed: ignored counter 2")
+    # (c) ended state (LOST through a real core arrival at core HP 1)
+    b.force_core_hp(1.0, "R-04 end the run")
+    b.sim.force_spawn(SOUTH, CORE_GOAL)
+    b.step(_dt(b))
+    t.eq(b.run.run_name(), "LOST", "run ended")
+    before = b.full_state_json()
+    ev = b.run.events.size()
+    t.eq(b.collapse(), false, "duplicate call after the end is refused")
+    t.eq(b.full_state_json(), before, "ended: full state unchanged")
+    t.eq(b.run.events.size(), ev, "ended: no new event")
+    t.eq(b.run.collapse_calls_ignored, 3, "ended: ignored counter 3")
+    # (d) a fresh run: a duplicate arriving at the natural path is also
+    # impossible because _process_arrivals only calls it while collapse_count == 0;
+    # the restart clears the ignored counter.
+    b.restart()
+    t.eq(b.run.collapse_calls_ignored, 0, "restart clears the ignored counter")
+    t.eq(b.run.collapse_count, 0, "restart clears the collapse")
 
 
 # --------------------------------------------------------------------- AC-02 ---
@@ -302,8 +367,9 @@ func _ac03_cooldown_freeze_vs_inactive(t: RefCounted) -> void:
 # ------------------------------------------------------------------------ F1 ---
 
 func _f1_normal_defense(t: RefCounted) -> void:
-    t.case("F1 normal defense: 18 structures, 1140 enemies, no input -> WON without collapse")
+    t.case("F1 normal defense (D-032 outer HP 360): 18 structures, 1140 enemies, no input -> WON without collapse")
     var b: Battle = _wp003()
+    t.eq(b.run.outer_hp, 360.0, "F1 starts from the D-032 outer HP 360")
     var elapsed: float = _run_until_end(b, MAX_RUN_SECONDS)
     t.eq(b.run.run_name(), "WON", "run WON within %.0f s (ended at %.1f s)" % [MAX_RUN_SECONDS, elapsed])
     t.eq(b.run.collapse_count, 0, "no collapse")
@@ -389,6 +455,7 @@ static func _f3_run(anchor: Vector2i, t: RefCounted, label: String) -> Dictionar
     while b.steps < ct + 300:
         b.step(dt)
     var hash_before: String = b.state_hash()
+    var state_before: String = b.full_state_json()   # R-06: complete structured state
     var res: Placement.Result = b.place_recovery(anchor)
     var h1: Placement.Structure = b.placement.get_any(H1)
     var shots0: int = h1.shots_fired
@@ -410,6 +477,7 @@ static func _f3_run(anchor: Vector2i, t: RefCounted, label: String) -> Dictionar
     for _i: int in range(int(30.0 / dt) - 1):
         b.step(dt)
     return {"ok": res.ok, "reason": Placement.reject_name(res.reason), "hash_before": hash_before,
+        "state_before": state_before, "state_before_len": state_before.length(),
         "attached": h1.attached_to, "group": h1.group_id, "first": first,
         "shots": h1.shots_fired - shots0, "kills": h1.kills - kills0,
         "shared_only": b.hwacha.shared_only_shots - shared0, "core_damage": core0 - b.run.core_hp,
@@ -420,7 +488,10 @@ func _f3_ab_comparison(t: RefCounted) -> void:
     t.case("F3 controlled A/B: connection alone changes shared fire, kills and core damage")
     var a: Dictionary = _f3_run(TestMap.RECOVERY_A, t, "A")
     var bb: Dictionary = _f3_run(TestMap.RECOVERY_B, t, "B")
-    t.eq(a["hash_before"], bb["hash_before"], "state identical right before the placement (same snapshot)")
+    t.eq(a["hash_before"], bb["hash_before"], "state hash identical right before the placement (same snapshot)")
+    t.check(a["state_before"] == bb["state_before"], "R-06: COMPLETE structured state identical before the placement (%d chars: every enemy id/pos/hp, structures, network, waves, rng)" % int(a["state_before_len"]))
+    var parsed: Variant = JSON.parse_string(a["state_before"])
+    t.check(parsed is Dictionary and (parsed as Dictionary)["enemies"].size() == 0 and (parsed as Dictionary)["detached"].size() == 1, "R-06: the shared state has no enemy on the field and H1 waiting")
     t.check(a["ok"] and bb["ok"], "both placements succeeded (A %s, B %s)" % [a["reason"], bb["reason"]])
     t.eq(a["attached"], -1, "A is not attached to any bongsu")
     t.eq(bb["attached"], B2, "B is attached to B2")
@@ -462,9 +533,11 @@ func _f4_lose_stop_restart(t: RefCounted) -> void:
     t.eq(b.run.run_name(), "LOST", "LOST wins over WON when both conditions hit in one tick")
     var run_id: int = b.run.run_id
     var frozen: String = b.state_hash()
+    var frozen_full: String = b.full_state_json()
     var steps_at_end: int = b.steps
     b.run_for(2.0)
     t.eq(b.state_hash(), frozen, "state unchanged for 120 ticks after the end")
+    t.check(b.full_state_json() == frozen_full, "R-06: complete structured state unchanged for 120 ticks after the end")
     t.eq(b.steps, steps_at_end, "no tick advanced after the end")
     t.eq(b.place_recovery(TestMap.RECOVERY_B).reason, Placement.Reject.RUN_ENDED, "recovery refused after the end")
     t.eq(b.place_structure(K_S, Vector2i(44, 8)).reason, Placement.Reject.RUN_ENDED, "placement refused after the end")
@@ -475,7 +548,8 @@ func _f4_lose_stop_restart(t: RefCounted) -> void:
     t.eq(b.run.run_id, run_id + 1, "run_id advanced")
     t.eq(b.run.run_name(), "RUNNING", "running again")
     t.eq(b.run.defense_name(), "OUTER_ACTIVE", "outer active again")
-    t.eq(b.run.outer_hp, 120.0, "outer HP restored")
+    t.eq(b.run.outer_hp, 360.0, "outer HP restored to 360 (D-032)")
+    t.eq(b.run.outer_hp_max, 360.0, "outer HP max restored to 360")
     t.eq(b.run.core_hp, 60.0, "core HP restored")
     t.eq(b.placement.structures.size(), 18, "18 structures restored")
     t.eq(b.placement.detached.size(), 0, "no detached structure")
@@ -507,3 +581,6 @@ func _f4_lose_stop_restart(t: RefCounted) -> void:
     r2.run_for(10.0)
     t.ne(r1.run.run_id, r2.run.run_id, "run ids differ")
     t.eq(r1.state_hash(), r2.state_hash(), "restarted run reproduces the fresh run (state hash excludes run_id)")
+    t.check(r1.full_state_json() == r2.full_state_json(), "R-06: restarted run reproduces the fresh run in the COMPLETE structured state (run_id excluded)")
+    var fresh_state: Dictionary = r1.full_state()
+    t.check((fresh_state["enemies"] as Array).size() == r1.sim.alive_count and (fresh_state["structures"] as Array).size() == 18, "full_state lists every living enemy and all 18 structures")
