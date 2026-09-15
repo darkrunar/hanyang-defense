@@ -912,8 +912,11 @@ func _perf_collapse_step() -> void:
 
 
 ## Per-frame segment sampling for the collapse scenarios (called from _process).
+## The caller guarantees the recorder was measuring when this frame was
+## ticked; the phase may already read "done" for the very last frame, which
+## still belongs to the last segment (R-05: segments cover every frame).
 func _col_sample_frame(frame_us: int) -> void:
-    if _perf == null or _perf.phase() != "measure" or not _perf.scenario.begins_with("collapse"):
+    if _perf == null or not _perf.scenario.begins_with("collapse"):
         return
     var t: float = _perf.elapsed_in_phase()
     _col_frame_index += 1
