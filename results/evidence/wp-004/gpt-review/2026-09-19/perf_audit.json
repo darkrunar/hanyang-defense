@@ -1,0 +1,126 @@
+[
+  {
+    "events": [
+      {
+        "type": "benchmark_trigger",
+        "tick": 1805
+      },
+      {
+        "type": "collapse",
+        "tick": 1805
+      },
+      {
+        "type": "recovery_created",
+        "tick": 1805
+      },
+      {
+        "type": "outer_deactivated_batch",
+        "tick": 1805
+      },
+      {
+        "type": "target_changed",
+        "tick": 1805
+      },
+      {
+        "type": "recovery_placed",
+        "tick": 2105
+      }
+    ],
+    "segments": [
+      {
+        "name": "pre_collapse_0_20",
+        "eval_delta": 4800,
+        "p95_ms": 15.459,
+        "fps": 169.70212127651595,
+        "frames": 3394
+      },
+      {
+        "name": "waiting_20_25",
+        "eval_delta": 307,
+        "p95_ms": 11.431,
+        "fps": 270.0636901870987,
+        "frames": 1349
+      },
+      {
+        "name": "post_placement_25_60",
+        "eval_delta": 4199,
+        "p95_ms": 12.125,
+        "fps": 243.41551184988762,
+        "frames": 8521
+      }
+    ],
+    "exe_sha256": "134ffed4b8d215c6509ec90b757a5e7fb44215bab09dcfebb77b9371f6fa6783",
+    "alive_min": 1000.0,
+    "p95_ms": 12.598,
+    "scenario": "move",
+    "frames": 13264,
+    "seconds": 60.000854,
+    "placement": "ok",
+    "status": "PASS",
+    "implementation_sha": "96ec3c9f631bac32c314afe42c6f0fcbd08b8103",
+    "fps": 221.06352019589588,
+    "h1_shots_after": 0
+  },
+  {
+    "events": [
+      {
+        "type": "benchmark_trigger",
+        "tick": 1805
+      },
+      {
+        "type": "collapse",
+        "tick": 1805
+      },
+      {
+        "type": "recovery_created",
+        "tick": 1805
+      },
+      {
+        "type": "outer_deactivated_batch",
+        "tick": 1805
+      },
+      {
+        "type": "target_changed",
+        "tick": 1805
+      },
+      {
+        "type": "recovery_placed",
+        "tick": 2106
+      }
+    ],
+    "segments": [
+      {
+        "name": "pre_collapse_0_20",
+        "eval_delta": 2500,
+        "p95_ms": 13.041,
+        "fps": 210.93576415881313,
+        "frames": 4218
+      },
+      {
+        "name": "waiting_20_25",
+        "eval_delta": 80,
+        "p95_ms": 11.284,
+        "fps": 273.83953003539926,
+        "frames": 1370
+      },
+      {
+        "name": "post_placement_25_60",
+        "eval_delta": 85,
+        "p95_ms": 11.051,
+        "fps": 269.21882570708084,
+        "frames": 9423
+      }
+    ],
+    "exe_sha256": "134ffed4b8d215c6509ec90b757a5e7fb44215bab09dcfebb77b9371f6fa6783",
+    "alive_min": 1000.0,
+    "p95_ms": 11.506,
+    "scenario": "combat",
+    "frames": 15011,
+    "seconds": 60.000806,
+    "placement": "ok",
+    "status": "PASS",
+    "implementation_sha": "96ec3c9f631bac32c314afe42c6f0fcbd08b8103",
+    "fps": 250.17997258236832,
+    "h1_shots_after": 42
+  }
+]

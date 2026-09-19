@@ -115,3 +115,49 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - 보완 요청 또는 다음 WP 준비 사항: (PENDING)
 
 이 문서는 구현·테스트 결과 기록이며, DONE 전환은 모든 필수 AC 충족과 GPT PASS 이후에만 한다.
+
+### 2026-09-19 — GPT Review / PR #6
+
+- 최종 판정: **REVISE**. AC-05 입력 해제 경계가 충족되지 않았다. WP-004는 REVIEW를 유지한다.
+- 검토 범위: `d3bd9d8..9a6fc943bcf3218f46a50918d1e2cfccc0f9d370`. 구현 GDScript는 `e715906`, 성능 manifest는 `96ec3c9f631bac32c314afe42c6f0fcbd08b8103`. manifest 커밋 이후 게임 경로 차이는 UID 메타데이터 추가이며 GDScript 변경은 없다.
+- 독립 재실행: Godot 4.7.stable.official.5b4e0cb0f, **1,053 PASS / 0 FAIL, 55.0초, 종료 코드 0**. 추가 입력 재현은 직접 핸들러와 Viewport 입력 전달 양쪽에서 실패를 확인했다.
+- 리뷰 증거: `results/evidence/wp-004/gpt-review/2026-09-19/`의 `test_report.txt`, `review_input.gd`, `input_review.json`, `audit_perf.ps1`, `perf_audit.json`.
+
+| AC | GPT 판정 | 근거와 범위 |
+|---|---|---|
+| AC-01 | PASS | 재실행 F1 정상 승리 / F2 재편 승리 / F4 패배, RESULT 자동 진입, 실제 Button 노드 신호를 통한 재시작·TITLE 복귀 통과. 제출된 승패 캡처·로그와 대조 |
+| AC-02 | PASS | 회수 대기·적 이동 상태의 PAUSED / SETTINGS / CONFIRM 각 120 UI 프레임에서 전투 구조화 상태·배치 명령 불변, 재개 후 프레임당 1틱 검증 통과 |
+| AC-03 | PASS | PLAYING R·PAUSED 재시작/복귀 확인·취소·원래 상태 복귀 및 RESULT 중복 재시작 1회 통과 |
+| AC-04 | PASS | 진행 중 / WON / LOST 이후 동일 시드 새 Battle 상태 비교, run_id 변경, 기존 held 입력 폐기 통과. 메뉴 닫기 키 해제 경계의 결함은 AC-05로 판정 |
+| AC-05 | **FAIL** | Esc 계층과 release 이벤트 자체의 배치 방지는 통과하지만, 메뉴를 닫은 Esc를 떼기 전 다른 전장 press를 차단하지 않음. R-01 참조 |
+| AC-06 | PASS | 결과 모델의 실제 장부 참조, F1/F2/F4 결과·캡처 로그 대조, 미배치 —, 시뮬레이션 시간, RESULT 120프레임 불변 통과 |
+| AC-07 | PASS | 설정 저장/재생성 시 복원·누락/손상/잘못된 값·저장 실패 알림 테스트 통과. 제출된 1080p/720p TITLE·PAUSED·SETTINGS·CONFIRM·RESULT 대표 화면에서 한글·버튼·포커스 잘림/겹침 없음. 실제 OS 전체화면 전환은 구현자의 수동 확인 기록과 DisplayServer 적용 경로를 근거로 하며, 리뷰어의 별도 창 전환 재실행은 NOT RUN |
+| AC-08 | PASS | 기존 회귀 포함 1,053건, legacy 8존/WP-003 10존 및 메뉴/사용자 설정 우회 통과. 제출 release 원시 배열 재계산·구간 매핑·6 이벤트·manifest/외부 실행파일 해시 대조 통과 |
+
+#### R-01 [P2, 필수] 메뉴 닫기 입력이 해제되기 전 전장 배치를 막아야 함
+
+- 위치: `game/scenes/main.gd:644` (`_handle_key_event`), 특히 662~672행의 마우스 press 처리. `_clear_field_input`은 기존 홀드를 비우지만, 메뉴를 닫은 키/버튼이 해제됐는지 추적하지 않는다.
+- 재현: H1 회수 대기 → Esc로 PAUSED → Esc release → Esc press로 재개 → **두 번째 Esc release 없이** B 위치에서 LMB press. 직접 핸들러 시험 및 `Viewport.push_input`을 사용하는 GUI 입력 경로 시험 모두 **accepted_delta=1, recovery_placed=true**였다. 기대값은 accepted_delta=0이다.
+- 영향: 재개 키를 누른 상태에서 클릭하면 WP §2의 입력 잠금이 풀리기 전에 1회뿐인 회수권을 소비한다. 이는 새 배치 검사 규칙 변경 문제가 아니라 메뉴/전장 경계 문제다.
+- 수정 요청: 메뉴를 닫는 입력의 release를 확인할 때까지 전장 명령을 막는다. 차단 중 들어온 press를 held 재시도로 넘기지 말고, 닫기 입력 release 이후 새 press에서만 배치한다. Esc 취소/재개뿐 아니라 Enter 및 마우스로 닫는 경로도 같은 계약을 유지한다. D-044의 설명도 이 규칙을 반영한다.
+- 재시험: Esc held + LMB, Enter held + LMB, 닫기 클릭의 press/release, 차단 중 누른 LMB를 계속 hold하는 경우, release 후 새 press, 재시작 뒤 지연 입력을 Viewport 입력 경로로 검사한다. release 전 명령/회수권 변화 0, release 후 새 press에서만 1회를 단언하고 전체 회귀를 다시 실행한다.
+- 기존 시험 누락 이유: AC-05는 메뉴에서 누른 LMB의 release가 명령을 만들지 않는지만 확인한다. 메뉴를 닫은 Esc 자체를 release하지 않은 채 새 LMB를 넣는 경계를 확인하지 않는다. Button `pressed.emit()`도 실제 버튼 press/release 전달을 대신 검증하지 못한다.
+
+#### 종료 우선순위 경계 관측 — 일반 플레이 결함으로 단정하지 않음
+
+`review_input.gd`의 별도 주입 시험은 pause를 큐에 넣은 뒤 `battle.step`을 직접 호출하여 LOST를 확정하고 scene 프레임을 실행한다. 이때 `_apply_intents`가 먼저 실행되어 UI가 PAUSED에 남는다. 다만 일반 `_physics_process`는 전투 step과 `_check_run_end`를 같은 콜백에서 실행하므로 이번 리뷰에서 이 순서가 정상 사용자 입력만으로 발생하는 경로는 확인하지 못했다. 이 주입 결과를 별도의 배포 차단 결함으로 계산하지 않는다. 후속 비동기 전투/명령 추가 시에는 이미 끝난 RunState를 의도 큐 처리 전에 확인하고, 기존의 '이미 RESULT인 상태에 stale 입력을 추가'하는 시험과 구별하는 것이 좋다.
+
+#### 성능 원시 자료 대조
+
+| 제출 release 자료 | 원시 프레임 수 | 재계산 평균 FPS | 재계산 p95 ms | alive 최솟값 | 판정 |
+|---|---:|---:|---:|---:|---|
+| collapse_move | 13,264 | 221.06 | 12.600 | 1,000 | PASS |
+| collapse_combat | 15,011 | 250.18 | 11.510 | 1,000 | PASS |
+
+각 `frame_us_raw` 합/분위수, `alive_raw`, 구간 인덱스의 연속성·전체 프레임 포함·구간 FPS/p95·후보 평가 증가를 다시 계산했다. 두 manifest 모두 10존/18시설, semantic event 6건, trigger→collapse 0틱, 배치 ok, 경로 버전 시작4→종료5, 실행파일 SHA-256과 외부 메모리 샘플러 기록이 일치한다. 최상위 `path_version_expected=4`는 collapse 증가를 포함하지 않는 기존 필드이므로 D-027의 시작값+1 및 이벤트를 기준으로 판정했다. 이 필드는 후속 정리 시 혼동 없이 표시하는 편이 좋다.
+
+리뷰어는 새 release export/10+60초 성능 측정과 OS 창 전환을 별도로 재실행하지 않았다. 위 성능 PASS는 제출된 release 증거의 독립 재계산 결과다. 화면 검토 역시 제출 PNG와 로그를 근거로 하며 이번 리뷰에서 새 캡처를 만들었다는 의미는 아니다.
+
+#### 기획 판단 / 다음 조치
+
+D-039~042의 동일 전장 재시도, 전투와 UI 상태 분리, 결과 장부, 창 모드만 제공하는 설정 범위는 유지한다. D-043/045/046의 구현 방향은 수용한다. D-044는 R-01의 release 경계를 보완해야 한다. 전장 전체 픽셀아트 교체·음향·재화 기능은 이번 수정에 추가하지 않는다. **R-01 수정과 대응 증거 제출 후 재리뷰**하며, 현재 PR은 병합/DONE 처리하지 않는다.
