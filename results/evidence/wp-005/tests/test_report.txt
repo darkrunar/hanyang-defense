@@ -1301,6 +1301,56 @@
      PASS  grey box keeps the 12-float instance layout (= 12)
      PASS  grey box keeps the blast rings (= true)
      PASS  grey box: no shader
+  -- Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box
+     PASS  at least the 8 facility files load (8)
+     PASS  hwacha/idle loaded
+     PASS  hwacha/idle is 40x40 (= (40, 40))
+     PASS  hwacha/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/idle sha recorded (= 64)
+     PASS  hwacha/idle stands on the canvas bottom
+     PASS  hwacha/inactive loaded
+     PASS  hwacha/inactive is 40x40 (= (40, 40))
+     PASS  hwacha/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/inactive sha recorded (= 64)
+     PASS  hwacha/inactive stands on the canvas bottom
+     PASS  jangseung/idle loaded
+     PASS  jangseung/idle is 40x40 (= (40, 40))
+     PASS  jangseung/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/idle sha recorded (= 64)
+     PASS  jangseung/idle stands on the canvas bottom
+     PASS  jangseung/inactive loaded
+     PASS  jangseung/inactive is 40x40 (= (40, 40))
+     PASS  jangseung/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/inactive sha recorded (= 64)
+     PASS  jangseung/inactive stands on the canvas bottom
+     PASS  bongsu/connected loaded
+     PASS  bongsu/connected is 40x40 (= (40, 40))
+     PASS  bongsu/connected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/connected sha recorded (= 64)
+     PASS  bongsu/connected stands on the canvas bottom
+     PASS  bongsu/disconnected loaded
+     PASS  bongsu/disconnected is 40x40 (= (40, 40))
+     PASS  bongsu/disconnected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/disconnected sha recorded (= 64)
+     PASS  bongsu/disconnected stands on the canvas bottom
+     PASS  sensor/active loaded
+     PASS  sensor/active is 40x40 (= (40, 40))
+     PASS  sensor/active pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/active sha recorded (= 64)
+     PASS  sensor/active stands on the canvas bottom
+     PASS  sensor/inactive loaded
+     PASS  sensor/inactive is 40x40 (= (40, 40))
+     PASS  sensor/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/inactive sha recorded (= 64)
+     PASS  sensor/inactive stands on the canvas bottom
+     PASS  loaded + missing = contract (= 35)
+     PASS  frames not delivered yet are reported missing, not invented
+     PASS  no enemy atlas without enemy files
+     PASS  interactive launch without --art shows the reviewed art (= sample)
+     PASS  scene loaded the same set
+     PASS  enemies stay grey-box quads without enemy files
+     PASS  240 frames: battle state identical to the grey box
+     PASS  scripted capture without --art stays grey box (= greybox)
 
-TOTAL passed=1210 failed=0
-elapsed 69.5 s
+TOTAL passed=1259 failed=0
+elapsed 71.8 s

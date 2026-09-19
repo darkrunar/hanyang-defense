@@ -1,7 +1,7 @@
 # WP-005 Result
 
 - 작성일: 2026-09-20
-- WP / 상태: WP-005 그래픽 기준 및 광화문 앞 샘플 적용 / **IN_PROGRESS** (파이프라인·검증 기반 완료, 리소스 11종은 GPT 제작 단계 대기, 에셋 적용·사용자 스타일 확인 전 → REVIEW 아님)
+- WP / 상태: WP-005 그래픽 기준 및 광화문 앞 샘플 적용 / **IN_PROGRESS** (회차 1 파이프라인 → 회차 2 GPT 시설 4종 시안 병합·자동 보정 적용 `06f6ecd`. 나머지 7종·시설 프레임은 GPT 제작 대기, 사용자 스타일 확인(AC-08) 전 → REVIEW 아님)
 - 기준 커밋: main `51d89ed`(WP-004 병합) + 계획 브랜치 `03f78d4`("docs(art): prepare WP-005 …", READY v1.0, D-048). 착수 브랜치 `wp/005-art-sample`은 `03f78d4`에서 분기.
 - 검증한 구현 커밋: **`0f2fc6c`** ("feat(wp-005): art sample pipeline …") → `b262ce0`(uid 파일만) → `6e6c07c`(verify.ps1 보간 수정·가이드; 게임 스크립트는 `0f2fc6c`와 동일). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
 - 브랜치: `wp/005-art-sample` · PR: Draft PR #8: https://github.com/darkrunar/hanyang-defense/pull/8 (Draft, 병합은 사용자 지시로만)
@@ -101,3 +101,67 @@ greybox 대비 sample 차이는 fixture 기준이며 최종 에셋(크기·프�
 - 보완 요청 또는 다음 WP 준비 사항: (PENDING)
 
 이 문서는 구현·테스트 결과 기록이며, DONE 전환은 모든 필수 AC 충족과 GPT PASS 이후에만 한다.
+
+---
+
+## GPT 시설 4종 파일럿 기록 (PR #10, 브랜치 `wp/005-facility-art-pilot`, `26b9d70` → `17f8c24`; 병합 `2572bb1`)
+
+아래는 GPT 파일럿 브랜치의 결과 문서 원문이다(병합 시 보존). 파일럿 렌더러 `facility_art.gd`와 1254px 런타임 사본은 D-050에 따라 로더 경로로 대체되었고, 원본·제작 지시·검사 기록·증거(`results/evidence/wp-005/{greybox,sample}_*.png`, `render_checks.json`, `capture_pilot.gd`, 파일럿 `test_report.txt`)는 그대로 남아 있다.
+
+## WP-005 시설 4종 시험 적용 결과
+
+- 날짜: 2026-09-20. Status: IN_PROGRESS. GPT Review: PENDING.
+- 계획 기준: 03f78d4 (WP-004 main 51d89ed 기반). 구현: 26b9d70.
+- 사용자 “적용” 요청 범위: 생성된 시설 4종의 실제 전장 시험 적용. WP-005 전체 완료가 아님.
+
+### 변경과 실행
+
+화차·장승·봉수대·혼천의를 원본 PNG의 알파 영역에서 읽어 최대36×36px로 기존40×40px 점유 안에 그린다. 원본을 잘라 덮어쓰지 않으며 텍스처/영역은 캐시한다. 기본 일반 실행은 sample, 기존 perf/capture는 명시 옵션 없을 때 greybox다. 비활성 시설은 어둡게 표시하고 X를 추가한다. 점유·연결·회수는 기존 전투 상태를 그대로 읽는다.
+
+```text
+godot --path . -- --art=sample
+godot --path . -- --art=greybox
+godot --headless --path . --script res://tests/run_tests.gd -- --report=<absolute_report_path>
+godot --path . --rendering-driver opengl3 --script res://results/evidence/wp-005/capture_pilot.gd
+```
+
+### 검증
+
+- 전체 회귀: 1,106 PASS / 0 FAIL, 69.5초, 종료0. evidence/wp-005/test_report.txt.
+- 실제 1080p/720p sample/greybox 캡처 생성 및 눈검수. render_checks.json의 렌더 전후 구조화 전투 상태 비교4건 모두 true. 이는 전체 F1/F2/F4 양쪽 모드 비교를 대체하지 않는다.
+- 붕괴 후 비활성 시설 몸체 유지와 회수된 화차 제거 확인: sample_collapsed_720.png.
+- Windows release export 성공, 120프레임 짧은 실행 종료0·stderr 없음. 실행파일은 별도 로컬 산출물이며 저장소에 커밋하지 않음.
+- 1,000체 release 성능, 전체 샘플 사용자 확인: NOT RUN.
+
+### 시각 검토와 남은 범위
+
+시설 실루엣은 구분되며 발광보다 실제 연결선/라벨을 우선한다. 원본1254px를 작은 표시 영역에 그리므로 720p의 세부 묘사가 작다. 현재는 정적 시설 시험 적용이며 40px 원본 픽셀 정리·방향/프레임 통일·발사 애니메이션·전용 비활성/단절 리소스는 미완료다. 지형·적·거점·효과는 기존 도형이다. 회수 대기 아이콘도 기존 표시다. 큰 텍스처의 메모리 최적화와 시작 시 알파 영역 계산을 사전 메타데이터로 옮기는 작업은 후속 범위다.
+
+### WP-005 AC 현황
+
+AC-01~04, AC-06: 일부 작업만 수행되어 전체 기준 판정 NOT RUN. AC-05: 기존 회귀와 렌더 상태 비교는 PASS, 전체 F1/F2/F4 모드 비교 NOT RUN. AC-07/08: NOT RUN. 전체 WP PASS/DONE 또는 최종 스타일 승인으로 표시하지 않는다.
+
+### 다음 작업
+
+40px 크기에 맞춘 픽셀 보정과 시설 상태 프레임 제작, 지형/적/거점 최소 묶음 적용 후 전체 AC를 검증한다. 원본 제작 지시·도구는 docs/art/source/wp005/PROMPTS.md, 개별 상태는 ASSET_MANIFEST.csv에 기록했다.
+
+---
+
+### 2026-09-20 — 회차 2: 생성 시안 자동 보정 적용 (D-050)
+
+- 커밋: 병합 `2572bb1` → 보정·적용 `06f6ecd`(변환 스크립트, 40×40 8파일, manifest, 기본 모드, 테스트, verify 4e 확장) → 결과·증거 (이 문서 커밋).
+- 적용: `scripts/art_convert_wp005.py` — 알파 경계 크롭 → 긴 변 40px BOX 축소(배율 hwacha 0.0340, jangseung 0.0340, bongsu 0.0354, sensor 0.0339) → 24색 팔레트 → 이진 알파 → 바닥 중심 접지. 결과 `assets/art/wp005/facilities/`: hwacha idle/inactive, jangseung idle/inactive, bongsu connected/disconnected, sensor active/inactive (`inactive`/`disconnected`는 파생본). manifest 상태 `PILOT_DOWNSCALED_STATIC`, 파일별 SHA-256 기록. **완성 에셋 판정이 아니다**(ART_GUIDE).
+- 기본 모드: `--art` 미지정 일반 실행 = sample, 스크립트 모드 = greybox(파일럿 브랜치 선택 수용).
+
+| 항목 | 결과 |
+|---|---|
+| 테스트 | **1,259 passed / 0 failed (71.8 s)**, 종료 0 (새 케이스 "Reviewed assets": 8파일 40×40·pivot (20,20)·접지·SHA, 누락 27건 보고, 기본 모드, 240프레임 상태 동일) |
+| 캡처 `wp005_assets`/`_720` (기본 디렉터리) | greybox 대비 4체크포인트 상태 동일, 로드 8/35 (누락 27), t15 시설 스프라이트 bongsu/connected 8, hwacha/idle 4, jangseung/idle 2, sensor/active 4, 붕괴 후 bongsu/connected 2, bongsu/disconnected 6, hwacha/idle 1, hwacha/inactive 3, jangseung/inactive 2, sensor/active 1, sensor/inactive 3 |
+| 캡처 fixture/greybox | 파이프라인 검사 회차 1과 동일하게 통과 |
+| 성능 | 회차 1과 같은 방식(sample = fixture)으로 재측정: collapse_move/greybox 195.2 FPS · p95 14.78 ms, collapse_combat/greybox 229.3 FPS · p95 13.19 ms, collapse_move/sample 163.0 FPS · p95 15.80 ms, collapse_combat/sample 193.7 FPS · p95 13.58 ms. 실제 에셋 성능(AC-07)은 적 스프라이트가 와야 의미가 있어 NOT RUN 유지 |
+| AC-01 | **부분**: 시설 4종 정적 상태 8/…파일 적용, 원본→파일 추적·SHA·권리 검토 기록(AI 생성, 법적 클리어런스 아님). 발사/점등 프레임·나머지 7종 미제작 → NOT RUN 유지 |
+| AC-03 | **부분**: 화차·장승·봉수·혼천의 실루엣 구분, 활성/비활성·연결/단절은 파생본으로 구분(라벨 숨김 `--labels=off` 캡처는 회차 3에서). 회수된 화차 자리 비움은 core 상태 그대로 |
+| AC-08 | NOT RUN — **이제 사용자가 확인할 실제 샘플 화면이 있다**: `results/evidence/wp-005/captures/wp005_assets_*.png` |
+
+알려진 한계: 원본이 정수 배율 픽셀 격자가 아니어서 축소 시 세부가 뭉개진다(다음 시안은 정수 배율 요청). 파생 비활성본은 임시다.
+
