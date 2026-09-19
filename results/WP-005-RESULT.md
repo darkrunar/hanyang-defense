@@ -1,5 +1,7 @@
 # WP-005 Result
 
+최신 보완: PR #12, 통합 구현 `133f39e`(상위 `274ad7a` 포함). 전용 비활성 생성 그림과 적 프레임 보정, 실제 리소스 F1/F2/F4 비교를 유지하면서 기본 sample 실행·희소 바닥·1000체 캡처·추가 테스트를 병합했다. 이하 회차별 기록은 해당 커밋의 증거이며 최신 결과는 문서 마지막 통합 검증 절을 따른다.
+
 - 작성일: 2026-09-20
 - WP / 상태: WP-005 그래픽 기준 및 광화문 앞 샘플 적용 / **IN_PROGRESS** (회차 1 파이프라인 → 회차 2 시설 시안 → 회차 3 PR #11 부분 통합·검수 REVISE 반영 `33e2f8d`. 17/35 상태 파일, GPT 판정 REVISE 유지, 사용자 스타일 확인(AC-08) 전 → REVIEW 아님)
 - 기준 커밋: main `51d89ed`(WP-004 병합) + 계획 브랜치 `03f78d4`("docs(art): prepare WP-005 …", READY v1.0, D-048). 착수 브랜치 `wp/005-art-sample`은 `03f78d4`에서 분기.
@@ -259,3 +261,27 @@ AC-01~04, AC-06: 일부 작업만 수행되어 전체 기준 판정 NOT RUN. AC-
 수치의 정확한 원본은 `revision1/perf_summary.json` 및 `revision1/perf/`이다. `scripts/validate_wp005_revision.ps1`는 기존 D-027 validator를 재사용하고, frame_us_raw에서 FPS/p95와 alive_raw 최소를 독립 계산하며 동일 빌드·실제17개 파일·적 atlas를 확인한다. 6종 의미 이벤트 각1회, 모든 프레임의 구간 귀속, 각 구간 후보 평가, 재배치 성공, 재배치 후 화차42회 사격(전투)이 통과했다. sample 평균 FPS는 기준선 대비 이동 약2.5%, 전투 약3.8% 낮다. 단일 측정 차이의 원인을 확정하지 않는다.
 
 **회차 판정:** R-01/02/03 보완 PASS, AC-03/05/07 PASS. AC-04는 이전 PASS 유지. AC-01 FAIL(나머지 필수 제작 미완), AC-02/06/08 NOT RUN(요구된 전체 증거/확인 미완). 따라서 **WP-005 전체는 REVISE / IN_PROGRESS 유지**다. 이번 성능 검증을 1000체 화면 가독성 검증으로 대체하지 않는다.
+
+### 최종 통합 검증 — 2026-09-20 PR #12
+
+PR #11은 이미 상위 브랜치에 병합되어 있었으므로 보완은 PR #12로 분리했다. 상위 `274ad7a`와 보완 `5d89cd3`을 `133f39e`에서 통합했다. 충돌 해결은 상위의 기본 sample 실행, 희소 바닥, dense 캡처, 추가53개 시험을 보존하고 비활성4종은 이번 전용 생성 그림을 선택했다. 이전 파생 그림과 모든 결과는 Git 이력/기존 증거 폴더에 남아 있다. `art_convert_wp005.py --check`는 전용 그림을 덮어쓰지 않고4종 해시 일치를 확인한다.
+
+- 전체 자동 검증 **1,312 PASS / 0 FAIL**,82.4초. `revision1-merged/test_report.txt`.
+- 배포본으로 `wp005_dense`, `wp005_dense_720`를 실행했다. 총10개 캡처 전부 alive=1000, png_saved=OK, sample 모드이며 라벨 on/off·붕괴·재배치를 포함한다. 각 실행 launch/t25.5의 enemy_sprites=true,17개 상태 파일 로드. `revision1-merged/dense_validation.json` 및 `captures/`.
+- 720p 무라벨 전투와1080p 무라벨 재배치 화면을 시각 검수했다. 바닥의 큰 체크무늬는 줄었고, 비활성 시설은 기본 실루엣을 유지한다. 군집 흐름·진입 경로·재배치 화차는 확인되지만 어두운 길 위 적의 세부 대비는 약하다. 거점·경계·발사 등 누락 표현과 전체 메뉴/배치 표시 검수까지 완료한 것은 아니므로 AC-06 전체는 아직 승인하지 않는다.
+- dense 캡처는 시뮬레이션6배속이므로 화면 HUD의 순간 FPS를 성능 합격 수치로 사용하지 않는다. 성능은 아래 동일 통합 release의 별도1배속 측정으로 판정한다.
+
+통합 release SHA-256: `
+4eaf72dabac7e4b9f81f6146bf9fca2d6f6c54feaa9ee7c874629964ed0b3044
+`. 측정 구현은 `133f39e`, 조건은1920×1080/vsync0/warmup10초/measure60초이며 네 조건을 순차 실행했다.
+
+| 모드 | 시나리오 | 평균 FPS | p95 ms | alive 최소 | 판정 |
+|---|---|---:|---:|---:|---|
+| greybox | collapse_move | 88.54 | 20.485 | 1000 | PASS |
+| greybox | collapse_combat | 101.62 | 18.541 | 1000 | PASS |
+| sample | collapse_move | 84.46 | 20.904 | 1000 | PASS |
+| sample | collapse_combat | 97.26 | 18.732 | 1000 | PASS |
+
+원시 배열 FPS/p95/최소 생존 수 검산, 동일 exe/구현 SHA, 실제17개 파일·적 atlas,6종 이벤트·구간 후보 평가·모든 프레임 귀속·배치 후42회 사격(전투), 외부 메모리 샘플러와 exe 해시 대조 모두 PASS. 검산 결과는 `revision1-merged/perf_summary.json`.
+
+**최종 보완 판정: R-01~03 PASS, AC-03/04/05/07 PASS. WP 전체는 AC-01 FAIL 및 AC-02/06/08 미완으로 REVISE / IN_PROGRESS 유지.** 다음은 경계·성문·거점·발사/점등/FX 제작과 최종 화면 검수다. 전체 맵 양산은 아직 시작하지 않는다.
