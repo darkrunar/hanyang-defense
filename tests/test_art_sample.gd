@@ -35,11 +35,11 @@ func run(t: RefCounted) -> void:
 
 # ----------------------------------------------------------------- helpers ---
 
-static func _scene(tree: SceneTree, art_mode: String) -> Node2D:
+static func _scene(tree: SceneTree, art_mode: String, directory: String = FIXTURE_DIR) -> Node2D:
     var scene: Node2D = Main.new()
     scene._settings_path = SETTINGS_TMP
     scene._art_mode = art_mode
-    scene._art_dir = FIXTURE_DIR
+    scene._art_dir = directory
     tree.root.add_child(scene)
     if not scene.is_node_ready():
         scene._ready()

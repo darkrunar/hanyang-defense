@@ -30,7 +30,7 @@ if ($ArtDir -ne "") { $args += "--art-dir=$ArtDir" }
 # own self-hash in the perf JSON manifest (the two must agree).
 $exeItem = Get-Item (Resolve-Path $Exe)
 $exeSha256 = (Get-FileHash -Algorithm SHA256 $exeItem.FullName).Hash.ToLower()
-$proc = Start-Process -FilePath $exeItem.FullName -ArgumentList $args -PassThru
+$proc = Start-Process -FilePath $exeItem.FullName -ArgumentList $args -WindowStyle Hidden -PassThru
 $samples = @()
 $t0 = Get-Date
 while (-not $proc.HasExited) {

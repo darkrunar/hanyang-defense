@@ -17,6 +17,7 @@ const SUITES: Array = [
     ["WP-003 scene entry paths (R-02 zones, R-03 restart input)", "res://tests/test_scene_modes.gd"],
     ["WP-004 play flow (AC-01..07: menus, freeze, confirm, restart, input boundary, result, settings)", "res://tests/test_play_flow.gd"],
     ["WP-005 art sample pipeline (loader, atlas, tiles, fx events, greybox == sample battle state)", "res://tests/test_art_sample.gd"],
+    ["WP-005 real asset integration (R-01/R-03, AC-05 F1/F2/F4)", "res://tests/test_art_integration.gd"],
 ]
 
 
