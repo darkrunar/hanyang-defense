@@ -1356,5 +1356,60 @@
      PASS  240 frames: battle state identical to the grey box
      PASS  scripted capture without --art stays grey box (= greybox)
 
-TOTAL passed=1263 failed=0
-elapsed 63.6 s
+== WP-005 real asset integration (R-01/R-03, AC-05 F1/F2/F4) ==
+  -- R-01/03 real assets: enemy bounds and inactive silhouettes
+     PASS  all twelve enemy frames checked (= 12)
+     PASS  walk_down/0.0 fits canvas without clipping
+     PASS  walk_down/1.0 fits canvas without clipping
+     PASS  walk_up/0.0 fits canvas without clipping
+     PASS  walk_up/1.0 fits canvas without clipping
+     PASS  walk_left/0.0 fits canvas without clipping
+     PASS  walk_left/1.0 fits canvas without clipping
+     PASS  walk_right/0.0 fits canvas without clipping
+     PASS  walk_right/1.0 fits canvas without clipping
+     PASS  hit/0.0 fits canvas without clipping
+     PASS  hit/1.0 fits canvas without clipping
+     PASS  despawn/0.0 fits canvas without clipping
+     PASS  despawn/1.0 fits canvas without clipping
+     PASS  hwacha inactive state exists
+     PASS  jangseung inactive state exists
+     PASS  bongsu inactive state exists
+     PASS  sensor inactive state exists
+  -- AC-05 real asset F1
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F1 initial real assets: full_state identical
+     PASS  F1 before_collapse real assets: full_state identical
+     PASS  F1 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= WON)
+     PASS  F1 end real assets: full_state identical
+  -- AC-05 real asset F2
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F2 initial real assets: full_state identical
+     PASS  F2 before_collapse real assets: full_state identical
+     PASS  collapse occurred (= 1)
+     PASS  F2 after_collapse real assets: full_state identical
+     PASS  same recovery accepted in both modes
+     PASS  F2 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= WON)
+     PASS  F2 end real assets: full_state identical
+  -- AC-05 real asset F4
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F4 initial real assets: full_state identical
+     PASS  F4 before_collapse real assets: full_state identical
+     PASS  collapse occurred (= 1)
+     PASS  F4 after_collapse real assets: full_state identical
+     PASS  F4 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= LOST)
+     PASS  F4 end real assets: full_state identical
+
+TOTAL passed=1312 failed=0
+elapsed 77.3 s

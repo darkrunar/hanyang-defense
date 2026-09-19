@@ -81,7 +81,7 @@
             20.0,
             20.0
           ],
-          "sha256": "2ae73d1cd8df61de1b05c8915f3dcdb53fbdf163fe95ff8214c72fca8fdb1ec8",
+          "sha256": "1945fe8386e9bb3b37c2ce990e0c41f86eba32ed2087da683da589790044b4a2",
           "state": "inactive"
         },
         {
@@ -111,7 +111,7 @@
             20.0,
             20.0
           ],
-          "sha256": "fab9a315bd42484777b7a9191aefb667a469c678286490b8273a4630d17e1f27",
+          "sha256": "ed3408cf6dc0601d276906500393b971996fd27652c695e1bed2194671f93465",
           "state": "inactive"
         },
         {
@@ -141,7 +141,7 @@
             20.0,
             20.0
           ],
-          "sha256": "98c1772f7baaabebba14963ba9ea8089c1c0b6269495ea76ef0a1f0921295a6e",
+          "sha256": "4b723ce3224b7baa1e6424ba154bf4087c92df94d6053f0434e9c3f2140cd87c",
           "state": "disconnected"
         },
         {
@@ -171,7 +171,7 @@
             20.0,
             20.0
           ],
-          "sha256": "e6281f5d3f677a560fde21a7bc3c43d7540d25e80839f6a493cf3341648458d2",
+          "sha256": "7a1a8e449dd55411db5a7e099a3f3941553618bbe6eca1698c545f693a910104",
           "state": "inactive"
         },
         {
@@ -186,7 +186,7 @@
             6.0,
             16.0
           ],
-          "sha256": "df95378d6463e8637df8543254bca9c2ca42f684dbc408b0f66863794df99e7f",
+          "sha256": "6af14d45c251810d155cb804eba2e59270eaf0b2d0f3619118f291550f4c4866",
           "state": "walk_down"
         },
         {
@@ -201,7 +201,7 @@
             6.0,
             16.0
           ],
-          "sha256": "a792bc7373b31cc6df34fa00e1f0639deba2ef3e9d3ab83c170ac41baa39b4df",
+          "sha256": "a1158d6e20173645217db080967cdf578aeb722a2ef6265c2a9d872f2da6e485",
           "state": "walk_up"
         },
         {
@@ -216,7 +216,7 @@
             6.0,
             16.0
           ],
-          "sha256": "c3ecdeb68f5a8a93f02331f2625096b66644450d1b6273552c224ce181821ba8",
+          "sha256": "14efce53d3fd7c60bc6e0b2a35baaa184df82d2372758065337990464e17c8cb",
           "state": "walk_left"
         },
         {
@@ -231,7 +231,7 @@
             6.0,
             16.0
           ],
-          "sha256": "abfa97d09fb14fdc38705a4e25229077e80399745ad37523945c6a1716f57e13",
+          "sha256": "bd35013005b7f80665809ccafa28f7bff63dea59ae479cfaba62791a710f10fc",
           "state": "walk_right"
         },
         {
@@ -246,7 +246,7 @@
             6.0,
             16.0
           ],
-          "sha256": "cc495045bf168f796b80e3bc0abd1112576787ff38b2163c648e1e38e187506d",
+          "sha256": "2f8b64e2c5da48dbff87586fc3a0afbe63c537ba0ad60c9132c30151e86bc6e2",
           "state": "hit"
         },
         {
@@ -261,7 +261,7 @@
             6.0,
             16.0
           ],
-          "sha256": "8da81e84d148bd75726cb53555c7cd934f81a390cb17eaf96dd940e67aebea12",
+          "sha256": "cee1102713856b6cf051f3030b774170945f2be2929d68ddcd8fb6f884e1e40a",
           "state": "despawn"
         }
       ],
@@ -384,11 +384,11 @@
       "alive": 0,
       "created_by_kind": {
         "enemy_despawn": 885,
-        "enemy_hit": 933,
+        "enemy_hit": 991,
         "fire": 24,
         "impact": 24
       },
-      "created_total": 1866,
+      "created_total": 1924,
       "dropped_over_cap": 0,
       "sim_time": 15.0000000300003
     },
@@ -1774,11 +1774,11 @@
       "alive": 0,
       "created_by_kind": {
         "enemy_despawn": 885,
-        "enemy_hit": 933,
+        "enemy_hit": 991,
         "fire": 24,
         "impact": 24
       },
-      "created_total": 1866,
+      "created_total": 1924,
       "dropped_over_cap": 0,
       "sim_time": 15.0166666967003
     },
@@ -3183,11 +3183,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1043,
-        "enemy_hit": 1211,
+        "enemy_hit": 1269,
         "fire": 36,
         "impact": 36
       },
-      "created_total": 2327,
+      "created_total": 2385,
       "dropped_over_cap": 0,
       "sim_time": 20.5000000410006
     },
@@ -3614,11 +3614,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5000000510008
     },
@@ -4278,11 +4278,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5166667177008
     },
@@ -4991,7 +4991,7 @@
             20.0,
             20.0
           ],
-          "sha256": "2ae73d1cd8df61de1b05c8915f3dcdb53fbdf163fe95ff8214c72fca8fdb1ec8",
+          "sha256": "1945fe8386e9bb3b37c2ce990e0c41f86eba32ed2087da683da589790044b4a2",
           "state": "inactive"
         },
         {
@@ -5021,7 +5021,7 @@
             20.0,
             20.0
           ],
-          "sha256": "fab9a315bd42484777b7a9191aefb667a469c678286490b8273a4630d17e1f27",
+          "sha256": "ed3408cf6dc0601d276906500393b971996fd27652c695e1bed2194671f93465",
           "state": "inactive"
         },
         {
@@ -5051,7 +5051,7 @@
             20.0,
             20.0
           ],
-          "sha256": "98c1772f7baaabebba14963ba9ea8089c1c0b6269495ea76ef0a1f0921295a6e",
+          "sha256": "4b723ce3224b7baa1e6424ba154bf4087c92df94d6053f0434e9c3f2140cd87c",
           "state": "disconnected"
         },
         {
@@ -5081,7 +5081,7 @@
             20.0,
             20.0
           ],
-          "sha256": "e6281f5d3f677a560fde21a7bc3c43d7540d25e80839f6a493cf3341648458d2",
+          "sha256": "7a1a8e449dd55411db5a7e099a3f3941553618bbe6eca1698c545f693a910104",
           "state": "inactive"
         },
         {
@@ -5096,7 +5096,7 @@
             6.0,
             16.0
           ],
-          "sha256": "df95378d6463e8637df8543254bca9c2ca42f684dbc408b0f66863794df99e7f",
+          "sha256": "6af14d45c251810d155cb804eba2e59270eaf0b2d0f3619118f291550f4c4866",
           "state": "walk_down"
         },
         {
@@ -5111,7 +5111,7 @@
             6.0,
             16.0
           ],
-          "sha256": "a792bc7373b31cc6df34fa00e1f0639deba2ef3e9d3ab83c170ac41baa39b4df",
+          "sha256": "a1158d6e20173645217db080967cdf578aeb722a2ef6265c2a9d872f2da6e485",
           "state": "walk_up"
         },
         {
@@ -5126,7 +5126,7 @@
             6.0,
             16.0
           ],
-          "sha256": "c3ecdeb68f5a8a93f02331f2625096b66644450d1b6273552c224ce181821ba8",
+          "sha256": "14efce53d3fd7c60bc6e0b2a35baaa184df82d2372758065337990464e17c8cb",
           "state": "walk_left"
         },
         {
@@ -5141,7 +5141,7 @@
             6.0,
             16.0
           ],
-          "sha256": "abfa97d09fb14fdc38705a4e25229077e80399745ad37523945c6a1716f57e13",
+          "sha256": "bd35013005b7f80665809ccafa28f7bff63dea59ae479cfaba62791a710f10fc",
           "state": "walk_right"
         },
         {
@@ -5156,7 +5156,7 @@
             6.0,
             16.0
           ],
-          "sha256": "cc495045bf168f796b80e3bc0abd1112576787ff38b2163c648e1e38e187506d",
+          "sha256": "2f8b64e2c5da48dbff87586fc3a0afbe63c537ba0ad60c9132c30151e86bc6e2",
           "state": "hit"
         },
         {
@@ -5171,7 +5171,7 @@
             6.0,
             16.0
           ],
-          "sha256": "8da81e84d148bd75726cb53555c7cd934f81a390cb17eaf96dd940e67aebea12",
+          "sha256": "cee1102713856b6cf051f3030b774170945f2be2929d68ddcd8fb6f884e1e40a",
           "state": "despawn"
         }
       ],
@@ -5261,11 +5261,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5166667177008
     },

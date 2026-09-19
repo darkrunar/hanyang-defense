@@ -283,3 +283,21 @@ PR #11은 이미 상위 브랜치에 병합되어 있었으므로 보완은 PR #
 원시 배열 FPS/p95/최소 생존 수 검산, 동일 exe/구현 SHA, 실제17개 파일·적 atlas,6종 이벤트·구간 후보 평가·모든 프레임 귀속·배치 후42회 사격(전투), 외부 메모리 샘플러와 exe 해시 대조 모두 PASS. 검산 결과는 `revision1-merged/perf_summary.json`.
 
 **최종 보완 판정: R-01~03 PASS, AC-03/04/05/07 PASS. WP 전체는 AC-01 FAIL 및 AC-02/06/08 미완으로 REVISE / IN_PROGRESS 유지.** 다음은 경계·성문·거점·발사/점등/FX 제작과 최종 화면 검수다. 전체 맵 양산은 아직 시작하지 않는다.
+
+---
+
+### 2026-09-20 — 회차 4: PR #12(GPT 보완 R-01~03 + 최종 통합) 채택과 재검증 (`079df43`)
+
+- PR #12 `wp/005-art-integration`(`f4b6c13` → `133f39e` → `507846e`)는 회차 3 `274ad7a` 위에 쌓인 상위 집합이라 fast-forward로 채택했다. 내용: 전용 생성 비활성/단절 4종(원본 `docs/art/source/wp005/*_inactive|disconnected_source_v01.png`, `REVISION_PROMPTS.md`)이 회차 3의 파생본을 대체, 적 12프레임 공통 배율로 소멸 프레임 잘림 해소(`enemy_geometry.json`), 실제 리소스 F1/F2/F4 greybox==sample 비교(`tests/test_art_integration.gd`), 라벨 없는 캡처와 ID 범례(`revision1/FACILITY_LEGEND.md`), 검산 스크립트 `validate_wp005_revision.ps1`, GPT 재검토(REVISE, R-01~03) 및 보완 판정(R-01~03 PASS, AC-03/04/05/07 PASS, AC-01 FAIL, AC-02/06/08 미완).
+- 되돌린 것 한 가지: PR #12가 `perf_with_memory.ps1`의 측정 창을 숨김(`-WindowStyle Hidden`)으로 바꿨다. WP-001~004 승인 증거는 보이는 창에서 측정했고 숨긴 창 수치(84~102 FPS)는 비교가 안 되므로 보이는 창으로 복원하고 아래를 다시 측정했다(`079df43`). PR #12의 숨긴 창 수치는 `revision1*/perf_summary.json`에 기록으로만 남는다.
+- 재검증(`verify.ps1 -Wp005` 종료 0, 이 기기): 테스트 **1,312 passed / 0 failed (77.3 s)**; `wp005_assets` 로드 17/35(누락 18), 붕괴 후 전용 비활성 프레임 bongsu/connected 2, bongsu/disconnected 6, hwacha/idle 1, hwacha/inactive 3, jangseung/inactive 2, sensor/active 1, sensor/inactive 3; `wp005_dense` t15 동시 생존 1000. 성능(같은 exe `bdf80996d800…`, 보이는 창, 1920×1080, vsync 0, 10+60 s):
+
+| 모드 | 시나리오 | 프레임 | 평균 FPS | p95 ms | alive min | 워킹셋 MB | 판정 |
+|---|---|---:|---:|---:|---:|---|---|
+| greybox | collapse_move | 12,843 | **214.0** | **13.70** | 1000 | 191.6→195.7 | PASS |
+| greybox | collapse_combat | 14,326 | **238.8** | **12.61** | 1000 | 187.2→189.5 | PASS |
+| sample | collapse_move (배포 리소스 17/35, atlas True) | 12,293 | **204.9** | **13.84** | 1000 | 190.2→135.5 | PASS |
+| sample | collapse_combat (배포 리소스 17/35, atlas True) | 13,682 | **228.0** | **12.74** | 1000 | 194.5→141.6 | PASS |
+
+- AC 요약(회차 4 기준): AC-03 PASS(전용 비활성·라벨 없는 식별·범례), AC-04 PASS, AC-05 PASS(실제 리소스 F1/F2/F4 + fixture), AC-07 PASS(보이는 창 4종, 예산 안), AC-01 FAIL(가장자리·문·발사·점등·거점·효과·표시 미제작), AC-02·AC-06 부분(근접/점유 정합·메뉴 전체 검수 미완), AC-08 NOT RUN(사용자 확인 대기). WP 전체는 REVISE / IN_PROGRESS.
+
