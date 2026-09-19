@@ -17,6 +17,12 @@
 - 기준점(pivot, 캔버스 픽셀): 기본 규칙은 ART_GUIDE대로. 시설·거점은 `(폭/2, 높이-20)`이 시설 발자국(40×40) 중심에 놓인다(40×40 캔버스면 정중앙). 적은 `(폭/2, 높이)` = 몸통 하단 중심. 효과·타일·표시는 캔버스 중앙. 다른 값이 필요하면 `assets/art/wp005/pivots.json`에 `{"파일명.png": [px, py]}`.
 - 적 아틀라스: 로더가 6개 상태 12프레임을 4열×3행, 2px 여백으로 합성한다(상태별 프레임 크기 동일해야 함). 순서: walk_down 0-1, walk_up 2-3, walk_left 4-5, walk_right 6-7, hit 8-9, despawn 10-11.
 
+## 접수 현황 (2026-09-20 갱신)
+
+- 접수: `hwacha`(idle), `jangseung`(idle), `bongsu`(connected), `sensor`(active) 원본 4장 — GPT 파일럿 브랜치(PR #10), `docs/art/source/wp005/`. `scripts/art_convert_wp005.py`로 40×40 계약 파일 변환(D-050). `inactive`/`disconnected`는 원본이 없어 파생본(채도·밝기 감소)으로 임시 적용 — **전용 프레임 요청 유지**.
+- 미접수: `terrain_sample`, `building_sample`, `outer_post`, `core_post`, `enemy_basic`, `combat_fx`, `interaction_marks` 전부와 `hwacha/fire`(3), `bongsu/pulse`(2). 아래 목록 그대로 유효.
+- 원본 형식 참고: 1254×1254 RGBA에 3px 내외 런 길이의 "픽셀아트풍" 렌더였다. 다음 시안은 가능하면 **정수 배율(예: 40×40을 16배 = 640×640)로 확대된 실제 픽셀 격자**로 주면 축소 손실 없이 nearest 축소가 된다.
+
 ## 요청 목록 (ID · 상태 · 프레임 · 캔버스 · 파일)
 
 | asset_id | subdir | state | 프레임 | 캔버스(px) | 파일명 | 비고 |

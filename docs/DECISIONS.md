@@ -475,3 +475,12 @@ D-046 / 2026-09-16 / 채택:
 - 검증: `tests/test_art_sample.gd`(로더/아틀라스/타일 계획/적 프레임/greybox==sample 6체크포인트/FX 계약/배선), `--capture=wp005_<art>[_720]`(state_log·fx·sprites·tiles 기록), `verify.ps1 -Wp005`(fixture 생성, 4캡처, 모드별 collapse 성능). 개발용 fixture(`game/tools/wp005_dev_fixture.gd`, `user://`)는 에셋이 아니다.
 - 대체하는 이전 결정: 없음(D-044·D-047의 입력 규칙, D-027 성능 계약 유지).
 
+## D-050 / 2026-09-20 / 채택: 생성 시안의 자동 보정 적용과 단일 로더 통합
+
+- 근거: GPT 파일럿 브랜치 `wp/005-facility-art-pilot`(PR #10, `26b9d70`/`17f8c24`)가 시설 4종 생성 원본(1254×1254 RGBA, PROMPTS.md·source_inspection.json·style_sheet)을 제공했다. ART_GUIDE 제작·역할: Claude는 "실행 가능한 자동 보정·파일 정리", 큰 시안 축소만으로 완성을 판정하지 않는다.
+- 결정: 원본은 `docs/art/source/wp005/`에 보존하고, `scripts/art_convert_wp005.py`가 알파 경계 크롭 → 긴 변 40px BOX 축소 → 24색 팔레트 → 이진 알파 → 바닥 중심 접지로 `assets/art/wp005/facilities/<id>_<state>_v01.png`(40×40)을 만든다. 비활성/단절 상태는 원본이 없어 채도 0.25·밝기 0.72로 **파생**(manifest에 `derived_off` 표기, 전용 프레임이 오면 교체). 발사·점등 프레임은 미제작 → 누락 유지(로더가 회색상자/정적 프레임으로 대체). manifest 상태는 `PILOT_DOWNSCALED_STATIC`이며 AC-01 완료가 아니다.
+- 통합: 파일럿의 `facility_art.gd`(런타임에서 1254px 텍스처를 36px로 축소, 비활성은 틴트+X)와 1254px 런타임 사본은 제거하고 D-049 로더 한 경로만 둔다(렌더 경로 2개 유지 금지, 런타임에 필요한 파일만 포함). 파일럿 증거(`results/evidence/wp-005/{greybox,sample}_*.png`, `render_checks.json`, `capture_pilot.gd`, 파일럿 test_report)는 기록으로 보존한다.
+- 기본 모드: `--art` 미지정 시 일반 실행은 `sample`(검수 파일 표시, 없는 요소는 회색상자), `--perf`/`--capture`는 `greybox`(파일럿 브랜치의 선택을 수용; 승인된 WP-001~004 증거 절차 불변). 테스트 스위트는 모드를 명시한다.
+- 검증: `tests/test_art_sample.gd` "Reviewed assets"(기본 디렉터리 로드·40×40·pivot·접지·누락 보고·기본 모드·상태 동일), `--capture=wp005_assets[_720]`(기본 디렉터리, greybox 대비 상태 동일·로드 수 = 배포 파일 수·시설 스프라이트 그려짐), `verify.ps1 -Wp005` 4e 확장.
+- 대체하는 이전 결정: 없음(D-049 보완).
+

@@ -106,10 +106,11 @@ mkdir -p "$EVID5/captures" "$EVID5/perf" "$EVID5/tests"
 rm -f "$EVID5"/captures/wp005_*
 cp -f "$EVID/test_report.txt" "$EVID5/tests/test_report.txt"
 godot --headless --path . --script res://game/tools/wp005_dev_fixture.gd
-for art in greybox sample; do
+for art in greybox sample assets; do
     for size in "" _720; do
         sc="wp005_${art}${size}"
-        extra="--art=$art"; [[ "$art" == "sample" ]] && extra="$extra --art-dir=user://wp005_art_fixture"
+        extra="--art=sample"; [[ "$art" == "greybox" ]] && extra="--art=greybox"
+        [[ "$art" == "sample" ]] && extra="$extra --art-dir=user://wp005_art_fixture"
         godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID5/captures")" $extra
         [[ -s "$EVID5/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
         for n in a_dense_t15 b_collapse_t20.5 c_invalid_preview_t23 d_valid_preview_t23.5 e_recovery_placed_t25.5 f_inner_fire_t45 g_run_end; do

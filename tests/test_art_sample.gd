@@ -31,15 +31,16 @@ func run(t: RefCounted) -> void:
     _greybox_equals_sample(t, tree)
     _fx_event_contract(t, tree)
     _sample_scene_wiring(t, tree)
+    _reviewed_assets(t, tree)
 
 
 # ----------------------------------------------------------------- helpers ---
 
-static func _scene(tree: SceneTree, art_mode: String) -> Node2D:
+static func _scene(tree: SceneTree, art_mode: String, art_dir: String = FIXTURE_DIR) -> Node2D:
     var scene: Node2D = Main.new()
     scene._settings_path = SETTINGS_TMP
     scene._art_mode = art_mode
-    scene._art_dir = FIXTURE_DIR
+    scene._art_dir = art_dir
     tree.root.add_child(scene)
     if not scene.is_node_ready():
         scene._ready()
@@ -330,3 +331,59 @@ func _sample_scene_wiring(t: RefCounted, tree: SceneTree) -> void:
     t.check(g._enemies.material == null, "grey box: no shader")
     Flow._drop(s)
     Flow._drop(g)
+
+
+# ------------------------------------------------- reviewed assets (default dir) ---
+
+## The files actually shipped under assets/art/wp005 (D-050: the four
+## generated facility sources converted to the contract). Whatever is there
+## must satisfy the contract, and the rest of the set must be reported
+## missing, never invented. Battle state stays equal to the grey box.
+func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
+    t.case("Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box")
+    var art: ArtSet = ArtSet.new(ArtSet.DEFAULT_DIR)
+    var rep: Dictionary = art.load_all()
+    t.check(art.loaded_count() >= 8, "at least the 8 facility files load (%d)" % art.loaded_count())
+    for id_state: Array in [["hwacha", "idle"], ["hwacha", "inactive"], ["jangseung", "idle"], ["jangseung", "inactive"],
+            ["bongsu", "connected"], ["bongsu", "disconnected"], ["sensor", "active"], ["sensor", "inactive"]]:
+        var fr: ArtSet.Frames = art.frames(id_state[0], id_state[1])
+        if not t.check(fr != null, "%s/%s loaded" % [id_state[0], id_state[1]]):
+            continue
+        t.eq(fr.frame_size, Vector2i(40, 40), "%s/%s is 40x40" % [id_state[0], id_state[1]])
+        t.eq(fr.pivot, Vector2(20.0, 20.0), "%s/%s pivot = footprint centre" % [id_state[0], id_state[1]])
+        t.eq(fr.sha256.length(), 64, "%s/%s sha recorded" % [id_state[0], id_state[1]])
+        # opaque pixels exist and the object touches the canvas bottom row (ground contact)
+        var img: Image = fr.texture.get_image()
+        var bottom: bool = false
+        for x: int in range(40):
+            if img.get_pixel(x, 39).a > 0.5:
+                bottom = true
+        t.check(bottom, "%s/%s stands on the canvas bottom" % [id_state[0], id_state[1]])
+    t.eq(int(rep["loaded_count"]) + int(rep["missing_count"]), art.contract_count(), "loaded + missing = contract")
+    t.check(art.missing.has("hwacha/fire") and art.missing.has("bongsu/pulse"), "frames not delivered yet are reported missing, not invented")
+    t.check(art.enemy_atlas == null, "no enemy atlas without enemy files")
+    # default mode: interactive -> sample, scripted -> greybox (D-050)
+    var s: Node2D = _scene(tree, "", ArtSet.DEFAULT_DIR)
+    t.eq(s._art_mode, "sample", "interactive launch without --art shows the reviewed art")
+    t.check(s.art != null and s.art.loaded_count() == art.loaded_count(), "scene loaded the same set")
+    t.check(not s._enemy_sprites, "enemies stay grey-box quads without enemy files")
+    var g: Node2D = _scene(tree, "greybox", ArtSet.DEFAULT_DIR)
+    _start(s)
+    _start(g)
+    _frame(s, 240)
+    _frame(g, 240)
+    t.check(s.battle.full_state_json() == g.battle.full_state_json(), "240 frames: battle state identical to the grey box")
+    Flow._drop(s)
+    Flow._drop(g)
+    var p: Node2D = Main.new()
+    p._settings_path = SETTINGS_TMP
+    p._capture_name = "ac02"
+    p._perf = null
+    tree.root.add_child(p)
+    if not p.is_node_ready():
+        p._ready()
+    p.set_process(false)
+    p.set_physics_process(false)
+    t.eq(p._art_mode, "greybox", "scripted capture without --art stays grey box")
+    Flow._drop(p)
+

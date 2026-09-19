@@ -184,10 +184,12 @@ Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\captures\wp005_*"
 Assert-Exit "wp005 dev fixture"
 $fixture = "user://wp005_art_fixture"
 $logs = @{}
-foreach ($art in @("greybox", "sample")) {
+# greybox / sample(fixture) prove the pipeline; assets = --art=sample on the shipped
+# assets/art/wp005 directory (D-050), the evidence for the reviewed files.
+foreach ($art in @("greybox", "sample", "assets")) {
     foreach ($size in @("", "_720")) {
         $sc = "wp005_${art}${size}"
-        $extra = @("--art=$art")
+        $extra = @("--art=$(if ($art -eq 'greybox') { 'greybox' } else { 'sample' })")
         if ($art -eq "sample") { $extra += "--art-dir=$fixture" }
         & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" @extra | Out-Host
         Assert-Exit "capture $sc"
@@ -222,6 +224,23 @@ foreach ($size in @("", "_720")) {
     Write-Host ("capture wp005{0}: greybox == sample at 4 checkpoints, outcome {1}; sample fx fire={2} impact={3} collapse={4} despawn={5}, tiles ground={6} edge={7} wall={8} roof={9} gate={10}" -f $size, $se.run.run,
         $t45.fx.created_by_kind.fire, $t45.fx.created_by_kind.impact, $t45.fx.created_by_kind.collapse, $t45.fx.created_by_kind.enemy_despawn,
         $a.sample_tiles_drawn.ground, $a.sample_tiles_drawn.edge, $a.sample_tiles_drawn.wall, $a.sample_tiles_drawn.roof, $a.sample_tiles_drawn.gate)
+    # reviewed assets: same battle as the grey box; every shipped contract file loaded, the rest reported missing; facility sprites drawn
+    $r5 = $logs["wp005_assets$size"]
+    foreach ($label in @("initial", "before_collapse", "after_collapse", "after_recovery")) {
+        $gs = $g | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        $rs = $r5 | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        if ($null -eq $rs -or $gs.state_hash -ne $rs.state_hash -or $gs.tick -ne $rs.tick) { throw "capture wp005_assets${size}: state differs from greybox at '$label'" }
+    }
+    $rl = $r5 | Where-Object { $_.art_log -eq "launch" } | Select-Object -First 1
+    $shipped = @(Get-ChildItem -Recurse -Filter *.png "assets\art\wp005").Count
+    if ($rl.art.loaded_count -ne $shipped) { throw "capture wp005_assets${size}: loaded $($rl.art.loaded_count) != $shipped shipped png" }
+    if ($rl.art.loaded_count + $rl.art.missing_count -ne $rl.art.contract_count) { throw "capture wp005_assets${size}: loaded + missing != contract" }
+    $ra = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_a_dense_t15" } | Select-Object -First 1
+    $rb = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_b_collapse_t20.5" } | Select-Object -First 1
+    if ($ra.sprites_drawn.'hwacha/idle' -lt 1 -or $ra.sprites_drawn.'jangseung/idle' -lt 1 -or $ra.sprites_drawn.'bongsu/connected' -lt 1 -or $ra.sprites_drawn.'sensor/active' -lt 1) { throw "capture wp005_assets${size}: facility sprites not drawn at t15 ($($ra.sprites_drawn | ConvertTo-Json -Compress))" }
+    if ($rb.sprites_drawn.'hwacha/inactive' -lt 1 -or $rb.sprites_drawn.'bongsu/disconnected' -lt 1 -or $rb.sprites_drawn.'sensor/inactive' -lt 1) { throw "capture wp005_assets${size}: inactive / disconnected sprites not drawn after the collapse" }
+    Write-Host ("capture wp005_assets{0}: greybox == assets at 4 checkpoints; loaded {1}/{2} (missing {3}); t15 sprites {4}; t20.5 sprites {5}" -f $size, $rl.art.loaded_count, $rl.art.contract_count, $rl.art.missing_count,
+        ($ra.sprites_drawn | ConvertTo-Json -Compress), ($rb.sprites_drawn | ConvertTo-Json -Compress))
 }
 }   # end of the WP-005 capture block
 
