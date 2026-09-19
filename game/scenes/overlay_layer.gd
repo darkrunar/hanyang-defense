@@ -100,9 +100,7 @@ func _draw_footprints() -> void:
         draw_line(Vector2(cx * cs, r.position.y * cs), Vector2(cx * cs, r.end.y * cs), COLOR_GRID, 1.0)
     for cy: int in range(r.position.y, r.end.y + 1):
         draw_line(Vector2(r.position.x * cs, cy * cs), Vector2(r.end.x * cs, cy * cs), COLOR_GRID, 1.0)
-    for s: Placement.Structure in battle.placement.structures:
-        if s.detached:
-            continue
+    for s: Placement.Structure in battle.placement.structures.values():   # id -> Structure (detached ones are not in it)
         draw_rect(Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0)), COLOR_FOOTPRINT, false, 1.0)
         draw_line(s.center + Vector2(-4.0, 0.0), s.center + Vector2(4.0, 0.0), COLOR_FOOTPRINT, 1.0)
         draw_line(s.center + Vector2(0.0, -4.0), s.center + Vector2(0.0, 4.0), COLOR_FOOTPRINT, 1.0)
