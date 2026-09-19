@@ -219,7 +219,7 @@ godot --path . --rendering-driver opengl3 -- --set=run_mode=sandbox --set=fixtur
 | `-- --capture=wp005_greybox\|wp005_sample[_720] --art=... --out-dir=<abs>` | F2 타임라인(강제 붕괴 20 s, 회수 25 s)을 지정 렌더링 모드로 재생하며 7장 캡처 + 체크포인트 `state_log`/fx/sprites 로그 |
 | `-- --capture=wp004_ui\|wp004_ui_720 --out-dir=<abs> --settings=<abs>.cfg` | 실제 버튼·키로 메뉴 흐름을 재생하며 TITLE/설정/전투/일시정지/확인창/결과(패배·승리) 캡처 11장(1920×1080 / 1280×720) |
 | `-- --settings=<abs>.cfg` | 설정 파일 경로 주입(검증용; 기본 `user://settings.cfg`) |
-| `scripts/verify.ps1 [-Quick] [-Wp003] [-Wp004]` / `scripts/verify.sh` | 테스트·캡처·빌드·성능을 한 번에 |
+| `scripts/verify.ps1 [-Quick] [-Wp003] [-Wp004] [-Wp005]` / `scripts/verify.sh` | 테스트·캡처·빌드·성능을 한 번에 |
 
 ## 13. 알려진 제한
 

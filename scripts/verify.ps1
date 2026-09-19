@@ -204,13 +204,13 @@ foreach ($size in @("", "_720")) {
     foreach ($label in @("initial", "before_collapse", "after_collapse", "after_recovery")) {
         $gs = $g | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
         $ss = $s | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
-        if ($null -eq $gs -or $null -eq $ss) { throw "capture wp005$size: state_log '$label' missing" }
-        if ($gs.state_hash -ne $ss.state_hash -or $gs.tick -ne $ss.tick) { throw "capture wp005$size: state differs at '$label' (greybox $($gs.state_hash) vs sample $($ss.state_hash))" }
-        if (($gs.full_state | ConvertTo-Json -Depth 20 -Compress) -ne ($ss.full_state | ConvertTo-Json -Depth 20 -Compress)) { throw "capture wp005$size: full_state differs at '$label'" }
+        if ($null -eq $gs -or $null -eq $ss) { throw "capture wp005${size}: state_log '$label' missing" }
+        if ($gs.state_hash -ne $ss.state_hash -or $gs.tick -ne $ss.tick) { throw "capture wp005${size}: state differs at '$label' (greybox $($gs.state_hash) vs sample $($ss.state_hash))" }
+        if (($gs.full_state | ConvertTo-Json -Depth 20 -Compress) -ne ($ss.full_state | ConvertTo-Json -Depth 20 -Compress)) { throw "capture wp005${size}: full_state differs at '$label'" }
     }
     $ge = $g | Where-Object { $_.capture -eq "wp005_greybox${size}_g_run_end" } | Select-Object -First 1
     $se = $s | Where-Object { $_.capture -eq "wp005_sample${size}_g_run_end" } | Select-Object -First 1
-    if ($ge.run.run -ne $se.run.run) { throw "capture wp005$size: different outcome ($($ge.run.run) vs $($se.run.run))" }
+    if ($ge.run.run -ne $se.run.run) { throw "capture wp005${size}: different outcome ($($ge.run.run) vs $($se.run.run))" }
     # sample side: every fixture file loaded, sprites and tiles drawn, fx follow real events (fire == impact == volleys, 1 collapse)
     $launch = $s | Where-Object { $_.art_log -eq "launch" } | Select-Object -First 1
     $t45 = $s | Where-Object { $_.art_log -eq "t45" } | Select-Object -First 1
@@ -320,7 +320,7 @@ foreach ($art in @("greybox", "sample")) {
         Assert-File $out "perf $sc $art"
         Assert-File "$out.memory.json" "perf $sc $art memory sampler"
         $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
-        if ($r.art_mode -ne $art) { throw "perf $sc: manifest art_mode '$($r.art_mode)' != '$art'" }
+        if ($r.art_mode -ne $art) { throw "perf ${sc}: manifest art_mode '$($r.art_mode)' != '$art'" }
         if ($art -eq "sample" -and ($r.art.loaded_count -ne $r.art.contract_count -or -not $r.art.enemy_atlas)) { throw "perf $sc sample: fixture not fully loaded" }
         Assert-CollapsePerf $out $sc " [$art]"
     }
