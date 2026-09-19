@@ -33,6 +33,8 @@
 | [결과 양식](results/RESULT_TEMPLATE.md) | 구현 증거와 GPT 리뷰 기록 |
 | [WP-001 결과](results/WP-001-RESULT.md) | WP-001 구현·검증 결과, AC별 증거, 성능 측정 |
 
+[현재 Claude Code 인계문: WP-005 보완](docs/CLAUDE_HANDOFF.md)
+
 ## GPT ↔ Claude Code 작업 흐름
 
 1. GPT가 기획·요구사항·수용 기준을 문서와 WP에 기록한다.
