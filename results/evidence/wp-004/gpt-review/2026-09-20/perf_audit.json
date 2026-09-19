@@ -1,0 +1,126 @@
+[
+  {
+    "alive_min": 1000.0,
+    "events": [
+      {
+        "type": "benchmark_trigger",
+        "tick": 1806
+      },
+      {
+        "type": "collapse",
+        "tick": 1806
+      },
+      {
+        "type": "recovery_created",
+        "tick": 1806
+      },
+      {
+        "type": "outer_deactivated_batch",
+        "tick": 1806
+      },
+      {
+        "type": "target_changed",
+        "tick": 1806
+      },
+      {
+        "type": "recovery_placed",
+        "tick": 2106
+      }
+    ],
+    "status": "PASS",
+    "exe_sha256": "a1aebd868e19cfb410d8d261daa7dd08ab4a8600418554fef5633ac0960a25ae",
+    "placement": "ok",
+    "segments": [
+      {
+        "name": "pre_collapse_0_20",
+        "fps": 159.9455764920214,
+        "p95_ms": 16.656,
+        "frames": 3198,
+        "eval_delta": 4804
+      },
+      {
+        "name": "waiting_20_25",
+        "fps": 266.2346682710037,
+        "p95_ms": 11.862,
+        "frames": 1332,
+        "eval_delta": 307
+      },
+      {
+        "name": "post_placement_25_60",
+        "fps": 214.0736257322953,
+        "p95_ms": 14.133,
+        "frames": 7495,
+        "eval_delta": 4199
+      }
+    ],
+    "implementation_sha": "a24e3fefa17687d3cacd4eb500b393682bcc75c7",
+    "seconds": 60.008725,
+    "frames": 12025,
+    "h1_shots_after": 0,
+    "p95_ms": 14.66,
+    "scenario": "move",
+    "fps": 200.38752698045158
+  },
+  {
+    "alive_min": 1000.0,
+    "events": [
+      {
+        "type": "benchmark_trigger",
+        "tick": 1806
+      },
+      {
+        "type": "collapse",
+        "tick": 1806
+      },
+      {
+        "type": "recovery_created",
+        "tick": 1806
+      },
+      {
+        "type": "outer_deactivated_batch",
+        "tick": 1806
+      },
+      {
+        "type": "target_changed",
+        "tick": 1806
+      },
+      {
+        "type": "recovery_placed",
+        "tick": 2105
+      }
+    ],
+    "status": "PASS",
+    "exe_sha256": "a1aebd868e19cfb410d8d261daa7dd08ab4a8600418554fef5633ac0960a25ae",
+    "placement": "ok",
+    "segments": [
+      {
+        "name": "pre_collapse_0_20",
+        "fps": 192.11937523899286,
+        "p95_ms": 14.839,
+        "frames": 3842,
+        "eval_delta": 2502
+      },
+      {
+        "name": "waiting_20_25",
+        "fps": 250.4104671575272,
+        "p95_ms": 13.012,
+        "frames": 1252,
+        "eval_delta": 80
+      },
+      {
+        "name": "post_placement_25_60",
+        "fps": 247.3985734396182,
+        "p95_ms": 12.727,
+        "frames": 8662,
+        "eval_delta": 85
+      }
+    ],
+    "implementation_sha": "a24e3fefa17687d3cacd4eb500b393682bcc75c7",
+    "seconds": 60.010102,
+    "frames": 13756,
+    "h1_shots_after": 42,
+    "p95_ms": 13.362,
+    "scenario": "combat",
+    "fps": 229.22807230022704
+  }
+]

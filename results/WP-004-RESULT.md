@@ -206,3 +206,46 @@ D-039~042의 동일 전장 재시도, 전투와 UI 상태 분리, 결과 장부,
 
 - 실제 창 포커스 손실 시 장부를 비우는 경로는 헤드리스로 시험하지 못했다(NOT RUN; 코드는 `NOTIFICATION_APPLICATION_FOCUS_OUT`/`WM_WINDOW_FOCUS_OUT`).
 - Enter로 닫는 경로의 "Enter를 누른 채"는 Button이 release에 신호를 내는 Godot 기본 동작상 닫힘 자체가 release 뒤에 일어난다. 시험 (b)는 그 가정이 깨져도(press 모드 버튼) 펜스가 지키는지를 `_input` 장부로 확인한 것이다.
+
+### 2026-09-20 — GPT 재리뷰 / 보완 회차 1 / PR #6
+
+- 최종 판정: **PASS**. 이전 R-01 해소, AC-01~08 모두 PASS. 본 판정은 2026-09-19 REVISE를 대체하며 이전 기록은 보존한다.
+- 검토 diff: `0f1f166..128c467`. 검증 구현: `a24e3fefa17687d3cacd4eb500b393682bcc75c7`, 제출 문서·증거: `128c467`. 구현 커밋 이후 `game/` 및 `project.godot` 차이 없음.
+- 독립 전체 회귀: Godot 4.7.stable.official.5b4e0cb0f, **1,106 PASS / 0 FAIL, 63.0초, 종료 코드 0**.
+- 독립 증거: `results/evidence/wp-004/gpt-review/2026-09-20/` — `test_report.txt`, 이전 재현을 경로만 바꾼 `review_input.gd`/`input_review.json`, 실제 버튼 입력 `gui_review.gd`/`gui_review.json`, 성능 재계산 `audit_perf.ps1`/`perf_audit.json`.
+
+| AC | GPT 판정 | 검증 근거 |
+|---|---|---|
+| AC-01 | PASS | F1/F2/F4·시작·결과·재시작/복귀 회귀 통과. Enter 및 마우스로 계속하기 버튼을 Viewport 입력 경로에서 직접 조작하여 PLAYING 전이도 독립 확인 |
+| AC-02 | PASS | PAUSED/SETTINGS/CONFIRM 각각 120프레임 전투 상태·배치 불변 및 재개 후 시간 몰아처리 없음 재실행 통과 |
+| AC-03 | PASS | 진행 중 확인/취소·원래 UI 복귀·RESULT 즉시 재시작과 중복 요청 폐기 재실행 통과 |
+| AC-04 | PASS | 진행 중/WON/LOST 후 새 초기 상태·run_id·이전 홀드 폐기 통과. 새 런에서도 R을 떼기 전 지연 LMB 차단 시험 통과 |
+| AC-05 | **PASS** | 이전 직접 핸들러/Viewport 재현 모두 accepted_delta=0·미배치. 차단 중 LMB hold를 해제 이후까지 유지해도 배치 0, 이후 새 press에만 1회. Enter/마우스 실제 버튼의 닫는 입력 배치 0, 다음 새 press 배치 1회. 이미 LOST인 런의 pending pause도 RESULT 우선 |
+| AC-06 | PASS | 실제 장부의 승패·시간·웨이브·처치/도달·붕괴·회수·핵심 HP 및 RESULT 동결 회귀 통과. 새 승리 캡처의 01:45·1073처치·외곽36/핵심32도 로그와 일치 |
+| AC-07 | PASS | 설정 저장/복원·손상/누락/실패 회귀 통과. 메뉴 레이아웃 코드는 변경 없음, 기존 두 해상도 검토 유지 및 새 720p 승리/1080p 확인창 대표 캡처 재확인 |
+| AC-08 | PASS | 기존 회귀 포함 1,106건 통과. legacy8존/WP-00310존·자동 모드 우회 유지. 새 release 원시 배열·구간·6 이벤트·구현 SHA/실행파일 해시 대조 통과 |
+
+#### R-01 해소와 실제 입력 경로 확인
+
+`_input`에서 GUI 소비 전 눌림/해제를 기록하고 메뉴→PLAYING 전이 때 해제를 기다릴 입력 집합을 만든다. 이 집합이 비기 전의 배치 입력은 전투 명령과 held 재시도 모두로 전달하지 않는다. 기존 재현 스크립트는 원래의 잘못된 동작을 더 이상 발생시키지 않는다. 추가 `gui_review.gd`는 Button 신호를 수동 발생시키지 않고 실제 Viewport 키/마우스 이벤트를 사용한다. Enter와 마우스 모두 press 시 PAUSED, release 시 PLAYING, 닫는 입력의 배치 0, 이후 새 전장 press의 배치 1을 확인했다. 마우스 이벤트는 버튼의 논리 좌표와 일치하도록 `push_input(..., true)`를 사용한다.
+
+두 해상도 캡처 로그의 `fence_probe` 각 2건도 대조했다. Esc를 누른 동안 accepted_delta=0이며, 붕괴 후에는 release 뒤 새 press에서만 accepted_delta=1·recovery_placed=true다. 붕괴 전에는 release 뒤에도 회수권이 없으므로 배치가 거절된다. 기존 배치 규칙을 우회하지 않는다.
+
+D-047의 입력 장부/해제 대기와 종료 우선순위 보완을 수용한다. 이번 변경은 기획의 D-039~042를 충족하며 전투 수치·회수권·재시작 초기 조건 변경이 아니다.
+
+#### 새 release 증거의 독립 재계산
+
+| 시나리오 | 프레임 수 | 평균 FPS | p95 ms | alive 최솟값 | 결과 |
+|---|---:|---:|---:|---:|---|
+| collapse_move | 12,025 | 200.39 | 14.660 | 1,000 | PASS |
+| collapse_combat | 13,756 | 229.23 | 13.362 | 1,000 | PASS |
+
+`frame_us_raw`/`alive_raw`, 구간 인덱스 연속성과 전체 매핑, 구간 FPS/p95·후보 평가 증가, 10존/18시설, semantic event6건, trigger→collapse0틱, 배치ok, path_version4→5를 확인했다. 양쪽 manifest의 구현 SHA는 `a24e3fe`, 실행파일 SHA-256은 `a1aebd868e19cfb410d8d261daa7dd08ab4a8600418554fef5633ac0960a25ae`이며 외부 메모리 샘플러와 일치한다. combat의 H1 재배치 이후 발사42회도 유지된다.
+
+이전 회차보다 평균 FPS가 낮지만 D-009/027 예산은 충족한다. 동일 부하·이벤트만으로 원인을 기기 편차라고 확정할 수는 없으므로 원인 판단은 유보한다. 원인 규명을 위한 통제 A/B 시험은 NOT RUN이며 이번 합격 기준에 추가하지 않는다.
+
+#### 검증 범위와 후속 처리
+
+전체 회귀·이전 재현·실제 Viewport 버튼 경로·원시 성능 재계산은 리뷰어가 직접 실행했다. release export와 10+60초 성능 측정, OS 전체화면 전환, 실제 창 포커스 손실/복귀는 이번 재리뷰에서 별도 실행하지 않았다(NOT RUN). 성능과 화면은 제출된 새 release JSON/PNG 및 이전 검토를 근거로 하며, 창 설정은 기존 구현자 수동 확인과 재실행한 저장/복구 테스트 범위를 유지한다.
+
+필수 보완 요청은 없다. GPT PASS에 따라 WP-004 완료 정리와 병합 준비가 가능하다. 이 리뷰는 결과 문서·검증 증거만 반영하며 PR 병합은 수행하지 않는다.

@@ -1,0 +1,26 @@
+[
+  {
+    "button_center": [
+      960.0,
+      485.0
+    ],
+    "closing_delta": 0,
+    "mode": "enter",
+    "new_press_delta": 1,
+    "pass": true,
+    "press_state": "PAUSED",
+    "release_state": "PLAYING"
+  },
+  {
+    "button_center": [
+      960.0,
+      485.0
+    ],
+    "closing_delta": 0,
+    "mode": "mouse",
+    "new_press_delta": 1,
+    "pass": true,
+    "press_state": "PAUSED",
+    "release_state": "PLAYING"
+  }
+]
