@@ -301,3 +301,20 @@ PR #11은 이미 상위 브랜치에 병합되어 있었으므로 보완은 PR #
 
 - AC 요약(회차 4 기준): AC-03 PASS(전용 비활성·라벨 없는 식별·범례), AC-04 PASS, AC-05 PASS(실제 리소스 F1/F2/F4 + fixture), AC-07 PASS(보이는 창 4종, 예산 안), AC-01 FAIL(가장자리·문·발사·점등·거점·효과·표시 미제작), AC-02·AC-06 부분(근접/점유 정합·메뉴 전체 검수 미완), AC-08 NOT RUN(사용자 확인 대기). WP 전체는 REVISE / IN_PROGRESS.
 
+---
+
+### 2026-09-20 — 회차 5 계획 (인계문 `docs/CLAUDE_HANDOFF.md`, 기준 `15ef03e`)
+
+잔여 목록과 도구 점검, 이번 회차의 작업·검증 계획이다. 계획 커밋 뒤 구현하고 결과를 아래에 덧붙인다.
+
+- 잔여 필수 상태(PNG): `terrain_sample/edge` 8, `building_sample/gate` 1, `hwacha/fire` 3, `bongsu/pulse` 2, `outer_post`·`core_post` 각 3, `combat_fx` fire/impact/collapse 각 3 = **29 프레임(15 파일)**. `interaction_marks` 5는 WP가 절차적 도형을 허용하므로 PNG 제작 대상에서 제외하고 manifest에 `PROCEDURAL`로 연결한다.
+- 도구: 이 환경에는 여전히 이미지 생성 도구가 없다(Pillow·Godot Image API만). 위 15파일은 [WP005_REQUEST](../docs/art/source/WP005_REQUEST.md) 접수 현황에 ID·상태·규격·입력 원본을 명시해 GPT 제작 단계로 반환한다. 기다리는 동안 가져오기·검증·표현 보정을 진행한다.
+- 구현(렌더링만, 전투 규칙·적 수·점유·경로 불변):
+  1. 적 대비: 적 아틀라스 셰이더에 1텍셀 밝은 테두리(`--art-outline=on|off`, 기본 on)를 추가해 어두운 길 위 가독성을 올린다. 리소스 픽셀은 바꾸지 않고 배포본 성능을 다시 잰다.
+  2. 소등 식별: 비활성·단절 시설 위에 절차적 소등 표시(회색 원 + 사선)를 그려 색 변화에만 의존하지 않게 한다(ART_GUIDE).
+  3. 경계: `terrain_sample/edge` PNG가 올 때까지 벽 접면에 절차적 가장자리 선(계획 항목 그대로)을 그린다. 시설 40×40 점유 사각형·20px 격자 오버레이 토글을 추가한다.
+  4. 근접 증거: 캡처 스텝 `zoom`(Camera2D)과 시나리오 `wp005_closeup`(광장·외곽 거점·B 셀 3배 근접, 점유 오버레이 on/off).
+  5. 메뉴: `wp004_ui`/`_720`을 `--art=sample`로 실행해 두 해상도 메뉴·문자·배치 표시를 샘플 아트 위에서 캡처한다.
+  6. 1,000체: `wp005_dense`에 테두리 off 비교 캡처를 더한다.
+- 검증: 회귀 전체 + 새 케이스(옵션 항목 보고, 테두리 uniform, 카메라 스텝, 점유 토글), `verify.ps1 -Wp005`(assets·dense·closeup·menus 캡처, 배포 리소스 성능 4종 보이는 창). 결과·증거는 새 회차로 기록하고 REVIEW 전환은 필수 제작 완료 후에만 한다.
+

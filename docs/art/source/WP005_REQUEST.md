@@ -22,6 +22,20 @@
 - 접수: `hwacha`(idle), `jangseung`(idle), `bongsu`(connected), `sensor`(active) 원본 4장 — GPT 파일럿 브랜치(PR #10), `docs/art/source/wp005/`. `scripts/art_convert_wp005.py`로 40×40 계약 파일 변환(D-050). `inactive`/`disconnected`는 원본이 없어 파생본(채도·밝기 감소)으로 임시 적용 — **전용 프레임 요청 유지**.
 - 접수 2(PR #11 `f0c625a`, 통합 브랜치): `terrain_sample/ground`(4), `building_sample/roof`·`wall`, `enemy_basic` 6상태 12프레임 — 원본 `enemy_sheet_source_v01.png`·`terrain_sheet_source_v01.png`, `game/tools/import_wp005_sources.gd`로 슬라이싱. 시설 idle/active도 이 도구 결과로 교체(D-051). 파생 inactive/disconnected 4장은 `scripts/art_convert_wp005.py`.
 - 미접수(17/35 적용 후 남은 18): `terrain_sample/edge`(8), `building_sample/gate`, `hwacha/fire`(3), `bongsu/pulse`(2), `outer_post`·`core_post` 각 3, `combat_fx` 3×3, `interaction_marks` 5. 전용 `inactive`/`disconnected` 프레임도 여전히 요청(현재는 파생본). 아래 목록 그대로 유효.
+- 접수 3(PR #12 `f4b6c13`): 전용 `hwacha/inactive`, `jangseung/inactive`, `bongsu/disconnected`, `sensor/inactive` 원본 4장(`REVISION_PROMPTS.md`) → 파생본 대체. 17/35.
+- **회차 5 반환 목록(GPT 제작 단계, 2026-09-20)** — 이 환경에는 이미지 생성 도구가 없어 아래를 요청한다. 입력 원본은 기존 `docs/art/source/wp005/`의 같은 시설/시트를 기준으로 한다.
+
+| asset_id/state | 프레임 | 캔버스 | 파일 | 입력 원본·지시 |
+|---|---|---|---|---|
+| terrain_sample/edge | 8 | 20×20 | terrain_sample_edge_v01.png | `terrain_sheet_source_v01.png` 바닥 톤에 맞춘 벽 접면 가장자리 0-3(N/E/S/W), 안쪽 모서리 4-7. 투명 배경, 바닥 위에 겹침 |
+| building_sample/gate | 1 | 폭 80 권장 | building_sample_gate_v01.png | 스타일 시트의 광화문 문. 셀 46..49,15 중앙 배치 |
+| hwacha/fire | 3 | 40×40 | hwacha_fire_v01.png | `hwacha_idle_source_v01.png` 편집: 점화 3단계, 실루엣 유지 |
+| bongsu/pulse | 2 | 40×40 | bongsu_pulse_v01.png | `bongsu_active_source_v01.png` 편집: 등화 밝기 2단계 |
+| outer_post normal/hit/collapsed | 각 1 | 40 바닥 기준 | outer_post_{normal,hit,collapsed}_v01.png | 외곽 거점(석축 초소): 정상/피격 섬광/붕괴 잔해 |
+| core_post normal/hit/collapsed | 각 1 | 40 바닥 기준 | core_post_{normal,hit,collapsed}_v01.png | 핵심 시설(궁성 전각): 정상/피격/붕괴 |
+| combat_fx fire/impact/collapse | 각 3 | 24·24·48 권장 | combat_fx_{fire,impact,collapse}_v01.png | 발사 섬광/탄착 링/붕괴 파열, 투명 배경, 중앙 기준점 |
+
+`interaction_marks` 5종은 절차적 도형으로 확정(manifest `PROCEDURAL`), PNG 요청 제외. 가장자리 타일이 올 때까지 벽 접면은 절차적 선으로 그린다.
 - 원본 형식 참고: 1254×1254 RGBA에 3px 내외 런 길이의 "픽셀아트풍" 렌더였다. 다음 시안은 가능하면 **정수 배율(예: 40×40을 16배 = 640×640)로 확대된 실제 픽셀 격자**로 주면 축소 손실 없이 nearest 축소가 된다.
 
 ## 요청 목록 (ID · 상태 · 프레임 · 캔버스 · 파일)
