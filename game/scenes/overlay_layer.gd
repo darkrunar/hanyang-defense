@@ -31,6 +31,10 @@ const COLOR_GHOST_BAD: Color = Color(1.00, 0.30, 0.30, 0.55)
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 const COLOR_PANEL: Color = Color(0.0, 0.0, 0.0, 0.72)
 
+const FacilityArt = preload("res://game/scenes/facility_art.gd")
+var art_mode: String = "greybox"
+var facility_art: FacilityArt = null
+
 var battle: Battle = null
 var font: Font = null
 var show_zones: bool = true
@@ -57,6 +61,8 @@ const COLOR_HP_CORE: Color = Color(0.95, 0.30, 0.30)
 func _draw() -> void:
     if battle == null:
         return
+    if art_mode == "sample" and facility_art == null:
+        facility_art = FacilityArt.new()
     var counts: PackedInt32Array = battle.density.counts
     var targeted: Dictionary = {}
     for s: Placement.Structure in battle.placement.hwachas():
@@ -91,18 +97,20 @@ func _draw() -> void:
 
     for s: Placement.Structure in battle.placement.jangseungs():
         var r: Rect2 = Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
-        draw_rect(r, COLOR_JANGSEUNG, true)
-        draw_rect(Rect2(s.center - Vector2(5.0, 18.0), Vector2(10.0, 36.0)), COLOR_JANGSEUNG_POST, true)
-        draw_rect(r, Color.BLACK, false, 2.0)
+        if art_mode != "sample" or not facility_art.draw_facility(self, s):
+            draw_rect(r, COLOR_JANGSEUNG, true)
+            draw_rect(Rect2(s.center - Vector2(5.0, 18.0), Vector2(10.0, 36.0)), COLOR_JANGSEUNG_POST, true)
+            draw_rect(r, Color.BLACK, false, 2.0)
         draw_string(font, s.center + Vector2(-16.0, -24.0), "장승", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, COLOR_TEXT)
 
     for s: Placement.Structure in battle.placement.bongsus():
         var col: Color = COLOR_BONGSU if s.active else COLOR_INACTIVE
         var r: Rect2 = Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
-        draw_rect(r, col, true)
-        draw_rect(r, Color.BLACK, false, 2.0)
-        if s.active:
-            draw_circle(s.center + Vector2(0.0, -8.0), 7.0, COLOR_BONGSU_FLAME)
+        if art_mode != "sample" or not facility_art.draw_facility(self, s):
+            draw_rect(r, col, true)
+            draw_rect(r, Color.BLACK, false, 2.0)
+            if s.active:
+                draw_circle(s.center + Vector2(0.0, -8.0), 7.0, COLOR_BONGSU_FLAME)
         if show_ranges and s.active:
             draw_arc(s.center, net.link_range, 0.0, TAU, 64, Color(COLOR_LINK.r, COLOR_LINK.g, COLOR_LINK.b, 0.10), 1.0)
         draw_string(font, s.center + Vector2(-30.0, -24.0), "%s g%s" % [s.label, str(s.group_id) if s.group_id >= 0 else "-"],
@@ -111,10 +119,11 @@ func _draw() -> void:
     for s: Placement.Structure in battle.placement.sensors():
         var col: Color = COLOR_SENSOR if s.active else COLOR_INACTIVE
         var r: Rect2 = Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
-        draw_rect(r, col, true)
-        draw_rect(r, Color.BLACK, false, 2.0)
-        draw_arc(s.center, 11.0, 0.0, TAU, 24, Color.BLACK, 2.0)
-        draw_arc(s.center, 6.0, 0.0, TAU, 16, Color.BLACK, 2.0)
+        if art_mode != "sample" or not facility_art.draw_facility(self, s):
+            draw_rect(r, col, true)
+            draw_rect(r, Color.BLACK, false, 2.0)
+            draw_arc(s.center, 11.0, 0.0, TAU, 24, Color.BLACK, 2.0)
+            draw_arc(s.center, 6.0, 0.0, TAU, 16, Color.BLACK, 2.0)
         if show_ranges and s.active and s.group_id >= 0:
             draw_arc(s.center, s.detect_range, 0.0, TAU, 64, COLOR_SENSOR_RANGE, 1.5)
         draw_string(font, s.center + Vector2(-34.0, -24.0), "%s g%s" % [s.label, str(s.group_id) if s.group_id >= 0 else "-"],
@@ -127,10 +136,11 @@ func _draw() -> void:
             if battle.targeting_mode == "wp002":
                 draw_arc(s.center, s.detect_range, 0.0, TAU, 48, COLOR_HWACHA_LOCAL, 1.5)
         var r: Rect2 = Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0))
-        draw_rect(r, col, true)
-        draw_rect(r, Color.BLACK, false, 2.0)
-        draw_circle(s.center + Vector2(-12.0, 14.0), 5.0, Color.BLACK)
-        draw_circle(s.center + Vector2(12.0, 14.0), 5.0, Color.BLACK)
+        if art_mode != "sample" or not facility_art.draw_facility(self, s):
+            draw_rect(r, col, true)
+            draw_rect(r, Color.BLACK, false, 2.0)
+            draw_circle(s.center + Vector2(-12.0, 14.0), 5.0, Color.BLACK)
+            draw_circle(s.center + Vector2(12.0, 14.0), 5.0, Color.BLACK)
         if s.last_zone >= 0 and battle.combat_enabled and s.active:
             draw_line(s.center, s.last_aim, COLOR_HWACHA_FIRE, 3.0 if s.muzzle_timer > 0.0 else 1.0)
         var tag: String = s.label

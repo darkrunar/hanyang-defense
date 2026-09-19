@@ -122,6 +122,8 @@ var _perf_rebuilds: int = 0
 var _perf_refusals: int = 0
 
 # --- capture mode ---
+var _art_mode: String = "sample"
+var _art_explicit: bool = false
 var _capture_name: String = ""
 var _capture_dir: String = ""
 var _capture_steps: Array = []
@@ -170,6 +172,11 @@ func _parse_args() -> void:
                 printerr("unknown config key: %s" % parts[0])
             elif parts.size() == 2:
                 _explicit_sets[parts[0]] = true
+        elif arg.begins_with("--art="):
+            var chosen: String = arg.substr(6)
+            if chosen in ["sample", "greybox"]:
+                _art_mode = chosen
+                _art_explicit = true
         elif arg.begins_with("--config="):
             if not config.merge_json(arg.substr("--config=".length())):
                 printerr("could not load config: %s" % arg)
@@ -228,6 +235,8 @@ func _build_scene() -> void:
 
     _overlay = OverlayLayer.new()
     _overlay.name = "Overlay"
+    _overlay.art_mode = _art_mode if _art_explicit or (_perf == null and _capture_name == "") else "greybox"
+    _overlay.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _overlay.battle = battle
     _overlay.font = _font
     add_child(_overlay)
