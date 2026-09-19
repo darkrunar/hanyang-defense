@@ -3,12 +3,57 @@
     "art": {
       "contract_count": 35,
       "dir": "res://assets/art/wp005",
-      "enemy_atlas": false,
+      "enemy_atlas": true,
       "enemy_frame_size": [
-        0,
-        0
+        12,
+        16
       ],
       "loaded": [
+        {
+          "asset_id": "terrain_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 4,
+          "path": "res://assets/art/wp005/terrain/terrain_sample_ground_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "7aa74ade09550f88637ccabd2ba9e05b604db20accda0def85c367dd6cdb8d46",
+          "state": "ground"
+        },
+        {
+          "asset_id": "building_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 1,
+          "path": "res://assets/art/wp005/buildings/building_sample_roof_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "7ac789a753cb1f7d48836cc39e51470177839625e279398db55dfc6416c8f96d",
+          "state": "roof"
+        },
+        {
+          "asset_id": "building_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 1,
+          "path": "res://assets/art/wp005/buildings/building_sample_wall_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "faf9234af8ffecf63bc5e7f3ee2f3ce16d49750e18dea973032852e0813516a2",
+          "state": "wall"
+        },
         {
           "asset_id": "hwacha",
           "frame_size": [
@@ -21,7 +66,7 @@
             20.0,
             20.0
           ],
-          "sha256": "c8d46ce6a01a22a857359650f3a940aa32f5c0209b17157b153b12c8c76fdb78",
+          "sha256": "1e006a02f750df2c08ec4021f970a08c4cdea8e27d7b8e325a14a2592985cb0f",
           "state": "idle"
         },
         {
@@ -36,7 +81,7 @@
             20.0,
             20.0
           ],
-          "sha256": "4a220503de36b537e95ff521b2c758a85f5fbedaa1b54733c42730bdc5642de6",
+          "sha256": "2ae73d1cd8df61de1b05c8915f3dcdb53fbdf163fe95ff8214c72fca8fdb1ec8",
           "state": "inactive"
         },
         {
@@ -51,7 +96,7 @@
             20.0,
             20.0
           ],
-          "sha256": "9d08c4a18332ece2e7a0132185df81623046f7ba846e3bc222946b54647da240",
+          "sha256": "a863a411ed41cf0c750cb169f1652ddcd5750d4dceb737c27690bcc5010ac822",
           "state": "idle"
         },
         {
@@ -66,7 +111,7 @@
             20.0,
             20.0
           ],
-          "sha256": "3c6a1a8ac2a1c558d5cb514dddfe6f28b9fbdaa6653b8258cecd86c958e54518",
+          "sha256": "fab9a315bd42484777b7a9191aefb667a469c678286490b8273a4630d17e1f27",
           "state": "inactive"
         },
         {
@@ -81,7 +126,7 @@
             20.0,
             20.0
           ],
-          "sha256": "29f67ff97cf8c0a4a1ca9fde64584dd414cecdb16227783e6c4e5944e1e3e200",
+          "sha256": "8a7c97eb3a2ddf27ac5e0442588c4b6a907305d7041fd66a0386af61d1d90c94",
           "state": "connected"
         },
         {
@@ -96,7 +141,7 @@
             20.0,
             20.0
           ],
-          "sha256": "49e3ee3c52c7889547d26259c089f22843ebf7a14cb31287924608f889a33795",
+          "sha256": "98c1772f7baaabebba14963ba9ea8089c1c0b6269495ea76ef0a1f0921295a6e",
           "state": "disconnected"
         },
         {
@@ -111,7 +156,7 @@
             20.0,
             20.0
           ],
-          "sha256": "02ea8909bfbefb20dce77d1f7eabdd55cb447e6b3098a12e8b1ffcb79cc71a3b",
+          "sha256": "7fb511c5df571407c73d262575db9f0362109671dfd9eea04e741bcbfe356b21",
           "state": "active"
         },
         {
@@ -126,11 +171,101 @@
             20.0,
             20.0
           ],
-          "sha256": "5852a6f7ec7fb1ee63e473020e86d7e4711c55dff0a4dc7301e59a883993503f",
+          "sha256": "e6281f5d3f677a560fde21a7bc3c43d7540d25e80839f6a493cf3341648458d2",
           "state": "inactive"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "df95378d6463e8637df8543254bca9c2ca42f684dbc408b0f66863794df99e7f",
+          "state": "walk_down"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "a792bc7373b31cc6df34fa00e1f0639deba2ef3e9d3ab83c170ac41baa39b4df",
+          "state": "walk_up"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "c3ecdeb68f5a8a93f02331f2625096b66644450d1b6273552c224ce181821ba8",
+          "state": "walk_left"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "abfa97d09fb14fdc38705a4e25229077e80399745ad37523945c6a1716f57e13",
+          "state": "walk_right"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_hit_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "cc495045bf168f796b80e3bc0abd1112576787ff38b2163c648e1e38e187506d",
+          "state": "hit"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "8da81e84d148bd75726cb53555c7cd934f81a390cb17eaf96dd940e67aebea12",
+          "state": "despawn"
         }
       ],
-      "loaded_count": 8,
+      "loaded_count": 17,
       "missing": [
         {
           "id": "bongsu/pulse",
@@ -139,14 +274,6 @@
         {
           "id": "building_sample/gate",
           "reason": "missing: res://assets/art/wp005/buildings/building_sample_gate_v01.png"
-        },
-        {
-          "id": "building_sample/roof",
-          "reason": "missing: res://assets/art/wp005/buildings/building_sample_roof_v01.png"
-        },
-        {
-          "id": "building_sample/wall",
-          "reason": "missing: res://assets/art/wp005/buildings/building_sample_wall_v01.png"
         },
         {
           "id": "combat_fx/collapse",
@@ -171,30 +298,6 @@
         {
           "id": "core_post/normal",
           "reason": "missing: res://assets/art/wp005/objectives/core_post_normal_v01.png"
-        },
-        {
-          "id": "enemy_basic/despawn",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png"
-        },
-        {
-          "id": "enemy_basic/hit",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_hit_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_down",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_left",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_right",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_up",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png"
         },
         {
           "id": "hwacha/fire",
@@ -235,18 +338,14 @@
         {
           "id": "terrain_sample/edge",
           "reason": "missing: res://assets/art/wp005/terrain/terrain_sample_edge_v01.png"
-        },
-        {
-          "id": "terrain_sample/ground",
-          "reason": "missing: res://assets/art/wp005/terrain/terrain_sample_ground_v01.png"
         }
       ],
-      "missing_count": 27,
+      "missing_count": 18,
       "version": "v01"
     },
     "art_log": "launch",
     "art_mode": "sample",
-    "enemy_sprites": false,
+    "enemy_sprites": true,
     "fx": {
       "alive": 0,
       "created_by_kind": {},
@@ -1784,10 +1883,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -4953,10 +5052,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -5399,10 +5498,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -5847,10 +5946,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -7400,10 +7499,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -7861,10 +7960,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,
@@ -7973,12 +8072,57 @@
     "art": {
       "contract_count": 35,
       "dir": "res://assets/art/wp005",
-      "enemy_atlas": false,
+      "enemy_atlas": true,
       "enemy_frame_size": [
-        0,
-        0
+        12,
+        16
       ],
       "loaded": [
+        {
+          "asset_id": "terrain_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 4,
+          "path": "res://assets/art/wp005/terrain/terrain_sample_ground_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "7aa74ade09550f88637ccabd2ba9e05b604db20accda0def85c367dd6cdb8d46",
+          "state": "ground"
+        },
+        {
+          "asset_id": "building_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 1,
+          "path": "res://assets/art/wp005/buildings/building_sample_roof_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "7ac789a753cb1f7d48836cc39e51470177839625e279398db55dfc6416c8f96d",
+          "state": "roof"
+        },
+        {
+          "asset_id": "building_sample",
+          "frame_size": [
+            20,
+            20
+          ],
+          "frames": 1,
+          "path": "res://assets/art/wp005/buildings/building_sample_wall_v01.png",
+          "pivot": [
+            10.0,
+            10.0
+          ],
+          "sha256": "faf9234af8ffecf63bc5e7f3ee2f3ce16d49750e18dea973032852e0813516a2",
+          "state": "wall"
+        },
         {
           "asset_id": "hwacha",
           "frame_size": [
@@ -7991,7 +8135,7 @@
             20.0,
             20.0
           ],
-          "sha256": "c8d46ce6a01a22a857359650f3a940aa32f5c0209b17157b153b12c8c76fdb78",
+          "sha256": "1e006a02f750df2c08ec4021f970a08c4cdea8e27d7b8e325a14a2592985cb0f",
           "state": "idle"
         },
         {
@@ -8006,7 +8150,7 @@
             20.0,
             20.0
           ],
-          "sha256": "4a220503de36b537e95ff521b2c758a85f5fbedaa1b54733c42730bdc5642de6",
+          "sha256": "2ae73d1cd8df61de1b05c8915f3dcdb53fbdf163fe95ff8214c72fca8fdb1ec8",
           "state": "inactive"
         },
         {
@@ -8021,7 +8165,7 @@
             20.0,
             20.0
           ],
-          "sha256": "9d08c4a18332ece2e7a0132185df81623046f7ba846e3bc222946b54647da240",
+          "sha256": "a863a411ed41cf0c750cb169f1652ddcd5750d4dceb737c27690bcc5010ac822",
           "state": "idle"
         },
         {
@@ -8036,7 +8180,7 @@
             20.0,
             20.0
           ],
-          "sha256": "3c6a1a8ac2a1c558d5cb514dddfe6f28b9fbdaa6653b8258cecd86c958e54518",
+          "sha256": "fab9a315bd42484777b7a9191aefb667a469c678286490b8273a4630d17e1f27",
           "state": "inactive"
         },
         {
@@ -8051,7 +8195,7 @@
             20.0,
             20.0
           ],
-          "sha256": "29f67ff97cf8c0a4a1ca9fde64584dd414cecdb16227783e6c4e5944e1e3e200",
+          "sha256": "8a7c97eb3a2ddf27ac5e0442588c4b6a907305d7041fd66a0386af61d1d90c94",
           "state": "connected"
         },
         {
@@ -8066,7 +8210,7 @@
             20.0,
             20.0
           ],
-          "sha256": "49e3ee3c52c7889547d26259c089f22843ebf7a14cb31287924608f889a33795",
+          "sha256": "98c1772f7baaabebba14963ba9ea8089c1c0b6269495ea76ef0a1f0921295a6e",
           "state": "disconnected"
         },
         {
@@ -8081,7 +8225,7 @@
             20.0,
             20.0
           ],
-          "sha256": "02ea8909bfbefb20dce77d1f7eabdd55cb447e6b3098a12e8b1ffcb79cc71a3b",
+          "sha256": "7fb511c5df571407c73d262575db9f0362109671dfd9eea04e741bcbfe356b21",
           "state": "active"
         },
         {
@@ -8096,11 +8240,101 @@
             20.0,
             20.0
           ],
-          "sha256": "5852a6f7ec7fb1ee63e473020e86d7e4711c55dff0a4dc7301e59a883993503f",
+          "sha256": "e6281f5d3f677a560fde21a7bc3c43d7540d25e80839f6a493cf3341648458d2",
           "state": "inactive"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "df95378d6463e8637df8543254bca9c2ca42f684dbc408b0f66863794df99e7f",
+          "state": "walk_down"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "a792bc7373b31cc6df34fa00e1f0639deba2ef3e9d3ab83c170ac41baa39b4df",
+          "state": "walk_up"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "c3ecdeb68f5a8a93f02331f2625096b66644450d1b6273552c224ce181821ba8",
+          "state": "walk_left"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "abfa97d09fb14fdc38705a4e25229077e80399745ad37523945c6a1716f57e13",
+          "state": "walk_right"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_hit_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "cc495045bf168f796b80e3bc0abd1112576787ff38b2163c648e1e38e187506d",
+          "state": "hit"
+        },
+        {
+          "asset_id": "enemy_basic",
+          "frame_size": [
+            12,
+            16
+          ],
+          "frames": 2,
+          "path": "res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png",
+          "pivot": [
+            6.0,
+            16.0
+          ],
+          "sha256": "8da81e84d148bd75726cb53555c7cd934f81a390cb17eaf96dd940e67aebea12",
+          "state": "despawn"
         }
       ],
-      "loaded_count": 8,
+      "loaded_count": 17,
       "missing": [
         {
           "id": "bongsu/pulse",
@@ -8109,14 +8343,6 @@
         {
           "id": "building_sample/gate",
           "reason": "missing: res://assets/art/wp005/buildings/building_sample_gate_v01.png"
-        },
-        {
-          "id": "building_sample/roof",
-          "reason": "missing: res://assets/art/wp005/buildings/building_sample_roof_v01.png"
-        },
-        {
-          "id": "building_sample/wall",
-          "reason": "missing: res://assets/art/wp005/buildings/building_sample_wall_v01.png"
         },
         {
           "id": "combat_fx/collapse",
@@ -8141,30 +8367,6 @@
         {
           "id": "core_post/normal",
           "reason": "missing: res://assets/art/wp005/objectives/core_post_normal_v01.png"
-        },
-        {
-          "id": "enemy_basic/despawn",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png"
-        },
-        {
-          "id": "enemy_basic/hit",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_hit_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_down",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_left",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_right",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png"
-        },
-        {
-          "id": "enemy_basic/walk_up",
-          "reason": "missing: res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png"
         },
         {
           "id": "hwacha/fire",
@@ -8205,18 +8407,14 @@
         {
           "id": "terrain_sample/edge",
           "reason": "missing: res://assets/art/wp005/terrain/terrain_sample_edge_v01.png"
-        },
-        {
-          "id": "terrain_sample/ground",
-          "reason": "missing: res://assets/art/wp005/terrain/terrain_sample_ground_v01.png"
         }
       ],
-      "missing_count": 27,
+      "missing_count": 18,
       "version": "v01"
     },
     "art_log": "t45",
     "art_mode": "sample",
-    "enemy_sprites": false,
+    "enemy_sprites": true,
     "fx": {
       "alive": 0,
       "created_by_kind": {
@@ -8595,10 +8793,10 @@
     "sample_tiles_drawn": {
       "edge": 0,
       "gate": 0,
-      "ground": 0,
-      "roof": 0,
-      "skipped": 1043,
-      "wall": 0
+      "ground": 652,
+      "roof": 198,
+      "skipped": 143,
+      "wall": 50
     },
     "seed": 20260913,
     "sensor_count": 4,

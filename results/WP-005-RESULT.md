@@ -1,7 +1,7 @@
 # WP-005 Result
 
 - 작성일: 2026-09-20
-- WP / 상태: WP-005 그래픽 기준 및 광화문 앞 샘플 적용 / **IN_PROGRESS** (회차 1 파이프라인 → 회차 2 GPT 시설 4종 시안 병합·자동 보정 적용 `06f6ecd`. 나머지 7종·시설 프레임은 GPT 제작 대기, 사용자 스타일 확인(AC-08) 전 → REVIEW 아님)
+- WP / 상태: WP-005 그래픽 기준 및 광화문 앞 샘플 적용 / **IN_PROGRESS** (회차 1 파이프라인 → 회차 2 시설 시안 → 회차 3 PR #11 부분 통합·검수 REVISE 반영 `33e2f8d`. 17/35 상태 파일, GPT 판정 REVISE 유지, 사용자 스타일 확인(AC-08) 전 → REVIEW 아님)
 - 기준 커밋: main `51d89ed`(WP-004 병합) + 계획 브랜치 `03f78d4`("docs(art): prepare WP-005 …", READY v1.0, D-048). 착수 브랜치 `wp/005-art-sample`은 `03f78d4`에서 분기.
 - 검증한 구현 커밋: **`0f2fc6c`** ("feat(wp-005): art sample pipeline …") → `b262ce0`(uid 파일만) → `6e6c07c`(verify.ps1 보간 수정·가이드; 게임 스크립트는 `0f2fc6c`와 동일). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
 - 브랜치: `wp/005-art-sample` · PR: Draft PR #8: https://github.com/darkrunar/hanyang-defense/pull/8 (Draft, 병합은 사용자 지시로만)
@@ -164,4 +164,50 @@ AC-01~04, AC-06: 일부 작업만 수행되어 전체 기준 판정 NOT RUN. AC-
 | AC-08 | NOT RUN — **이제 사용자가 확인할 실제 샘플 화면이 있다**: `results/evidence/wp-005/captures/wp005_assets_*.png` |
 
 알려진 한계: 원본이 정수 배율 픽셀 격자가 아니어서 축소 시 세부가 뭉개진다(다음 시안은 정수 배율 요청). 파생 비활성본은 임시다.
+
+---
+
+## GPT 부분 통합 기록 (PR #11, 브랜치 `wp/005-art-integration`, `f0c625a` → `c5ea366`; 병합 `f565a52`)
+
+아래는 통합 브랜치의 결과 문서 원문(부분 통합 절 + GPT 시각 검수)이다. 시설 idle/active 파일은 이 브랜치의 것을 채택했고, 회차 2의 파생 비활성/단절 상태는 이 파일들로부터 다시 만들었다(회차 3).
+
+### 2026-09-20 제작 리소스 부분 통합
+
+- 기준 `cdfc88c` (PR #8), 구현 `f0c625a`. 이전 시설 pilot의 원본을 보존하고 기존 ArtSet 파이프라인에 통합했다.
+- 35개 상태 파일 중 13개 적용: 시설 기본 상태 4개, 바닥 4프레임 1개, 지붕/담장 2개, 적 6상태×2프레임 6개. 적은 12×16, 시설은 40×40, 지형은 20×20. 원본/프롬프트는 `docs/art/source/wp005/`, 실제 규격·pivot·SHA는 `assets/art/wp005/integration_manifest.json`.
+- 재생성: `godot --headless --path . --script res://game/tools/import_wp005_sources.gd`. 원본을 보존하며 알파 경계 추출·최근접 축소·시트 분리만 수행한다. 죽음 프레임은 이동 프레임과 같은 배율을 써서 잔해가 확대되지 않는다.
+- 배포본에서 원본 PNG가 Godot 텍스처로 변환되는 문제를 확인하고 ResourceLoader 경로를 추가했다. 배포본의 원본 SHA는 동봉된 생성 manifest에서 읽는다. 파일 바이트 SHA와 배포 텍스처 자체 해시를 혼동하지 않는다.
+- 최종 회귀 1,210 PASS / 0 FAIL, 71.3초. 증거 `results/evidence/wp-005/integration/test_report.txt`. 기존 테스트의 fixture 기반 상태 비교와 FX 검증 범위는 그대로다.
+- 에디터 1080p/720p 각각 7장, release 1080p 7장과 상태 로그 저장. release에서도 13/35, 적 atlas=true 및 모든 원본 SHA 일치 확인. `integration/validation.json`에 exe 해시 기록. 로그의 개인 절대 경로는 저장소 상대 경로로 치환했다.
+- 이번 통합본의 1,000체 성능 측정은 NOT RUN. 앞 회차 fixture 성능을 새 리소스의 성능으로 인용하지 않는다. 캡처의 동시 생존 수는 1,000체가 아니다.
+
+#### GPT Review — 2026-09-20 부분 통합 시각 검수
+
+최종 WP 판정은 **REVISE**, 작업 상태는 **IN_PROGRESS**다. AC-01은 필수 상태 22개가 누락되어 FAIL, AC-03은 비활성 시설이 회색 도형으로 대체되어 FAIL. AC-02는 길/담장 구분이 보이지만 타일 반복과 경계 보정이 남아 부분 확인. AC-04/05의 기존 자동 검증은 PASS. AC-06의 두 해상도 일반 전투는 확인했으나 1,000체 가독성은 NOT RUN. AC-07 통합 리소스 성능과 AC-08 사용자 스타일 확인은 NOT RUN이다.
+
+화차·장승·봉수·혼천의의 기본 실루엣과 적 방향 동작은 실제 화면에서 확인했다. 720p에서는 작은 적 세부와 시설 이름이 조밀하다. 바닥 4종의 밝기 차이가 체크무늬처럼 보이며, 현재 기와는 반복 재질 수준으로 건물 실루엣은 아직 없다. 이를 완성된 도시 배경으로 승인하지 않는다.
+
+다음 순서: (1) 비활성/단절/발사 시설 상태와 성문·거점 상태 제작, (2) 바닥 밝기·경계 및 건물 실루엣 보정, (3) 라벨 없는 시설 식별과 1,000체 캡처, (4) 동일 release의 greybox/sample 4종 성능 비교, (5) 실제 샘플 사용자 확인. WP-006 전체 맵 확장은 아직 시작하지 않는다.
+
+---
+
+### 2026-09-20 — 회차 3: PR #11 통합·GPT 검수 REVISE 반영 (D-051)
+
+- 커밋: 병합 `f565a52` → 회차 3 구현 `33e2f8d` → 결과·증거 (이 문서 커밋).
+- 반영한 검수 항목: (2) 바닥 4종 밝기 차이가 체크무늬로 보임 → 타일 계획을 기본 타일 약 69% + 변형 3종 희소 배치로 변경(`terrain_layer.gd`). (3) 라벨 없는 시설 식별과 1,000체 캡처 → 새 캡처 `wp005_dense[_720]`(D-027 벤치마크 부하, 라벨 on/off, 붕괴·재배치). (4) 같은 release의 greybox/sample 4종 성능 → `verify.ps1 -Wp005` 6d가 sample을 **배포 리소스 디렉터리**로 측정(fixture 아님). (1)(5)는 GPT 제작·사용자 확인 대기.
+- 파생 상태: `scripts/art_convert_wp005.py`가 통합본 idle/active 파일에서 inactive/disconnected를 파생(채도 0.25·밝기 0.72, `derived_off`). 전용 프레임이 오면 교체.
+- 배포본 로딩: PR #11의 `art_set.gd` ResourceLoader 폴백·`export_presets.cfg` include_filter 유지.
+
+| 항목 | 결과 |
+|---|---|
+| 테스트 | **1,263 passed / 0 failed (63.6 s)**, 종료 0 |
+| 캡처 `wp005_assets`/`_720` | greybox 대비 4체크포인트 상태 동일, 로드 17/35(누락 18), t15 bongsu/connected 8, hwacha/idle 4, jangseung/idle 2, sensor/active 4; 붕괴 후 bongsu/connected 2, bongsu/disconnected 6, hwacha/idle 1, hwacha/inactive 3, jangseung/inactive 2, sensor/active 1, sensor/inactive 3 |
+| 캡처 `wp005_dense`/`_720` (AC-06) | t15 동시 생존 1000, 라벨 on/off 각 1장, 붕괴 t20.5, 재배치 t25.5 라벨 on/off |
+| 성능 (같은 exe, 배포 리소스) | collapse_move/greybox 215.5 FPS · p95 13.31 ms, collapse_combat/greybox 239.4 FPS · p95 12.45 ms, collapse_move/sample 205.5 FPS · p95 13.68 ms (배포 리소스, 로드 17/35, atlas True), collapse_combat/sample 227.6 FPS · p95 12.69 ms (배포 리소스, 로드 17/35, atlas True) |
+| AC-01 | 부분: 17/35 상태 파일(13 통합 + 4 파생). 발사·점등·거점·문·효과·표시 미제작 → NOT RUN 유지 |
+| AC-02 | 부분: 바닥·지붕·담장 적용, 가장자리 타일·문 미제작. 체크무늬 완화는 캡처로 확인 |
+| AC-03 | 부분: 활성/비활성·연결/단절은 파생본으로 구분, 라벨 없는 캡처 제공(`*_nolabels_*`) |
+| AC-06 | 1,000체 캡처 제공, 가독성 판정은 GPT 시각 검수 |
+| AC-07 | 배포 리소스로 4종 측정, 예산 충족 |
+| AC-08 | NOT RUN — 사용자 확인 대기(`wp005_assets_*`, `wp005_dense_*`) |
 
