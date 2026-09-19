@@ -29,6 +29,7 @@
 | [GAME_GUIDE](docs/GAME_GUIDE.md) | 플레이어·테스터용 게임 가이드: 지도·적·시설·표적·봉수망·WP-003 런·조작·설정 (WP-001~003 기준) |
 | [TEST_REPORT](results/TEST_REPORT.md) | WP-001~003 통합 테스트 리포트: 스위트 780건, AC 최종 판정, 시나리오, 성능, 화면 증거, 리뷰 이력 |
 | [WP-004](backlog/WP-004.md) | 시작·일시정지·결과·재시작·설정 |
+| [WP-005](backlog/WP-005.md) | 그래픽 기준·광화문 앞 샘플 적용 (IN_PROGRESS) |
 | [결과 양식](results/RESULT_TEMPLATE.md) | 구현 증거와 GPT 리뷰 기록 |
 | [WP-001 결과](results/WP-001-RESULT.md) | WP-001 구현·검증 결과, AC별 증거, 성능 측정 |
 
@@ -46,7 +47,9 @@
 
 [WP-005 명세](backlog/WP-005.md) · [아트 가이드](docs/art/ART_GUIDE.md) · [리소스 제작 목록](docs/art/ASSET_MANIFEST.csv)
 
-광화문 앞 한 구역의 실제 플레이 화면을 먼저 완성한다. 현재는 명세만 준비됐으며 에셋 제작·적용·검증은 미실행이다. WP-006 전체 전장 확장과 WP-007 연출·UI 마감은 DRAFT다.
+광화문 앞 한 구역의 실제 플레이 화면을 먼저 완성한다. WP-006 전체 전장 확장과 WP-007 연출·UI 마감은 DRAFT다.
+
+**진행(2026-09-20, IN_PROGRESS)**: 아트 적용 파이프라인이 들어갔다(D-049) — `--art=greybox|sample`(렌더링만 선택, 전투 상태 동일), `assets/art/wp005/` 로더와 누락 대체, 샘플 구역 타일·시설/거점/적 스프라이트·이벤트 1:1 효과, `--capture=wp005_<art>[_720]`, `verify.ps1 -Wp005`. 이 환경에는 이미지 생성 도구가 없어 리소스 11종은 [제작 요청·파일 계약](docs/art/source/WP005_REQUEST.md)으로 GPT 제작 단계에 반환했고, 파이프라인은 개발용 fixture(에셋 아님)로 검증했다. 실제 에셋 적용·사용자 스타일 확인 전이다.
 
 ```text
 최신 main과 이 계획 문서가 반영된 브랜치에서 CLAUDE.md 및 backlog/WP-005.md,

@@ -12,7 +12,7 @@
 # stops the run, regenerated artifacts are deleted first so a stale file can
 # never pass as new evidence, and the perf JSON is checked against the D-009
 # budget (GPT review recommendations).
-param([switch]$Quick, [switch]$Wp003, [switch]$Wp004)
+param([switch]$Quick, [switch]$Wp003, [switch]$Wp004, [switch]$Wp005)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 $root = (Get-Location).Path
@@ -32,12 +32,15 @@ function Assert-File([string]$path, [string]$step) {
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
 
+if ($Wp005) { $Wp004 = $true }   # -Wp005 = WP-005 art pipeline captures (greybox / sample, dev fixture) + perf per art mode under wp-005/; approved WP-001..004 evidence untouched
 if ($Wp004) { $Wp003 = $true }   # -Wp004 = WP-004 captures + new release collapse perf under wp-004/; approved WP-001/002/003 evidence untouched
 $evid3 = Join-Path $evid "wp-003"
 $evid4 = Join-Path $evid "wp-004"
+$evid5 = Join-Path $evid "wp-005"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
-$report = if ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
+if ($Wp005) { New-Item -ItemType Directory -Force (Join-Path $evid5 "tests") | Out-Null }
+$report = if ($Wp005) { "$evid5\tests\test_report.txt" } elseif ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
 
 # Freshness: remove every artifact this script regenerates.
 $stale = @(
@@ -125,6 +128,7 @@ foreach ($png in @("wp003_f2_a_outer_defense_t15", "wp003_f2_b_collapse_notice_t
 if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1 must not fire (it has no connection and no local target)" }
 }   # end of the WP-003 evidence block skipped by -Wp004
 
+if (-not $Wp005) {   # -Wp005 leaves the approved WP-004 evidence files untouched
 Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
 New-Item -ItemType Directory -Force (Join-Path $evid4 "captures") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "perf") | Out-Null
@@ -167,6 +171,59 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
         $probes[0].lmb_while_esc_held_accepted_delta, $probes[1].lmb_while_esc_held_accepted_delta,
         $probes[0].lmb_after_release_accepted_delta, $probes[1].lmb_after_release_accepted_delta, $probes[1].recovery_placed)
 }
+}   # end of the WP-004 capture block skipped by -Wp005
+
+if ($Wp005) {
+Write-Host "== 4e/6 WP-005 art pipeline captures (greybox / sample with the dev fixture, 1920x1080 and 1280x720)"
+# The fixture is programmatic placeholder art in the ArtSet file contract (NOT game assets):
+# it proves the loader / atlas / fx / capture pipeline and the greybox == sample battle state.
+New-Item -ItemType Directory -Force (Join-Path $evid5 "captures") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid5 "perf") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\captures\wp005_*"
+& godot --headless --path . --script res://game/tools/wp005_dev_fixture.gd | Out-Host
+Assert-Exit "wp005 dev fixture"
+$fixture = "user://wp005_art_fixture"
+$logs = @{}
+foreach ($art in @("greybox", "sample")) {
+    foreach ($size in @("", "_720")) {
+        $sc = "wp005_${art}${size}"
+        $extra = @("--art=$art")
+        if ($art -eq "sample") { $extra += "--art-dir=$fixture" }
+        & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" @extra | Out-Host
+        Assert-Exit "capture $sc"
+        Assert-File "$evid5\captures\${sc}_log.json" "capture $sc"
+        foreach ($n in @("a_dense_t15", "b_collapse_t20.5", "c_invalid_preview_t23", "d_valid_preview_t23.5", "e_recovery_placed_t25.5", "f_inner_fire_t45", "g_run_end")) {
+            Assert-File "$evid5\captures\${sc}_$n.png" "capture $sc"
+        }
+        $logs[$sc] = Get-Content "$evid5\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    }
+}
+foreach ($size in @("", "_720")) {
+    # AC-05 (pipeline): the structured battle state is identical in both rendering modes at every checkpoint.
+    $g = $logs["wp005_greybox$size"]; $s = $logs["wp005_sample$size"]
+    foreach ($label in @("initial", "before_collapse", "after_collapse", "after_recovery")) {
+        $gs = $g | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        $ss = $s | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        if ($null -eq $gs -or $null -eq $ss) { throw "capture wp005$size: state_log '$label' missing" }
+        if ($gs.state_hash -ne $ss.state_hash -or $gs.tick -ne $ss.tick) { throw "capture wp005$size: state differs at '$label' (greybox $($gs.state_hash) vs sample $($ss.state_hash))" }
+        if (($gs.full_state | ConvertTo-Json -Depth 20 -Compress) -ne ($ss.full_state | ConvertTo-Json -Depth 20 -Compress)) { throw "capture wp005$size: full_state differs at '$label'" }
+    }
+    $ge = $g | Where-Object { $_.capture -eq "wp005_greybox${size}_g_run_end" } | Select-Object -First 1
+    $se = $s | Where-Object { $_.capture -eq "wp005_sample${size}_g_run_end" } | Select-Object -First 1
+    if ($ge.run.run -ne $se.run.run) { throw "capture wp005$size: different outcome ($($ge.run.run) vs $($se.run.run))" }
+    # sample side: every fixture file loaded, sprites and tiles drawn, fx follow real events (fire == impact == volleys, 1 collapse)
+    $launch = $s | Where-Object { $_.art_log -eq "launch" } | Select-Object -First 1
+    $t45 = $s | Where-Object { $_.art_log -eq "t45" } | Select-Object -First 1
+    if ($launch.art.loaded_count -ne $launch.art.contract_count -or $launch.art.missing_count -ne 0) { throw "capture wp005_sample${size}: fixture not fully loaded ($($launch.art.loaded_count)/$($launch.art.contract_count))" }
+    if (-not $launch.enemy_sprites) { throw "capture wp005_sample${size}: enemies not rendered from the atlas" }
+    if ($t45.fx.created_by_kind.fire -lt 1 -or $t45.fx.created_by_kind.fire -ne $t45.fx.created_by_kind.impact -or $t45.fx.created_by_kind.collapse -ne 1) { throw "capture wp005_sample${size}: fx counts do not follow the events ($($t45.fx.created_by_kind | ConvertTo-Json -Compress))" }
+    $a = $s | Where-Object { $_.capture -eq "wp005_sample${size}_a_dense_t15" } | Select-Object -First 1
+    if ($a.sample_tiles_drawn.skipped -ne 0 -or $a.sample_tiles_drawn.ground -lt 1 -or ($a.sprites_drawn.PSObject.Properties | Measure-Object).Count -lt 5) { throw "capture wp005_sample${size}: tiles / sprites not drawn" }
+    Write-Host ("capture wp005{0}: greybox == sample at 4 checkpoints, outcome {1}; sample fx fire={2} impact={3} collapse={4} despawn={5}, tiles ground={6} edge={7} wall={8} roof={9} gate={10}" -f $size, $se.run.run,
+        $t45.fx.created_by_kind.fire, $t45.fx.created_by_kind.impact, $t45.fx.created_by_kind.collapse, $t45.fx.created_by_kind.enemy_despawn,
+        $a.sample_tiles_drawn.ground, $a.sample_tiles_drawn.edge, $a.sample_tiles_drawn.wall, $a.sample_tiles_drawn.roof, $a.sample_tiles_drawn.gate)
+}
+}   # end of the WP-005 capture block
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
@@ -215,14 +272,8 @@ foreach ($sc in @("network_move", "network_combat")) {
     if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-002 fixture B contract" }
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
-Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
-$perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
-Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
-foreach ($sc in @("collapse_move", "collapse_combat")) {
-    $out = "$perfDir\perf_${sc}_1000_release.json"
-    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
-    Assert-File $out "perf $sc"
-    Assert-File "$out.memory.json" "perf $sc memory sampler"
+# D-027 collapse benchmark contract check, shared by 6c (WP-003/004) and 6d (WP-005 per art mode).
+function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
     $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $c = $r.collapse
     $types = @($c.semantic_events | ForEach-Object { $_.type })
@@ -239,8 +290,40 @@ foreach ($sc in @("collapse_move", "collapse_combat")) {
           ($r.path_version -eq $r.path_version_expected + 1)
     if ($sc -eq "collapse_combat") { $ok = $ok -and ($c.h1_shots_after_placement -ge 1) -and ($c.h1_shots_at_placement -ge 0) }
     $verdict = if ($ok) { "PASS" } else { "FAIL" }
-    Write-Host ("perf {0}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} six_events={4} segments_eval={5} placement={6} trigger->collapse={7} ticks h1_shots_after={8} frames_covered={9}/{10} manifest_ok={11} -> {12}" -f `
-        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $sixOk, $segOk, $c.placement_result, $c.ticks_trigger_to_collapse, $c.h1_shots_after_placement, $c.segments_frames_total, $r.frames, $manOk, $verdict)
-    if ($verdict -ne "PASS") { throw "perf $sc did not meet the WP-003 D-027 contract" }
+    Write-Host ("perf {0}{13}: avg_fps={1:N1} p95={2:N2}ms alive_min={3} six_events={4} segments_eval={5} placement={6} trigger->collapse={7} ticks h1_shots_after={8} frames_covered={9}/{10} manifest_ok={11} -> {12}" -f `
+        $sc, $r.avg_fps, $r.frame_ms_p95, $r.alive_min, $sixOk, $segOk, $c.placement_result, $c.ticks_trigger_to_collapse, $c.h1_shots_after_placement, $c.segments_frames_total, $r.frames, $manOk, $verdict, $tag)
+    if ($verdict -ne "PASS") { throw "perf $sc$tag did not meet the WP-003 D-027 contract" }
 }
-Write-Host "done. evidence in $evid3$(if (-not $Wp003) { ", $evid and $evid2" })"
+
+if (-not $Wp005) {
+Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
+$perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
+Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
+foreach ($sc in @("collapse_move", "collapse_combat")) {
+    $out = "$perfDir\perf_${sc}_1000_release.json"
+    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
+    Assert-File $out "perf $sc"
+    Assert-File "$out.memory.json" "perf $sc memory sampler"
+    Assert-CollapsePerf $out $sc ""
+}
+} else {
+Write-Host "== 6d/6 WP-005 transition performance per rendering mode (greybox / sample with the dev fixture; same exe, D-027 contract)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\perf\perf_collapse_*_1000_release.json*"
+foreach ($art in @("greybox", "sample")) {
+    foreach ($sc in @("collapse_move", "collapse_combat")) {
+        $out = "results\evidence\wp-005\perf\perf_${sc}_${art}_1000_release.json"
+        if ($art -eq "sample") {
+            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art sample -ArtDir "user://wp005_art_fixture"
+        } else {
+            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art greybox
+        }
+        Assert-File $out "perf $sc $art"
+        Assert-File "$out.memory.json" "perf $sc $art memory sampler"
+        $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($r.art_mode -ne $art) { throw "perf $sc: manifest art_mode '$($r.art_mode)' != '$art'" }
+        if ($art -eq "sample" -and ($r.art.loaded_count -ne $r.art.contract_count -or -not $r.art.enemy_atlas)) { throw "perf $sc sample: fixture not fully loaded" }
+        Assert-CollapsePerf $out $sc " [$art]"
+    }
+}
+}
+Write-Host "done. evidence in $(if ($Wp005) { $evid5 } else { $evid3 })$(if (-not $Wp003) { ", $evid and $evid2" })"

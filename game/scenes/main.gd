@@ -26,6 +26,10 @@ extends Node2D
 ##   --perf --scenario=move|combat [--warmup=10] [--measure=60] --out=path.json
 ##   --capture=ac01|ac02|ac06|wp002_a|wp003_f2|wp003_f3a|wp003_f3b|wp004_ui|wp004_ui_720 --out-dir=dir
 ##                         scripted evidence captures (menus bypassed except wp004_ui*)
+##   --art=greybox|sample  WP-005 rendering choice only (D-049): sample draws the reviewed PNGs from
+##                         assets/art/wp005 (missing files keep the grey box); game data, seed and
+##                         automation are identical in both. --art-dir=res://... overrides the directory,
+##                         --labels=off hides structure name labels (AC-03 legend comparison).
 ##   --settings=path.cfg   user settings file (default user://settings.cfg; never read by --perf/--capture
 ##                         unless given explicitly, WP-004 §6)
 
@@ -44,6 +48,9 @@ const PlayFlow := preload("res://game/core/play_flow.gd")
 const ResultModel := preload("res://game/core/result_model.gd")
 const UserSettings := preload("res://game/core/user_settings.gd")
 const MenuLayer := preload("res://game/scenes/menu_layer.gd")
+const ArtSet := preload("res://game/scenes/art_set.gd")
+const FxLayer := preload("res://game/scenes/fx_layer.gd")
+const EnemySim := preload("res://game/core/enemy_sim.gd")
 
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 
@@ -55,6 +62,19 @@ var _overlay: OverlayLayer = null
 var _enemies: MultiMeshInstance2D = null
 var _multimesh: MultiMesh = null
 var _buffer: PackedFloat32Array = PackedFloat32Array()
+## WP-005 (D-049): rendering choice. "greybox" is the WP-001..004 drawing,
+## "sample" reads the art set; nothing in the simulation depends on it.
+var _art_mode: String = "greybox"
+var _art_dir: String = ArtSet.DEFAULT_DIR
+var art: ArtSet = null
+var _art_report: Dictionary = {}
+var _fx: FxLayer = null
+var _fx_collapses_seen: int = 0
+var _show_labels: bool = true
+var _enemy_sprites: bool = false
+var _enemy_stride: int = 12
+var _last_outer_hp: float = -1.0
+var _last_core_hp: float = -1.0
 var _hud_layer: CanvasLayer = null
 ## R-07: two panels that never cover the inner district / objectives.
 ## Top-left (x 8..~824, above the plaza): run state, HP, recovery guidance, controls.
@@ -199,6 +219,16 @@ func _parse_args() -> void:
             _capture_dir = arg.substr("--out-dir=".length())
         elif arg.begins_with("--settings="):
             _settings_path = arg.substr("--settings=".length())
+        elif arg.begins_with("--art="):
+            var m: String = arg.substr("--art=".length())
+            if m == "greybox" or m == "sample":
+                _art_mode = m
+            else:
+                printerr("unknown --art mode: %s (greybox|sample)" % m)
+        elif arg.begins_with("--art-dir="):
+            _art_dir = arg.substr("--art-dir=".length())
+        elif arg.begins_with("--labels="):
+            _show_labels = arg.substr("--labels=".length()) != "off"
 
 
 func _build_scene() -> void:
@@ -211,25 +241,56 @@ func _build_scene() -> void:
         config.get_num("goal_radius"))
     _sync_terrain_marker()
 
+    if _art_mode == "sample":
+        art = ArtSet.new(_art_dir)
+        _art_report = art.load_all()
+        _terrain.art = art
+        _terrain.queue_redraw()
+        print("art: sample set %s -> %d/%d files, %d missing" % [_art_dir, art.loaded_count(), art.contract_count(), art.missing.size()])
+
     _enemies = MultiMeshInstance2D.new()
     _enemies.name = "Enemies"
     _multimesh = MultiMesh.new()
     _multimesh.transform_format = MultiMesh.TRANSFORM_2D
     _multimesh.use_colors = true
-    var quad: QuadMesh = QuadMesh.new()
-    var size: float = config.get_num("enemy_draw_size")
-    quad.size = Vector2(size, size)
-    _multimesh.mesh = quad
+    _enemy_sprites = art != null and art.enemy_atlas != null
+    if _enemy_sprites:
+        # One batched draw as before: the atlas frame is chosen per instance
+        # from INSTANCE_CUSTOM.x in the vertex shader (D-049).
+        _multimesh.use_custom_data = true
+        _enemy_stride = 16
+        _multimesh.mesh = _sprite_quad(art.enemy_frame_size)
+        _enemies.texture = art.enemy_atlas
+        var mat: ShaderMaterial = ShaderMaterial.new()
+        mat.shader = _enemy_atlas_shader()
+        mat.set_shader_parameter("frame_uv", Vector2(art.enemy_frame_size) / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("pitch_uv", Vector2(art.enemy_atlas_pitch) / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("columns", ArtSet.ATLAS_COLUMNS)
+        _enemies.material = mat
+    else:
+        var quad: QuadMesh = QuadMesh.new()
+        var size: float = config.get_num("enemy_draw_size")
+        quad.size = Vector2(size, size)
+        _multimesh.mesh = quad
     _multimesh.instance_count = battle.sim.capacity
     _multimesh.visible_instance_count = 0
-    _buffer.resize(battle.sim.capacity * 12)
+    _buffer.resize(battle.sim.capacity * _enemy_stride)
     _enemies.multimesh = _multimesh
     add_child(_enemies)
+
+    if _art_mode == "sample":
+        _fx = FxLayer.new()
+        _fx.name = "Fx"
+        _fx.art = art
+        add_child(_fx)
 
     _overlay = OverlayLayer.new()
     _overlay.name = "Overlay"
     _overlay.battle = battle
     _overlay.font = _font
+    _overlay.art = art
+    _overlay.show_labels = _show_labels
+    _overlay.draw_blasts = _fx == null
     add_child(_overlay)
 
     _hud_layer = CanvasLayer.new()
@@ -304,6 +365,57 @@ static func _make_hud_label(width: float, font_size: int) -> Label:
     return l
 
 
+## A 2D quad whose origin is the bottom centre (enemy pivot, ART_GUIDE) with
+## plain 0..1 UVs, so the atlas shader can offset them per instance.
+static func _sprite_quad(size: Vector2i) -> ArrayMesh:
+    var w: float = float(size.x)
+    var h: float = float(size.y)
+    var verts: PackedVector2Array = PackedVector2Array([
+        Vector2(-w * 0.5, -h), Vector2(w * 0.5, -h), Vector2(w * 0.5, 0.0), Vector2(-w * 0.5, 0.0)])
+    var uvs: PackedVector2Array = PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)])
+    var idx: PackedInt32Array = PackedInt32Array([0, 1, 2, 0, 2, 3])
+    var arrays: Array = []
+    arrays.resize(Mesh.ARRAY_MAX)
+    arrays[Mesh.ARRAY_VERTEX] = verts
+    arrays[Mesh.ARRAY_TEX_UV] = uvs
+    arrays[Mesh.ARRAY_INDEX] = idx
+    var mesh: ArrayMesh = ArrayMesh.new()
+    mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+    return mesh
+
+
+static func _enemy_atlas_shader() -> Shader:
+    var sh: Shader = Shader.new()
+    sh.code = """
+shader_type canvas_item;
+uniform vec2 frame_uv;
+uniform vec2 pitch_uv;
+uniform int columns = 4;
+void vertex() {
+    int f = int(INSTANCE_CUSTOM.x + 0.5);
+    vec2 origin = vec2(float(f % columns), float(f / columns)) * pitch_uv;
+    UV = origin + UV * frame_uv;
+}
+"""
+    return sh
+
+
+## Which atlas frame an enemy shows: walking direction from the flow field
+## (the cell it heads to), two frames alternating on simulation time.
+func _enemy_frame(slot: int, sim: EnemySim, flow: PackedInt32Array, w: int, phase: int) -> int:
+    var ci: int = sim.cell[slot]
+    var ni: int = flow[ci] if ci >= 0 and ci < flow.size() else -1
+    var base: int = 0   # walk_down
+    if ni >= 0 and ni != ci:
+        var dx: int = (ni % w) - (ci % w)
+        var dy: int = int(ni / w) - int(ci / w)
+        if absi(dx) > absi(dy):
+            base = 6 if dx > 0 else 4      # walk_right / walk_left
+        else:
+            base = 0 if dy > 0 else 2      # walk_down / walk_up
+    return base + ((phase + slot) & 1)
+
+
 ## The static terrain goal marker belongs to the sandbox modes only; in the
 ## WP-003 run the overlay draws both objectives with their live state.
 func _sync_terrain_marker() -> void:
@@ -364,9 +476,13 @@ func _apply_run_mode() -> void:
         _overlay.show_cursor = false
         _setup_capture_steps()
         title += " [capture:%s]" % _capture_name
+    if _art_mode != "greybox":
+        title += " [art:%s]" % _art_mode
     DisplayServer.window_set_title(title)
     _sync_terrain_marker()
     _apply_play_flow_mode()
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
 
 
 ## WP-004 §6: scripted / automated modes bypass the menus and never read the
@@ -587,6 +703,12 @@ func _process(delta: float) -> void:
         _first_shared_shot_time = battle.sim_time
     for shot: Array in battle.hwacha.last_shots_for_render():
         _recent_shots.append([shot[0], shot[1], 0.0])
+        if _fx != null:
+            # exactly one fire + one impact per real volley (WP-005 AC-04)
+            _fx.spawn("fire", shot[2] if shot.size() > 2 else shot[0])
+            _fx.spawn("impact", shot[0], shot[1])
+    if _fx != null:
+        _feed_fx()
     var i: int = 0
     while i < _recent_shots.size():
         _recent_shots[i][2] += delta
@@ -601,6 +723,7 @@ func _process(delta: float) -> void:
     _overlay.show_zones = _show_zones
     _overlay.show_ranges = _show_ranges
     _overlay.place_mode = _place_mode
+    _overlay.sim_time = battle.sim_time
     _overlay.queue_redraw()
     if _perf != null:
         var was_measuring: bool = _perf.phase() == "measure"
@@ -626,7 +749,36 @@ func _process(delta: float) -> void:
             _finish_perf()
 
 
+## WP-005 fx from the battle ledgers: enemy hits / despawns (EnemySim render
+## events), the outer collapse (RunState.collapse_count), objective hit
+## flashes (HP decrease). Effects follow simulation time, so they freeze with
+## the battle and are cleared by _reset_input_state on a restart.
+func _feed_fx() -> void:
+    var ev: PackedFloat32Array = battle.sim.take_render_events()
+    var i: int = 0
+    while i + 2 < ev.size():
+        var kind: int = int(ev[i + 2])
+        if kind == 0:
+            _fx.spawn("enemy_despawn", Vector2(ev[i], ev[i + 1]))
+        elif kind == 2:
+            _fx.spawn("enemy_hit", Vector2(ev[i], ev[i + 1]))
+        i += 3
+    if battle.run.collapse_count > _fx_collapses_seen:
+        _fx.spawn("collapse", battle.grid.cell_center(TestMap.OUTER_GOAL_CELL.x, TestMap.OUTER_GOAL_CELL.y))
+        _fx_collapses_seen = battle.run.collapse_count
+    if battle.run.outer_hp < _last_outer_hp:
+        _overlay.objective_hit_time["outer"] = battle.sim_time
+    if battle.run.core_hp < _last_core_hp:
+        _overlay.objective_hit_time["core"] = battle.sim_time
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
+    _fx.advance(battle.sim_time)
+
+
 func _upload_enemies() -> void:
+    if _enemy_sprites:
+        _upload_enemy_sprites()
+        return
     var sim := battle.sim
     var live: PackedInt32Array = sim.live_slots()
     var n: int = live.size()
@@ -651,6 +803,41 @@ func _upload_enemies() -> void:
         _buffer[o + 10] = c.b
         _buffer[o + 11] = 1.0
         o += 12
+    _multimesh.visible_instance_count = n
+    _multimesh.buffer = _buffer
+
+
+## Sample mode: the same single MultiMesh upload, 16 floats per instance
+## (transform, white colour, custom = atlas frame), bottom-centre pivot.
+func _upload_enemy_sprites() -> void:
+    var sim := battle.sim
+    var live: PackedInt32Array = sim.live_slots()
+    var n: int = live.size()
+    var px: PackedFloat32Array = sim.pos_x
+    var py: PackedFloat32Array = sim.pos_y
+    var flow: PackedInt32Array = battle.path.flow
+    var w: int = battle.grid.width
+    var phase: int = int(battle.sim_time * 6.0)
+    var o: int = 0
+    for k: int in range(n):
+        var s: int = live[k]
+        _buffer[o] = 1.0
+        _buffer[o + 1] = 0.0
+        _buffer[o + 2] = 0.0
+        _buffer[o + 3] = px[s]
+        _buffer[o + 4] = 0.0
+        _buffer[o + 5] = 1.0
+        _buffer[o + 6] = 0.0
+        _buffer[o + 7] = py[s]
+        _buffer[o + 8] = 1.0
+        _buffer[o + 9] = 1.0
+        _buffer[o + 10] = 1.0
+        _buffer[o + 11] = 1.0
+        _buffer[o + 12] = float(_enemy_frame(s, sim, flow, w, phase))
+        _buffer[o + 13] = 0.0
+        _buffer[o + 14] = 0.0
+        _buffer[o + 15] = 0.0
+        o += 16
     _multimesh.visible_instance_count = n
     _multimesh.buffer = _buffer
 
@@ -788,6 +975,9 @@ func _handle_key_event(event: InputEvent) -> void:
                 _say("전투 %s" % ("활성" if battle.combat_enabled else "비활성 (처치 끔)"))
             KEY_Z:
                 _show_zones = not _show_zones
+            KEY_L:
+                _show_labels = not _show_labels
+                _overlay.show_labels = _show_labels
             KEY_G:
                 _show_ranges = not _show_ranges
             KEY_P:
@@ -821,6 +1011,16 @@ func _reset_input_state() -> void:
     if _overlay != null:
         _overlay.hover_override = Vector2.INF
         _overlay.preview_override = Vector2i(-1, -1)
+        _overlay.objective_hit_time = {"outer": -1.0, "core": -1.0}
+    # WP-005 AC-04: no effect of the previous run survives a restart.
+    if _fx != null:
+        _fx.clear()
+        _fx.sim_time = battle.sim_time
+    _fx_collapses_seen = battle.run.collapse_count
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
+    battle.sim.take_render_events()
+    battle.hwacha.last_shots_for_render()
 
 
 ## World position of the placement cursor. Headless tests / scripts that have
@@ -1401,6 +1601,9 @@ func _finish_perf() -> void:
         "hwacha_count_at_end": battle.placement.count_of(Placement.Kind.HWACHA),
         "placement_rejected_total": battle.placement.rejected_total,
         "interactive_input_ignored": true,
+        "art_mode": _art_mode,
+        "art": _art_report,
+        "fx": _fx.snapshot() if _fx != null else {},
         "targeting_mode": battle.targeting_mode,
         "fixture": config.get_str("fixture"),
         "structure_count": battle.placement.structures.size(),
@@ -1647,6 +1850,38 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_sample", "wp005_sample_720", "wp005_greybox", "wp005_greybox_720":
+            # WP-005 evidence: the F2 timeline (forced collapse at 20 s, H1 to B
+            # at 25 s) in the rendering mode given by --art, at 1920x1080 or
+            # 1280x720. The scenario name only picks the window size; the
+            # battle data are the WP-003 contract in both modes (AC-05).
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var p5: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 0.0, "do": "state_log", "label": "initial"},
+                {"t": 15.0, "do": "capture", "name": p5 + "_a_dense_t15"},
+                {"t": 20.0, "do": "state_log", "label": "before_collapse"},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 trigger enemy"},
+                {"t": 20.2, "do": "state_log", "label": "after_collapse"},
+                {"t": 20.5, "do": "capture", "name": p5 + "_b_collapse_t20.5"},
+                {"t": 23.0, "do": "preview_at", "anchor": Vector2i(46, 29)},
+                {"t": 23.0, "do": "capture", "name": p5 + "_c_invalid_preview_t23"},
+                {"t": 23.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 23.5, "do": "capture", "name": p5 + "_d_valid_preview_t23.5"},
+                {"t": 23.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.2, "do": "state_log", "label": "after_recovery"},
+                {"t": 25.5, "do": "capture", "name": p5 + "_e_recovery_placed_t25.5"},
+                {"t": 45.0, "do": "capture", "name": p5 + "_f_inner_fire_t45"},
+                {"t": 45.0, "do": "art_log", "label": "t45"},
+                {"t": 400.0, "do": "capture_on_end", "name": p5 + "_g_run_end"},
+            ]
         "wp003_f2":
             # WP-003 F2 (D-026): the real run, verification-forced collapse at
             # 20 s through real arrival damage, recovery at collapse + 5 s to B,
@@ -1706,6 +1941,15 @@ func _capture_script_step() -> void:
                 _capture_busy = true
                 _do_capture(step["name"])
                 return
+            "art_log":
+                _capture_log.append({"t": battle.sim_time, "art_log": step["label"], "art_mode": _art_mode,
+                    "art": _art_report, "fx": _fx.snapshot() if _fx != null else {}, "labels": _show_labels,
+                    "enemy_sprites": _enemy_sprites, "tick": battle.steps})
+            "state_log":
+                # AC-05: the structured battle state at the comparison points
+                # (initial / before + after collapse / after recovery / end).
+                _capture_log.append({"t": battle.sim_time, "state_log": step["label"], "tick": battle.steps,
+                    "run_id": battle.run.run_id, "state_hash": battle.state_hash(), "full_state": battle.full_state()})
             "reset":
                 battle.reset()
                 _reset_input_state()
@@ -1900,6 +2144,11 @@ func _do_capture(name: String) -> void:
     snap["capture"] = name
     snap["png"] = path
     snap["png_saved"] = err == OK
+    snap["art_mode"] = _art_mode
+    if _fx != null:
+        snap["fx"] = _fx.snapshot()
+        snap["sprites_drawn"] = _overlay.sprites_drawn.duplicate()
+        snap["sample_tiles_drawn"] = _terrain.sample_tiles_drawn.duplicate()
     _capture_log.append(snap)
     print("capture %s -> %s (%s)" % [name, path, error_string(err)])
     _capture_busy = false

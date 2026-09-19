@@ -464,3 +464,14 @@ D-046 / 2026-09-16 / 채택:
 - 확인: 사용자의 실제 샘플 스타일 확인은 WP-005 AC-08이며 전체 확장 선행 조건이다. READY 자체는 에셋/스타일 승인·구현 완료가 아니다. 일상적인 파일 작업에는 반복 승인을 요구하지 않는다.
 - 검증: greybox/sample 동일 전투 상태, 기존 회귀, 두 해상도, 1,000체 release 성능과 출처/권리·에셋 추적. 제작 현황은 ASSET_MANIFEST의 실제 상태로 기록한다.
 - 변경 범위: D-042의 전장 아트 후속 작업을 WP-005로 구체화한다. WP-001~004의 승인된 전투·입력 기준은 대체하지 않는다.
+
+## D-049 / 2026-09-20 / 채택: 아트 적용 파이프라인 — 렌더링 선택은 시뮬레이션 밖
+
+- 근거: WP-005 §전투·입력·성능 보존(`--art=greybox|sample`은 렌더링만 바꾼다), ART_GUIDE 크기·좌표·출력, D-048.
+- 결정: `game/scenes/art_set.gd`가 `assets/art/wp005/<subdir>/<asset_id>_<state>_v01.png`(N프레임 = 가로 스트립)를 읽어 프레임을 자르고 적 아틀라스(4열×3행, 2px 여백)를 합성한다. 없는·규격 불일치 파일은 누락 목록에 남고 그 요소만 회색상자로 그린다(부분 적용 허용, 완성 판정은 manifest). 기준점은 시설·거점 `(폭/2, 높이-20)`, 적 `(폭/2, 높이)`, 효과·타일 중앙; `pivots.json`로 파일별 대체. 계약과 도구 점검 결과는 `docs/art/source/WP005_REQUEST.md`.
+- 렌더: 지형은 `terrain_layer.gd`의 순수 타일 계획(`sample_plan`: 바닥 4종 해시, 벽 접면 가장자리 0-3·안쪽 모서리 4-7, 거리 접면 담장/뒤쪽 지붕 모듈 반복, 광화문 문 1회)을 샘플 구역 x30..65/y6..30에만 그린다. 시설·거점·표시는 `overlay_layer.gd`가 core 상태(활성/그룹/muzzle/HP/붕괴/회수)로 프레임을 고르고, 적은 기존 MultiMesh 1회 업로드에 custom data(아틀라스 프레임 = 흐름장 방향 + 2프레임 교대)를 더해 정점 셰이더가 UV를 고른다(개체별 노드 없음). 회색상자 경로는 12 float/개체 그대로.
+- 효과: `fx_layer.gd`는 실제 이벤트에만 1:1로 생성한다 — 화차 render_queue 1건 = fire 1 + impact 1, EnemySim render_events(처치/피해 위치 장부, 256건 cap) = despawn/hit, RunState.collapse_count 증가 = collapse 1. 시뮬레이션 시간으로만 진행하므로 메뉴에서 멈추고, 새 런은 `_reset_input_state`가 전부 비운다. 회색상자에서는 fx 레이어를 만들지 않는다.
+- 경계: `--art`·`--art-dir`·`--labels`는 scene 인자다. Config·시드·자동 모드에 닿지 않으며 greybox/sample의 `full_state`는 체크포인트마다 같아야 한다(테스트·캡처 로그 `state_log`로 검사). core 변경은 render 장부 2곳(EnemySim.render_events, Hwacha.render_queue의 화차 중심)뿐이고 어느 것도 시뮬레이션이 읽지 않는다.
+- 검증: `tests/test_art_sample.gd`(로더/아틀라스/타일 계획/적 프레임/greybox==sample 6체크포인트/FX 계약/배선), `--capture=wp005_<art>[_720]`(state_log·fx·sprites·tiles 기록), `verify.ps1 -Wp005`(fixture 생성, 4캡처, 모드별 collapse 성능). 개발용 fixture(`game/tools/wp005_dev_fixture.gd`, `user://`)는 에셋이 아니다.
+- 대체하는 이전 결정: 없음(D-044·D-047의 입력 규칙, D-027 성능 계약 유지).
+
