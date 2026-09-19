@@ -1193,7 +1193,8 @@
 == WP-005 art sample pipeline (loader, atlas, tiles, fx events, greybox == sample battle state) ==
   -- ArtSet: missing directory -> every contract entry missing, grey box kept; fixture -> all loaded, frame strips sliced, atlas built, pivots by rule and by pivots.json, malformed files reported
      PASS  nothing loaded from a missing directory (= 0)
-     PASS  every contract entry reported missing (= 35)
+     PASS  every contract entry reported missing (required + optional) (= 35)
+     PASS  the 5 interaction marks are optional (procedural allowed) (= 5)
      PASS  no enemy atlas
      PASS  frames() is null -> caller keeps the grey box (= <null>)
      PASS  contract lists 35 files for the 11 manifest ids (= 35)
@@ -1220,6 +1221,7 @@
      PASS  refused file -> grey box for that element only (= <null>)
      PASS  the other files still load (= 33)
      PASS  report lists exactly the two refusals (= 2)
+     PASS  fixture ships the optional marks too (= 0)
   -- Terrain sample plan: every cell of x30..65 / y6..30 classified, ground on open cells, edges where walls touch, wall vs roof modules, one gate; grid untouched
      PASS  sample rect = cells x30..65, y6..30 (= [P: (30, 6), S: (36, 25)])
      PASS  one ground tile per open cell (652) (= 652)
@@ -1344,7 +1346,8 @@
      PASS  sensor/inactive pivot = footprint centre (= (20.0, 20.0))
      PASS  sensor/inactive sha recorded (= 64)
      PASS  sensor/inactive stands within 2 px of the canvas bottom (row 37)
-     PASS  loaded + missing = contract (= 35)
+     PASS  loaded + missing + optional = contract (= 35)
+     PASS  interaction marks stay procedural (optional) (= 5)
      PASS  frames not delivered yet are reported missing, not invented
      PASS  enemy atlas built from the 6 shipped strips (12x16)
      PASS  terrain ground strip: 4 variants (= 4)
@@ -1353,6 +1356,13 @@
      PASS  interactive launch without --art shows the reviewed art (= sample)
      PASS  scene loaded the same set
      PASS  enemies render from the shipped atlas
+     PASS  enemy rim outline on by default (D-052) (= 1.0)
+     PASS  outline can be switched off (--art-outline=off / capture step) (= 0.0)
+     PASS  no close-up camera outside captures (= <null>)
+     PASS  zoom step creates a 3x camera at the centre
+     PASS  the camera and the render frames do not touch the battle state (TITLE, nothing ticks)
+     PASS  factor 1 removes the camera (= <null>)
+     PASS  footprint overlay off by default (= false)
      PASS  240 frames: battle state identical to the grey box
      PASS  scripted capture without --art stays grey box (= greybox)
 
@@ -1411,5 +1421,5 @@
      PASS  expected scenario outcome (= LOST)
      PASS  F4 end real assets: full_state identical
 
-TOTAL passed=1312 failed=0
-elapsed 77.3 s
+TOTAL passed=1322 failed=0
+elapsed 81.3 s

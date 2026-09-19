@@ -538,10 +538,13 @@
       "loaded_count": 35,
       "missing": [],
       "missing_count": 0,
+      "optional_missing": [],
+      "optional_missing_count": 0,
       "version": "v01"
     },
     "art_log": "launch",
     "art_mode": "sample",
+    "enemy_outline": true,
     "enemy_sprites": true,
     "fx": {
       "alive": 0,
@@ -1561,6 +1564,7 @@
       "outer_total": 14,
       "world": 18
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 0,
@@ -1837,6 +1841,10 @@
     "jangseung_count": 2,
     "killed_total": 112,
     "leaked_total": 6,
+    "marks_drawn": {
+      "attach_dash": 8,
+      "link_line": 8
+    },
     "network": {
       "bongsu": [
         {
@@ -2079,6 +2087,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -2186,7 +2195,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "full_state": {
@@ -4961,6 +4971,7 @@
       "outer_total": 13,
       "world": 17
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 1,
@@ -5039,6 +5050,12 @@
     "jangseung_count": 2,
     "killed_total": 114,
     "leaked_total": 36,
+    "marks_drawn": {
+      "attach_dash": 2,
+      "link_line": 1,
+      "off": 13,
+      "recovery_slot": 1
+    },
     "network": {
       "bongsu": [
         {
@@ -5251,6 +5268,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -5362,7 +5380,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "preview_at": "(46, 29)",
@@ -5399,6 +5418,7 @@
       "outer_total": 13,
       "world": 17
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 1,
@@ -5489,6 +5509,13 @@
     "jangseung_count": 2,
     "killed_total": 127,
     "leaked_total": 36,
+    "marks_drawn": {
+      "attach_dash": 2,
+      "ghost_bad": 1,
+      "link_line": 1,
+      "off": 13,
+      "recovery_slot": 1
+    },
     "network": {
       "bongsu": [
         {
@@ -5701,6 +5728,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -5813,7 +5841,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "preview_at": "(44, 13)",
@@ -5850,6 +5879,7 @@
       "outer_total": 13,
       "world": 17
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 0,
@@ -5942,6 +5972,13 @@
     "jangseung_count": 2,
     "killed_total": 127,
     "leaked_total": 36,
+    "marks_drawn": {
+      "attach_dash": 2,
+      "ghost_ok": 1,
+      "link_line": 1,
+      "off": 13,
+      "recovery_slot": 1
+    },
     "network": {
       "bongsu": [
         {
@@ -6154,6 +6191,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -6266,7 +6304,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "preview_at": "(-1, -1)",
@@ -7382,6 +7421,7 @@
       "outer_total": 13,
       "world": 18
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 1,
@@ -7490,6 +7530,11 @@
     "jangseung_count": 2,
     "killed_total": 139,
     "leaked_total": 36,
+    "marks_drawn": {
+      "attach_dash": 3,
+      "link_line": 1,
+      "off": 13
+    },
     "network": {
       "bongsu": [
         {
@@ -7712,6 +7757,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -7822,7 +7868,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "activation_changes": 13,
@@ -7846,6 +7893,7 @@
       "outer_total": 13,
       "world": 18
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 0,
@@ -7954,6 +8002,11 @@
     "jangseung_count": 2,
     "killed_total": 154,
     "leaked_total": 37,
+    "marks_drawn": {
+      "attach_dash": 3,
+      "link_line": 1,
+      "off": 13
+    },
     "network": {
       "bongsu": [
         {
@@ -8176,6 +8229,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -8286,7 +8340,8 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   },
   {
     "art": {
@@ -8827,10 +8882,13 @@
       "loaded_count": 35,
       "missing": [],
       "missing_count": 0,
+      "optional_missing": [],
+      "optional_missing_count": 0,
       "version": "v01"
     },
     "art_log": "t45",
     "art_mode": "sample",
+    "enemy_outline": true,
     "enemy_sprites": true,
     "fx": {
       "alive": 0,
@@ -8877,6 +8935,7 @@
       "outer_total": 13,
       "world": 18
     },
+    "enemy_outline": true,
     "fixture": "c",
     "fx": {
       "alive": 16,
@@ -8987,6 +9046,11 @@
     "jangseung_count": 2,
     "killed_total": 1073,
     "leaked_total": 68,
+    "marks_drawn": {
+      "attach_dash": 3,
+      "link_line": 1,
+      "off": 13
+    },
     "network": {
       "bongsu": [
         {
@@ -9209,6 +9273,7 @@
     "run_mode": "waves",
     "sample_tiles_drawn": {
       "edge": 142,
+      "edge_procedural": 0,
       "gate": 1,
       "ground": 652,
       "roof": 198,
@@ -9319,6 +9384,7 @@
         "id": 9,
         "name": "광화문 앞"
       }
-    ]
+    ],
+    "zoom": 1.0
   }
 ]
