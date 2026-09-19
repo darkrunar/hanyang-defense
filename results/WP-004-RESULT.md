@@ -1,10 +1,10 @@
 # WP-004 Result
 
 - 작성일: 2026-09-16
-- WP / 상태: WP-004 플레이 흐름·메뉴·재시작 / **REVIEW** (GPT 1차 REVISE 2026-09-19 → 보완 회차 1 `a24e3fe`, 재리뷰 대기)
+- WP / 상태: WP-004 플레이 흐름·메뉴·재시작 / **DONE** (2026-09-20. GPT 1차 REVISE `0f1f166` → 보완 회차 1 `a24e3fe`/`128c467` → GPT 재리뷰 **PASS** `d9a445c`)
 - 기준 커밋: `d3bd9d8` ("docs(wp-004): define play flow menus restart and settings acceptance criteria", main, READY v1.0)
 - 검증한 구현 커밋: **`d63b9b7`** ("feat(wp-004): play flow …") → `90090ce`(uid·verify 스위치) → **`e715906`**(TITLE에서 연 설정 화면 뒤 HUD 숨김; 최종 게임 트리) → `96ec3c9`(verify 스크립트만). 성능 manifest `implementation_sha` = `96ec3c9`(게임 트리 = `e715906`). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
-- 브랜치: `wp/004-play-flow` · PR: https://github.com/darkrunar/hanyang-defense/pull/6 (Draft, 병합 금지)
+- 브랜치: `wp/004-play-flow` · PR: https://github.com/darkrunar/hanyang-defense/pull/6 (Draft; 병합은 사용자 지시로만)
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 · NVIDIA GeForce RTX 4070 SUPER · 63.2 GB · 1920×1080 창(캡처는 1280×720도) · vsync off · Parsec 가상 디스플레이 어댑터 공존
 
 이 문서는 `results/RESULT_TEMPLATE.md` 양식을 따른다. 수치는 `results/evidence/wp-004/` 원시 파일에서 가져왔고, 승인된 WP-001/002/003 증거는 건드리지 않았다(`verify.ps1 -Wp004`). WP-003의 전투 규칙·밸런스(HP 360/60·18시설·10존·1,140체·회수 규칙·승패 우선순위)는 바꾸지 않았다.

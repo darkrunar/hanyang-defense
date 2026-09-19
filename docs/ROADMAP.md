@@ -7,11 +7,11 @@
 | M1 흐름과 섬멸 | [WP-001](../backlog/WP-001.md) | DONE | 1,000개체·세 경로·배치로 병목 형성·화차 집중 사격 및 성능 증거 |
 | M2 도시 연결 | [WP-002](../backlog/WP-002.md) | DONE | 연결·해제로 표적 공유 동작이 달라지고 M1 회귀 없음 |
 | M3 검증과 재편 | [WP-003](../backlog/WP-003.md) | DONE | 외곽 붕괴 후 내곽 재배치, 계속 전투, 승패·재시작 검증 |
-| M4 반복 플레이 | [WP-004](../backlog/WP-004.md) | REVIEW | 시작·정지·확인·결과·재도전, 입력 차단과 설정 유지 |
+| M4 반복 플레이 | [WP-004](../backlog/WP-004.md) | DONE | 시작·정지·확인·결과·재도전, 입력 차단과 설정 유지 |
 
-**WP-004 REVIEW (2026-09-16, 보완 2026-09-19)** — 시작/일시정지/설정/확인/결과 화면과 재시작 계약을 구현·검증했다([results/WP-004-RESULT.md](../results/WP-004-RESULT.md)). GPT 1차 REVISE(R-01 메뉴 닫기 입력 해제 펜스) 보완 후 재리뷰 대기.
+**WP-004 DONE (2026-09-20, GPT 재리뷰 PASS `d9a445c`)** — 시작/일시정지/설정/확인/결과 화면과 재시작 계약을 구현·검증했다([results/WP-004-RESULT.md](../results/WP-004-RESULT.md)). GPT 1차 REVISE(R-01 메뉴 닫기 입력 해제 펜스, D-047)를 보완한 뒤 재리뷰 PASS. 다음 WP는 GPT 기획으로 READY 전환 후 착수한다.
 
-WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002·WP-003은 DONE이다. M1~M3의 세 경험 검증 이후 반복 플레이 흐름을 WP-004로 확정했다.
+WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002·WP-003·WP-004는 DONE이다. M1~M3의 세 경험 검증 이후 반복 플레이 흐름을 WP-004로 확정했다.
 
 ## 이후 후보
 
