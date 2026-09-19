@@ -75,6 +75,10 @@ var _fx: FxLayer = null
 var _fx_collapses_seen: int = 0
 var _show_labels: bool = true
 var _enemy_sprites: bool = false
+## D-052: 1-texel pale rim around enemy sprites in the atlas shader (contrast
+## on dark streets); rendering only, --art-outline=off disables it.
+var _enemy_outline: bool = true
+var _capture_cam: Camera2D = null
 var _enemy_stride: int = 12
 var _last_outer_hp: float = -1.0
 var _last_core_hp: float = -1.0
@@ -234,6 +238,8 @@ func _parse_args() -> void:
             _art_dir = arg.substr("--art-dir=".length())
         elif arg.begins_with("--labels="):
             _show_labels = arg.substr("--labels=".length()) != "off"
+        elif arg.begins_with("--art-outline="):
+            _enemy_outline = arg.substr("--art-outline=".length()) != "off"
 
 
 func _build_scene() -> void:
@@ -271,6 +277,8 @@ func _build_scene() -> void:
         mat.set_shader_parameter("frame_uv", Vector2(art.enemy_frame_size) / Vector2(art.enemy_atlas_size))
         mat.set_shader_parameter("pitch_uv", Vector2(art.enemy_atlas_pitch) / Vector2(art.enemy_atlas_size))
         mat.set_shader_parameter("columns", ArtSet.ATLAS_COLUMNS)
+        mat.set_shader_parameter("texel", Vector2.ONE / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("outline", 1.0 if _enemy_outline else 0.0)
         _enemies.material = mat
     else:
         var quad: QuadMesh = QuadMesh.new()
@@ -396,10 +404,26 @@ shader_type canvas_item;
 uniform vec2 frame_uv;
 uniform vec2 pitch_uv;
 uniform int columns = 4;
+uniform vec2 texel;
+uniform float outline = 1.0;
+uniform vec4 outline_color : source_color = vec4(0.93, 0.88, 0.78, 0.85);
 void vertex() {
     int f = int(INSTANCE_CUSTOM.x + 0.5);
     vec2 origin = vec2(float(f % columns), float(f / columns)) * pitch_uv;
     UV = origin + UV * frame_uv;
+}
+void fragment() {
+    vec4 c = texture(TEXTURE, UV);
+    if (outline > 0.5 && c.a < 0.05) {
+        // a transparent texel next to an opaque one becomes the rim; the
+        // atlas gutters are transparent, so frames never bleed into each other
+        float n = texture(TEXTURE, UV + vec2(texel.x, 0.0)).a + texture(TEXTURE, UV - vec2(texel.x, 0.0)).a
+                + texture(TEXTURE, UV + vec2(0.0, texel.y)).a + texture(TEXTURE, UV - vec2(0.0, texel.y)).a;
+        if (n > 0.2) {
+            c = outline_color;
+        }
+    }
+    COLOR = c * COLOR;
 }
 """
     return sh
@@ -1608,6 +1632,7 @@ func _finish_perf() -> void:
         "interactive_input_ignored": true,
         "art_mode": _art_mode,
         "art": _art_report,
+        "enemy_outline": _enemy_outline,
         "fx": _fx.snapshot() if _fx != null else {},
         "targeting_mode": battle.targeting_mode,
         "fixture": config.get_str("fixture"),
@@ -1855,6 +1880,38 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_closeup":
+            # AC-02 evidence: 3x close-ups of the plaza (footprint / grid
+            # overlay on and off), the outer post at the collapse and cell B
+            # at the preview / placement, on the F2 timeline in sample mode.
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            var pc: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "zoom", "center": Vector2(950.0, 450.0), "factor": 3.0},
+                {"t": 15.0, "do": "footprints", "on": true},
+                {"t": 15.0, "do": "capture", "name": pc + "_a_plaza_x3_footprints_t15"},
+                {"t": 15.0, "do": "footprints", "on": false},
+                {"t": 15.0, "do": "capture", "name": pc + "_a2_plaza_x3_t15"},
+                {"t": 15.0, "do": "zoom", "center": Vector2(950.0, 450.0), "factor": 1.0},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 closeup forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 closeup trigger enemy"},
+                {"t": 20.5, "do": "zoom", "center": Vector2(950.0, 530.0), "factor": 3.0},
+                {"t": 20.5, "do": "capture", "name": pc + "_b_outer_post_x3_t20.5"},
+                {"t": 23.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 23.5, "do": "zoom", "center": Vector2(900.0, 280.0), "factor": 3.0},
+                {"t": 23.5, "do": "footprints", "on": true},
+                {"t": 23.5, "do": "capture", "name": pc + "_c_preview_B_x3_footprints_t23.5"},
+                {"t": 23.5, "do": "footprints", "on": false},
+                {"t": 23.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.5, "do": "capture", "name": pc + "_d_recovery_B_x3_t25.5"},
+                {"t": 25.5, "do": "zoom", "center": Vector2(900.0, 280.0), "factor": 1.0},
+                {"t": 25.5, "do": "art_log", "label": "t25.5"},
+                {"t": 25.5, "do": "quit"},
+            ]
         "wp005_dense", "wp005_dense_720":
             # AC-06 evidence: the D-027 benchmark load (1,000 enemies held by
             # top-up, finite waves off, outer HP 1e6 until the scripted
@@ -1876,6 +1933,9 @@ func _setup_capture_steps() -> void:
                 {"t": 15.0, "do": "labels", "on": false},
                 {"t": 15.0, "do": "capture", "name": pd + "_a2_1000_nolabels_t15"},
                 {"t": 15.0, "do": "labels", "on": true},
+                {"t": 15.0, "do": "outline", "on": false},
+                {"t": 15.0, "do": "capture", "name": pd + "_a3_1000_nooutline_t15"},
+                {"t": 15.0, "do": "outline", "on": true},
                 {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 dense forced collapse (verification only)"},
                 {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 dense trigger enemy"},
                 {"t": 20.5, "do": "capture", "name": pd + "_b_collapse_1000_t20.5"},
@@ -1983,10 +2043,21 @@ func _capture_script_step() -> void:
                 _show_labels = bool(step["on"])
                 _overlay.show_labels = _show_labels
                 _capture_log.append({"t": battle.sim_time, "labels": _show_labels, "tick": battle.steps})
+            "outline":
+                _set_enemy_outline(bool(step["on"]))
+                _capture_log.append({"t": battle.sim_time, "outline": _enemy_outline, "tick": battle.steps})
+            "footprints":
+                _overlay.show_footprints = bool(step["on"])
+                _capture_log.append({"t": battle.sim_time, "footprints": _overlay.show_footprints, "tick": battle.steps})
+            "zoom":
+                # Close-up evidence (AC-02): a Camera2D on the world layers only;
+                # HUD / menu CanvasLayers are unaffected. factor 1 = restore.
+                _apply_zoom(step["center"], float(step["factor"]))
+                _capture_log.append({"t": battle.sim_time, "zoom": float(step["factor"]), "center": [step["center"].x, step["center"].y], "tick": battle.steps})
             "art_log":
                 _capture_log.append({"t": battle.sim_time, "art_log": step["label"], "art_mode": _art_mode,
                     "art": _art_report, "fx": _fx.snapshot() if _fx != null else {}, "labels": _show_labels,
-                    "enemy_sprites": _enemy_sprites, "tick": battle.steps})
+                    "enemy_sprites": _enemy_sprites, "enemy_outline": _enemy_outline, "tick": battle.steps})
             "state_log":
                 # AC-05: the structured battle state at the comparison points
                 # (initial / before + after collapse / after recovery / end).
@@ -2156,6 +2227,32 @@ func _capture_script_step() -> void:
                 return
 
 
+func _set_enemy_outline(on: bool) -> void:
+    _enemy_outline = on
+    if _enemies != null and _enemies.material is ShaderMaterial:
+        (_enemies.material as ShaderMaterial).set_shader_parameter("outline", 1.0 if on else 0.0)
+
+
+## Capture-only close-up camera. Never used by play or by the tests' battle
+## state; it only changes what the world layers show on screen.
+func _apply_zoom(center: Vector2, factor: float) -> void:
+    if factor <= 1.0:
+        if _capture_cam != null:
+            _capture_cam.enabled = false
+            _capture_cam.queue_free()
+            _capture_cam = null
+        return
+    if _capture_cam == null:
+        _capture_cam = Camera2D.new()
+        _capture_cam.name = "CaptureCam"
+        _capture_cam.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
+        add_child(_capture_cam)
+    _capture_cam.position = center
+    _capture_cam.zoom = Vector2(factor, factor)
+    _capture_cam.enabled = true
+    _capture_cam.make_current()
+
+
 ## Synthesized events for the capture script (the same handler the real
 ## input takes, so the held ledger and the fence see them).
 func _probe_key(keycode: int, pressed: bool) -> void:
@@ -2190,7 +2287,10 @@ func _do_capture(name: String) -> void:
     if _fx != null:
         snap["fx"] = _fx.snapshot()
         snap["sprites_drawn"] = _overlay.sprites_drawn.duplicate()
+        snap["marks_drawn"] = _overlay.marks_drawn.duplicate()
         snap["sample_tiles_drawn"] = _terrain.sample_tiles_drawn.duplicate()
+        snap["enemy_outline"] = _enemy_outline
+        snap["zoom"] = _capture_cam.zoom.x if _capture_cam != null else 1.0
     _capture_log.append(snap)
     print("capture %s -> %s (%s)" % [name, path, error_string(err)])
     _capture_busy = false

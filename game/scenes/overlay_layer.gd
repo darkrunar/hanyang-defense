@@ -54,6 +54,16 @@ var sim_time: float = 0.0
 var objective_hit_time: Dictionary = {"outer": -1.0, "core": -1.0}
 const OBJECTIVE_HIT_SECONDS: float = 0.4
 var sprites_drawn: Dictionary = {}
+## D-052: procedural marks drawn this frame (the manifest's interaction_marks
+## are allowed to stay procedural; the capture log links them to this ledger)
+var marks_drawn: Dictionary = {}
+## Close-up / alignment evidence: 40x40 footprints and the 20 px grid of the
+## sample region (capture step "footprints").
+var show_footprints: bool = false
+const COLOR_FOOTPRINT: Color = Color(0.20, 0.95, 0.95, 0.9)
+const COLOR_GRID: Color = Color(1.0, 1.0, 1.0, 0.12)
+const COLOR_OFF_MARK: Color = Color(0.55, 0.55, 0.55, 0.95)
+const COLOR_OFF_MARK_BG: Color = Color(0.08, 0.08, 0.08, 0.85)
 
 const COLOR_INNER: Color = Color(1.00, 0.85, 0.30, 0.9)
 const COLOR_INNER_FILL: Color = Color(1.00, 0.85, 0.30, 0.06)
@@ -64,6 +74,39 @@ const COLOR_HP_BG: Color = Color(0.1, 0.1, 0.1, 0.8)
 const COLOR_HP_OUTER: Color = Color(0.95, 0.60, 0.20)
 const COLOR_HP_CORE: Color = Color(0.95, 0.30, 0.30)
 const Hwacha := preload("res://game/core/hwacha.gd")
+
+
+func _mark(kind: String) -> void:
+    marks_drawn[kind] = int(marks_drawn.get(kind, 0)) + 1
+
+
+## Procedural "lights off" mark (D-052): state must not rely on colour alone
+## (ART_GUIDE), so an inactive / disconnected facility also carries a small
+## grey disc with a slash at its top-right corner. Only with the art set on.
+func _draw_off_mark(center: Vector2) -> void:
+    if art == null:
+        return
+    var p: Vector2 = center + Vector2(14.0, -14.0)
+    draw_circle(p, 6.0, COLOR_OFF_MARK_BG)
+    draw_arc(p, 5.0, 0.0, TAU, 16, COLOR_OFF_MARK, 1.5)
+    draw_line(p + Vector2(-3.5, 3.5), p + Vector2(3.5, -3.5), COLOR_OFF_MARK, 1.5)
+    _mark("off")
+
+
+func _draw_footprints() -> void:
+    var cs: float = TerrainGrid.CELL_SIZE
+    var r: Rect2i = Rect2i(30, 6, 36, 25)
+    for cx: int in range(r.position.x, r.end.x + 1):
+        draw_line(Vector2(cx * cs, r.position.y * cs), Vector2(cx * cs, r.end.y * cs), COLOR_GRID, 1.0)
+    for cy: int in range(r.position.y, r.end.y + 1):
+        draw_line(Vector2(r.position.x * cs, cy * cs), Vector2(r.end.x * cs, cy * cs), COLOR_GRID, 1.0)
+    for s: Placement.Structure in battle.placement.structures:
+        if s.detached:
+            continue
+        draw_rect(Rect2(s.center - Vector2(20.0, 20.0), Vector2(40.0, 40.0)), COLOR_FOOTPRINT, false, 1.0)
+        draw_line(s.center + Vector2(-4.0, 0.0), s.center + Vector2(4.0, 0.0), COLOR_FOOTPRINT, 1.0)
+        draw_line(s.center + Vector2(0.0, -4.0), s.center + Vector2(0.0, 4.0), COLOR_FOOTPRINT, 1.0)
+    _mark("footprint")
 
 
 ## Draw one art frame anchored on `center` (pivot rule of ArtSet). Returns
@@ -84,6 +127,7 @@ func _draw() -> void:
     if battle == null:
         return
     sprites_drawn = {}
+    marks_drawn = {}
     var counts: PackedInt32Array = battle.density.counts
     var targeted: Dictionary = {}
     for s: Placement.Structure in battle.placement.hwachas():
@@ -110,13 +154,16 @@ func _draw() -> void:
                 var nb: Placement.Structure = battle.placement.get_structure(nb_id)
                 if nb != null:
                     draw_line(b.center, nb.center, COLOR_LINK, 2.0)
+                    _mark("link_line")
                     _sprite("interaction_marks", "link_ok", (b.center + nb.center) * 0.5)
     for t: Placement.Structure in battle.placement.sensors() + battle.placement.hwachas():
         if t.attached_to >= 0:
             var b: Placement.Structure = battle.placement.get_structure(t.attached_to)
             if b != null:
                 _draw_dashed(t.center, b.center, COLOR_ATTACH, 1.0, 8.0)
+                _mark("attach_dash")
         elif t.active and battle.targeting_mode == "wp002":
+            _mark("link_cut")
             _sprite("interaction_marks", "link_cut", t.center + Vector2(0.0, -26.0))
 
     for s: Placement.Structure in battle.placement.jangseungs():
@@ -125,6 +172,8 @@ func _draw() -> void:
             draw_rect(r, COLOR_JANGSEUNG if s.active else COLOR_INACTIVE, true)
             draw_rect(Rect2(s.center - Vector2(5.0, 18.0), Vector2(10.0, 36.0)), COLOR_JANGSEUNG_POST, true)
             draw_rect(r, Color.BLACK, false, 2.0)
+        if not s.active:
+            _draw_off_mark(s.center)
         if show_labels:
             draw_string(font, s.center + Vector2(-16.0, -24.0), "장승", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, COLOR_TEXT)
 
@@ -142,6 +191,8 @@ func _draw() -> void:
             draw_rect(r, Color.BLACK, false, 2.0)
             if s.active:
                 draw_circle(s.center + Vector2(0.0, -8.0), 7.0, COLOR_BONGSU_FLAME)
+        if not linked:
+            _draw_off_mark(s.center)
         if show_ranges and s.active:
             draw_arc(s.center, net.link_range, 0.0, TAU, 64, Color(COLOR_LINK.r, COLOR_LINK.g, COLOR_LINK.b, 0.10), 1.0)
         if show_labels:
@@ -156,6 +207,8 @@ func _draw() -> void:
             draw_rect(r, Color.BLACK, false, 2.0)
             draw_arc(s.center, 11.0, 0.0, TAU, 24, Color.BLACK, 2.0)
             draw_arc(s.center, 6.0, 0.0, TAU, 16, Color.BLACK, 2.0)
+        if not (s.active and s.group_id >= 0):
+            _draw_off_mark(s.center)
         if show_ranges and s.active and s.group_id >= 0:
             draw_arc(s.center, s.detect_range, 0.0, TAU, 64, COLOR_SENSOR_RANGE, 1.5)
         if show_labels:
@@ -181,6 +234,8 @@ func _draw() -> void:
             draw_rect(r, Color.BLACK, false, 2.0)
             draw_circle(s.center + Vector2(-12.0, 14.0), 5.0, Color.BLACK)
             draw_circle(s.center + Vector2(12.0, 14.0), 5.0, Color.BLACK)
+        if not s.active:
+            _draw_off_mark(s.center)
         if s.last_zone >= 0 and battle.combat_enabled and s.active:
             draw_line(s.center, s.last_aim, COLOR_HWACHA_FIRE, 3.0 if s.muzzle_timer > 0.0 else 1.0)
         if show_labels:
@@ -195,6 +250,9 @@ func _draw() -> void:
             var a: float = 1.0 - age / 0.35
             draw_arc(shot[0], shot[1] * (0.6 + 0.4 * (1.0 - a)), 0.0, TAU, 32,
                 Color(COLOR_BLAST.r, COLOR_BLAST.g, COLOR_BLAST.b, COLOR_BLAST.a * a), 3.0)
+
+    if show_footprints:
+        _draw_footprints()
 
     for i: int in range(TestMap.ROUTES.size()):
         var a: Vector2i = TestMap.ROUTES[i][2]
@@ -257,6 +315,7 @@ func _draw_wp003_layer() -> void:
             if not _sprite("hwacha", "inactive", p):
                 draw_rect(Rect2(p - Vector2(20.0, 20.0), Vector2(40.0, 40.0)), COLOR_HWACHA, true)
             draw_rect(Rect2(p - Vector2(20.0, 20.0), Vector2(40.0, 40.0)), COLOR_INNER, false, 2.0)
+            _mark("recovery_slot")
             _sprite("interaction_marks", "recovery_wait", p + Vector2(0.0, -30.0))
             draw_string(font, p + Vector2(28.0, -6.0), "%s 회수 대기 1/1" % d.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, COLOR_INNER)
             draw_string(font, p + Vector2(28.0, 12.0), "재장전 잔여 %.2fs 동결 · 발사 %d · 처치 %d" % [d.cooldown_left, d.shots_fired, d.kills], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, COLOR_TEXT)
@@ -297,6 +356,7 @@ func _draw_recovery_ghost(anchor: Vector2i) -> void:
     var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
     var ok: bool = reason == Placement.Reject.NONE
     draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), COLOR_GHOST_OK if ok else COLOR_GHOST_BAD, false, 2.0)
+    _mark("ghost_ok" if ok else "ghost_bad")
     _sprite("interaction_marks", "place_ok" if ok else "place_bad", top_left + Vector2(20.0, 20.0))
     var txt: String = "배치 가능" if ok else Placement.reject_name(reason)
     draw_string(font, top_left + Vector2(0.0, -6.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, COLOR_GHOST_OK if ok else COLOR_GHOST_BAD)

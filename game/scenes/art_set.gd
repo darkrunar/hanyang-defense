@@ -74,6 +74,10 @@ const CONTRACT: Dictionary = {
     },
 }
 
+## Contract entries the WP allows to stay procedural (D-052): reported under
+## `optional_missing`, never as a required gap.
+const OPTIONAL: Dictionary = {"interaction_marks": true}
+
 ## Enemy atlas layout: frame index = ENEMY_FRAME[state] + frame
 const ENEMY_STATES: Array[String] = ["walk_down", "walk_up", "walk_left", "walk_right", "hit", "despawn"]
 const ENEMY_FRAME_BASE: Dictionary = {"walk_down": 0, "walk_up": 2, "walk_left": 4, "walk_right": 6, "hit": 8, "despawn": 10}
@@ -102,8 +106,10 @@ var dir: String = DEFAULT_DIR
 var version: String = "v01"
 ## asset_id -> state -> Frames (only the files that loaded)
 var loaded: Dictionary = {}
-## "asset_id/state" -> reason, for every contract entry without a usable file
+## "asset_id/state" -> reason, for every REQUIRED contract entry without a usable file
 var missing: Dictionary = {}
+## same for the optional (procedural-allowed) entries
+var optional_missing: Dictionary = {}
 var pivots: Dictionary = {}
 ## Enemy atlas (built when all six enemy states loaded with one frame size)
 var enemy_atlas: ImageTexture = null
@@ -125,6 +131,7 @@ static func file_name(asset_id: String, state: String, ver: String = "v01") -> S
 func load_all() -> Dictionary:
     loaded.clear()
     missing.clear()
+    optional_missing.clear()
     _load_pivots()
     for asset_id: String in CONTRACT.keys():
         var states: Dictionary = CONTRACT[asset_id]
@@ -137,6 +144,10 @@ func load_all() -> Dictionary:
             if not loaded.has(asset_id):
                 loaded[asset_id] = {}
             loaded[asset_id][state] = fr
+    for k: String in missing.keys():
+        if OPTIONAL.has(k.get_slice("/", 0)):
+            optional_missing[k] = missing[k]
+            missing.erase(k)
     _build_enemy_atlas()
     return report()
 
@@ -288,6 +299,12 @@ func report() -> Dictionary:
     keys.sort()
     for k: String in keys:
         miss.append({"id": k, "reason": missing[k]})
+    var opt: Array = []
+    var okeys: Array = optional_missing.keys()
+    okeys.sort()
+    for k: String in okeys:
+        opt.append({"id": k, "reason": optional_missing[k]})
     return {"dir": dir, "version": version, "loaded": files, "loaded_count": files.size(),
         "contract_count": contract_count(), "missing": miss, "missing_count": miss.size(),
+        "optional_missing": opt, "optional_missing_count": opt.size(),
         "enemy_atlas": enemy_atlas != null, "enemy_frame_size": [enemy_frame_size.x, enemy_frame_size.y]}

@@ -114,6 +114,22 @@ static func sample_plan(grid: TerrainGrid, rect: Rect2i = SAMPLE_RECT) -> Dictio
     return {"items": items, "counts": counts, "rect": rect}
 
 
+const COLOR_EDGE_FALLBACK: Color = Color(0.30, 0.24, 0.17, 0.9)
+
+
+func _draw_edge_fallback(r: Rect2, frame: int) -> void:
+    var w: float = 2.0
+    match frame:
+        0: draw_rect(Rect2(r.position, Vector2(r.size.x, w)), COLOR_EDGE_FALLBACK, true)
+        1: draw_rect(Rect2(r.position + Vector2(r.size.x - w, 0.0), Vector2(w, r.size.y)), COLOR_EDGE_FALLBACK, true)
+        2: draw_rect(Rect2(r.position + Vector2(0.0, r.size.y - w), Vector2(r.size.x, w)), COLOR_EDGE_FALLBACK, true)
+        3: draw_rect(Rect2(r.position, Vector2(w, r.size.y)), COLOR_EDGE_FALLBACK, true)
+        4: draw_rect(Rect2(r.position + Vector2(r.size.x - 3.0, 0.0), Vector2(3.0, 3.0)), COLOR_EDGE_FALLBACK, true)
+        5: draw_rect(Rect2(r.position + Vector2(r.size.x - 3.0, r.size.y - 3.0), Vector2(3.0, 3.0)), COLOR_EDGE_FALLBACK, true)
+        6: draw_rect(Rect2(r.position + Vector2(0.0, r.size.y - 3.0), Vector2(3.0, 3.0)), COLOR_EDGE_FALLBACK, true)
+        7: draw_rect(Rect2(r.position, Vector2(3.0, 3.0)), COLOR_EDGE_FALLBACK, true)
+
+
 static func _open(grid: TerrainGrid, cx: int, cy: int) -> bool:
     return grid.in_bounds(cx, cy) and not grid.is_wall(cx, cy)
 
@@ -129,15 +145,21 @@ func _draw_sample_tiles() -> void:
         "ground": art.frames("terrain_sample", "ground"), "edge": art.frames("terrain_sample", "edge"),
         "wall": art.frames("building_sample", "wall"), "roof": art.frames("building_sample", "roof"),
         "gate": art.frames("building_sample", "gate")}
-    var drawn: Dictionary = {"ground": 0, "edge": 0, "wall": 0, "roof": 0, "gate": 0, "skipped": 0}
+    var drawn: Dictionary = {"ground": 0, "edge": 0, "edge_procedural": 0, "wall": 0, "roof": 0, "gate": 0, "skipped": 0}
     for it: Array in _plan["items"]:
         var el: String = it[0]
         var fr: ArtSet.Frames = frames[el]
-        if fr == null:
-            drawn["skipped"] += 1
-            continue
         var cell: Vector2i = it[1]
         var cell_rect: Rect2 = Rect2(Vector2(cell) * cs, Vector2(cs, cs))
+        if fr == null:
+            if el == "edge":
+                # D-052: until the edge tiles arrive, the wall contact is a
+                # procedural dark line / corner dot from the same plan item.
+                _draw_edge_fallback(cell_rect, int(it[2]))
+                drawn["edge_procedural"] += 1
+            else:
+                drawn["skipped"] += 1
+            continue
         match el:
             "ground", "edge":
                 draw_texture_rect_region(fr.texture, cell_rect, fr.region(int(it[2])))

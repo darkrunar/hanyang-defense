@@ -73,7 +73,8 @@ func _loader_unit(t: RefCounted) -> void:
     var empty: ArtSet = ArtSet.new(EMPTY_DIR)
     var rep: Dictionary = empty.load_all()
     t.eq(empty.loaded_count(), 0, "nothing loaded from a missing directory")
-    t.eq(int(rep["missing_count"]), empty.contract_count(), "every contract entry reported missing")
+    t.eq(int(rep["missing_count"]) + int(rep["optional_missing_count"]), empty.contract_count(), "every contract entry reported missing (required + optional)")
+    t.eq(int(rep["optional_missing_count"]), 5, "the 5 interaction marks are optional (procedural allowed)")
     t.check(empty.enemy_atlas == null, "no enemy atlas")
     t.eq(empty.frames("hwacha", "idle"), null, "frames() is null -> caller keeps the grey box")
     t.eq(empty.contract_count(), 35, "contract lists 35 files for the 11 manifest ids")
@@ -122,6 +123,7 @@ func _loader_unit(t: RefCounted) -> void:
     t.eq(custom.frames("hwacha", "fire"), null, "refused file -> grey box for that element only")
     t.eq(custom.loaded_count(), custom.contract_count() - 2, "the other files still load")
     t.eq(int(rep["missing_count"]), 2, "report lists exactly the two refusals")
+    t.eq(int(rep["optional_missing_count"]), 0, "fixture ships the optional marks too")
 
 
 func _tile_plan_unit(t: RefCounted) -> void:
@@ -366,7 +368,8 @@ func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
                 if img.get_pixel(x, y).a > 0.5:
                     lowest = y
         t.check(lowest >= 37, "%s/%s stands within 2 px of the canvas bottom (row %d)" % [id_state[0], id_state[1], lowest])
-    t.eq(int(rep["loaded_count"]) + int(rep["missing_count"]), art.contract_count(), "loaded + missing = contract")
+    t.eq(int(rep["loaded_count"]) + int(rep["missing_count"]) + int(rep["optional_missing_count"]), art.contract_count(), "loaded + missing + optional = contract")
+    t.eq(int(rep["optional_missing_count"]), 5, "interaction marks stay procedural (optional)")
     t.check(art.missing.has("hwacha/fire") and art.missing.has("bongsu/pulse"), "frames not delivered yet are reported missing, not invented")
     t.check(art.enemy_atlas != null and art.enemy_frame_size == Vector2i(12, 16), "enemy atlas built from the 6 shipped strips (12x16)")
     for st: String in ["ground"]:
@@ -378,6 +381,20 @@ func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
     t.eq(s._art_mode, "sample", "interactive launch without --art shows the reviewed art")
     t.check(s.art != null and s.art.loaded_count() == art.loaded_count(), "scene loaded the same set")
     t.check(s._enemy_sprites, "enemies render from the shipped atlas")
+    var mat: ShaderMaterial = s._enemies.material as ShaderMaterial
+    t.eq(float(mat.get_shader_parameter("outline")), 1.0, "enemy rim outline on by default (D-052)")
+    s._set_enemy_outline(false)
+    t.eq(float(mat.get_shader_parameter("outline")), 0.0, "outline can be switched off (--art-outline=off / capture step)")
+    s._set_enemy_outline(true)
+    t.eq(s._capture_cam, null, "no close-up camera outside captures")
+    s._apply_zoom(Vector2(950.0, 450.0), 3.0)
+    t.check(s._capture_cam != null and s._capture_cam.zoom == Vector2(3.0, 3.0) and s._capture_cam.position == Vector2(950.0, 450.0), "zoom step creates a 3x camera at the centre")
+    var before_zoom: String = s.battle.full_state_json()
+    _frame(s, 5)
+    t.check(s.battle.full_state_json() == before_zoom, "the camera and the render frames do not touch the battle state (TITLE, nothing ticks)")
+    s._apply_zoom(Vector2.ZERO, 1.0)
+    t.eq(s._capture_cam, null, "factor 1 removes the camera")
+    t.eq(s._overlay.show_footprints, false, "footprint overlay off by default")
     var g: Node2D = _scene(tree, "greybox", ArtSet.DEFAULT_DIR)
     _start(s)
     _start(g)

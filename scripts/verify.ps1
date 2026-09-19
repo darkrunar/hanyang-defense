@@ -234,7 +234,9 @@ foreach ($size in @("", "_720")) {
     $rl = $r5 | Where-Object { $_.art_log -eq "launch" } | Select-Object -First 1
     $shipped = @(Get-ChildItem -Recurse -Filter *.png "assets\art\wp005").Count
     if ($rl.art.loaded_count -ne $shipped) { throw "capture wp005_assets${size}: loaded $($rl.art.loaded_count) != $shipped shipped png" }
-    if ($rl.art.loaded_count + $rl.art.missing_count -ne $rl.art.contract_count) { throw "capture wp005_assets${size}: loaded + missing != contract" }
+    if ($rl.art.loaded_count + $rl.art.missing_count + $rl.art.optional_missing_count -ne $rl.art.contract_count) { throw "capture wp005_assets${size}: loaded + missing + optional != contract" }
+    if ($rb.marks_drawn.off -lt 1 -or $rb.marks_drawn.recovery_slot -lt 1) { throw "capture wp005_assets${size}: procedural off / recovery marks not drawn after the collapse ($($rb.marks_drawn | ConvertTo-Json -Compress))" }
+    if ($ra.sample_tiles_drawn.edge_procedural -lt 1) { throw "capture wp005_assets${size}: procedural edge lines not drawn" }
     $ra = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_a_dense_t15" } | Select-Object -First 1
     $rb = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_b_collapse_t20.5" } | Select-Object -First 1
     if ($ra.sprites_drawn.'hwacha/idle' -lt 1 -or $ra.sprites_drawn.'jangseung/idle' -lt 1 -or $ra.sprites_drawn.'bongsu/connected' -lt 1 -or $ra.sprites_drawn.'sensor/active' -lt 1) { throw "capture wp005_assets${size}: facility sprites not drawn at t15 ($($ra.sprites_drawn | ConvertTo-Json -Compress))" }
@@ -248,13 +250,33 @@ foreach ($size in @("", "_720")) {
     & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" "--art=sample" | Out-Host
     Assert-Exit "capture $sc"
     Assert-File "$evid5\captures\${sc}_log.json" "capture $sc"
-    foreach ($n in @("a_1000_t15", "a2_1000_nolabels_t15", "b_collapse_1000_t20.5", "c_recovery_1000_t25.5", "c2_recovery_1000_nolabels_t25.5")) { Assert-File "$evid5\captures\${sc}_$n.png" "capture $sc" }
+    foreach ($n in @("a_1000_t15", "a2_1000_nolabels_t15", "a3_1000_nooutline_t15", "b_collapse_1000_t20.5", "c_recovery_1000_t25.5", "c2_recovery_1000_nolabels_t25.5")) { Assert-File "$evid5\captures\${sc}_$n.png" "capture $sc" }
     $dl = Get-Content "$evid5\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
     $da = $dl | Where-Object { $_.capture -eq "${sc}_a_1000_t15" } | Select-Object -First 1
     if ($da.alive -lt 1000) { throw "capture ${sc}: expected 1,000 enemies alive at t15 (got $($da.alive))" }
     $dc = $dl | Where-Object { $_.capture -eq "${sc}_c_recovery_1000_t25.5" } | Select-Object -First 1
     if (-not $dc.run.recovery_placed) { throw "capture ${sc}: H1 not placed at t25" }
     Write-Host ("capture {0}: alive {1} at t15, collapse {2}, recovery placed {3}" -f $sc, $da.alive, $dc.run.collapse_count, $dc.run.recovery_placed)
+}
+# AC-02: 3x close-ups (plaza with / without footprint grid, outer post at the collapse, cell B preview + placement)
+& godot --path . --rendering-driver opengl3 -- "--capture=wp005_closeup" "--out-dir=$evid5\captures" "--art=sample" | Out-Host
+Assert-Exit "capture wp005_closeup"
+foreach ($n in @("a_plaza_x3_footprints_t15", "a2_plaza_x3_t15", "b_outer_post_x3_t20.5", "c_preview_B_x3_footprints_t23.5", "d_recovery_B_x3_t25.5")) { Assert-File "$evid5\captures\wp005_closeup_$n.png" "capture wp005_closeup" }
+$cl = Get-Content "$evid5\captures\wp005_closeup_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+$cz = $cl | Where-Object { $_.capture -eq "wp005_closeup_a_plaza_x3_footprints_t15" } | Select-Object -First 1
+if ($cz.zoom -ne 3 -or $cz.marks_drawn.footprint -lt 1) { throw "capture wp005_closeup: zoom / footprint overlay not recorded" }
+Write-Host ("capture wp005_closeup: 5 close-ups at zoom {0}, footprint overlay {1}" -f $cz.zoom, $cz.marks_drawn.footprint)
+# AC-06: the WP-004 menu flow over the sample art at both resolutions (menus, text, placement marks)
+New-Item -ItemType Directory -Force (Join-Path $evid5 "captures\menus") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\captures\menus\*"
+foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures\menus" "--settings=$evid5\captures\menus\settings_capture.cfg" "--art=sample" | Out-Host
+    Assert-Exit "capture $sc (sample art)"
+    foreach ($n in @("01_title", "03_playing_t12", "04_paused", "05_settings_from_pause", "06_confirm_restart", "09_result_lost", "10_result_won")) { Assert-File "$evid5\captures\menus\${sc}_$n.png" "capture $sc (sample art)" }
+    $ml = Get-Content "$evid5\captures\menus\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $mr = @($ml | Where-Object { $_.wait_result })
+    if ($mr.Count -ne 2) { throw "capture ${sc} (sample art): expected LOST then WON results" }
+    Write-Host ("capture {0} over sample art: 11 menu screens, results {1}/{2}" -f $sc, $mr[0].result.outcome, $mr[1].result.outcome)
 }
 }   # end of the WP-005 capture block
 

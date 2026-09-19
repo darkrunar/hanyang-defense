@@ -122,6 +122,13 @@ for size in "" _720; do
     godot --path . --rendering-driver opengl3 -- --capture=wp005_dense$size --out-dir="$(abs "$EVID5/captures")" --art=sample
     [[ -s "$EVID5/captures/wp005_dense${size}_a2_1000_nolabels_t15.png" ]] || { echo "dense capture wp005_dense$size missing"; exit 1; }
 done
+godot --path . --rendering-driver opengl3 -- --capture=wp005_closeup --out-dir="$(abs "$EVID5/captures")" --art=sample
+[[ -s "$EVID5/captures/wp005_closeup_d_recovery_B_x3_t25.5.png" ]] || { echo "closeup capture missing"; exit 1; }
+mkdir -p "$EVID5/captures/menus"
+for sc in wp004_ui wp004_ui_720; do
+    godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID5/captures/menus")" --settings="$(abs "$EVID5/captures/menus/settings_capture.cfg")" --art=sample
+    [[ -s "$EVID5/captures/menus/${sc}_10_result_won.png" ]] || { echo "menu capture $sc over sample art missing"; exit 1; }
+done
 for size in "" _720; do
     for label in initial before_collapse after_collapse after_recovery; do
         g=$(grep -o "\"state_log\": *\"$label\"[^}]*\"state_hash\": *\"[^\"]*\"" "$EVID5/captures/wp005_greybox${size}_log.json" | grep -o '"state_hash": *"[^"]*"' | head -1)
