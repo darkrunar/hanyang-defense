@@ -484,3 +484,12 @@ D-046 / 2026-09-16 / 채택:
 - 검증: `tests/test_art_sample.gd` "Reviewed assets"(기본 디렉터리 로드·40×40·pivot·접지·누락 보고·기본 모드·상태 동일), `--capture=wp005_assets[_720]`(기본 디렉터리, greybox 대비 상태 동일·로드 수 = 배포 파일 수·시설 스프라이트 그려짐), `verify.ps1 -Wp005` 4e 확장.
 - 대체하는 이전 결정: 없음(D-049 보완).
 
+## D-051 / 2026-09-20 / 채택: PR #11 부분 통합 수용과 검수 REVISE 반영
+
+- 근거: GPT의 `wp/005-art-integration`(PR #11, `f0c625a`/`c5ea366`)이 회차 1 파이프라인 위에 리소스 13개 상태 파일(시설 기본 4, 바닥 4프레임, 지붕·담장, 적 6상태 12프레임)과 배포본 로딩 수정, 시각 검수(REVISE: AC-01 22개 누락, AC-03 비활성 회색 도형, 바닥 체크무늬, 라벨 없는 식별·1,000체·동일 release 성능·사용자 확인 필요)를 제출했다.
+- 결정: 통합 브랜치를 `wp/005-art-sample`에 병합(`f565a52`). 원본 슬라이싱·정규화는 통합 브랜치의 `game/tools/import_wp005_sources.gd`(nearest, 시설 36px 맞춤·바닥 2px 여백)를 기준으로 하고, 회차 2의 BOX+팔레트 변환은 폐기한다. `scripts/art_convert_wp005.py`는 통합본 idle/active 파일에서 inactive/disconnected를 파생하는 역할만 남긴다(`derived_off`, 전용 프레임 도착 시 교체). 접지 검사는 캔버스 바닥 2px 이내로 둔다.
+- 배포본: `art_set.gd`의 ResourceLoader 폴백(export가 PNG를 가져온 텍스처로 바꿔 FileAccess 경로가 사라지는 문제)과 `export_presets.cfg` include_filter(`assets/art/wp005/**/*.png, *.json`)를 유지한다. 원본 SHA는 동봉 `integration_manifest.json`으로 추적한다.
+- 검수 반영: 바닥 타일 계획을 기본 타일 약 69% + 변형 희소 배치로 바꿔 체크무늬를 완화한다(`terrain_layer.gd`, 4종 모두 사용). 캡처 `wp005_dense[_720]`(D-027 벤치마크 부하 1,000체, 라벨 on/off, 붕괴·재배치)로 AC-03 라벨 없는 식별과 AC-06 1,000체 화면을 낸다. `verify.ps1 -Wp005` 6d는 sample 성능을 배포 리소스 디렉터리로 측정한다(fixture는 파이프라인 캡처 1종에만).
+- 남는 것: 발사·점등·거점·문·가장자리 타일·효과·표시 제작(GPT), 사용자 스타일 확인(AC-08). 건물 실루엣은 WP-006 범위 여부를 GPT가 정한다.
+- 대체하는 이전 결정: D-050의 BOX+팔레트 변환 경로(폐기). 나머지 D-049/050 유지.
+

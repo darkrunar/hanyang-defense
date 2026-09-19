@@ -119,6 +119,10 @@ for art in greybox sample assets; do
     done
 done
 for size in "" _720; do
+    godot --path . --rendering-driver opengl3 -- --capture=wp005_dense$size --out-dir="$(abs "$EVID5/captures")" --art=sample
+    [[ -s "$EVID5/captures/wp005_dense${size}_a2_1000_nolabels_t15.png" ]] || { echo "dense capture wp005_dense$size missing"; exit 1; }
+done
+for size in "" _720; do
     for label in initial before_collapse after_collapse after_recovery; do
         g=$(grep -o "\"state_log\": *\"$label\"[^}]*\"state_hash\": *\"[^\"]*\"" "$EVID5/captures/wp005_greybox${size}_log.json" | grep -o '"state_hash": *"[^"]*"' | head -1)
         s=$(grep -o "\"state_log\": *\"$label\"[^}]*\"state_hash\": *\"[^\"]*\"" "$EVID5/captures/wp005_sample${size}_log.json" | grep -o '"state_hash": *"[^"]*"' | head -1)

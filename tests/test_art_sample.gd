@@ -159,6 +159,11 @@ func _tile_plan_unit(t: RefCounted) -> void:
             if grid.is_wall(c.x, c.y):
                 t.check(false, "edge tile planned on a wall cell %s" % str(c))
     t.eq(ground_variants.size(), 4, "all four ground variants used")
+    var base_tiles: int = 0
+    for it: Array in plan["items"]:
+        if it[0] == "ground" and it[2] == 0:
+            base_tiles += 1
+    t.check(base_tiles * 10 >= int(counts["ground"]) * 6, "the base tile covers most of the floor (%d of %d), variants are sparse" % [base_tiles, int(counts["ground"])])
     t.check(seen_edge_frames.has(0) and seen_edge_frames.has(2), "north and south edges present in the plaza")
     t.eq(grid.open_cell_count(), before, "planning does not touch the grid")
     t.eq(TerrainLayer.sample_plan(grid)["items"].size(), plan["items"].size(), "plan is deterministic")
@@ -343,7 +348,7 @@ func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
     t.case("Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box")
     var art: ArtSet = ArtSet.new(ArtSet.DEFAULT_DIR)
     var rep: Dictionary = art.load_all()
-    t.check(art.loaded_count() >= 8, "at least the 8 facility files load (%d)" % art.loaded_count())
+    t.check(art.loaded_count() >= 17, "the 13 integrated files + 4 derived states load (%d)" % art.loaded_count())
     for id_state: Array in [["hwacha", "idle"], ["hwacha", "inactive"], ["jangseung", "idle"], ["jangseung", "inactive"],
             ["bongsu", "connected"], ["bongsu", "disconnected"], ["sensor", "active"], ["sensor", "inactive"]]:
         var fr: ArtSet.Frames = art.frames(id_state[0], id_state[1])
@@ -352,21 +357,27 @@ func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
         t.eq(fr.frame_size, Vector2i(40, 40), "%s/%s is 40x40" % [id_state[0], id_state[1]])
         t.eq(fr.pivot, Vector2(20.0, 20.0), "%s/%s pivot = footprint centre" % [id_state[0], id_state[1]])
         t.eq(fr.sha256.length(), 64, "%s/%s sha recorded" % [id_state[0], id_state[1]])
-        # opaque pixels exist and the object touches the canvas bottom row (ground contact)
+        # ground contact: the lowest opaque row is within 2 px of the canvas
+        # bottom (import_wp005_sources.gd seats the object at row 37)
         var img: Image = fr.texture.get_image()
-        var bottom: bool = false
-        for x: int in range(40):
-            if img.get_pixel(x, 39).a > 0.5:
-                bottom = true
-        t.check(bottom, "%s/%s stands on the canvas bottom" % [id_state[0], id_state[1]])
+        var lowest: int = -1
+        for y: int in range(40):
+            for x: int in range(40):
+                if img.get_pixel(x, y).a > 0.5:
+                    lowest = y
+        t.check(lowest >= 37, "%s/%s stands within 2 px of the canvas bottom (row %d)" % [id_state[0], id_state[1], lowest])
     t.eq(int(rep["loaded_count"]) + int(rep["missing_count"]), art.contract_count(), "loaded + missing = contract")
     t.check(art.missing.has("hwacha/fire") and art.missing.has("bongsu/pulse"), "frames not delivered yet are reported missing, not invented")
-    t.check(art.enemy_atlas == null, "no enemy atlas without enemy files")
+    t.check(art.enemy_atlas != null and art.enemy_frame_size == Vector2i(12, 16), "enemy atlas built from the 6 shipped strips (12x16)")
+    for st: String in ["ground"]:
+        t.eq(art.frames("terrain_sample", st).frame_count, 4, "terrain ground strip: 4 variants")
+    t.check(art.has("building_sample", "roof") and art.has("building_sample", "wall"), "roof / wall modules shipped")
+    t.check(art.missing.has("building_sample/gate") and art.missing.has("terrain_sample/edge"), "gate / edge tiles still missing (reported)")
     # default mode: interactive -> sample, scripted -> greybox (D-050)
     var s: Node2D = _scene(tree, "", ArtSet.DEFAULT_DIR)
     t.eq(s._art_mode, "sample", "interactive launch without --art shows the reviewed art")
     t.check(s.art != null and s.art.loaded_count() == art.loaded_count(), "scene loaded the same set")
-    t.check(not s._enemy_sprites, "enemies stay grey-box quads without enemy files")
+    t.check(s._enemy_sprites, "enemies render from the shipped atlas")
     var g: Node2D = _scene(tree, "greybox", ArtSet.DEFAULT_DIR)
     _start(s)
     _start(g)

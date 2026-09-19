@@ -242,6 +242,20 @@ foreach ($size in @("", "_720")) {
     Write-Host ("capture wp005_assets{0}: greybox == assets at 4 checkpoints; loaded {1}/{2} (missing {3}); t15 sprites {4}; t20.5 sprites {5}" -f $size, $rl.art.loaded_count, $rl.art.contract_count, $rl.art.missing_count,
         ($ra.sprites_drawn | ConvertTo-Json -Compress), ($rb.sprites_drawn | ConvertTo-Json -Compress))
 }
+# AC-06: 1,000 enemies held on the field (benchmark load) with the shipped assets, with and without labels, 1080p and 720p
+foreach ($size in @("", "_720")) {
+    $sc = "wp005_dense$size"
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" "--art=sample" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid5\captures\${sc}_log.json" "capture $sc"
+    foreach ($n in @("a_1000_t15", "a2_1000_nolabels_t15", "b_collapse_1000_t20.5", "c_recovery_1000_t25.5", "c2_recovery_1000_nolabels_t25.5")) { Assert-File "$evid5\captures\${sc}_$n.png" "capture $sc" }
+    $dl = Get-Content "$evid5\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $da = $dl | Where-Object { $_.capture -eq "${sc}_a_1000_t15" } | Select-Object -First 1
+    if ($da.alive -lt 1000) { throw "capture ${sc}: expected 1,000 enemies alive at t15 (got $($da.alive))" }
+    $dc = $dl | Where-Object { $_.capture -eq "${sc}_c_recovery_1000_t25.5" } | Select-Object -First 1
+    if (-not $dc.run.recovery_placed) { throw "capture ${sc}: H1 not placed at t25" }
+    Write-Host ("capture {0}: alive {1} at t15, collapse {2}, recovery placed {3}" -f $sc, $da.alive, $dc.run.collapse_count, $dc.run.recovery_placed)
+}
 }   # end of the WP-005 capture block
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
@@ -326,13 +340,13 @@ foreach ($sc in @("collapse_move", "collapse_combat")) {
     Assert-CollapsePerf $out $sc ""
 }
 } else {
-Write-Host "== 6d/6 WP-005 transition performance per rendering mode (greybox / sample with the dev fixture; same exe, D-027 contract)"
+Write-Host "== 6d/6 WP-005 transition performance per rendering mode (greybox / sample on the shipped assets; same exe, D-027 contract)"
 Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\perf\perf_collapse_*_1000_release.json*"
 foreach ($art in @("greybox", "sample")) {
     foreach ($sc in @("collapse_move", "collapse_combat")) {
         $out = "results\evidence\wp-005\perf\perf_${sc}_${art}_1000_release.json"
         if ($art -eq "sample") {
-            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art sample -ArtDir "user://wp005_art_fixture"
+            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art sample   # default dir = assets/art/wp005 (D-051)
         } else {
             & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art greybox
         }
@@ -340,7 +354,7 @@ foreach ($art in @("greybox", "sample")) {
         Assert-File "$out.memory.json" "perf $sc $art memory sampler"
         $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($r.art_mode -ne $art) { throw "perf ${sc}: manifest art_mode '$($r.art_mode)' != '$art'" }
-        if ($art -eq "sample" -and ($r.art.loaded_count -ne $r.art.contract_count -or -not $r.art.enemy_atlas)) { throw "perf $sc sample: fixture not fully loaded" }
+        if ($art -eq "sample" -and (-not $r.art.enemy_atlas -or $r.art.loaded_count -lt 13)) { throw "perf $sc sample: shipped assets not loaded (loaded $($r.art.loaded_count), atlas $($r.art.enemy_atlas))" }
         Assert-CollapsePerf $out $sc " [$art]"
     }
 }

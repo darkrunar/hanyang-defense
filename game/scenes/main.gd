@@ -1855,6 +1855,37 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_dense", "wp005_dense_720":
+            # AC-06 evidence: the D-027 benchmark load (1,000 enemies held by
+            # top-up, finite waves off, outer HP 1e6 until the scripted
+            # trigger) in the rendering mode given by --art; captures with
+            # and without structure labels, the collapse and the recovery.
+            _apply_mode_preset(Config.for_wp003())
+            config.values["benchmark_hold_alive"] = true
+            config.values["outer_hp"] = 1000000.0
+            config.values["benchmark_core_invulnerable"] = true
+            battle.reset()
+            battle.waves.enabled = false
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pd: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "capture", "name": pd + "_a_1000_t15"},
+                {"t": 15.0, "do": "labels", "on": false},
+                {"t": 15.0, "do": "capture", "name": pd + "_a2_1000_nolabels_t15"},
+                {"t": 15.0, "do": "labels", "on": true},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 dense forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 dense trigger enemy"},
+                {"t": 20.5, "do": "capture", "name": pd + "_b_collapse_1000_t20.5"},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.5, "do": "capture", "name": pd + "_c_recovery_1000_t25.5"},
+                {"t": 25.5, "do": "labels", "on": false},
+                {"t": 25.5, "do": "capture", "name": pd + "_c2_recovery_1000_nolabels_t25.5"},
+                {"t": 25.5, "do": "art_log", "label": "t25.5"},
+                {"t": 25.5, "do": "quit"},
+            ]
         "wp005_sample", "wp005_sample_720", "wp005_greybox", "wp005_greybox_720", "wp005_assets", "wp005_assets_720":
             # WP-005 evidence: the F2 timeline (forced collapse at 20 s, H1 to B
             # at 25 s) in the rendering mode given by --art, at 1920x1080 or
@@ -1948,6 +1979,10 @@ func _capture_script_step() -> void:
                 _capture_busy = true
                 _do_capture(step["name"])
                 return
+            "labels":
+                _show_labels = bool(step["on"])
+                _overlay.show_labels = _show_labels
+                _capture_log.append({"t": battle.sim_time, "labels": _show_labels, "tick": battle.steps})
             "art_log":
                 _capture_log.append({"t": battle.sim_time, "art_log": step["label"], "art_mode": _art_mode,
                     "art": _art_report, "fx": _fx.snapshot() if _fx != null else {}, "labels": _show_labels,
