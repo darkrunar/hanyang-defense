@@ -1,0 +1,12 @@
+asset_id,description,status,planned_canvas,planned_frames,planned_runtime_dir,actual_path,pivot,source_record,rights_review,sha256
+terrain_sample,Ground and edge tiles,PLANNED,20x20,12,assets/art/wp005/terrain/,,,,,
+building_sample,Roof wall and gate modules,PLANNED,multiples_of_20,3,assets/art/wp005/buildings/,,,,,
+hwacha,Hwacha idle inactive and fire,PLANNED,40x40,5,assets/art/wp005/facilities/,,,,,
+jangseung,Jangseung idle and inactive,PLANNED,40x40,2,assets/art/wp005/facilities/,,,,,
+bongsu,Beacon connected disconnected and pulse,PLANNED,40x40,4,assets/art/wp005/facilities/,,,,,
+sensor,Armillary sensor active and inactive,PLANNED,40x40,2,assets/art/wp005/facilities/,,,,,
+outer_post,Outer objective normal hit collapsed,PLANNED,40px_ground_footprint,3,assets/art/wp005/objectives/,,,,,
+core_post,Core objective normal hit collapsed,PLANNED,40px_ground_footprint,3,assets/art/wp005/objectives/,,,,,
+enemy_basic,Four directions movement hit and despawn,PLANNED,12x16_initial,12,assets/art/wp005/enemies/,,,,,
+combat_fx,Fire impact collapse,PLANNED,record_at_sample_review,9,assets/art/wp005/fx/,,,,,
+interaction_marks,Link recovery placement states,PLANNED,png_or_procedural,record_at_sample_review,assets/art/wp005/marks/,,,,,

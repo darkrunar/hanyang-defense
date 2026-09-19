@@ -13,6 +13,18 @@
 
 WP-001의 결과는 [results/WP-001-RESULT.md](../results/WP-001-RESULT.md)에 있다. WP-002·WP-003·WP-004는 DONE이다. M1~M3의 세 경험 검증 이후 반복 플레이 흐름을 WP-004로 확정했다.
 
+## 그래픽 제작·적용 단계 (2026-09-20)
+
+WP-004 DONE/PASS와 main 병합 `51d89ed`를 선행 기준으로 한다.
+
+| 단계 | 상태 | 담당과 통과 조건 |
+|---|---|---|
+| [WP-005 그래픽 기준·광화문 앞 샘플](../backlog/WP-005.md) | READY | GPT 명세/제작 지시·검수, Claude 적용/검증, 사용자 실제 샘플 확인 |
+| [WP-006 전체 전장 확장](../backlog/WP-006.md) | DRAFT | 승인된 샘플로 전체 구역 확대. 제작량·AC는 WP-005 이후 확정 |
+| [WP-007 전투 연출·UI 마감](../backlog/WP-007.md) | DRAFT | 가독성·효과·UI 마감. 사용자 전체 완성 화면 확인 |
+
+제작 규격과 역할은 [ART_GUIDE](art/ART_GUIDE.md), 실제 제작 현황은 [ASSET_MANIFEST](art/ASSET_MANIFEST.csv)를 따른다. 현재 manifest는 모두 PLANNED이며 게임용 에셋 제작 완료가 아니다. 전체 확장 전 사용자 스타일 확인이 필요하며 미응답을 승인으로 처리하지 않는다. 일정은 확약하지 않는다.
+
 ## 이후 후보
 
 1. 포졸의 유도·포박과 사또의 지휘 등 캐릭터 현장 개입.
