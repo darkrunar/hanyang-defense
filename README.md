@@ -27,6 +27,7 @@
 | [WP-002](backlog/WP-002.md) | 봉수망과 시설 간 표적 공유 |
 | [WP-003](backlog/WP-003.md) | 웨이브 검증 → 붕괴 → 후퇴·재편 |
 | [GAME_GUIDE](docs/GAME_GUIDE.md) | 플레이어·테스터용 게임 가이드: 지도·적·시설·표적·봉수망·WP-003 런·조작·설정 (WP-001~003 기준) |
+| [PLAYTEST_WP005](docs/PLAYTEST_WP005.md) | WP-005 플레이 테스트 시나리오(사용자 스타일·가독성 확인 절차, 응답표) · [관측 리포트](results/PLAYTEST_WP005_REPORT.md) |
 | [TEST_REPORT](results/TEST_REPORT.md) | WP-001~003 통합 테스트 리포트: 스위트 780건, AC 최종 판정, 시나리오, 성능, 화면 증거, 리뷰 이력 |
 | [WP-004](backlog/WP-004.md) | 시작·일시정지·결과·재시작·설정 |
 | [WP-005](backlog/WP-005.md) | 그래픽 기준·광화문 앞 샘플 적용 (IN_PROGRESS) |

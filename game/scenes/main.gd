@@ -1880,6 +1880,41 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_playtest", "wp005_playtest_720":
+            # docs/PLAYTEST_WP005.md T1..T4 as a scripted run: no verification
+            # hooks; the collapse comes from real arrivals (run with
+            # --set=outer_hp=40 as the playtest does). 1920x1080 or 1280x720.
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pt: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "capture", "name": pt + "_T1_first_t15"},
+                {"t": 15.0, "do": "labels", "on": false},
+                {"t": 15.0, "do": "capture", "name": pt + "_T1_nolabels_t15"},
+                {"t": 15.0, "do": "labels", "on": true},
+                {"t": 60.0, "do": "capture", "name": pt + "_T2_wave2_t60"},
+                {"t": 60.0, "do": "show", "zones": false, "ranges": false},
+                {"t": 60.0, "do": "capture", "name": pt + "_T2_wave2_clean_t60"},
+                {"t": 90.0, "do": "capture", "name": pt + "_T2_wave3_clean_t90"},
+                {"t": 90.0, "do": "show", "zones": true, "ranges": true},
+                {"t": 90.0, "do": "wait_collapse", "deadline": 400.0},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_collapse"},
+                {"t": 90.0, "do": "labels", "on": false},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_collapse_nolabels"},
+                {"t": 90.0, "do": "labels", "on": true},
+                {"t": 90.0, "do": "preview_at", "anchor": Vector2i(46, 29)},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_preview_outer_refused"},
+                {"t": 90.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_preview_B_ok"},
+                {"t": 90.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 90.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_placed_B"},
+                {"t": 400.0, "do": "capture_on_end", "name": pt + "_T4_result"},
+            ]
         "wp005_closeup":
             # AC-02 evidence: 3x close-ups of the plaza (footprint / grid
             # overlay on and off), the outer post at the collapse and cell B
@@ -2039,6 +2074,18 @@ func _capture_script_step() -> void:
                 _capture_busy = true
                 _do_capture(step["name"])
                 return
+            "show":
+                _show_zones = bool(step["zones"])
+                _show_ranges = bool(step["ranges"])
+                _capture_log.append({"t": battle.sim_time, "show_zones": _show_zones, "show_ranges": _show_ranges, "tick": battle.steps})
+            "wait_collapse":
+                # Stay on this step until the outer district collapses from real
+                # arrivals (no forced HP); give up at the deadline (sim seconds).
+                if battle.run.collapse_count == 0 and battle.sim_time < float(step["deadline"]) and not battle.run.ended():
+                    _capture_index -= 1
+                    return
+                _capture_log.append({"t": battle.sim_time, "wait_collapse": battle.run.collapse_count, "outer_hp": battle.run.outer_hp,
+                    "tick": battle.steps, "run": battle.run.run_name()})
             "labels":
                 _show_labels = bool(step["on"])
                 _overlay.show_labels = _show_labels
