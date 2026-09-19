@@ -1228,6 +1228,7 @@
      PASS  at least one edge tile per open cell touching a wall (118 cells)
      PASS  one gate module (= 1)
      PASS  all four ground variants used (= 4)
+     PASS  the base tile covers most of the floor (452 of 652), variants are sparse
      PASS  north and south edges present in the plaza
      PASS  planning does not touch the grid (= 1068)
      PASS  plan is deterministic (= 1043)
@@ -1295,12 +1296,65 @@
      PASS  core normal (= normal)
      PASS  core hit within 0.4 s (= hit)
      PASS  back to normal (= normal)
-     PASS  enemy multimesh uses the atlas (= ():<ImageTexture#-9223371579793078420>)
+     PASS  enemy multimesh uses the atlas (= ():<ImageTexture#-9223371575061903508>)
      PASS  atlas shader material
      PASS  grey box: no art set, no fx layer
      PASS  grey box keeps the 12-float instance layout (= 12)
      PASS  grey box keeps the blast rings (= true)
      PASS  grey box: no shader
+  -- Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box
+     PASS  the 13 integrated files + 4 derived states load (17)
+     PASS  hwacha/idle loaded
+     PASS  hwacha/idle is 40x40 (= (40, 40))
+     PASS  hwacha/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/idle sha recorded (= 64)
+     PASS  hwacha/idle stands within 2 px of the canvas bottom (row 37)
+     PASS  hwacha/inactive loaded
+     PASS  hwacha/inactive is 40x40 (= (40, 40))
+     PASS  hwacha/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/inactive sha recorded (= 64)
+     PASS  hwacha/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  jangseung/idle loaded
+     PASS  jangseung/idle is 40x40 (= (40, 40))
+     PASS  jangseung/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/idle sha recorded (= 64)
+     PASS  jangseung/idle stands within 2 px of the canvas bottom (row 37)
+     PASS  jangseung/inactive loaded
+     PASS  jangseung/inactive is 40x40 (= (40, 40))
+     PASS  jangseung/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/inactive sha recorded (= 64)
+     PASS  jangseung/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  bongsu/connected loaded
+     PASS  bongsu/connected is 40x40 (= (40, 40))
+     PASS  bongsu/connected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/connected sha recorded (= 64)
+     PASS  bongsu/connected stands within 2 px of the canvas bottom (row 37)
+     PASS  bongsu/disconnected loaded
+     PASS  bongsu/disconnected is 40x40 (= (40, 40))
+     PASS  bongsu/disconnected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/disconnected sha recorded (= 64)
+     PASS  bongsu/disconnected stands within 2 px of the canvas bottom (row 37)
+     PASS  sensor/active loaded
+     PASS  sensor/active is 40x40 (= (40, 40))
+     PASS  sensor/active pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/active sha recorded (= 64)
+     PASS  sensor/active stands within 2 px of the canvas bottom (row 37)
+     PASS  sensor/inactive loaded
+     PASS  sensor/inactive is 40x40 (= (40, 40))
+     PASS  sensor/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/inactive sha recorded (= 64)
+     PASS  sensor/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  loaded + missing = contract (= 35)
+     PASS  frames not delivered yet are reported missing, not invented
+     PASS  enemy atlas built from the 6 shipped strips (12x16)
+     PASS  terrain ground strip: 4 variants (= 4)
+     PASS  roof / wall modules shipped
+     PASS  gate / edge tiles still missing (reported)
+     PASS  interactive launch without --art shows the reviewed art (= sample)
+     PASS  scene loaded the same set
+     PASS  enemies render from the shipped atlas
+     PASS  240 frames: battle state identical to the grey box
+     PASS  scripted capture without --art stays grey box (= greybox)
 
-TOTAL passed=1210 failed=0
-elapsed 69.5 s
+TOTAL passed=1263 failed=0
+elapsed 63.6 s

@@ -184,10 +184,12 @@ Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\captures\wp005_*"
 Assert-Exit "wp005 dev fixture"
 $fixture = "user://wp005_art_fixture"
 $logs = @{}
-foreach ($art in @("greybox", "sample")) {
+# greybox / sample(fixture) prove the pipeline; assets = --art=sample on the shipped
+# assets/art/wp005 directory (D-050), the evidence for the reviewed files.
+foreach ($art in @("greybox", "sample", "assets")) {
     foreach ($size in @("", "_720")) {
         $sc = "wp005_${art}${size}"
-        $extra = @("--art=$art")
+        $extra = @("--art=$(if ($art -eq 'greybox') { 'greybox' } else { 'sample' })")
         if ($art -eq "sample") { $extra += "--art-dir=$fixture" }
         & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" @extra | Out-Host
         Assert-Exit "capture $sc"
@@ -222,6 +224,37 @@ foreach ($size in @("", "_720")) {
     Write-Host ("capture wp005{0}: greybox == sample at 4 checkpoints, outcome {1}; sample fx fire={2} impact={3} collapse={4} despawn={5}, tiles ground={6} edge={7} wall={8} roof={9} gate={10}" -f $size, $se.run.run,
         $t45.fx.created_by_kind.fire, $t45.fx.created_by_kind.impact, $t45.fx.created_by_kind.collapse, $t45.fx.created_by_kind.enemy_despawn,
         $a.sample_tiles_drawn.ground, $a.sample_tiles_drawn.edge, $a.sample_tiles_drawn.wall, $a.sample_tiles_drawn.roof, $a.sample_tiles_drawn.gate)
+    # reviewed assets: same battle as the grey box; every shipped contract file loaded, the rest reported missing; facility sprites drawn
+    $r5 = $logs["wp005_assets$size"]
+    foreach ($label in @("initial", "before_collapse", "after_collapse", "after_recovery")) {
+        $gs = $g | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        $rs = $r5 | Where-Object { $_.state_log -eq $label } | Select-Object -First 1
+        if ($null -eq $rs -or $gs.state_hash -ne $rs.state_hash -or $gs.tick -ne $rs.tick) { throw "capture wp005_assets${size}: state differs from greybox at '$label'" }
+    }
+    $rl = $r5 | Where-Object { $_.art_log -eq "launch" } | Select-Object -First 1
+    $shipped = @(Get-ChildItem -Recurse -Filter *.png "assets\art\wp005").Count
+    if ($rl.art.loaded_count -ne $shipped) { throw "capture wp005_assets${size}: loaded $($rl.art.loaded_count) != $shipped shipped png" }
+    if ($rl.art.loaded_count + $rl.art.missing_count -ne $rl.art.contract_count) { throw "capture wp005_assets${size}: loaded + missing != contract" }
+    $ra = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_a_dense_t15" } | Select-Object -First 1
+    $rb = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_b_collapse_t20.5" } | Select-Object -First 1
+    if ($ra.sprites_drawn.'hwacha/idle' -lt 1 -or $ra.sprites_drawn.'jangseung/idle' -lt 1 -or $ra.sprites_drawn.'bongsu/connected' -lt 1 -or $ra.sprites_drawn.'sensor/active' -lt 1) { throw "capture wp005_assets${size}: facility sprites not drawn at t15 ($($ra.sprites_drawn | ConvertTo-Json -Compress))" }
+    if ($rb.sprites_drawn.'hwacha/inactive' -lt 1 -or $rb.sprites_drawn.'bongsu/disconnected' -lt 1 -or $rb.sprites_drawn.'sensor/inactive' -lt 1) { throw "capture wp005_assets${size}: inactive / disconnected sprites not drawn after the collapse" }
+    Write-Host ("capture wp005_assets{0}: greybox == assets at 4 checkpoints; loaded {1}/{2} (missing {3}); t15 sprites {4}; t20.5 sprites {5}" -f $size, $rl.art.loaded_count, $rl.art.contract_count, $rl.art.missing_count,
+        ($ra.sprites_drawn | ConvertTo-Json -Compress), ($rb.sprites_drawn | ConvertTo-Json -Compress))
+}
+# AC-06: 1,000 enemies held on the field (benchmark load) with the shipped assets, with and without labels, 1080p and 720p
+foreach ($size in @("", "_720")) {
+    $sc = "wp005_dense$size"
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures" "--art=sample" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid5\captures\${sc}_log.json" "capture $sc"
+    foreach ($n in @("a_1000_t15", "a2_1000_nolabels_t15", "b_collapse_1000_t20.5", "c_recovery_1000_t25.5", "c2_recovery_1000_nolabels_t25.5")) { Assert-File "$evid5\captures\${sc}_$n.png" "capture $sc" }
+    $dl = Get-Content "$evid5\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $da = $dl | Where-Object { $_.capture -eq "${sc}_a_1000_t15" } | Select-Object -First 1
+    if ($da.alive -lt 1000) { throw "capture ${sc}: expected 1,000 enemies alive at t15 (got $($da.alive))" }
+    $dc = $dl | Where-Object { $_.capture -eq "${sc}_c_recovery_1000_t25.5" } | Select-Object -First 1
+    if (-not $dc.run.recovery_placed) { throw "capture ${sc}: H1 not placed at t25" }
+    Write-Host ("capture {0}: alive {1} at t15, collapse {2}, recovery placed {3}" -f $sc, $da.alive, $dc.run.collapse_count, $dc.run.recovery_placed)
 }
 }   # end of the WP-005 capture block
 
@@ -307,13 +340,13 @@ foreach ($sc in @("collapse_move", "collapse_combat")) {
     Assert-CollapsePerf $out $sc ""
 }
 } else {
-Write-Host "== 6d/6 WP-005 transition performance per rendering mode (greybox / sample with the dev fixture; same exe, D-027 contract)"
+Write-Host "== 6d/6 WP-005 transition performance per rendering mode (greybox / sample on the shipped assets; same exe, D-027 contract)"
 Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\perf\perf_collapse_*_1000_release.json*"
 foreach ($art in @("greybox", "sample")) {
     foreach ($sc in @("collapse_move", "collapse_combat")) {
         $out = "results\evidence\wp-005\perf\perf_${sc}_${art}_1000_release.json"
         if ($art -eq "sample") {
-            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art sample -ArtDir "user://wp005_art_fixture"
+            & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art sample   # default dir = assets/art/wp005 (D-051)
         } else {
             & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art greybox
         }
@@ -321,7 +354,7 @@ foreach ($art in @("greybox", "sample")) {
         Assert-File "$out.memory.json" "perf $sc $art memory sampler"
         $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($r.art_mode -ne $art) { throw "perf ${sc}: manifest art_mode '$($r.art_mode)' != '$art'" }
-        if ($art -eq "sample" -and ($r.art.loaded_count -ne $r.art.contract_count -or -not $r.art.enemy_atlas)) { throw "perf $sc sample: fixture not fully loaded" }
+        if ($art -eq "sample" -and (-not $r.art.enemy_atlas -or $r.art.loaded_count -lt 13)) { throw "perf $sc sample: shipped assets not loaded (loaded $($r.art.loaded_count), atlas $($r.art.enemy_atlas))" }
         Assert-CollapsePerf $out $sc " [$art]"
     }
 }

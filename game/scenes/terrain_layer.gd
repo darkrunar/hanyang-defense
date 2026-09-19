@@ -94,7 +94,10 @@ static func sample_plan(grid: TerrainGrid, rect: Rect2i = SAMPLE_RECT) -> Dictio
                 items.append([el, cell, 0])
                 counts[el] += 1
                 continue
-            items.append(["ground", cell, posmod(cx * 73856093 ^ cy * 19349663, 4)])
+            # Mostly the base tile; the three variants appear sparsely so the
+            # floor does not read as a checkerboard (GPT review 2026-09-20 (2)).
+            var hsh: int = posmod(cx * 73856093 ^ cy * 19349663, 16)
+            items.append(["ground", cell, 0 if hsh < 11 else 1 + (hsh - 11) % 3])
             counts["ground"] += 1
             var sides: Array = [not _open(grid, cx, cy - 1), not _open(grid, cx + 1, cy), not _open(grid, cx, cy + 1), not _open(grid, cx - 1, cy)]
             for k: int in range(4):

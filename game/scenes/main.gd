@@ -64,7 +64,10 @@ var _multimesh: MultiMesh = null
 var _buffer: PackedFloat32Array = PackedFloat32Array()
 ## WP-005 (D-049): rendering choice. "greybox" is the WP-001..004 drawing,
 ## "sample" reads the art set; nothing in the simulation depends on it.
-var _art_mode: String = "greybox"
+## Empty = not chosen on the command line: an interactive launch shows the
+## reviewed art (sample), scripted evidence runs (--perf / --capture) stay
+## grey box unless --art says otherwise (D-050).
+var _art_mode: String = ""
 var _art_dir: String = ArtSet.DEFAULT_DIR
 var art: ArtSet = null
 var _art_report: Dictionary = {}
@@ -157,6 +160,8 @@ func _ready() -> void:
     # scenarios pin their own presets in _apply_run_mode; --set overrides here.
     config = Config.for_wp003()
     _parse_args()
+    if _art_mode == "":
+        _art_mode = "greybox" if (_perf != null or _capture_name != "") else "sample"
     battle = Battle.new(config)
     _build_scene()
     _apply_run_mode()
@@ -1850,11 +1855,44 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
-        "wp005_sample", "wp005_sample_720", "wp005_greybox", "wp005_greybox_720":
+        "wp005_dense", "wp005_dense_720":
+            # AC-06 evidence: the D-027 benchmark load (1,000 enemies held by
+            # top-up, finite waves off, outer HP 1e6 until the scripted
+            # trigger) in the rendering mode given by --art; captures with
+            # and without structure labels, the collapse and the recovery.
+            _apply_mode_preset(Config.for_wp003())
+            config.values["benchmark_hold_alive"] = true
+            config.values["outer_hp"] = 1000000.0
+            config.values["benchmark_core_invulnerable"] = true
+            battle.reset()
+            battle.waves.enabled = false
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pd: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "capture", "name": pd + "_a_1000_t15"},
+                {"t": 15.0, "do": "labels", "on": false},
+                {"t": 15.0, "do": "capture", "name": pd + "_a2_1000_nolabels_t15"},
+                {"t": 15.0, "do": "labels", "on": true},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 dense forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 dense trigger enemy"},
+                {"t": 20.5, "do": "capture", "name": pd + "_b_collapse_1000_t20.5"},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.5, "do": "capture", "name": pd + "_c_recovery_1000_t25.5"},
+                {"t": 25.5, "do": "labels", "on": false},
+                {"t": 25.5, "do": "capture", "name": pd + "_c2_recovery_1000_nolabels_t25.5"},
+                {"t": 25.5, "do": "art_log", "label": "t25.5"},
+                {"t": 25.5, "do": "quit"},
+            ]
+        "wp005_sample", "wp005_sample_720", "wp005_greybox", "wp005_greybox_720", "wp005_assets", "wp005_assets_720":
             # WP-005 evidence: the F2 timeline (forced collapse at 20 s, H1 to B
             # at 25 s) in the rendering mode given by --art, at 1920x1080 or
-            # 1280x720. The scenario name only picks the window size; the
-            # battle data are the WP-003 contract in both modes (AC-05).
+            # 1280x720. The scenario name only picks the window size and the
+            # file prefix (wp005_assets* = --art=sample on the default asset
+            # directory); the battle data are the WP-003 contract in every
+            # variant (AC-05).
             _apply_mode_preset(Config.for_wp003())
             battle.reset()
             _sim_speed = 6
@@ -1941,6 +1979,10 @@ func _capture_script_step() -> void:
                 _capture_busy = true
                 _do_capture(step["name"])
                 return
+            "labels":
+                _show_labels = bool(step["on"])
+                _overlay.show_labels = _show_labels
+                _capture_log.append({"t": battle.sim_time, "labels": _show_labels, "tick": battle.steps})
             "art_log":
                 _capture_log.append({"t": battle.sim_time, "art_log": step["label"], "art_mode": _art_mode,
                     "art": _art_report, "fx": _fx.snapshot() if _fx != null else {}, "labels": _show_labels,

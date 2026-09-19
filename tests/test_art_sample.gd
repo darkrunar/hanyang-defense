@@ -31,6 +31,7 @@ func run(t: RefCounted) -> void:
     _greybox_equals_sample(t, tree)
     _fx_event_contract(t, tree)
     _sample_scene_wiring(t, tree)
+    _reviewed_assets(t, tree)
 
 
 # ----------------------------------------------------------------- helpers ---
@@ -158,6 +159,11 @@ func _tile_plan_unit(t: RefCounted) -> void:
             if grid.is_wall(c.x, c.y):
                 t.check(false, "edge tile planned on a wall cell %s" % str(c))
     t.eq(ground_variants.size(), 4, "all four ground variants used")
+    var base_tiles: int = 0
+    for it: Array in plan["items"]:
+        if it[0] == "ground" and it[2] == 0:
+            base_tiles += 1
+    t.check(base_tiles * 10 >= int(counts["ground"]) * 6, "the base tile covers most of the floor (%d of %d), variants are sparse" % [base_tiles, int(counts["ground"])])
     t.check(seen_edge_frames.has(0) and seen_edge_frames.has(2), "north and south edges present in the plaza")
     t.eq(grid.open_cell_count(), before, "planning does not touch the grid")
     t.eq(TerrainLayer.sample_plan(grid)["items"].size(), plan["items"].size(), "plan is deterministic")
@@ -330,3 +336,65 @@ func _sample_scene_wiring(t: RefCounted, tree: SceneTree) -> void:
     t.check(g._enemies.material == null, "grey box: no shader")
     Flow._drop(s)
     Flow._drop(g)
+
+
+# ------------------------------------------------- reviewed assets (default dir) ---
+
+## The files actually shipped under assets/art/wp005 (D-050: the four
+## generated facility sources converted to the contract). Whatever is there
+## must satisfy the contract, and the rest of the set must be reported
+## missing, never invented. Battle state stays equal to the grey box.
+func _reviewed_assets(t: RefCounted, tree: SceneTree) -> void:
+    t.case("Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box")
+    var art: ArtSet = ArtSet.new(ArtSet.DEFAULT_DIR)
+    var rep: Dictionary = art.load_all()
+    t.check(art.loaded_count() >= 17, "the 13 integrated files + 4 derived states load (%d)" % art.loaded_count())
+    for id_state: Array in [["hwacha", "idle"], ["hwacha", "inactive"], ["jangseung", "idle"], ["jangseung", "inactive"],
+            ["bongsu", "connected"], ["bongsu", "disconnected"], ["sensor", "active"], ["sensor", "inactive"]]:
+        var fr: ArtSet.Frames = art.frames(id_state[0], id_state[1])
+        if not t.check(fr != null, "%s/%s loaded" % [id_state[0], id_state[1]]):
+            continue
+        t.eq(fr.frame_size, Vector2i(40, 40), "%s/%s is 40x40" % [id_state[0], id_state[1]])
+        t.eq(fr.pivot, Vector2(20.0, 20.0), "%s/%s pivot = footprint centre" % [id_state[0], id_state[1]])
+        t.eq(fr.sha256.length(), 64, "%s/%s sha recorded" % [id_state[0], id_state[1]])
+        # ground contact: the lowest opaque row is within 2 px of the canvas
+        # bottom (import_wp005_sources.gd seats the object at row 37)
+        var img: Image = fr.texture.get_image()
+        var lowest: int = -1
+        for y: int in range(40):
+            for x: int in range(40):
+                if img.get_pixel(x, y).a > 0.5:
+                    lowest = y
+        t.check(lowest >= 37, "%s/%s stands within 2 px of the canvas bottom (row %d)" % [id_state[0], id_state[1], lowest])
+    t.eq(int(rep["loaded_count"]) + int(rep["missing_count"]), art.contract_count(), "loaded + missing = contract")
+    t.check(art.missing.has("hwacha/fire") and art.missing.has("bongsu/pulse"), "frames not delivered yet are reported missing, not invented")
+    t.check(art.enemy_atlas != null and art.enemy_frame_size == Vector2i(12, 16), "enemy atlas built from the 6 shipped strips (12x16)")
+    for st: String in ["ground"]:
+        t.eq(art.frames("terrain_sample", st).frame_count, 4, "terrain ground strip: 4 variants")
+    t.check(art.has("building_sample", "roof") and art.has("building_sample", "wall"), "roof / wall modules shipped")
+    t.check(art.missing.has("building_sample/gate") and art.missing.has("terrain_sample/edge"), "gate / edge tiles still missing (reported)")
+    # default mode: interactive -> sample, scripted -> greybox (D-050)
+    var s: Node2D = _scene(tree, "", ArtSet.DEFAULT_DIR)
+    t.eq(s._art_mode, "sample", "interactive launch without --art shows the reviewed art")
+    t.check(s.art != null and s.art.loaded_count() == art.loaded_count(), "scene loaded the same set")
+    t.check(s._enemy_sprites, "enemies render from the shipped atlas")
+    var g: Node2D = _scene(tree, "greybox", ArtSet.DEFAULT_DIR)
+    _start(s)
+    _start(g)
+    _frame(s, 240)
+    _frame(g, 240)
+    t.check(s.battle.full_state_json() == g.battle.full_state_json(), "240 frames: battle state identical to the grey box")
+    Flow._drop(s)
+    Flow._drop(g)
+    var p: Node2D = Main.new()
+    p._settings_path = SETTINGS_TMP
+    p._capture_name = "ac02"
+    p._perf = null
+    tree.root.add_child(p)
+    if not p.is_node_ready():
+        p._ready()
+    p.set_process(false)
+    p.set_physics_process(false)
+    t.eq(p._art_mode, "greybox", "scripted capture without --art stays grey box")
+    Flow._drop(p)
+
