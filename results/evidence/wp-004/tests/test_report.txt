@@ -1082,9 +1082,64 @@
      PASS  the release after resume placed nothing (= 18)
      PASS  no command issued by the leftover release / hold (= 0)
      PASS  recovery right still available (= 1)
+     PASS  a press before the resuming Esc is released places nothing (R-01) (= 18)
+     PASS  and is not held for retry (= false)
      PASS  a fresh press places H1 at B
      PASS  exactly one accepted command (= 19)
      PASS  Esc on RESULT does nothing (= RESULT)
+  -- AC-05 R-01 release fence: Esc held + LMB, held LMB across the release, Enter held + button, close click press/release, R held after RESULT restart, viewport-routed events
+     PASS  (a) Esc -> PAUSED (= PAUSED)
+     PASS  (a) second Esc press resumes (no release yet) (= PLAYING)
+     PASS  (a) fence = the held Esc (= ["Escape"])
+     PASS  (a) LMB press while Esc is held: no command (= 0)
+     PASS  (a) not even a rejected command (= 0)
+     PASS  (a) H1 not placed (= false)
+     PASS  (a) recovery right intact (= 1)
+     PASS  (a) the refusal is logged (= 1)
+     PASS  (a) logged input (= mouse1)
+     PASS  (a) the refused press is not held for retry (= false)
+     PASS  (a) 30 frames later still no command (= 0)
+     PASS  (a) the Esc release opens the fence
+     PASS  (a) the LMB still held from the blocked press never places after the release (= 0)
+     PASS  (a) its release places nothing (= 0)
+     PASS  (a) a NEW press after the release places exactly once (= 1)
+     PASS  (a) H1 placed at B
+     PASS  (b) P -> PAUSED (= PAUSED)
+     PASS  (b) 계속하기 emits while Enter is held
+     PASS  (b) PLAYING (= PLAYING)
+     PASS  (b) fence = the held Enter (= ["Enter"])
+     PASS  (b) LMB while Enter is held: no command (= 0)
+     PASS  (b) Enter release opens the fence
+     PASS  (b) new press places once (= 1)
+     PASS  (c) the press is in the held ledger (= ["mouse1"])
+     PASS  (c) 계속하기 closes PAUSED
+     PASS  (c) PLAYING (= PLAYING)
+     PASS  (c) nothing held at close time: fence empty
+     PASS  (c) the closing click placed nothing (= 0)
+     PASS  (c) the next new press places once (= 1)
+     PASS  (d) RESULT (= RESULT)
+     PASS  (d) R restarts immediately (= PLAYING)
+     PASS  (d) new run (3 != 2)
+     PASS  (d) fence = the held R (= ["R"])
+     PASS  (d) R still held after the collapse: fence intact (= ["R"])
+     PASS  (d) LMB while R is held: no command in the new run (= 0)
+     PASS  (d) R release opens the fence
+     PASS  (d) new press places once (= 1)
+     PASS  (e) routed Esc pauses (= PAUSED)
+     PASS  (e) routed click while PAUSED: no command (= 0)
+     PASS  (e) routed Esc press resumes (= PLAYING)
+     PASS  (e) fence = the held Esc (= ["Escape"])
+     PASS  (e) routed LMB while Esc is held: no command (= 0)
+     PASS  (e) H1 not placed (= false)
+     PASS  (e) routed Esc release opens the fence
+     PASS  (e) routed new press places once (= 1)
+     PASS  (e) H1 placed
+  -- AC-05 run already LOST (stepped outside the loop) before a pending pause is applied: RESULT wins, pause stale
+     PASS  battle LOST before the frame (= LOST)
+     PASS  UI still PLAYING before the frame (= PLAYING)
+     PASS  RESULT shown, not PAUSED (= RESULT)
+     PASS  the pending pause was dropped as stale (= 1)
+     PASS  result model built (= LOST)
   -- AC-06 result model == battle ledgers, frozen for 120 frames, pause time excluded, unplaced shown as —
      PASS  RESULT (= RESULT)
      PASS  outcome (= LOST)
@@ -1135,5 +1190,5 @@
      PASS  capture without --settings uses a throwaway path, not the player's file (= user://wp004_capture_settings.cfg)
      PASS  capture with --settings uses the injected path (= user://wp004_test_settings.cfg)
 
-TOTAL passed=1053 failed=0
-elapsed 51.2 s
+TOTAL passed=1106 failed=0
+elapsed 56.2 s

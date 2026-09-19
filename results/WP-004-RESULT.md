@@ -1,7 +1,7 @@
 # WP-004 Result
 
 - 작성일: 2026-09-16
-- WP / 상태: WP-004 플레이 흐름·메뉴·재시작 / **REVIEW** (GPT 판정 PENDING)
+- WP / 상태: WP-004 플레이 흐름·메뉴·재시작 / **REVIEW** (GPT 1차 REVISE 2026-09-19 → 보완 회차 1 `a24e3fe`, 재리뷰 대기)
 - 기준 커밋: `d3bd9d8` ("docs(wp-004): define play flow menus restart and settings acceptance criteria", main, READY v1.0)
 - 검증한 구현 커밋: **`d63b9b7`** ("feat(wp-004): play flow …") → `90090ce`(uid·verify 스위치) → **`e715906`**(TITLE에서 연 설정 화면 뒤 HUD 숨김; 최종 게임 트리) → `96ec3c9`(verify 스크립트만). 성능 manifest `implementation_sha` = `96ec3c9`(게임 트리 = `e715906`). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
 - 브랜치: `wp/004-play-flow` · PR: https://github.com/darkrunar/hanyang-defense/pull/6 (Draft, 병합 금지)
@@ -51,7 +51,7 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 | AC-02 | **PASS** | PAUSED/SETTINGS/CONFIRM 각 120틱 동안 전투 구조화 상태 불변·배치 0, 재개 후 몰아 처리 없음 | 적 이동 중·H1 회수 대기 상태에서 세 화면 각각 120 프레임: `full_state_json` 동일, 틱 0, 명령 0(홀드 클릭 포함), 회수권 1 유지. 계속하기 프레임에 정확히 1틱, 이후 프레임당 1틱, sim_time 6틱분만 증가 | 테스트 "AC-02" |
 | AC-03 | **PASS** | R/다시 시작 확인·취소 정확, RESULT는 확인 없이 1회 | PLAYING R → CONFIRM("다시 시작"/"취소"), 10프레임 전투 불변, 취소 → PLAYING 같은 run; 확인 → 새 런 정확히 1회(전이 로그 1건). PAUSED 다시 시작/시작 화면으로 → CONFIRM, 취소 → PAUSED 유지, 확인 → TITLE 1회. RESULT 다시 시작 더블클릭 → 새 런 1회, 두 번째 클릭 stale 폐기 | 테스트 "AC-03"; 캡처 06/07/08, 로그 `button`/`key` state_before→after |
 | AC-04 | **PASS** | 새 런 = WP-003 초기 상태(run_id 제외), 이전 입력 무효 | 진행 중(홀드 클릭 중)·LOST 후·WON 후 재시작 각각 `full_state_json` == 새 Battle을 같은 틱만큼 진행한 상태; 회수권 0·대기 0·강제 HP 기록 0; 확인창 진입 시 홀드 폐기. 런 종료 후 남아 있던 pause/restart 의도 2건 → stale 폐기, RESULT 유지, 자동 새 런 없음 | 테스트 "AC-04" |
-| AC-05 | **PASS** | Esc 계층·메뉴 입력 소비·종료 우선순위 | TITLE Esc 무시(종료 아님), PLAYING Esc→PAUSED, 설정 Esc→PAUSED(한 단계), PAUSED Esc→PLAYING, CONFIRM Esc→취소만, SETTINGS/CONFIRM의 R·P 무시, RESULT Esc 무시. 메뉴 중 LMB press 소비(`_mouse_down` false), 재개 후 release는 명령 0, 새 press만 배치 1회 | 테스트 "AC-05"; 캡처 로그 `key` 7건 |
+| AC-05 | **PASS** (1차 리뷰 FAIL → 보완 회차 1에서 해소) | Esc 계층·메뉴 입력 소비·종료 우선순위·닫기 입력 해제 경계 | TITLE Esc 무시(종료 아님), PLAYING Esc→PAUSED, 설정 Esc→PAUSED(한 단계), PAUSED Esc→PLAYING, CONFIRM Esc→취소만, SETTINGS/CONFIRM의 R·P 무시, RESULT Esc 무시. 메뉴 중 LMB press 소비(`_mouse_down` false), 재개 후 release는 명령 0. **메뉴를 닫은 입력을 떼기 전 press는 거절(명령 0·회수권 유지·재시도 없음), 뗀 뒤 새 press만 배치 1회** — Esc/Enter/닫기 클릭/RESULT R, 직접 핸들러와 Viewport 경로 | 테스트 "AC-05", "AC-05 R-01 release fence", "AC-05 run already LOST…"; 캡처 로그 `key`·`fence_probe` |
 | AC-06 | **PASS** | 결과 수치 = 실제 장부, 종료 후 불변, pause 제외, 미배치 표시 | 120프레임 일시정지 후 종료한 런: play_time == RunState.end_sim_time == 틱×dt(일시정지 제외), mm:ss, 웨이브 1-based, 처치/도달/붕괴 시각/회수 상태/핵심 HP 전부 장부와 일치, 미배치 "—". RESULT 120프레임 후 결과 JSON·전투 상태 동일 | 테스트 "AC-06", "ResultModel unit"; 캡처 로그 `result` |
 | AC-07 | **PASS** | 창/전체화면 적용·재실행 유지·손상 복구·저장 실패 알림; 두 해상도 캡처 겹침 없음 | 설정 토글 → 즉시 저장·라벨 갱신, TITLE/PAUSED 동일 값, 새 scene(재실행) fullscreen 유지, 손상/범위 밖 파일 → 기본값·실행 계속, 쓸 수 없는 경로 → "설정 저장 실패" 알림·세션 내 값 유지. 캡처 1920×1080·1280×720 각 11장: TITLE/SETTINGS(2)/PLAYING/PAUSED/CONFIRM(3)/RESULT(2)/TITLE — 한글·포커스·버튼 겹침 없음, 메뉴 닫힘 후 HUD 배치 복원 | 테스트 "UserSettings unit", "AC-07"; `captures/wp004_ui_*.png`, `wp004_ui_720_*.png` |
 | AC-08 | **PASS** | 기존 회귀 종료 0, legacy 8존/WP-003 10존·자동 모드 메뉴 우회, 새 release collapse 성능 계약 | 전체 1,053 passed / 0 failed (52 s; 기존 780 + WP-004 스위트 12케이스 267체크 + scene R-03 갱신분) 종료 0(기존 780건 포함). `--perf`/`--capture=ac02`는 bypass·설정 미로드·즉시 PLAYING, 존 10/8 확인; `wp004_ui`만 TITLE. 새 release(`96ec3c9 = 게임 트리 e715906`) 성능: collapse_move **221.1 FPS / p95 12.60 ms**, collapse_combat **250.2 FPS / p95 11.51 ms**, 전 프레임 alive ≥1000, 6 이벤트, 배치 ok, 구간 합 = 전체 프레임, exe SHA-256 일치 (WP-003 회차 4와 동급) | 테스트 "AC-08", "WP-003 scene entry paths"; `wp-004/perf/*.json` |
@@ -104,7 +104,7 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 
 ## PR
 
-- Draft PR #6: https://github.com/darkrunar/hanyang-defense/pull/6 · 구현 `d63b9b7`→`e715906` · 결과·증거 `f0bf6b6`
+- Draft PR #6: https://github.com/darkrunar/hanyang-defense/pull/6 · 구현 `d63b9b7`→`e715906` · 결과·증거 `f0bf6b6` · GPT 1차 리뷰 REVISE `0f1f166` · 보완 회차 1 `a24e3fe`
 
 ## GPT Review
 
@@ -161,3 +161,48 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 #### 기획 판단 / 다음 조치
 
 D-039~042의 동일 전장 재시도, 전투와 UI 상태 분리, 결과 장부, 창 모드만 제공하는 설정 범위는 유지한다. D-043/045/046의 구현 방향은 수용한다. D-044는 R-01의 release 경계를 보완해야 한다. 전장 전체 픽셀아트 교체·음향·재화 기능은 이번 수정에 추가하지 않는다. **R-01 수정과 대응 증거 제출 후 재리뷰**하며, 현재 PR은 병합/DONE 처리하지 않는다.
+
+### 2026-09-19 — 보완 회차 1 (R-01 해제 펜스)
+
+- 보완 커밋: **`a24e3fe`** ("fix(wp-004): release fence …", 게임 트리·테스트·verify). 이 문서와 증거는 별도 문서 커밋. 재리뷰 대상 diff `0f1f166..HEAD`.
+- 판정 반영: R-01 [P2, 필수] 수정. 종료 우선순위 경계 관측은 결함으로 계산되지 않았으나 같은 회차에 순서를 고정하고 시험을 추가했다. `path_version_expected` 표시 정리는 이번 수정에 넣지 않았다(성능 manifest 형식은 WP-003 승인 증거와 같게 유지).
+- 기획 유지: D-039~042 그대로. 게임 규칙·수치 변경 없음. D-044 마지막 문장을 D-047이 보완.
+
+#### 수정 내용 (`game/scenes/main.gd`, D-047)
+
+| 항목 | 구현 |
+|---|---|
+| 눌린 입력 장부 `_held` | `_input`(모든 이벤트, GUI가 소비하기 전)과 `_handle_key_event`(합성 이벤트)에서 press/release를 이름("Escape", "Enter", "R", "mouse1")으로 기록. 재시작은 장부를 건드리지 않고(장치 상태), 창 포커스 손실 시에만 비움 |
+| 해제 펜스 `_fence` | `_sync_menu`가 메뉴 열림→PLAYING 전이를 감지한 프레임에 `_held` 사본을 펜스로 삼는다. release마다 그 입력을 펜스에서 지우고, 펜스가 빌 때까지 마우스 press(좌/우)와 1~4/T/C를 거절해 `fenced_inputs`에 기록. 거절한 press는 `_mouse_down`을 세우지 않아 홀드 재시도로 넘어가지 않는다 |
+| 닫는 경로별 | Esc(press에 반응) → 뗄 때까지 닫힘. Enter/마우스 클릭 → Button이 release에 `pressed`를 내므로 닫히는 시점에 눌린 것이 없어 펜스가 비어 새 press부터 즉시. RESULT의 R → 새 런에서 R을 뗄 때까지 닫힘 |
+| 홀드 재시도 | 이전 런 홀드 폐기(R-03)는 펜스와 무관하게 유지, 재시도 자체는 펜스가 빈 동안만 |
+| 종료 우선순위 | `_physics_process`가 의도 큐 적용 **전에** `_check_run_end()`를 호출: 루프 밖에서 진행되어 이미 끝난 런은 RESULT가 먼저 서고 대기 pause는 stale |
+| 캡처 | `key` 스텝은 탭(press+release). 새 `fence_probe` 스텝(붕괴 전 1회, WON 런 1회)이 Esc 일시정지 → Esc 누른 채 재개 → LMB press(거절) → Esc release → LMB press(배치)를 실제 이벤트로 기록. `ui_state_log`에 `fence`/`fenced_inputs` 추가 |
+| 테스트 러너 | `run_tests.gd`가 첫 프레임에서 스위트를 실행(`_initialize` 안에서는 root Window가 `push_input`을 노드에 전달하지 않음) |
+
+#### 재시험 (리뷰 요청 항목별)
+
+| 요청 | 시험 | 결과 |
+|---|---|---|
+| Esc held + LMB | AC-05 R-01 (a): Esc 재개 후 release 없이 LMB press | accepted Δ0 · rejected 0 · 회수권 1 · `fenced_inputs` 1건("mouse1") · `_mouse_down` false · 30프레임 후에도 Δ0 |
+| 차단 중 누른 LMB를 계속 hold | (a) 이어서 Esc release 후 30프레임, LMB release | Δ0 유지(재시도 없음), release도 Δ0 |
+| release 후 새 press | (a)/(b)/(d)/(e) | 정확히 Δ1, H1이 B에 배치 |
+| Enter held + 버튼 | (b): `_input`에 Enter press 기록 후 계속하기 `pressed` 신호 | 펜스 ["Enter"], LMB Δ0; Enter release → 펜스 빔 → 새 press Δ1 |
+| 닫기 클릭의 press/release | (c): 버튼 위 press(장부 "mouse1")·release 후 신호 | 펜스 빔, 닫는 클릭 Δ0, 다음 새 press Δ1 |
+| 재시작 뒤 지연 입력 | (d): RESULT에서 R press(미해제) → 새 런 → 붕괴 후 LMB | 펜스 ["R"] 유지, LMB Δ0; R release → 새 press Δ1 |
+| Viewport 입력 경로 | (e): `Window.push_input`으로 Esc press/release·LMB press/release | PAUSED → PLAYING, Esc 보유 중 LMB Δ0·미배치, release 후 새 press Δ1·배치. 리뷰 스크립트 `review_input.gd`의 `viewport_input` 케이스와 동일 순서 |
+| 종료 우선순위 경계 | "run already LOST before pending pause": pause 큐 후 `battle.step`으로 LOST, 1프레임 | UI RESULT(리뷰 관측의 PAUSED 아님), pause stale 1건, 결과 모델 LOST |
+| 기존 AC-05 | Esc 재개 후 press → Δ0, Esc release 후 새 press → Δ1로 갱신(이전 시험은 Esc를 떼지 않은 채 새 press를 넣고 있었음) | PASS |
+| 전체 회귀 | `verify.ps1 -Wp004` | **1,106 passed / 0 failed (56.2 s; 기존 780 + WP-004 스위트 14케이스, 보완 회차에서 +53 체크)**, 종료 0 |
+
+#### 증거
+
+- 테스트 리포트: `results/evidence/wp-004/tests/test_report.txt`(보완 회차로 갱신, 이전 리포트는 `gpt-review/2026-09-19/test_report.txt`에 리뷰어 재실행본이 남아 있음).
+- 캡처(재생성, 11장 × 2 해상도 + 로그): `wp004_ui*_log.json`의 `fence_probe` 2건 — 붕괴 전: 상태 PAUSED→PLAYING, 펜스 ["Escape"], Esc 보유 중 LMB Δ0, release 후 Δ0(회수권 없음 → 배치 거절); WON 런: Esc 보유 중 Δ0·미배치, release 후 Δ1·`recovery_placed` true. 두 해상도 동일.
+- 새 release(`a24e3fe`) 성능: collapse_move **200.4 FPS / p95 14.66 ms**, collapse_combat **229.2 FPS / p95 13.36 ms**, 전 프레임 alive ≥1000, 6 이벤트, 배치 ok, exe SHA-256 `a1aebd868e19cfb410d8d261daa7dd08ab4a8600418554fef5633ac0960a25ae` (`results/evidence/wp-004/perf/`, 이전 회차 파일을 덮어씀; manifest `implementation_sha` = `a24e3fe`, 외부 메모리 샘플러 기록의 exe 해시 일치). 1차 제출(221.1 / 250.2 FPS)보다 낮지만 D-009 예산(평균 ≥60, p95 ≤25 ms) 안이다. 이번 변경은 이벤트당 장부 갱신뿐이라 측정 구간(입력 없음)에는 영향이 없고, 같은 기기에서의 회차 간 편차로 본다. 이 판단의 근거는 두 회차 모두 alive 1000 고정·6 이벤트 동일이라는 점이며 별도 A/B 측정은 하지 않았다(NOT RUN).
+- 리뷰어 재현 스크립트 `gpt-review/2026-09-19/review_input.gd`는 헤드리스에서 그대로 실행 가능하며, 수정 후 기대값(`release_fence` Δ0, `viewport_input` Δ0, `terminal_boundary` RESULT)을 만족한다: `release_fence Δ0(미배치, PLAYING) · viewport_input Δ0(미배치) · terminal_boundary RESULT — 출력은 수정본에서 다시 얻었고 리뷰어의 input_review.json 파일은 그대로 둠`.
+
+#### 알려진 한계
+
+- 실제 창 포커스 손실 시 장부를 비우는 경로는 헤드리스로 시험하지 못했다(NOT RUN; 코드는 `NOTIFICATION_APPLICATION_FOCUS_OUT`/`WM_WINDOW_FOCUS_OUT`).
+- Enter로 닫는 경로의 "Enter를 누른 채"는 Button이 release에 신호를 내는 Godot 기본 동작상 닫힘 자체가 release 뒤에 일어난다. 시험 (b)는 그 가정이 깨져도(press 모드 버튼) 펜스가 지키는지를 `_input` 장부로 확인한 것이다.

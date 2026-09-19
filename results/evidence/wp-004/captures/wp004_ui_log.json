@@ -1,5 +1,7 @@
 [
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -909,6 +911,8 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [],
     "key": "Escape",
     "run_id": 1,
     "state_after": "TITLE",
@@ -917,6 +921,8 @@
     "tick": 0
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -1525,6 +1531,8 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [],
     "key": "Escape",
     "run_id": 2,
     "state_after": "PAUSED",
@@ -1533,6 +1541,8 @@
     "tick": 721
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -2726,6 +2736,8 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [],
     "key": "Escape",
     "run_id": 2,
     "state_after": "PAUSED",
@@ -2734,6 +2746,8 @@
     "tick": 721
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -3382,6 +3396,8 @@
     "visible": true
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -4032,6 +4048,8 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [],
     "key": "Escape",
     "run_id": 2,
     "state_after": "PAUSED",
@@ -4040,6 +4058,8 @@
     "tick": 721
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -4125,6 +4145,10 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [
+      "Escape"
+    ],
     "key": "Escape",
     "run_id": 2,
     "state_after": "PLAYING",
@@ -4133,6 +4157,8 @@
     "tick": 721
   },
   {
+    "fence": [],
+    "fenced_inputs": 0,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -4219,6 +4245,132 @@
     "visible_buttons": []
   },
   {
+    "after_esc_press": "PAUSED",
+    "after_second_esc_press": "PLAYING",
+    "fence_after_esc_release": [],
+    "fence_after_resume": [
+      "Escape"
+    ],
+    "fence_probe": "(44, 13)",
+    "fenced_inputs": [
+      {
+        "fence": [
+          "Escape"
+        ],
+        "input": "mouse1",
+        "run_id": 2,
+        "tick": 721
+      }
+    ],
+    "lmb_after_release_accepted_delta": 0,
+    "lmb_while_esc_held_accepted_delta": 0,
+    "lmb_while_esc_held_recovery_placed": false,
+    "recovery_placed": false,
+    "run_id": 2,
+    "t": 12.0166666907002,
+    "tick": 721
+  },
+  {
+    "fence": [],
+    "fenced_inputs": 1,
+    "flow": {
+      "bypass": false,
+      "confirm_kind": "",
+      "confirm_return": "PAUSED",
+      "has_result": false,
+      "refused": [],
+      "settings_return": "PAUSED",
+      "state": "PLAYING",
+      "transitions": [
+        {
+          "from": "TITLE",
+          "request": "open_settings",
+          "seq": 1,
+          "to": "SETTINGS"
+        },
+        {
+          "from": "SETTINGS",
+          "request": "close_settings",
+          "seq": 2,
+          "to": "TITLE"
+        },
+        {
+          "from": "TITLE",
+          "request": "start_game",
+          "seq": 3,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 4,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "open_settings",
+          "seq": 5,
+          "to": "SETTINGS"
+        },
+        {
+          "from": "SETTINGS",
+          "request": "close_settings",
+          "seq": 6,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "request_restart",
+          "seq": 7,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 8,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "request_to_title",
+          "seq": 9,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 10,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 11,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 12,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 13,
+          "to": "PLAYING"
+        }
+      ]
+    },
+    "label": "fence_probe_before_collapse",
+    "run": "RUNNING",
+    "run_id": 2,
+    "t": 12.0166666907002,
+    "tick": 721,
+    "ui_state": "PLAYING",
+    "visible_buttons": []
+  },
+  {
     "force_outer_hp": 1.0,
     "t": 20.0000000400006,
     "why": "wp004_ui forced collapse (verification only)"
@@ -4230,6 +4382,8 @@
     "why": "wp004_ui trigger enemy"
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [],
     "key": "R",
     "run_id": 2,
     "state_after": "CONFIRM",
@@ -4238,6 +4392,8 @@
     "tick": 1320
   },
   {
+    "fence": [],
+    "fenced_inputs": 1,
     "flow": {
       "bypass": false,
       "confirm_kind": "restart",
@@ -4315,8 +4471,20 @@
         },
         {
           "from": "PLAYING",
-          "request": "request_restart",
+          "request": "pause",
           "seq": 12,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 13,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "request_restart",
+          "seq": 14,
           "to": "CONFIRM"
         }
       ]
@@ -4342,7 +4510,7 @@
     "capture": "wp004_ui_08_confirm_from_r_after_collapse",
     "combat_enabled": true,
     "commands_accepted": 18,
-    "commands_rejected": 0,
+    "commands_rejected": 1,
     "damage_applications": 245,
     "detached": [
       {
@@ -4587,7 +4755,7 @@
     "peak_alive": 179,
     "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-004\\captures/wp004_ui_08_confirm_from_r_after_collapse.png",
     "png_saved": true,
-    "rejected_total": 0,
+    "rejected_total": 1,
     "routes": [
       {
         "alive": 0,
@@ -4755,6 +4923,8 @@
     "visible": true
   },
   {
+    "fence": [],
+    "fenced_inputs": 1,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -4832,14 +5002,26 @@
         },
         {
           "from": "PLAYING",
-          "request": "request_restart",
+          "request": "pause",
           "seq": 12,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 13,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "request_restart",
+          "seq": 14,
           "to": "CONFIRM"
         },
         {
           "from": "CONFIRM",
           "request": "cancel_confirm",
-          "seq": 13,
+          "seq": 15,
           "to": "PLAYING"
         }
       ]
@@ -4909,7 +5091,7 @@
     "capture": "wp004_ui_09_result_lost",
     "combat_enabled": true,
     "commands_accepted": 18,
-    "commands_rejected": 0,
+    "commands_rejected": 1,
     "damage_applications": 292,
     "detached": [
       {
@@ -5148,7 +5330,7 @@
     "peak_alive": 179,
     "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-004\\captures/wp004_ui_09_result_lost.png",
     "png_saved": true,
-    "rejected_total": 0,
+    "rejected_total": 1,
     "routes": [
       {
         "alive": 0,
@@ -5306,6 +5488,10 @@
     ]
   },
   {
+    "fence_after_release": [],
+    "fence_before_release": [
+      "R"
+    ],
     "key": "R",
     "run_id": 3,
     "state_after": "PLAYING",
@@ -5314,6 +5500,8 @@
     "tick": 0
   },
   {
+    "fence": [],
+    "fenced_inputs": 1,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -5391,26 +5579,38 @@
         },
         {
           "from": "PLAYING",
-          "request": "request_restart",
+          "request": "pause",
           "seq": 12,
-          "to": "CONFIRM"
+          "to": "PAUSED"
         },
         {
-          "from": "CONFIRM",
-          "request": "cancel_confirm",
+          "from": "PAUSED",
+          "request": "resume",
           "seq": 13,
           "to": "PLAYING"
         },
         {
           "from": "PLAYING",
-          "request": "run_ended",
+          "request": "request_restart",
           "seq": 14,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 15,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "run_ended",
+          "seq": 16,
           "to": "RESULT"
         },
         {
           "from": "RESULT",
           "request": "result_restart",
-          "seq": 15,
+          "seq": 17,
           "to": "PLAYING"
         }
       ]
@@ -5435,14 +5635,174 @@
     "why": "wp004_ui trigger enemy"
   },
   {
-    "attached_to": 6,
-    "collapse_tick": 1200,
-    "core_hp": 60.0,
-    "ok": true,
-    "place_recovery": "(44, 13)",
-    "reason": "NONE",
+    "after_esc_press": "PAUSED",
+    "after_second_esc_press": "PLAYING",
+    "fence_after_esc_release": [],
+    "fence_after_resume": [
+      "Escape"
+    ],
+    "fence_probe": "(44, 13)",
+    "fenced_inputs": [
+      {
+        "fence": [
+          "Escape"
+        ],
+        "input": "mouse1",
+        "run_id": 2,
+        "tick": 721
+      },
+      {
+        "fence": [
+          "Escape"
+        ],
+        "input": "mouse1",
+        "run_id": 3,
+        "tick": 1500
+      }
+    ],
+    "lmb_after_release_accepted_delta": 1,
+    "lmb_while_esc_held_accepted_delta": 0,
+    "lmb_while_esc_held_recovery_placed": false,
+    "recovery_placed": true,
+    "run_id": 3,
     "t": 25.0000000500008,
     "tick": 1500
+  },
+  {
+    "fence": [],
+    "fenced_inputs": 2,
+    "flow": {
+      "bypass": false,
+      "confirm_kind": "",
+      "confirm_return": "PLAYING",
+      "has_result": false,
+      "refused": [],
+      "settings_return": "PAUSED",
+      "state": "PLAYING",
+      "transitions": [
+        {
+          "from": "TITLE",
+          "request": "open_settings",
+          "seq": 1,
+          "to": "SETTINGS"
+        },
+        {
+          "from": "SETTINGS",
+          "request": "close_settings",
+          "seq": 2,
+          "to": "TITLE"
+        },
+        {
+          "from": "TITLE",
+          "request": "start_game",
+          "seq": 3,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 4,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "open_settings",
+          "seq": 5,
+          "to": "SETTINGS"
+        },
+        {
+          "from": "SETTINGS",
+          "request": "close_settings",
+          "seq": 6,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "request_restart",
+          "seq": 7,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 8,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "request_to_title",
+          "seq": 9,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 10,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 11,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 12,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 13,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "request_restart",
+          "seq": 14,
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
+          "seq": 15,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "run_ended",
+          "seq": 16,
+          "to": "RESULT"
+        },
+        {
+          "from": "RESULT",
+          "request": "result_restart",
+          "seq": 17,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 18,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 19,
+          "to": "PLAYING"
+        }
+      ]
+    },
+    "label": "fence_probe_done",
+    "run": "RUNNING",
+    "run_id": 3,
+    "t": 25.0000000500008,
+    "tick": 1500,
+    "ui_state": "PLAYING",
+    "visible_buttons": []
   },
   {
     "result": {
@@ -5929,6 +6289,8 @@
     "visible": true
   },
   {
+    "fence": [],
+    "fenced_inputs": 2,
     "flow": {
       "bypass": false,
       "confirm_kind": "",
@@ -6006,25 +6368,25 @@
         },
         {
           "from": "PLAYING",
-          "request": "request_restart",
+          "request": "pause",
           "seq": 12,
-          "to": "CONFIRM"
+          "to": "PAUSED"
         },
         {
-          "from": "CONFIRM",
-          "request": "cancel_confirm",
+          "from": "PAUSED",
+          "request": "resume",
           "seq": 13,
           "to": "PLAYING"
         },
         {
           "from": "PLAYING",
-          "request": "run_ended",
+          "request": "request_restart",
           "seq": 14,
-          "to": "RESULT"
+          "to": "CONFIRM"
         },
         {
-          "from": "RESULT",
-          "request": "result_restart",
+          "from": "CONFIRM",
+          "request": "cancel_confirm",
           "seq": 15,
           "to": "PLAYING"
         },
@@ -6036,8 +6398,32 @@
         },
         {
           "from": "RESULT",
-          "request": "result_to_title",
+          "request": "result_restart",
           "seq": 17,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "pause",
+          "seq": 18,
+          "to": "PAUSED"
+        },
+        {
+          "from": "PAUSED",
+          "request": "resume",
+          "seq": 19,
+          "to": "PLAYING"
+        },
+        {
+          "from": "PLAYING",
+          "request": "run_ended",
+          "seq": 20,
+          "to": "RESULT"
+        },
+        {
+          "from": "RESULT",
+          "request": "result_to_title",
+          "seq": 21,
           "to": "TITLE"
         }
       ]
