@@ -12,7 +12,7 @@
 # stops the run, regenerated artifacts are deleted first so a stale file can
 # never pass as new evidence, and the perf JSON is checked against the D-009
 # budget (GPT review recommendations).
-param([switch]$Quick, [switch]$Wp003)
+param([switch]$Quick, [switch]$Wp003, [switch]$Wp004)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 $root = (Get-Location).Path
@@ -32,9 +32,12 @@ function Assert-File([string]$path, [string]$step) {
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
 
+if ($Wp004) { $Wp003 = $true }   # -Wp004 = WP-004 captures + new release collapse perf under wp-004/; approved WP-001/002/003 evidence untouched
 $evid3 = Join-Path $evid "wp-003"
+$evid4 = Join-Path $evid "wp-004"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
-$report = if ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
+New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
+$report = if ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
 
 # Freshness: remove every artifact this script regenerates.
 $stale = @(
@@ -90,6 +93,7 @@ foreach ($png in @("wp002_a1_disconnected_no_fire_t2", "wp002_a2_connected_share
 }
 }   # end of the WP-001/002 block skipped by -Wp003
 
+if (-not $Wp004) {   # -Wp004 leaves the approved WP-003 evidence files untouched
 Write-Host "== 4c/6 WP-003 F1 timeline + F3 A/B ledger + F2 / F3 captures"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "captures") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid3 "perf") | Out-Null
@@ -119,6 +123,50 @@ foreach ($png in @("wp003_f2_a_outer_defense_t15", "wp003_f2_b_collapse_notice_t
     Assert-File "$evid3\captures\$png.png" "capture wp003"
 }
 if (Test-Path "$evid3\captures\wp003_f3a_4_first_h1_shot.png") { throw "F3 A: H1 must not fire (it has no connection and no local target)" }
+}   # end of the WP-003 evidence block skipped by -Wp004
+
+Write-Host "== 4d/6 WP-004 menu flow captures (1920x1080 and 1280x720, throwaway settings file)"
+New-Item -ItemType Directory -Force (Join-Path $evid4 "captures") | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $evid4 "perf") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid4\captures\wp004_ui*", "$evid4\captures\settings_capture.cfg"
+if ($report -ne "$evid4\tests\test_report.txt") { Copy-Item -Force $report "$evid4\tests\test_report.txt" }
+foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid4\captures" "--settings=$evid4\captures\settings_capture.cfg" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid4\captures\${sc}_log.json" "capture $sc"
+    foreach ($n in @("01_title", "02_settings_from_title", "03_playing_t12", "04_paused", "05_settings_from_pause", "06_confirm_restart",
+                     "07_confirm_to_title", "08_confirm_from_r_after_collapse", "09_result_lost", "10_result_won", "11_title_again")) {
+        Assert-File "$evid4\captures\${sc}_$n.png" "capture $sc"
+    }
+    $log = Get-Content "$evid4\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $states = @($log | Where-Object { $_.ui_state } | ForEach-Object { "$($_.label)=$($_.ui_state)" })
+    Write-Host ("capture {0}: {1}" -f $sc, ($states -join " "))
+    $expect = @{ launch="TITLE"; settings_esc_returns_to_title="TITLE"; esc_pauses="PAUSED"; settings_esc_returns_to_pause="PAUSED";
+                 confirm_cancel_returns_to_pause="PAUSED"; confirm_esc_cancels_only="PAUSED"; pause_esc_resumes="PLAYING";
+                 r_while_playing_opens_confirm="CONFIRM"; confirm_cancel_resumes_playing="PLAYING"; r_on_result_restarts_immediately="PLAYING";
+                 result_to_title_immediate="TITLE" }
+    foreach ($k in $expect.Keys) {
+        $row = $log | Where-Object { $_.label -eq $k } | Select-Object -First 1
+        if ($null -eq $row -or $row.ui_state -ne $expect[$k]) { throw "capture ${sc}: state after '$k' should be $($expect[$k]) (got $($row.ui_state))" }
+    }
+    $results = @($log | Where-Object { $_.wait_result })
+    if ($results.Count -ne 2 -or $results[0].result.outcome -ne "LOST" -or $results[1].result.outcome -ne "WON") { throw "capture ${sc}: expected a LOST then a WON result" }
+    # R-01 release fence (D-047): two probes with real events (before the collapse: no recovery right,
+    # so both presses are refused by the battle; in the WON run: refused while Esc is held, placed after).
+    $probes = @($log | Where-Object { $_.fence_probe })
+    if ($probes.Count -ne 2) { throw "capture ${sc}: expected 2 fence probes (got $($probes.Count))" }
+    foreach ($pr in $probes) {
+        if ($pr.after_esc_press -ne "PAUSED" -or $pr.after_second_esc_press -ne "PLAYING") { throw "capture ${sc}: fence probe states $($pr.after_esc_press)/$($pr.after_second_esc_press)" }
+        if (@($pr.fence_after_resume) -notcontains "Escape") { throw "capture ${sc}: fence should hold Escape after the resume press" }
+        if ($pr.lmb_while_esc_held_accepted_delta -ne 0 -or $pr.lmb_while_esc_held_recovery_placed) { throw "capture ${sc}: LMB while Esc held must not place" }
+        if (@($pr.fence_after_esc_release).Count -ne 0) { throw "capture ${sc}: fence must be empty after the Esc release" }
+    }
+    if ($probes[1].lmb_after_release_accepted_delta -ne 1 -or -not $probes[1].recovery_placed) { throw "capture ${sc}: the new press after the release must place H1" }
+    if ($probes[0].lmb_after_release_accepted_delta -ne 0) { throw "capture ${sc}: no recovery right before the collapse, nothing to place" }
+    Write-Host ("capture {0}: fence probes ok (held: delta {1}/{2}; after release: delta {3}/{4}, placed {5})" -f $sc,
+        $probes[0].lmb_while_esc_held_accepted_delta, $probes[1].lmb_while_esc_held_accepted_delta,
+        $probes[0].lmb_after_release_accepted_delta, $probes[1].lmb_after_release_accepted_delta, $probes[1].recovery_placed)
+}
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
@@ -168,9 +216,10 @@ foreach ($sc in @("network_move", "network_combat")) {
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
 Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
-Remove-Item -Force -ErrorAction SilentlyContinue "$evid3\perf\perf_collapse_move_1000_release.json*", "$evid3\perf\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
+$perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
+Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
 foreach ($sc in @("collapse_move", "collapse_combat")) {
-    $out = "results\evidence\wp-003\perf\perf_${sc}_1000_release.json"
+    $out = "$perfDir\perf_${sc}_1000_release.json"
     & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out
     Assert-File $out "perf $sc"
     Assert-File "$out.memory.json" "perf $sc memory sampler"

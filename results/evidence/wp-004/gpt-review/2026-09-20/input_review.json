@@ -1,0 +1,23 @@
+{
+  "release_fence": {
+    "actual_accepted_delta": 0,
+    "case": "resume_esc_still_held_then_lmb",
+    "expected_accepted_delta": 0,
+    "recovery_placed": false,
+    "state": "PLAYING"
+  },
+  "terminal_boundary": {
+    "actual_ui": "RESULT",
+    "case": "already_ended_before_pending_pause",
+    "expected_ui": "RESULT",
+    "note": "explicit boundary injection; ordinary loop checks end in same callback",
+    "run_before_dispatch": "LOST"
+  },
+  "viewport_input": {
+    "accepted_delta": 0,
+    "after_resume": "PLAYING",
+    "esc_release_sent": false,
+    "paused": "PAUSED",
+    "recovery_placed": false
+  }
+}

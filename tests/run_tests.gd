@@ -15,10 +15,17 @@ const SUITES: Array = [
     ["WP-002 bongsu network (AC-01..05, AC-07)", "res://tests/test_bongsu_network.gd"],
     ["WP-003 collapse / retreat (AC-01..06, F1..F4)", "res://tests/test_collapse_retreat.gd"],
     ["WP-003 scene entry paths (R-02 zones, R-03 restart input)", "res://tests/test_scene_modes.gd"],
+    ["WP-004 play flow (AC-01..07: menus, freeze, confirm, restart, input boundary, result, settings)", "res://tests/test_play_flow.gd"],
 ]
 
 
 func _initialize() -> void:
+    # Deferred to the first frame: inside _initialize the root Window does not
+    # yet route Window.push_input to the nodes (R-01 viewport-path checks).
+    call_deferred("_run_all")
+
+
+func _run_all() -> void:
     var t: TestFramework = TestFramework.new()
     var started: int = Time.get_ticks_msec()
     print("Hanyang Defense WP-001 test suite")

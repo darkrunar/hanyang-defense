@@ -3,19 +3,20 @@ extends Node2D
 ## perf / capture modes. All game rules live in game/core; this file only reads
 ## state and forwards commands.
 ##
-## Interactive controls
-##   LMB (hold)  place at the cursor, retrying every tick while held
-##   RMB         remove the structure under the cursor
-##   1 / 2       placement mode: 장승 (blocks) / 화차 (fires)
-##   C           toggle combat (hwachas hold fire when off)
+## Interactive controls (WP-004 play flow: TITLE -> PLAYING -> PAUSED / SETTINGS /
+## CONFIRM -> RESULT; see game/core/play_flow.gd)
+##   LMB (hold)  place at the cursor, retrying every tick while held (PLAYING only)
+##   RMB         remove the structure under the cursor (sandbox only)
+##   1 / 2       placement mode: 장승 (blocks) / 화차 (fires) (sandbox only)
+##   C           toggle combat (sandbox only)
 ##   Z           toggle density zone overlay
 ##   G           toggle hwacha range rings
-##   P           pause / resume the simulation
-##   R           reset the run (same seed; clears held / pending input and pause)
+##   Esc / P     pause (opens the pause menu); Esc closes one menu level
+##   R           PLAYING: restart confirmation; RESULT: restart at once
 ##   H           toggle HUD
 ##   D           toggle the detail panel (routes, densities, per-hwacha, network)
 ##   F12         save a screenshot next to the project (user://captures)
-##   Esc         quit
+##   Quit        TITLE "종료" button (or the OS window close)
 ##
 ## Command line (after `--`):
 ##   --set key=value       override any config value (see game/core/config.gd)
@@ -23,8 +24,10 @@ extends Node2D
 ##   --speed=N             simulation steps per physics tick (default 1)
 ##   --quit-after=SEC      quit after SEC seconds of simulated time
 ##   --perf --scenario=move|combat [--warmup=10] [--measure=60] --out=path.json
-##   --capture=ac01|ac02|ac06|wp002_a|wp003_f2|wp003_f3a|wp003_f3b --out-dir=dir
-##                         scripted evidence captures
+##   --capture=ac01|ac02|ac06|wp002_a|wp003_f2|wp003_f3a|wp003_f3b|wp004_ui|wp004_ui_720 --out-dir=dir
+##                         scripted evidence captures (menus bypassed except wp004_ui*)
+##   --settings=path.cfg   user settings file (default user://settings.cfg; never read by --perf/--capture
+##                         unless given explicitly, WP-004 §6)
 
 const Battle := preload("res://game/core/battle.gd")
 const Config := preload("res://game/core/config.gd")
@@ -37,6 +40,10 @@ const TerrainLayer := preload("res://game/scenes/terrain_layer.gd")
 const OverlayLayer := preload("res://game/scenes/overlay_layer.gd")
 const PerfRecorder := preload("res://game/tools/perf_recorder.gd")
 const F3Tracker := preload("res://game/tools/f3_tracker.gd")
+const PlayFlow := preload("res://game/core/play_flow.gd")
+const ResultModel := preload("res://game/core/result_model.gd")
+const UserSettings := preload("res://game/core/user_settings.gd")
+const MenuLayer := preload("res://game/scenes/menu_layer.gd")
 
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 
@@ -62,7 +69,19 @@ const HUD_DETAIL_WIDTH: float = 830.0
 var _font: Font = null
 
 var _place_mode: int = Placement.Kind.JANGSEUNG
-var _paused: bool = false
+## WP-004: top-level UI state (TITLE / PLAYING / PAUSED / SETTINGS / CONFIRM /
+## RESULT), the menu layer, the persisted settings and the frozen result.
+var flow: PlayFlow = PlayFlow.new()
+var menu: MenuLayer = null
+var settings: UserSettings = null
+var _settings_path: String = ""
+## Requests from buttons / keys are queued and applied at the start of the
+## next physics frame, in order, each validated against the state at that
+## moment (so a run that has already ended wins over a pending pause/restart,
+## and a double click performs exactly one transition).
+var _intents: Array = []
+var _result_model: Dictionary = {}
+var _hud_pause_button: Button = null
 var _show_zones: bool = true
 var _show_ranges: bool = true
 var _show_hud: bool = true
@@ -70,6 +89,19 @@ var _show_detail: bool = true
 var _mouse_down: bool = false
 ## run_id the held click was issued in (R-03): a retry never crosses a restart.
 var _mouse_down_run_id: int = -1
+## Inputs physically held right now, keyed by name ("Escape", "Enter", "R",
+## "mouse1"...). Tracked from `_input` (every event, before the GUI consumes
+## it) and from `_handle_key_event` (synthesized events in tests / captures).
+## It mirrors the devices, so a restart never clears it; a window focus loss
+## does, because the releases may never arrive.
+var _held: Dictionary = {}
+## Release fence (WP-004 §2, R-01 of the 2026-09-19 GPT review, D-047): the
+## inputs that were still held at the moment a menu closed to PLAYING. Field
+## commands are refused until every one of them has been released; a press
+## refused this way is logged in `fenced_inputs` and is never held for retry.
+var _fence: Dictionary = {}
+var fenced_inputs: Array = []
+var _menu_was_open: bool = true
 var _sim_speed: int = 1
 var _quit_after: float = -1.0
 var _last_notice: String = ""
@@ -165,6 +197,8 @@ func _parse_args() -> void:
             _capture_name = arg.substr("--capture=".length())
         elif arg.begins_with("--out-dir="):
             _capture_dir = arg.substr("--out-dir=".length())
+        elif arg.begins_with("--settings="):
+            _settings_path = arg.substr("--settings=".length())
 
 
 func _build_scene() -> void:
@@ -225,6 +259,27 @@ func _build_scene() -> void:
     _notice = _make_hud_label(HUD_DETAIL_WIDTH, 17)
     _notice.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
     vbox.add_child(_notice)
+
+    # WP-004: pause button (top-right, outside the plaza / compound) and the menu layer.
+    _hud_pause_button = Button.new()
+    _hud_pause_button.name = "PauseButton"
+    _hud_pause_button.text = "일시정지 (Esc)"
+    _hud_pause_button.add_theme_font_size_override("font_size", 18)
+    _hud_pause_button.custom_minimum_size = Vector2(180.0, 44.0)
+    _hud_pause_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+    _hud_pause_button.offset_left = -196.0
+    _hud_pause_button.offset_right = -16.0
+    _hud_pause_button.offset_top = 12.0
+    _hud_pause_button.offset_bottom = 56.0
+    _hud_pause_button.focus_mode = Control.FOCUS_NONE
+    _hud_pause_button.pressed.connect(func() -> void: queue_intent("pause"))
+    _hud_layer.add_child(_hud_pause_button)
+
+    menu = MenuLayer.new()
+    menu.name = "Menu"
+    menu.on_intent = Callable(self, "queue_intent")
+    add_child(menu)
+    menu.build()
 
 
 static func _make_panel() -> PanelContainer:
@@ -311,6 +366,167 @@ func _apply_run_mode() -> void:
         title += " [capture:%s]" % _capture_name
     DisplayServer.window_set_title(title)
     _sync_terrain_marker()
+    _apply_play_flow_mode()
+
+
+## WP-004 §6: scripted / automated modes bypass the menus and never read the
+## user's settings file; a normal launch starts on TITLE with the settings
+## loaded (missing / broken file -> defaults, launch never blocked).
+func _apply_play_flow_mode() -> void:
+    var scripted: bool = _perf != null or (_capture_name != "" and not _capture_name.begins_with("wp004"))
+    if scripted:
+        flow.start_bypass()
+        settings = null           # never read or written by the verification modes
+        menu.show_state("PLAYING", {})
+        _hud_pause_button.visible = false
+        return
+    var path: String = _settings_path if _settings_path != "" else UserSettings.DEFAULT_PATH
+    if _capture_name.begins_with("wp004"):
+        _overlay.show_cursor = false
+        if _settings_path == "":
+            path = "user://wp004_capture_settings.cfg"   # never the player's real file
+    settings = UserSettings.new(path)
+    if _capture_name == "" or _settings_path != "":
+        settings.load()
+        _apply_window_mode(settings.window_mode)
+    flow = PlayFlow.new()   # fresh machine on TITLE (a previous scripted bypass never leaks in)
+    _hud_pause_button.visible = false
+    battle.reset()          # TITLE shows the initial field; nothing ticks until "게임 시작"
+    _reset_input_state()
+    _sync_menu()
+
+
+func _apply_window_mode(mode: String) -> void:
+    if DisplayServer.get_name() == "headless":
+        return
+    var want: int = DisplayServer.WINDOW_MODE_FULLSCREEN if mode == "fullscreen" else DisplayServer.WINDOW_MODE_WINDOWED
+    if DisplayServer.window_get_mode() != want:
+        DisplayServer.window_set_mode(want)
+
+
+## Buttons and keys call this; the request is applied on the next physics
+## frame (see _apply_intents).
+func queue_intent(intent: String, arg: Variant = null) -> void:
+    _intents.append({"intent": intent, "arg": arg, "state": flow.state_name()})
+
+
+## Intents issued in a state that is no longer current are dropped (logged in
+## `stale_intents`): a pause / restart pressed just before the run ended does
+## not override RESULT or start a run, and the second of two rapid clicks
+## finds the state already changed and does nothing (WP-004 §1 / §2).
+var stale_intents: Array = []
+
+
+func _apply_intents() -> void:
+    if _intents.is_empty():
+        return
+    var pending: Array = _intents
+    _intents = []
+    for it: Dictionary in pending:
+        if str(it["state"]) != flow.state_name():
+            stale_intents.append({"intent": it["intent"], "issued_in": it["state"], "now": flow.state_name(), "tick": battle.steps})
+            continue
+        _apply_intent(str(it["intent"]), it["arg"])
+
+
+## One request -> PlayFlow transition -> side effect. Refused requests (wrong
+## state, double click, key repeat) are logged by the flow and do nothing.
+func _apply_intent(intent: String, arg: Variant) -> void:
+    var act: String = PlayFlow.ACT_NONE
+    match intent:
+        "title_start": act = flow.start_game()
+        "title_settings", "pause_settings": act = flow.open_settings()
+        "title_quit": act = flow.quit_from_title()
+        "pause": act = flow.pause()
+        "pause_continue": act = flow.resume()
+        "pause_restart", "restart": act = flow.request_restart()
+        "pause_to_title": act = flow.request_to_title()
+        "settings_back": act = flow.close_settings()
+        "settings_window_mode":
+            if flow.state == PlayFlow.State.SETTINGS and settings != null:
+                var r: Dictionary = settings.toggle_window_mode() if arg == null else settings.set_window_mode(str(arg))
+                _apply_window_mode(settings.window_mode)
+                menu.set_window_mode_label(settings.window_mode_label())
+                menu.set_settings_notice("" if bool(r.get("ok", false)) else "설정 저장 실패: %s (%s) — 이번 세션에는 적용됨" % [str(r.get("path", "")), str(r.get("error", ""))])
+        "confirm_ok": act = flow.confirm()
+        "confirm_cancel": act = flow.cancel_confirm()
+        "result_restart": act = flow.request_restart()
+        "result_to_title": act = flow.request_to_title()
+        "back": act = flow.back()
+        _:
+            printerr("unknown intent: %s" % intent)
+    match act:
+        PlayFlow.ACT_NEW_RUN:
+            _start_new_run()
+        PlayFlow.ACT_TO_TITLE:
+            _discard_run_to_title()
+        PlayFlow.ACT_QUIT:
+            get_tree().quit()
+    _sync_menu()
+
+
+## A fresh run from the initial data (D-040): same seed and fixture, new
+## run_id, no pending input, no pause, no previous result.
+func _start_new_run() -> void:
+    battle.restart()
+    _result_model = {}
+    _reset_input_state()
+    _sync_terrain_marker()
+
+
+## Leaving to TITLE discards the current run; the title shows the initial
+## field again. Settings are kept.
+func _discard_run_to_title() -> void:
+    battle.restart()
+    _result_model = {}
+    _reset_input_state()
+
+
+## Entering any menu drops the field's pending input (held click, hover,
+## preview) so nothing is retried behind the menu (WP-004 §2).
+func _clear_field_input() -> void:
+    _mouse_down = false
+    _mouse_down_run_id = -1
+    if _overlay != null:
+        _overlay.hover_override = Vector2.INF
+        _overlay.preview_override = Vector2i(-1, -1)
+
+
+func _sync_menu() -> void:
+    var st: String = flow.state_name()
+    var ctx: Dictionary = {"confirm": flow.confirm_text(), "result": flow.result}
+    if settings != null:
+        ctx["window_mode_label"] = settings.window_mode_label()
+        if not bool(settings.last_save.get("ok", true)):
+            ctx["settings_notice"] = "설정 저장 실패: %s" % str(settings.last_save.get("path", ""))
+    menu.show_state(st, ctx)
+    var open: bool = flow.menu_open()
+    if open:
+        _clear_field_input()
+    elif _menu_was_open:
+        # A menu just closed to PLAYING (resume, cancel, new run). Whatever
+        # closed it (Esc, Enter on a button, the mouse button on 계속하기, R on
+        # RESULT) may still be held: the field stays closed until it is
+        # released (R-01). Nothing held -> the fence is empty -> open now.
+        _fence = _held.duplicate()
+    _menu_was_open = open
+    # No HUD before a run exists: TITLE and the settings opened from TITLE.
+    var before_run: bool = st == "TITLE" or (st == "SETTINGS" and flow.settings_return == PlayFlow.State.TITLE)
+    _hud_layer.visible = _show_hud and not before_run
+    if _hud_pause_button != null:
+        _hud_pause_button.visible = st == "PLAYING"
+
+
+## The run just reached WON / LOST while PLAYING: freeze the result model
+## from the real ledgers once and show RESULT. Pending pause / restart intents
+## are then refused by the flow (RESULT wins, WP-004 §2).
+func _check_run_end() -> void:
+    if flow.bypass or flow.state != PlayFlow.State.PLAYING or not battle.run.ended():
+        return
+    _result_model = ResultModel.build(battle)
+    flow.run_ended(_result_model)
+    _clear_field_input()
+    _sync_menu()
 
 
 # ================================================================== loop ===
@@ -318,21 +534,35 @@ func _apply_run_mode() -> void:
 func _physics_process(delta: float) -> void:
     if _capture_busy:
         return
-    if not _paused:
+    # A run that already ended while PLAYING (only possible when something
+    # outside this loop stepped the battle) shows RESULT before any pending
+    # pause / restart is applied, so those are dropped as stale (§2, RESULT
+    # wins; GPT review 2026-09-19 boundary observation).
+    _check_run_end()
+    _apply_intents()
+    if flow.battle_active():
         var dt: float = config.get_num("fixed_dt")
         for _i: int in range(_sim_speed):
             battle.step(dt)
             _perf_script_step()
             _capture_script_step()
-            if _capture_busy:
+            if _capture_busy or not flow.battle_active():
                 break
-    if _mouse_down:
+        _check_run_end()
+    else:
+        # Menus open: no battle tick, no held-click retry; the capture script
+        # (wp004_ui) still advances so it can drive the menus.
+        _capture_script_step()
+    if _mouse_down and flow.battle_active():
         # Held-click retry dispatches by mode exactly like the initial press
         # (Codex review on PR #4: a refused recovery click must never fall
         # through to free construction in the WP-003 run). A hold issued in a
-        # previous run is dropped, never retried in the new one (R-03).
+        # previous run is dropped, never retried in the new one (R-03); no
+        # retry while the release fence is up (R-01).
         if _mouse_down_run_id != battle.run.run_id:
             _mouse_down = false
+        elif not _fence.is_empty():
+            pass
         elif battle.run_mode == "waves":
             _try_recovery_at_cursor()
         else:
@@ -427,16 +657,86 @@ func _upload_enemies() -> void:
 
 # ================================================================= input ===
 
+## Every event, before the GUI: only the held-input ledger, never a command.
+func _input(event: InputEvent) -> void:
+    _track_held(event)
+
+
+static func _input_name(event: InputEvent) -> String:
+    if event is InputEventKey:
+        var k: InputEventKey = event
+        var n: String = OS.get_keycode_string(k.keycode)
+        return n if n != "" else "key%d" % k.keycode
+    if event is InputEventMouseButton:
+        return "mouse%d" % (event as InputEventMouseButton).button_index
+    return ""
+
+
+func _track_held(event: InputEvent) -> void:
+    if event is InputEventKey and (event as InputEventKey).echo:
+        return
+    var n: String = _input_name(event)
+    if n == "":
+        return
+    if event.is_pressed():
+        _held[n] = true
+    else:
+        _held.erase(n)
+        _fence.erase(n)
+
+
+func _fence_refuse(n: String) -> void:
+    fenced_inputs.append({"input": n, "fence": _fence.keys(), "tick": battle.steps, "run_id": battle.run.run_id})
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+        # Releases are not delivered to an unfocused window: forget the held
+        # inputs rather than keep the field closed forever.
+        _held.clear()
+        _fence.clear()
+        _mouse_down = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
     if _perf != null or _capture_name != "":
         # Scripted evidence runs must not be perturbed by stray clicks or keys
-        # on the foreground window; only Esc is honoured.
-        if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+        # on the foreground window; only Esc is honoured (bypass modes quit,
+        # the wp004_ui menu scenario ignores it and drives itself).
+        if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE and flow.bypass:
             get_tree().quit()
+        return
+    _handle_key_event(event)
+
+
+## The real input handler body, also driven by the wp004_ui capture script
+## and the headless flow tests with synthesized events.
+func _handle_key_event(event: InputEvent) -> void:
+    _track_held(event)
+    if flow.menu_open():
+        # A menu is open: mouse events are consumed by the Controls (dim
+        # rectangle + buttons) before they get here; keys close exactly one
+        # level. Nothing reaches the field (WP-004 §2, D-039).
+        if event is InputEventKey and event.pressed and not event.echo:
+            var mk: InputEventKey = event
+            if mk.keycode == KEY_ESCAPE:
+                queue_intent("back")
+            elif mk.keycode == KEY_R and flow.state == PlayFlow.State.RESULT:
+                queue_intent("result_restart")
+        var vp: Viewport = get_viewport()
+        if vp != null:
+            vp.set_input_as_handled()
         return
     var waves_mode: bool = battle.run_mode == "waves"
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
+        if mb.pressed and not _fence.is_empty():
+            # R-01: the input that closed the menu is still held. Refuse the
+            # press, do not hold it for retry; only a new press after the
+            # release is field input.
+            _mouse_down = false
+            _fence_refuse(_input_name(mb))
+            return
         if mb.button_index == MOUSE_BUTTON_LEFT:
             _mouse_down = mb.pressed
             _mouse_down_run_id = battle.run.run_id
@@ -456,6 +756,9 @@ func _unhandled_input(event: InputEvent) -> void:
                     _say("제거 실패: 커서 아래 시설 없음")
     elif event is InputEventKey and event.pressed and not event.echo:
         var key: InputEventKey = event
+        if not _fence.is_empty() and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
+            _fence_refuse(_input_name(key))   # field commands only; view toggles and menu keys are not fenced
+            return
         if waves_mode and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
             _say("WP-003 런에서는 자유 설치·활성 전환·전투 토글 디버그 명령을 제공하지 않는다")
             return
@@ -488,18 +791,11 @@ func _unhandled_input(event: InputEvent) -> void:
             KEY_G:
                 _show_ranges = not _show_ranges
             KEY_P:
-                _paused = not _paused
-                _say("일시정지" if _paused else "재개")
+                queue_intent("pause")
             KEY_R:
-                if waves_mode:
-                    battle.restart()
-                    _reset_input_state()
-                    _say("재시작 (run #%d, seed %d)" % [battle.run.run_id, config.get_int("seed")])
-                else:
-                    battle.reset()
-                    _reset_input_state()
-                    _say("초기화 (seed %d)" % config.get_int("seed"))
-                _sync_terrain_marker()
+                # D-040: never an immediate reset while playing; the flow opens
+                # the restart confirmation (취소 keeps the run untouched).
+                queue_intent("restart")
             KEY_H:
                 _show_hud = not _show_hud
                 _hud_layer.visible = _show_hud
@@ -509,7 +805,7 @@ func _unhandled_input(event: InputEvent) -> void:
             KEY_F12:
                 _screenshot_to_user()
             KEY_ESCAPE:
-                get_tree().quit()
+                queue_intent("pause")
 
 
 ## R-03: a restart / reset drops everything the previous run left in the
@@ -518,7 +814,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _reset_input_state() -> void:
     _mouse_down = false
     _mouse_down_run_id = -1
-    _paused = false
+    _intents.clear()
     _recent_shots.clear()
     _notice_timer = 0.0
     _notice.text = ""
@@ -613,7 +909,7 @@ func _update_hud() -> void:
     ])
     lines.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s%s" % [
         _fps_smoothed, _frame_ms_smoothed, battle.sim_time, _sim_speed,
-        "  [일시정지]" if _paused else "", "" if battle.combat_enabled else "  [전투 비활성]"
+        "  [일시정지]" if flow.state == PlayFlow.State.PAUSED else "", "" if battle.combat_enabled else "  [전투 비활성]"
     ])
     lines.append("동시 생존 %d (최고 %d)   생성 누계 %d   처치 %d   누수 %d" % [
         sim.alive_count, battle.peak_alive, sim.spawned_total, sim.killed_total, sim.leaked_total
@@ -672,9 +968,9 @@ func _update_hud() -> void:
     ])
     detail.append("화차 인지: " + "  ".join(nparts))
     if battle.run_mode == "waves":
-        lines.append("LMB 회수 화차 배치(내곽)  R 재시작  Z 밀도  G 사거리  P 정지  H HUD  D 상세  F12 캡처  Esc   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
+        lines.append("LMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
     else:
-        lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  P 정지  R 초기화  H HUD  D 상세  F12 캡처  Esc")
+        lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
     _hud.text = "\n".join(lines)
     _detail.text = "\n".join(detail)
 
@@ -1285,6 +1581,72 @@ func _setup_capture_steps() -> void:
                 {"t": 35.0, "do": "capture", "name": pfx + "_5_end_t35"},
                 {"t": 35.0, "do": "quit"},
             ]
+        "wp004_ui", "wp004_ui_720":
+            # WP-004 AC-07 / AC-01 evidence: the real menu flow driven by real
+            # key events and the real Button nodes at 1920x1080 (wp004_ui) or
+            # 1280x720 (wp004_ui_720). Verification-only battle controls
+            # (force_outer_hp / spawn_extra / force_core_hp) are used to reach
+            # a collapse and a LOST quickly; they are logged, never exposed in
+            # the menus. Times ("t") are battle simulation seconds; menu steps
+            # run once per physics frame while a menu is open.
+            _apply_mode_preset(Config.for_wp003())
+            if _capture_name == "wp004_ui_720":
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            _sim_speed = 6
+            var pfx: String = "wp004_ui" if _capture_name == "wp004_ui" else "wp004_ui_720"
+            _capture_steps = [
+                {"t": 0.0, "do": "ui_state_log", "label": "launch"},
+                {"t": 0.0, "do": "capture", "name": pfx + "_01_title"},
+                {"t": 0.0, "do": "button", "intent": "title_settings"},
+                {"t": 0.0, "do": "capture", "name": pfx + "_02_settings_from_title"},
+                {"t": 0.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 0.0, "do": "ui_state_log", "label": "settings_esc_returns_to_title"},
+                {"t": 0.0, "do": "button", "intent": "title_start"},
+                {"t": 12.0, "do": "capture", "name": pfx + "_03_playing_t12"},
+                {"t": 12.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 12.0, "do": "ui_state_log", "label": "esc_pauses"},
+                {"t": 12.0, "do": "capture", "name": pfx + "_04_paused"},
+                {"t": 12.0, "do": "button", "intent": "pause_settings"},
+                {"t": 12.0, "do": "capture", "name": pfx + "_05_settings_from_pause"},
+                {"t": 12.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 12.0, "do": "ui_state_log", "label": "settings_esc_returns_to_pause"},
+                {"t": 12.0, "do": "button", "intent": "pause_restart"},
+                {"t": 12.0, "do": "capture", "name": pfx + "_06_confirm_restart"},
+                {"t": 12.0, "do": "button", "intent": "confirm_cancel"},
+                {"t": 12.0, "do": "ui_state_log", "label": "confirm_cancel_returns_to_pause"},
+                {"t": 12.0, "do": "button", "intent": "pause_to_title"},
+                {"t": 12.0, "do": "capture", "name": pfx + "_07_confirm_to_title"},
+                {"t": 12.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 12.0, "do": "ui_state_log", "label": "confirm_esc_cancels_only"},
+                {"t": 12.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 12.0, "do": "ui_state_log", "label": "pause_esc_resumes"},
+                {"t": 12.0, "do": "fence_probe", "anchor": TestMap.RECOVERY_B},
+                {"t": 12.0, "do": "ui_state_log", "label": "fence_probe_before_collapse"},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "wp004_ui forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp004_ui trigger enemy"},
+                {"t": 22.0, "do": "key", "keycode": KEY_R},
+                {"t": 22.0, "do": "ui_state_log", "label": "r_while_playing_opens_confirm"},
+                {"t": 22.0, "do": "capture", "name": pfx + "_08_confirm_from_r_after_collapse"},
+                {"t": 22.0, "do": "button", "intent": "confirm_cancel"},
+                {"t": 22.0, "do": "ui_state_log", "label": "confirm_cancel_resumes_playing"},
+                {"t": 26.0, "do": "force_core_hp", "value": 1.0, "why": "wp004_ui forced LOST (verification only)"},
+                {"t": 26.0, "do": "spawn_extra", "pos": Vector2(950.0, 210.0), "count": 1, "why": "wp004_ui last arrival"},
+                {"t": 26.0, "do": "wait_result"},
+                {"t": 26.0, "do": "capture", "name": pfx + "_09_result_lost"},
+                {"t": 26.0, "do": "key", "keycode": KEY_R},
+                # a new run starts at sim time 0: the times below are relative to it
+                {"t": 0.0, "do": "ui_state_log", "label": "r_on_result_restarts_immediately"},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "wp004_ui forced collapse for the WON result"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp004_ui trigger enemy"},
+                {"t": 25.0, "do": "fence_probe", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.0, "do": "ui_state_log", "label": "fence_probe_done"},
+                {"t": 25.0, "do": "wait_result"},
+                {"t": 25.0, "do": "capture", "name": pfx + "_10_result_won"},
+                {"t": 25.0, "do": "button", "intent": "result_to_title"},
+                {"t": 0.0, "do": "ui_state_log", "label": "result_to_title_immediate"},
+                {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
+                {"t": 0.0, "do": "quit"},
+            ]
         "wp003_f2":
             # WP-003 F2 (D-026): the real run, verification-forced collapse at
             # 20 s through real arrival damage, recovery at collapse + 5 s to B,
@@ -1435,10 +1797,93 @@ func _capture_script_step() -> void:
                     return
             "f3_end":
                 _capture_log.append({"t": battle.sim_time, "f3_end": _f3.report(battle) if _f3 != null else {}, "tick": battle.steps})
+            "button":
+                # A real Button node press (its `pressed` signal), exactly what a click does.
+                var b: Button = menu.button(step["intent"])
+                var before: String = flow.state_name()
+                var shown: bool = menu.button_visible(step["intent"])
+                if b != null and shown:
+                    b.pressed.emit()
+                    _apply_intents()
+                _capture_log.append({"t": battle.sim_time, "button": step["intent"], "found": b != null,
+                    "visible": shown, "state_before": before, "state_after": flow.state_name(),
+                    "tick": battle.steps, "run_id": battle.run.run_id})
+            "key":
+                # A key tap: press (intent applied) then release, so the
+                # release fence opens exactly as it does for a real tap.
+                var before_k: String = flow.state_name()
+                _probe_key(step["keycode"], true)
+                _apply_intents()
+                var fence_held: Array = _fence.keys()
+                _probe_key(step["keycode"], false)
+                _capture_log.append({"t": battle.sim_time, "key": OS.get_keycode_string(step["keycode"]),
+                    "state_before": before_k, "state_after": flow.state_name(), "fence_before_release": fence_held,
+                    "fence_after_release": _fence.keys(), "tick": battle.steps, "run_id": battle.run.run_id})
+            "fence_probe":
+                # R-01 evidence with real events at the anchor: Esc pauses,
+                # Esc pressed again (not released) resumes, a LMB press is
+                # refused while Esc is still held, the Esc release opens the
+                # fence, the next LMB press places H1.
+                var anchor: Vector2i = step["anchor"]
+                _cursor_world_override = battle.grid.cell_center(anchor.x, anchor.y)
+                var probe: Dictionary = {"t": battle.sim_time, "fence_probe": str(anchor), "tick": battle.steps, "run_id": battle.run.run_id}
+                var a0: int = battle.commands_accepted
+                _probe_key(KEY_ESCAPE, true)
+                _apply_intents()
+                probe["after_esc_press"] = flow.state_name()
+                _probe_key(KEY_ESCAPE, false)
+                _probe_key(KEY_ESCAPE, true)
+                _apply_intents()
+                probe["after_second_esc_press"] = flow.state_name()
+                probe["fence_after_resume"] = _fence.keys()
+                _probe_mouse(true)
+                probe["lmb_while_esc_held_accepted_delta"] = battle.commands_accepted - a0
+                probe["lmb_while_esc_held_recovery_placed"] = battle.run.recovery_placed
+                _probe_mouse(false)
+                _probe_key(KEY_ESCAPE, false)
+                probe["fence_after_esc_release"] = _fence.keys()
+                _probe_mouse(true)
+                probe["lmb_after_release_accepted_delta"] = battle.commands_accepted - a0
+                probe["recovery_placed"] = battle.run.recovery_placed
+                _probe_mouse(false)
+                probe["fenced_inputs"] = fenced_inputs.duplicate(true)
+                _cursor_world_override = Vector2.INF
+                _capture_log.append(probe)
+            "ui_state_log":
+                _capture_log.append({"t": battle.sim_time, "ui_state": flow.state_name(), "label": step["label"],
+                    "tick": battle.steps, "run_id": battle.run.run_id, "run": battle.run.run_name(),
+                    "visible_buttons": menu.visible_buttons(), "flow": flow.snapshot(),
+                    "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size()})
+            "force_core_hp":
+                battle.force_core_hp(step["value"], step["why"])
+                _capture_log.append({"t": battle.sim_time, "force_core_hp": step["value"], "why": step["why"]})
+            "wait_result":
+                # Stay on this step until the run has ended and RESULT is shown.
+                if flow.state != PlayFlow.State.RESULT:
+                    _capture_index -= 1
+                    return
+                _capture_log.append({"t": battle.sim_time, "wait_result": flow.state_name(), "result": flow.result,
+                    "tick": battle.steps, "run_id": battle.run.run_id})
             "quit":
                 _write_capture_log()
                 get_tree().quit()
                 return
+
+
+## Synthesized events for the capture script (the same handler the real
+## input takes, so the held ledger and the fence see them).
+func _probe_key(keycode: int, pressed: bool) -> void:
+    var ev: InputEventKey = InputEventKey.new()
+    ev.keycode = keycode
+    ev.pressed = pressed
+    _handle_key_event(ev)
+
+
+func _probe_mouse(pressed: bool) -> void:
+    var ev: InputEventMouseButton = InputEventMouseButton.new()
+    ev.button_index = MOUSE_BUTTON_LEFT
+    ev.pressed = pressed
+    _handle_key_event(ev)
 
 
 func _do_capture(name: String) -> void:

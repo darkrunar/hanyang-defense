@@ -382,3 +382,75 @@ D-038 / 2026-09-15 / 채택:
 | D-042 | 메뉴는 단순한 픽셀아트 표현·한글 가독성·내곽을 가리지 않는 배치. 1920×1080/1280×720 확인 | 사용자 그래픽 참조 방향 반영. 전장 에셋 전체 교체는 범위 밖. 타 게임 이미지/아이콘의 무단 에셋 전용 없이 자체 제작 |
 
 WP-004는 HP360/60·18시설·10존·1140웨이브·회수 규칙을 변경하지 않는다. 자동 perf/capture는 메뉴와 저장 설정을 우회하고 기존 시험 부하·manifest 계약을 유지한다.
+
+## WP-004 구현 기술 결정 (2026-09-16, Claude Code)
+
+```text
+D-043 / 2026-09-16 / 채택:
+문제와 선택: UI 상태 기계의 위치. game/core/play_flow.gd(RefCounted, SceneTree 비의존)가 TITLE/PLAYING/PAUSED/SETTINGS/
+  CONFIRM/RESULT와 복귀 대상(settings_return, confirm_return)·확인 종류를 갖고, 요청마다 "수락 시 scene이 수행할 행동"
+  (new_run / to_title / quit / 없음)을 돌려준다. 거절된 요청과 전이는 순번과 함께 로그된다. scene(main.gd)은 행동만 수행한다.
+근거와 고려한 대안: Godot 노드 상태 머신은 헤드리스 시험이 어렵다. 순수 클래스는 tests/test_play_flow.gd가 실제 Button 신호·
+  합성 키 이벤트로 scene을 구동하면서도 전이 규칙을 단위로 검증할 수 있다. RunState(WON/LOST)와는 완전히 분리된다(D-039).
+영향받는 명세·WP: WP-004 §1·§2.
+결정 주체와 검증 증거: Claude Code. tests/test_play_flow.gd "PlayFlow unit", results/WP-004-RESULT.md.
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-044 / 2026-09-16 / 채택:
+문제와 선택: 입력 경계. 버튼/키 요청은 즉시 실행하지 않고 의도(intent) 큐에 넣어 다음 물리 프레임 시작에 순서대로 적용하며,
+  큐에 넣을 때의 UI 상태와 적용 시점의 상태가 다르면 폐기(stale_intents 로그)한다. 전투 틱은 PLAYING에서만 돌고, 틱 뒤에
+  런이 끝나면 RESULT로 바뀌므로 그 전에 들어온 pause/restart는 다음 프레임에 stale로 폐기된다(RESULT 우선). 같은 이유로
+  더블클릭의 두 번째 클릭은 상태가 이미 바뀌어 폐기된다(전이 1회). 메뉴 진입 시 홀드 클릭·hover·미리보기를 비우고,
+  메뉴가 열린 동안의 마우스는 Control(전체 화면 dim + 버튼)이 소비하며 키는 Esc 한 단계 닫기(및 RESULT의 R)만 처리한다.
+  전장 배치는 press 이벤트에서만 일어나므로 메뉴를 닫은 클릭의 release는 아무것도 하지 않고 새 press부터 전장 입력이다.
+  (2026-09-19 보완: "새 press부터"는 메뉴를 닫은 입력이 **해제된 뒤**의 새 press다. 해제 전 press는 D-047의 펜스가 거절한다.)
+근거와 고려한 대안: 즉시 실행은 같은 프레임의 종료·중복 입력 순서를 보장하기 어렵다. 프레임 단위 큐는 결정적이고 시험 가능하다.
+영향받는 명세·WP: WP-004 §2, AC-03/04/05.
+결정 주체와 검증 증거: Claude Code. test_play_flow.gd AC-03/04/05, 캡처 로그의 state_before/after.
+대체하는 이전 결정: R-03(D-035)의 초기화 규칙을 확장. 마지막 문장은 D-047이 보완.
+```
+
+```text
+D-045 / 2026-09-16 / 채택:
+문제와 선택: 결과 모델과 설정 저장. game/core/result_model.gd가 런 종료 프레임에 RunState/EnemySim/WaveDirector 장부에서
+  한 번 사전을 만들고 flow.result에 복사해 동결한다(플레이 시간 = RunState.end_sim_time, 일시정지는 틱이 없으므로 구조적으로
+  제외; 도달 수는 HP 역산이 아닌 arrivals 카운터). game/core/user_settings.gd는 ConfigFile [display] window_mode만 저장하며
+  경로 주입(--settings, 캡처는 별도 임시 파일), 누락/파싱 오류/범위 밖은 기본값, 저장 실패는 결과를 돌려주고 메뉴에 알림.
+  perf/capture/헤드리스 도구(bypass)는 settings를 아예 만들지 않는다.
+근거와 고려한 대안: HUD 값 재사용은 렌더 타이밍에 흔들린다. 종료 장부 1회 확정이 계약(D-041)이다.
+영향받는 명세·WP: WP-004 §4·§5·§6.
+결정 주체와 검증 증거: Claude Code. test_play_flow.gd "ResultModel unit", "UserSettings unit", AC-06/07.
+대체하는 이전 결정: 없음.
+```
+
+```text
+D-047 / 2026-09-19 / 채택:
+문제와 선택: 메뉴 닫기 입력의 해제 펜스(GPT 리뷰 R-01). 메뉴를 닫은 Esc/Enter/마우스 버튼/R을 떼기 전에 전장을 클릭하면
+  회수 화차가 배치되었다(D-044는 메뉴에서 누른 클릭의 release만 다뤘다). main.gd가 `_input`(GUI보다 먼저, 모든 이벤트)과
+  `_handle_key_event`(테스트·캡처의 합성 이벤트)에서 눌린 입력 장부 `_held`를 유지하고, 메뉴가 PLAYING으로 닫히는 프레임에
+  그 시점 눌린 입력 집합을 펜스 `_fence`로 복사한다. 펜스가 비기 전(모두 release)까지 전장 명령(마우스 press, 1~4/T/C)을
+  거절하고 `fenced_inputs`에 기록하며, 거절한 press는 홀드 재시도로 넘기지 않는다. release 뒤 새 press부터 배치한다.
+  버튼은 release에 `pressed`를 내므로 마우스/Enter로 닫으면 닫히는 시점에 눌린 것이 없어 펜스가 비어 즉시 열리고,
+  Esc·R처럼 press에 반응하는 키는 떼야 열린다. 창 포커스를 잃으면 release가 오지 않으므로 장부·펜스를 비운다.
+  같은 회차에 `_physics_process`가 의도 큐 적용 전에 이미 끝난 런을 RESULT로 확정하도록 순서를 고정했다(리뷰의 종료 우선순위 관측).
+근거와 고려한 대안: Input 싱글턴의 is_key_pressed는 헤드리스·합성 이벤트에서 상태가 없어 시험할 수 없다. "닫은 입력 하나"만
+  추적하면 Enter로 닫는 경로(버튼이 release에 신호)를 다르게 다뤄야 하므로 "닫히는 순간 눌린 것 전부"를 펜스로 삼았다.
+영향받는 명세·WP: WP-004 §2, AC-04/05.
+결정 주체와 검증 증거: Claude Code. test_play_flow.gd "AC-05 R-01 release fence"(직접 핸들러 + Window.push_input 경로),
+  "AC-05 run already LOST…", test_scene_modes.gd R-03(키 탭), 캡처 로그 `fence_probe` 2건/해상도.
+대체하는 이전 결정: D-044의 마지막 문장을 보완.
+```
+
+```text
+D-046 / 2026-09-16 / 채택:
+문제와 선택: 메뉴 시각. game/scenes/menu_layer.gd — 둥근 모서리 없는 4px 목재색 테두리 패널, 낮은 채도의 기와색 배경,
+  버튼은 돌색(기본)/주황(주 행동)/붉은색(런 폐기), 포커스 테두리 청록. 1920×1080 논리 좌표에 중앙 정렬하고 프로젝트의
+  canvas_items/keep 스트레치로 1280×720에서도 같은 배치가 축소된다(캡처 wp004_ui_720). 외부 에셋·아이콘 없음. 메뉴가 닫히면
+  기존 HUD 배치가 그대로 보인다(HUD는 TITLE에서만 숨김). 우상단에 일시정지 버튼 하나를 추가했다.
+근거와 고려한 대안: 픽셀아트 전장 교체는 범위 밖(D-042). 시스템 폰트 폴백으로 한글 가독성을 우선했다.
+영향받는 명세·WP: WP-004 §5, AC-07.
+결정 주체와 검증 증거: Claude Code. results/evidence/wp-004/captures/*.png.
+대체하는 이전 결정: 없음.
+```
