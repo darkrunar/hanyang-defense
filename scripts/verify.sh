@@ -95,6 +95,9 @@ for sc in wp004_ui wp004_ui_720; do
         [[ -s "$EVID4/captures/${sc}_$n.png" ]] || { echo "capture ${sc}_$n.png missing"; exit 1; }
     done
     grep -q '"label": *"r_on_result_restarts_immediately"' "$EVID4/captures/${sc}_log.json" || { echo "capture $sc: flow log incomplete"; exit 1; }
+    [[ $(grep -c '"fence_probe"' "$EVID4/captures/${sc}_log.json") -eq 2 ]] || { echo "capture $sc: R-01 fence probes missing"; exit 1; }
+    grep -q '"lmb_while_esc_held_accepted_delta": *0' "$EVID4/captures/${sc}_log.json" || { echo "capture $sc: LMB while Esc held must not place"; exit 1; }
+    grep -q '"lmb_after_release_accepted_delta": *1' "$EVID4/captures/${sc}_log.json" || { echo "capture $sc: new press after the release must place"; exit 1; }
 done
 
 if [[ "${1:-}" == "--quick" ]]; then

@@ -20,6 +20,12 @@ const SUITES: Array = [
 
 
 func _initialize() -> void:
+    # Deferred to the first frame: inside _initialize the root Window does not
+    # yet route Window.push_input to the nodes (R-01 viewport-path checks).
+    call_deferred("_run_all")
+
+
+func _run_all() -> void:
     var t: TestFramework = TestFramework.new()
     var started: int = Time.get_ticks_msec()
     print("Hanyang Defense WP-001 test suite")

@@ -30,6 +30,8 @@ func run(t: RefCounted) -> void:
     _ac03_confirm_cancel(t, tree)
     _ac04_new_run_and_stale_input(t, tree)
     _ac05_esc_and_input_boundary(t, tree)
+    _ac05_release_fence(t, tree)
+    _ac05_terminal_before_pending_intent(t, tree)
     _ac06_result_ledger(t, tree)
     _ac07_settings_in_scene(t, tree)
     _ac08_bypass(t, tree)
@@ -67,10 +69,32 @@ static func _key(scene: Node2D, keycode: int, pressed: bool = true) -> void:
 
 
 static func _lmb(scene: Node2D, pressed: bool) -> void:
+    scene._handle_key_event(_lmb_event(pressed))
+
+
+static func _key_event(keycode: int, pressed: bool) -> InputEventKey:
+    var ev: InputEventKey = InputEventKey.new()
+    ev.keycode = keycode
+    ev.pressed = pressed
+    return ev
+
+
+static func _lmb_event(pressed: bool, pos: Vector2 = Vector2(900.0, 280.0)) -> InputEventMouseButton:
     var ev: InputEventMouseButton = InputEventMouseButton.new()
     ev.button_index = MOUSE_BUTTON_LEFT
     ev.pressed = pressed
-    scene._handle_key_event(ev)
+    ev.position = pos
+    ev.global_position = pos
+    return ev
+
+
+## Prepare a collapsed run with the cursor on recovery cell B (H1 placeable).
+static func _collapsed_at_b(tree: SceneTree) -> Node2D:
+    var scene: Node2D = _new_scene(tree)
+    _start(scene)
+    _force_collapse(scene)
+    scene._cursor_world_override = scene.battle.grid.cell_center(TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y)
+    return scene
 
 
 ## Press a real menu button (its `pressed` signal) and run one frame so the
@@ -545,6 +569,8 @@ func _ac05_esc_and_input_boundary(t: RefCounted, tree: SceneTree) -> void:
     _key(scene, KEY_P)
     _frame(scene)
     t.eq(scene.flow.state_name(), "SETTINGS", "R / P do nothing in SETTINGS")
+    _key(scene, KEY_R, false)
+    _key(scene, KEY_P, false)
     _key(scene, KEY_ESCAPE)
     _frame(scene)
     t.eq(scene.flow.state_name(), "PAUSED", "Esc closes SETTINGS -> PAUSED (one level)")
@@ -552,6 +578,7 @@ func _ac05_esc_and_input_boundary(t: RefCounted, tree: SceneTree) -> void:
     _key(scene, KEY_R)
     _frame(scene)
     t.eq(scene.flow.state_name(), "CONFIRM", "R does nothing in CONFIRM")
+    _key(scene, KEY_R, false)
     _key(scene, KEY_ESCAPE)
     _frame(scene)
     t.eq(scene.flow.state_name(), "PAUSED", "Esc on CONFIRM cancels only (-> PAUSED)")
@@ -569,6 +596,12 @@ func _ac05_esc_and_input_boundary(t: RefCounted, tree: SceneTree) -> void:
     t.eq(scene.battle.commands_accepted, accepted, "the release after resume placed nothing")
     t.eq(scene.battle.commands_rejected, rejected, "no command issued by the leftover release / hold")
     t.eq(scene.battle.run.recovery_right, 1, "recovery right still available")
+    # R-01: the Esc that resumed is still held -> a new press is refused until its release
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted, accepted, "a press before the resuming Esc is released places nothing (R-01)")
+    t.eq(scene._mouse_down, false, "and is not held for retry")
+    _lmb(scene, false)
+    _key(scene, KEY_ESCAPE, false)
     # a NEW press after the release is real field input
     _lmb(scene, true)
     t.check(scene.battle.run.recovery_placed, "a fresh press places H1 at B")
@@ -580,6 +613,154 @@ func _ac05_esc_and_input_boundary(t: RefCounted, tree: SceneTree) -> void:
     _key(scene, KEY_ESCAPE)
     _frame(scene)
     t.eq(scene.flow.state_name(), "RESULT", "Esc on RESULT does nothing")
+    _drop(scene)
+
+
+## R-01 (GPT review 2026-09-19, D-047): the input that closed a menu must be
+## released before any field command; a press refused meanwhile is never
+## retried, and only a new press after the release places.
+func _ac05_release_fence(t: RefCounted, tree: SceneTree) -> void:
+    t.case("AC-05 R-01 release fence: Esc held + LMB, held LMB across the release, Enter held + button, close click press/release, R held after RESULT restart, viewport-routed events")
+    # (a) the Esc that resumed is still held; a LMB pressed meanwhile stays held across the Esc release
+    var scene: Node2D = _collapsed_at_b(tree)
+    var a0: int = scene.battle.commands_accepted
+    _key(scene, KEY_ESCAPE)
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "PAUSED", "(a) Esc -> PAUSED")
+    _key(scene, KEY_ESCAPE, false)
+    _key(scene, KEY_ESCAPE)
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "PLAYING", "(a) second Esc press resumes (no release yet)")
+    t.eq(scene._fence.keys(), ["Escape"], "(a) fence = the held Esc")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(a) LMB press while Esc is held: no command")
+    t.eq(scene.battle.commands_rejected, 0, "(a) not even a rejected command")
+    t.eq(scene.battle.run.recovery_placed, false, "(a) H1 not placed")
+    t.eq(scene.battle.run.recovery_right, 1, "(a) recovery right intact")
+    t.eq(scene.fenced_inputs.size(), 1, "(a) the refusal is logged")
+    t.eq(scene.fenced_inputs[0]["input"], "mouse1", "(a) logged input")
+    t.eq(scene._mouse_down, false, "(a) the refused press is not held for retry")
+    _frame(scene, 30)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(a) 30 frames later still no command")
+    _key(scene, KEY_ESCAPE, false)
+    t.check(scene._fence.is_empty(), "(a) the Esc release opens the fence")
+    _frame(scene, 30)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(a) the LMB still held from the blocked press never places after the release")
+    _lmb(scene, false)
+    _frame(scene)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(a) its release places nothing")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 1, "(a) a NEW press after the release places exactly once")
+    t.check(scene.battle.run.recovery_placed, "(a) H1 placed at B")
+    _lmb(scene, false)
+    _drop(scene)
+    # (b) Enter held on the focused 계속하기: the button emits while Enter is down (_input sees the press)
+    scene = _collapsed_at_b(tree)
+    a0 = scene.battle.commands_accepted
+    _key(scene, KEY_P)
+    _frame(scene)
+    _key(scene, KEY_P, false)
+    t.eq(scene.flow.state_name(), "PAUSED", "(b) P -> PAUSED")
+    scene._input(_key_event(KEY_ENTER, true))
+    t.check(_click(scene, "pause_continue"), "(b) 계속하기 emits while Enter is held")
+    t.eq(scene.flow.state_name(), "PLAYING", "(b) PLAYING")
+    t.eq(scene._fence.keys(), ["Enter"], "(b) fence = the held Enter")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(b) LMB while Enter is held: no command")
+    _lmb(scene, false)
+    scene._input(_key_event(KEY_ENTER, false))
+    t.check(scene._fence.is_empty(), "(b) Enter release opens the fence")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 1, "(b) new press places once")
+    _lmb(scene, false)
+    _drop(scene)
+    # (c) the closing click: press on the button, release (the button emits on release), then a new press
+    scene = _collapsed_at_b(tree)
+    a0 = scene.battle.commands_accepted
+    _key(scene, KEY_P)
+    _frame(scene)
+    _key(scene, KEY_P, false)
+    scene._input(_lmb_event(true))          # press on 계속하기 (consumed by the GUI)
+    t.eq(scene._held.keys(), ["mouse1"], "(c) the press is in the held ledger")
+    scene._input(_lmb_event(false))         # release -> the Button emits pressed
+    t.check(_click(scene, "pause_continue"), "(c) 계속하기 closes PAUSED")
+    t.eq(scene.flow.state_name(), "PLAYING", "(c) PLAYING")
+    t.check(scene._fence.is_empty(), "(c) nothing held at close time: fence empty")
+    t.eq(scene.battle.commands_accepted - a0, 0, "(c) the closing click placed nothing")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 1, "(c) the next new press places once")
+    _lmb(scene, false)
+    _drop(scene)
+    # (d) R on RESULT starts a new run while R is still held: the delayed press is refused until the release
+    scene = _collapsed_at_b(tree)
+    _force_lost(scene)
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "RESULT", "(d) RESULT")
+    var old_run: int = scene.battle.run.run_id
+    _key(scene, KEY_R)
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "PLAYING", "(d) R restarts immediately")
+    t.ne(scene.battle.run.run_id, old_run, "(d) new run")
+    t.eq(scene._fence.keys(), ["R"], "(d) fence = the held R")
+    _force_collapse(scene)
+    scene._cursor_world_override = scene.battle.grid.cell_center(TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y)
+    a0 = scene.battle.commands_accepted
+    t.eq(scene._fence.keys(), ["R"], "(d) R still held after the collapse: fence intact")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 0, "(d) LMB while R is held: no command in the new run")
+    _lmb(scene, false)
+    _key(scene, KEY_R, false)
+    t.check(scene._fence.is_empty(), "(d) R release opens the fence")
+    _lmb(scene, true)
+    t.eq(scene.battle.commands_accepted - a0, 1, "(d) new press places once")
+    _lmb(scene, false)
+    _drop(scene)
+    # (e) the same contract through the Viewport input path (Window.push_input -> _input / GUI / _unhandled_input)
+    scene = _collapsed_at_b(tree)
+    a0 = scene.battle.commands_accepted
+    var root: Window = tree.root
+    root.push_input(_key_event(KEY_ESCAPE, true))
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "PAUSED", "(e) routed Esc pauses")
+    root.push_input(_lmb_event(true))
+    root.push_input(_lmb_event(false))
+    t.eq(scene.battle.commands_accepted - a0, 0, "(e) routed click while PAUSED: no command")
+    root.push_input(_key_event(KEY_ESCAPE, false))
+    root.push_input(_key_event(KEY_ESCAPE, true))
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "PLAYING", "(e) routed Esc press resumes")
+    t.eq(scene._fence.keys(), ["Escape"], "(e) fence = the held Esc")
+    root.push_input(_lmb_event(true))
+    t.eq(scene.battle.commands_accepted - a0, 0, "(e) routed LMB while Esc is held: no command")
+    t.eq(scene.battle.run.recovery_placed, false, "(e) H1 not placed")
+    root.push_input(_lmb_event(false))
+    root.push_input(_key_event(KEY_ESCAPE, false))
+    t.check(scene._fence.is_empty(), "(e) routed Esc release opens the fence")
+    root.push_input(_lmb_event(true))
+    t.eq(scene.battle.commands_accepted - a0, 1, "(e) routed new press places once")
+    t.check(scene.battle.run.recovery_placed, "(e) H1 placed")
+    root.push_input(_lmb_event(false))
+    _drop(scene)
+
+
+## GPT review 2026-09-19 boundary observation: a run that ended before a
+## pending pause is applied shows RESULT; the pause is dropped as stale.
+func _ac05_terminal_before_pending_intent(t: RefCounted, tree: SceneTree) -> void:
+    t.case("AC-05 run already LOST (stepped outside the loop) before a pending pause is applied: RESULT wins, pause stale")
+    var scene: Node2D = _collapsed_at_b(tree)
+    scene.battle.force_core_hp(1.0, "test terminal boundary")
+    scene.battle.spawn_extra(CORE_GOAL, 1, "test last arrival")
+    scene.queue_intent("pause")
+    var k: int = 0
+    while not scene.battle.run.ended() and k < 300:
+        scene.battle.step(DT)
+        k += 1
+    t.eq(scene.battle.run.run_name(), "LOST", "battle LOST before the frame")
+    t.eq(scene.flow.state_name(), "PLAYING", "UI still PLAYING before the frame")
+    _frame(scene)
+    t.eq(scene.flow.state_name(), "RESULT", "RESULT shown, not PAUSED")
+    t.eq(scene.stale_intents.size(), 1, "the pending pause was dropped as stale")
+    t.eq(scene.flow.result["outcome"], "LOST", "result model built")
     _drop(scene)
 
 

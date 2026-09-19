@@ -219,8 +219,11 @@ func _restart_clears_input(t: RefCounted, tree: SceneTree) -> void:
     _drop(scene)
 
 
+## A key tap: press then release (R-01: a key still held when the menu closes
+## keeps the field closed, so a tap is what a player's restart key is).
 static func _press(scene: Node2D, keycode: int) -> void:
-    var key: InputEventKey = InputEventKey.new()
-    key.keycode = keycode
-    key.pressed = true
-    scene._handle_key_event(key)
+    for pressed: bool in [true, false]:
+        var key: InputEventKey = InputEventKey.new()
+        key.keycode = keycode
+        key.pressed = pressed
+        scene._handle_key_event(key)

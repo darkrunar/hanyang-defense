@@ -151,6 +151,21 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
     }
     $results = @($log | Where-Object { $_.wait_result })
     if ($results.Count -ne 2 -or $results[0].result.outcome -ne "LOST" -or $results[1].result.outcome -ne "WON") { throw "capture ${sc}: expected a LOST then a WON result" }
+    # R-01 release fence (D-047): two probes with real events (before the collapse: no recovery right,
+    # so both presses are refused by the battle; in the WON run: refused while Esc is held, placed after).
+    $probes = @($log | Where-Object { $_.fence_probe })
+    if ($probes.Count -ne 2) { throw "capture ${sc}: expected 2 fence probes (got $($probes.Count))" }
+    foreach ($pr in $probes) {
+        if ($pr.after_esc_press -ne "PAUSED" -or $pr.after_second_esc_press -ne "PLAYING") { throw "capture ${sc}: fence probe states $($pr.after_esc_press)/$($pr.after_second_esc_press)" }
+        if (@($pr.fence_after_resume) -notcontains "Escape") { throw "capture ${sc}: fence should hold Escape after the resume press" }
+        if ($pr.lmb_while_esc_held_accepted_delta -ne 0 -or $pr.lmb_while_esc_held_recovery_placed) { throw "capture ${sc}: LMB while Esc held must not place" }
+        if (@($pr.fence_after_esc_release).Count -ne 0) { throw "capture ${sc}: fence must be empty after the Esc release" }
+    }
+    if ($probes[1].lmb_after_release_accepted_delta -ne 1 -or -not $probes[1].recovery_placed) { throw "capture ${sc}: the new press after the release must place H1" }
+    if ($probes[0].lmb_after_release_accepted_delta -ne 0) { throw "capture ${sc}: no recovery right before the collapse, nothing to place" }
+    Write-Host ("capture {0}: fence probes ok (held: delta {1}/{2}; after release: delta {3}/{4}, placed {5})" -f $sc,
+        $probes[0].lmb_while_esc_held_accepted_delta, $probes[1].lmb_while_esc_held_accepted_delta,
+        $probes[0].lmb_after_release_accepted_delta, $probes[1].lmb_after_release_accepted_delta, $probes[1].recovery_placed)
 }
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }

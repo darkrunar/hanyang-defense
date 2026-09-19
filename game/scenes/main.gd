@@ -89,6 +89,19 @@ var _show_detail: bool = true
 var _mouse_down: bool = false
 ## run_id the held click was issued in (R-03): a retry never crosses a restart.
 var _mouse_down_run_id: int = -1
+## Inputs physically held right now, keyed by name ("Escape", "Enter", "R",
+## "mouse1"...). Tracked from `_input` (every event, before the GUI consumes
+## it) and from `_handle_key_event` (synthesized events in tests / captures).
+## It mirrors the devices, so a restart never clears it; a window focus loss
+## does, because the releases may never arrive.
+var _held: Dictionary = {}
+## Release fence (WP-004 §2, R-01 of the 2026-09-19 GPT review, D-047): the
+## inputs that were still held at the moment a menu closed to PLAYING. Field
+## commands are refused until every one of them has been released; a press
+## refused this way is logged in `fenced_inputs` and is never held for retry.
+var _fence: Dictionary = {}
+var fenced_inputs: Array = []
+var _menu_was_open: bool = true
 var _sim_speed: int = 1
 var _quit_after: float = -1.0
 var _last_notice: String = ""
@@ -487,8 +500,16 @@ func _sync_menu() -> void:
         if not bool(settings.last_save.get("ok", true)):
             ctx["settings_notice"] = "설정 저장 실패: %s" % str(settings.last_save.get("path", ""))
     menu.show_state(st, ctx)
-    if flow.menu_open():
+    var open: bool = flow.menu_open()
+    if open:
         _clear_field_input()
+    elif _menu_was_open:
+        # A menu just closed to PLAYING (resume, cancel, new run). Whatever
+        # closed it (Esc, Enter on a button, the mouse button on 계속하기, R on
+        # RESULT) may still be held: the field stays closed until it is
+        # released (R-01). Nothing held -> the fence is empty -> open now.
+        _fence = _held.duplicate()
+    _menu_was_open = open
     # No HUD before a run exists: TITLE and the settings opened from TITLE.
     var before_run: bool = st == "TITLE" or (st == "SETTINGS" and flow.settings_return == PlayFlow.State.TITLE)
     _hud_layer.visible = _show_hud and not before_run
@@ -513,6 +534,11 @@ func _check_run_end() -> void:
 func _physics_process(delta: float) -> void:
     if _capture_busy:
         return
+    # A run that already ended while PLAYING (only possible when something
+    # outside this loop stepped the battle) shows RESULT before any pending
+    # pause / restart is applied, so those are dropped as stale (§2, RESULT
+    # wins; GPT review 2026-09-19 boundary observation).
+    _check_run_end()
     _apply_intents()
     if flow.battle_active():
         var dt: float = config.get_num("fixed_dt")
@@ -531,9 +557,12 @@ func _physics_process(delta: float) -> void:
         # Held-click retry dispatches by mode exactly like the initial press
         # (Codex review on PR #4: a refused recovery click must never fall
         # through to free construction in the WP-003 run). A hold issued in a
-        # previous run is dropped, never retried in the new one (R-03).
+        # previous run is dropped, never retried in the new one (R-03); no
+        # retry while the release fence is up (R-01).
         if _mouse_down_run_id != battle.run.run_id:
             _mouse_down = false
+        elif not _fence.is_empty():
+            pass
         elif battle.run_mode == "waves":
             _try_recovery_at_cursor()
         else:
@@ -628,6 +657,47 @@ func _upload_enemies() -> void:
 
 # ================================================================= input ===
 
+## Every event, before the GUI: only the held-input ledger, never a command.
+func _input(event: InputEvent) -> void:
+    _track_held(event)
+
+
+static func _input_name(event: InputEvent) -> String:
+    if event is InputEventKey:
+        var k: InputEventKey = event
+        var n: String = OS.get_keycode_string(k.keycode)
+        return n if n != "" else "key%d" % k.keycode
+    if event is InputEventMouseButton:
+        return "mouse%d" % (event as InputEventMouseButton).button_index
+    return ""
+
+
+func _track_held(event: InputEvent) -> void:
+    if event is InputEventKey and (event as InputEventKey).echo:
+        return
+    var n: String = _input_name(event)
+    if n == "":
+        return
+    if event.is_pressed():
+        _held[n] = true
+    else:
+        _held.erase(n)
+        _fence.erase(n)
+
+
+func _fence_refuse(n: String) -> void:
+    fenced_inputs.append({"input": n, "fence": _fence.keys(), "tick": battle.steps, "run_id": battle.run.run_id})
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+        # Releases are not delivered to an unfocused window: forget the held
+        # inputs rather than keep the field closed forever.
+        _held.clear()
+        _fence.clear()
+        _mouse_down = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
     if _perf != null or _capture_name != "":
         # Scripted evidence runs must not be perturbed by stray clicks or keys
@@ -642,6 +712,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## The real input handler body, also driven by the wp004_ui capture script
 ## and the headless flow tests with synthesized events.
 func _handle_key_event(event: InputEvent) -> void:
+    _track_held(event)
     if flow.menu_open():
         # A menu is open: mouse events are consumed by the Controls (dim
         # rectangle + buttons) before they get here; keys close exactly one
@@ -659,6 +730,13 @@ func _handle_key_event(event: InputEvent) -> void:
     var waves_mode: bool = battle.run_mode == "waves"
     if event is InputEventMouseButton:
         var mb: InputEventMouseButton = event
+        if mb.pressed and not _fence.is_empty():
+            # R-01: the input that closed the menu is still held. Refuse the
+            # press, do not hold it for retry; only a new press after the
+            # release is field input.
+            _mouse_down = false
+            _fence_refuse(_input_name(mb))
+            return
         if mb.button_index == MOUSE_BUTTON_LEFT:
             _mouse_down = mb.pressed
             _mouse_down_run_id = battle.run.run_id
@@ -678,6 +756,9 @@ func _handle_key_event(event: InputEvent) -> void:
                     _say("제거 실패: 커서 아래 시설 없음")
     elif event is InputEventKey and event.pressed and not event.echo:
         var key: InputEventKey = event
+        if not _fence.is_empty() and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
+            _fence_refuse(_input_name(key))   # field commands only; view toggles and menu keys are not fenced
+            return
         if waves_mode and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
             _say("WP-003 런에서는 자유 설치·활성 전환·전투 토글 디버그 명령을 제공하지 않는다")
             return
@@ -1539,6 +1620,8 @@ func _setup_capture_steps() -> void:
                 {"t": 12.0, "do": "ui_state_log", "label": "confirm_esc_cancels_only"},
                 {"t": 12.0, "do": "key", "keycode": KEY_ESCAPE},
                 {"t": 12.0, "do": "ui_state_log", "label": "pause_esc_resumes"},
+                {"t": 12.0, "do": "fence_probe", "anchor": TestMap.RECOVERY_B},
+                {"t": 12.0, "do": "ui_state_log", "label": "fence_probe_before_collapse"},
                 {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "wp004_ui forced collapse (verification only)"},
                 {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp004_ui trigger enemy"},
                 {"t": 22.0, "do": "key", "keycode": KEY_R},
@@ -1555,7 +1638,8 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "ui_state_log", "label": "r_on_result_restarts_immediately"},
                 {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "wp004_ui forced collapse for the WON result"},
                 {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp004_ui trigger enemy"},
-                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.0, "do": "fence_probe", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.0, "do": "ui_state_log", "label": "fence_probe_done"},
                 {"t": 25.0, "do": "wait_result"},
                 {"t": 25.0, "do": "capture", "name": pfx + "_10_result_won"},
                 {"t": 25.0, "do": "button", "intent": "result_to_title"},
@@ -1725,18 +1809,51 @@ func _capture_script_step() -> void:
                     "visible": shown, "state_before": before, "state_after": flow.state_name(),
                     "tick": battle.steps, "run_id": battle.run.run_id})
             "key":
-                var ev: InputEventKey = InputEventKey.new()
-                ev.keycode = step["keycode"]
-                ev.pressed = true
+                # A key tap: press (intent applied) then release, so the
+                # release fence opens exactly as it does for a real tap.
                 var before_k: String = flow.state_name()
-                _handle_key_event(ev)
+                _probe_key(step["keycode"], true)
                 _apply_intents()
+                var fence_held: Array = _fence.keys()
+                _probe_key(step["keycode"], false)
                 _capture_log.append({"t": battle.sim_time, "key": OS.get_keycode_string(step["keycode"]),
-                    "state_before": before_k, "state_after": flow.state_name(), "tick": battle.steps, "run_id": battle.run.run_id})
+                    "state_before": before_k, "state_after": flow.state_name(), "fence_before_release": fence_held,
+                    "fence_after_release": _fence.keys(), "tick": battle.steps, "run_id": battle.run.run_id})
+            "fence_probe":
+                # R-01 evidence with real events at the anchor: Esc pauses,
+                # Esc pressed again (not released) resumes, a LMB press is
+                # refused while Esc is still held, the Esc release opens the
+                # fence, the next LMB press places H1.
+                var anchor: Vector2i = step["anchor"]
+                _cursor_world_override = battle.grid.cell_center(anchor.x, anchor.y)
+                var probe: Dictionary = {"t": battle.sim_time, "fence_probe": str(anchor), "tick": battle.steps, "run_id": battle.run.run_id}
+                var a0: int = battle.commands_accepted
+                _probe_key(KEY_ESCAPE, true)
+                _apply_intents()
+                probe["after_esc_press"] = flow.state_name()
+                _probe_key(KEY_ESCAPE, false)
+                _probe_key(KEY_ESCAPE, true)
+                _apply_intents()
+                probe["after_second_esc_press"] = flow.state_name()
+                probe["fence_after_resume"] = _fence.keys()
+                _probe_mouse(true)
+                probe["lmb_while_esc_held_accepted_delta"] = battle.commands_accepted - a0
+                probe["lmb_while_esc_held_recovery_placed"] = battle.run.recovery_placed
+                _probe_mouse(false)
+                _probe_key(KEY_ESCAPE, false)
+                probe["fence_after_esc_release"] = _fence.keys()
+                _probe_mouse(true)
+                probe["lmb_after_release_accepted_delta"] = battle.commands_accepted - a0
+                probe["recovery_placed"] = battle.run.recovery_placed
+                _probe_mouse(false)
+                probe["fenced_inputs"] = fenced_inputs.duplicate(true)
+                _cursor_world_override = Vector2.INF
+                _capture_log.append(probe)
             "ui_state_log":
                 _capture_log.append({"t": battle.sim_time, "ui_state": flow.state_name(), "label": step["label"],
                     "tick": battle.steps, "run_id": battle.run.run_id, "run": battle.run.run_name(),
-                    "visible_buttons": menu.visible_buttons(), "flow": flow.snapshot()})
+                    "visible_buttons": menu.visible_buttons(), "flow": flow.snapshot(),
+                    "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size()})
             "force_core_hp":
                 battle.force_core_hp(step["value"], step["why"])
                 _capture_log.append({"t": battle.sim_time, "force_core_hp": step["value"], "why": step["why"]})
@@ -1751,6 +1868,22 @@ func _capture_script_step() -> void:
                 _write_capture_log()
                 get_tree().quit()
                 return
+
+
+## Synthesized events for the capture script (the same handler the real
+## input takes, so the held ledger and the fence see them).
+func _probe_key(keycode: int, pressed: bool) -> void:
+    var ev: InputEventKey = InputEventKey.new()
+    ev.keycode = keycode
+    ev.pressed = pressed
+    _handle_key_event(ev)
+
+
+func _probe_mouse(pressed: bool) -> void:
+    var ev: InputEventMouseButton = InputEventMouseButton.new()
+    ev.button_index = MOUSE_BUTTON_LEFT
+    ev.pressed = pressed
+    _handle_key_event(ev)
 
 
 func _do_capture(name: String) -> void:
