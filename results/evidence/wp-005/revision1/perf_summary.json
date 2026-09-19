@@ -1,0 +1,54 @@
+[
+  {
+    "mode": "greybox",
+    "scenario": "collapse_move",
+    "avg_fps": 85.44501428341657,
+    "p95_ms": 20.753,
+    "alive_min": 1000.0,
+    "frames": 5127,
+    "exe_sha256": "469f2d697d0fb4cf063c6a4649d429ca18ab6d14b917af4a443c997c65e068f2",
+    "implementation_sha": "f4b6c13c53945eb5a971aaf19d36c7e5a0990e32",
+    "memory_peak_mb": 192.7,
+    "verdict": "PASS"
+  },
+  {
+    "mode": "greybox",
+    "scenario": "collapse_combat",
+    "avg_fps": 99.40167721253039,
+    "p95_ms": 18.697,
+    "alive_min": 1000.0,
+    "frames": 5966,
+    "exe_sha256": "469f2d697d0fb4cf063c6a4649d429ca18ab6d14b917af4a443c997c65e068f2",
+    "implementation_sha": "f4b6c13c53945eb5a971aaf19d36c7e5a0990e32",
+    "memory_peak_mb": 193.0,
+    "verdict": "PASS"
+  },
+  {
+    "mode": "sample",
+    "scenario": "collapse_move",
+    "avg_fps": 83.34769960349094,
+    "p95_ms": 21.061,
+    "alive_min": 1000.0,
+    "frames": 5001,
+    "exe_sha256": "469f2d697d0fb4cf063c6a4649d429ca18ab6d14b917af4a443c997c65e068f2",
+    "implementation_sha": "f4b6c13c53945eb5a971aaf19d36c7e5a0990e32",
+    "memory_peak_mb": 193.7,
+    "verdict": "PASS",
+    "fps_change_percent": -2.4545781840107694,
+    "p95_change_ms": 0.30799999999999983
+  },
+  {
+    "mode": "sample",
+    "scenario": "collapse_combat",
+    "avg_fps": 95.63093618453297,
+    "p95_ms": 18.965,
+    "alive_min": 1000.0,
+    "frames": 5738,
+    "exe_sha256": "469f2d697d0fb4cf063c6a4649d429ca18ab6d14b917af4a443c997c65e068f2",
+    "implementation_sha": "f4b6c13c53945eb5a971aaf19d36c7e5a0990e32",
+    "memory_peak_mb": 193.8,
+    "verdict": "PASS",
+    "fps_change_percent": -3.793438032172447,
+    "p95_change_ms": 0.2680000000000007
+  }
+]

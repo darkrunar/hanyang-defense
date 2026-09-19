@@ -45,6 +45,8 @@
 
 ### 다음 작업: WP-005 그래픽 샘플 (READY)
 
+2026-09-20 리뷰 보완: `f4b6c13`에서 적 소멸 잘림, 비활성 시설4종, 실제 리소스 F1/F2/F4 비교를 보완했다. **17/35 PNG 상태 적용 · 회귀1,259/1,259 · 동일 release의1000체 성능4조건 PASS**. [보완 화면](results/evidence/wp-005/revision1/captures/wp005_sample_b_collapse_t20.5.png) · [ID 범례](results/evidence/wp-005/revision1/FACILITY_LEGEND.md). 전체 WP는 제작 잔여와 사용자 확인 전 IN_PROGRESS다.
+
 2026-09-20 부분 통합: `wp/005-art-integration`에서 시설 기본 상태 4종·지형·적 12프레임을 연결했다. 13/35 상태 파일 적용, 회귀 1,210/1,210 통과 및 배포본 로딩 확인. 성문·거점·시설 비활성/효과와 통합 성능 검증은 미완료다. 실행 시 `-- --art=sample`로 선택한다. [실제 적용 화면](results/evidence/wp-005/integration/release/wp005_sample_a_dense_t15.png)과 [결과](results/WP-005-RESULT.md)를 참고한다.
 
 [WP-005 명세](backlog/WP-005.md) · [아트 가이드](docs/art/ART_GUIDE.md) · [리소스 제작 목록](docs/art/ASSET_MANIFEST.csv)
