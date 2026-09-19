@@ -42,18 +42,21 @@
 
 첫 단계는 Git 문서를 통한 수동 핸드오프다. 이 저장소만으로 GPT나 Claude Code가 자동 실행되지는 않는다.
 
-### Claude Code에 전달할 구현 요청 (WP-004 READY)
+### 다음 작업: WP-005 그래픽 샘플 (READY)
+
+[WP-005 명세](backlog/WP-005.md) · [아트 가이드](docs/art/ART_GUIDE.md) · [리소스 제작 목록](docs/art/ASSET_MANIFEST.csv)
+
+광화문 앞 한 구역의 실제 플레이 화면을 먼저 완성한다. 현재는 명세만 준비됐으며 에셋 제작·적용·검증은 미실행이다. WP-006 전체 전장 확장과 WP-007 연출·UI 마감은 DRAFT다.
 
 ```text
-최신 main의 CLAUDE.md, GAME_DESIGN, SYSTEM_SPEC, DECISIONS와 backlog/WP-004.md를 읽는다.
-wp/004-play-flow 브랜치에서 착수 기준 SHA를 기록하고 IN_PROGRESS로 전환한다.
-시작·일시정지·확인·결과·설정 화면을 실제 전투와 연결한다.
-진행 중 R은 재시작 확인으로, Esc/P는 일시정지로 변경한다.
-메뉴 중 전투/배치 정지, 입력 관통 방지, 동일 초기 상태 재시작을 검증한다.
-음향/효과 신설·재화·런 저장·전장 에셋 전체 교체는 포함하지 않는다.
-기존 자동 perf/capture/headless 경로와 실제 모드별 존/시설을 보존한다.
-AC-01~08, 두 해상도 실제 화면, 기존 회귀와 release 성능을 검증한다.
-results/WP-004-RESULT.md에 기준/구현/증거 SHA, AC 판정, 실행 절차와 증거를 기록한다.
+최신 main과 이 계획 문서가 반영된 브랜치에서 CLAUDE.md 및 backlog/WP-005.md,
+docs/art/ART_GUIDE.md, ASSET_MANIFEST.csv, DECISIONS D-048을 읽는다.
+wp/005-art-sample 브랜치에서 기준 SHA와 리소스 제작 도구 접근 가능 여부를 기록한다.
+WP-005의 최소 리소스를 제작·보정·적용한다. 제작 도구에 접근할 수 없으면 필요한 asset ID와 규격을 GPT에 반환한다.
+샘플 지형과 적/시설 표시를 적용하며 기존 전투·배치·메뉴 입력 규칙을 유지한다.
+greybox/sample 동일 상태 비교, 두 해상도 실제 화면, 전체 회귀와 release 성능을 검증한다.
+results/WP-005-RESULT.md에 증거와 사용자 스타일 확인 상태를 기록한다.
+실제 샘플 확인 전 전체 전장 리소스를 양산하지 않는다.
 완료 후 REVIEW와 Draft PR로 GPT 리뷰를 요청한다. main에 직접 병합하지 않는다.
 ```
 
