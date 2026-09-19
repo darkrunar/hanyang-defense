@@ -235,12 +235,12 @@ foreach ($size in @("", "_720")) {
     $shipped = @(Get-ChildItem -Recurse -Filter *.png "assets\art\wp005").Count
     if ($rl.art.loaded_count -ne $shipped) { throw "capture wp005_assets${size}: loaded $($rl.art.loaded_count) != $shipped shipped png" }
     if ($rl.art.loaded_count + $rl.art.missing_count + $rl.art.optional_missing_count -ne $rl.art.contract_count) { throw "capture wp005_assets${size}: loaded + missing + optional != contract" }
-    if ($rb.marks_drawn.off -lt 1 -or $rb.marks_drawn.recovery_slot -lt 1) { throw "capture wp005_assets${size}: procedural off / recovery marks not drawn after the collapse ($($rb.marks_drawn | ConvertTo-Json -Compress))" }
-    if ($ra.sample_tiles_drawn.edge_procedural -lt 1) { throw "capture wp005_assets${size}: procedural edge lines not drawn" }
     $ra = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_a_dense_t15" } | Select-Object -First 1
     $rb = $r5 | Where-Object { $_.capture -eq "wp005_assets${size}_b_collapse_t20.5" } | Select-Object -First 1
     if ($ra.sprites_drawn.'hwacha/idle' -lt 1 -or $ra.sprites_drawn.'jangseung/idle' -lt 1 -or $ra.sprites_drawn.'bongsu/connected' -lt 1 -or $ra.sprites_drawn.'sensor/active' -lt 1) { throw "capture wp005_assets${size}: facility sprites not drawn at t15 ($($ra.sprites_drawn | ConvertTo-Json -Compress))" }
     if ($rb.sprites_drawn.'hwacha/inactive' -lt 1 -or $rb.sprites_drawn.'bongsu/disconnected' -lt 1 -or $rb.sprites_drawn.'sensor/inactive' -lt 1) { throw "capture wp005_assets${size}: inactive / disconnected sprites not drawn after the collapse" }
+    if ($rb.marks_drawn.off -lt 1 -or $rb.marks_drawn.recovery_slot -lt 1) { throw "capture wp005_assets${size}: procedural off / recovery marks not drawn after the collapse ($($rb.marks_drawn | ConvertTo-Json -Compress))" }
+    if ($ra.sample_tiles_drawn.edge_procedural -lt 1) { throw "capture wp005_assets${size}: procedural edge lines not drawn" }
     Write-Host ("capture wp005_assets{0}: greybox == assets at 4 checkpoints; loaded {1}/{2} (missing {3}); t15 sprites {4}; t20.5 sprites {5}" -f $size, $rl.art.loaded_count, $rl.art.contract_count, $rl.art.missing_count,
         ($ra.sprites_drawn | ConvertTo-Json -Compress), ($rb.sprites_drawn | ConvertTo-Json -Compress))
 }
