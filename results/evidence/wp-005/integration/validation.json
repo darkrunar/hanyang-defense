@@ -1,0 +1,10 @@
+{
+  "contract_files": 35,
+  "exe_sha256": "C83839A386D71B250E42099368A324ABB0E5CF4C34EF7D3D8B9B9542DD2B22B9",
+  "enemy_atlas": true,
+  "source_hashes_match_editor": true,
+  "release_assets": 13,
+  "performance": "NOT RUN on integrated assets",
+  "release_capture_count": 7,
+  "missing": 22
+}

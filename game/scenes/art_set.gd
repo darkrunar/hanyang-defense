@@ -153,12 +153,31 @@ func _load_pivots() -> void:
 
 func _load_frames(asset_id: String, state: String, path: String, frames: int, canvas: Vector2i) -> Frames:
     var key: String = "%s/%s" % [asset_id, state]
-    if not FileAccess.file_exists(path):
+    if not FileAccess.file_exists(path) and not ResourceLoader.exists(path):
         missing[key] = "missing: %s" % path
         return null
-    var bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
     var img: Image = Image.new()
-    if img.load_png_from_buffer(bytes) != OK:
+    var source_hash: String = ""
+    if FileAccess.file_exists(path):
+        var bytes: PackedByteArray = FileAccess.get_file_as_bytes(path)
+        if img.load_png_from_buffer(bytes) != OK:
+            missing[key] = "not a PNG: %s" % path
+            return null
+        source_hash = FileAccess.get_sha256(path)
+    else:
+        # Export replaces PNGs with lossless imported textures. The source
+        # hash remains traceable through the generated manifest shipped alongside.
+        var texture = ResourceLoader.load(path) as Texture2D
+        if texture != null:
+            img = texture.get_image()
+        var manifest_path = dir.path_join("integration_manifest.json")
+        if FileAccess.file_exists(manifest_path):
+            var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
+            if manifest is Dictionary:
+                for entry in manifest.get("loaded", []):
+                    if entry.get("path", "") == path:
+                        source_hash = str(entry.get("sha256", ""))
+    if img == null or img.is_empty():
         missing[key] = "not a PNG: %s" % path
         return null
     if img.get_width() % frames != 0:
@@ -181,7 +200,7 @@ func _load_frames(asset_id: String, state: String, path: String, frames: int, ca
     fr.texture = ImageTexture.create_from_image(img)
     fr.frame_size = Vector2i(fw, fh)
     fr.frame_count = frames
-    fr.sha256 = FileAccess.get_sha256(path)
+    fr.sha256 = source_hash
     var fname: String = path.get_file()
     if pivots.has(fname) and pivots[fname] is Array and (pivots[fname] as Array).size() == 2:
         fr.pivot = Vector2(float(pivots[fname][0]), float(pivots[fname][1]))
