@@ -3,433 +3,439 @@
     "art_mode":  "greybox",
     "art_dir":  "",
     "exe":  "hanyang_defense_wp001.exe",
-    "exe_sha256":  "b557ec69bb234174e26aae32ea45d9556e935abf88ea0c260d6f6e3bc13cac25",
-    "exe_size_bytes":  109343344,
-    "exe_modified_utc":  "2026-09-20T08:48:01.6035997Z",
-    "implementation_sha":  "f39911a7ceec94995cb0640f3c79908cc93c2c10-dirty",
+    "exe_sha256":  "7c103580f9cb6173ee3393c337099e1c1e7adfd1b55154500bd686884633765d",
+    "exe_size_bytes":  109344112,
+    "exe_modified_utc":  "2026-09-20T09:39:16.1788694Z",
+    "implementation_sha":  "8da6755577558d5c5f8be9ffd80ba6c6ba3b5124",
     "sampler":  "Get-Process WorkingSet64 / PrivateMemorySize64, 1 Hz, external",
-    "samples":  69,
-    "working_set_mb_min":  144.9,
-    "working_set_mb_max":  186.5,
-    "working_set_mb_at_measure_start":  178.8,
-    "working_set_mb_at_end":  186.5,
-    "private_mb_max":  237.7,
-    "peak_ws_mb":  186.5,
+    "samples":  70,
+    "working_set_mb_min":  142.2,
+    "working_set_mb_max":  192.9,
+    "working_set_mb_at_measure_start":  180.9,
+    "working_set_mb_at_end":  142.2,
+    "private_mb_max":  244.8,
+    "peak_ws_mb":  198.9,
     "exit_code":  0,
     "per_second":  [
                        {
                            "t_s":  1,
-                           "working_set_mb":  144.9,
-                           "private_mb":  205.9,
-                           "peak_ws_mb":  144.9
+                           "working_set_mb":  169.1,
+                           "private_mb":  239.4,
+                           "peak_ws_mb":  169.1
                        },
                        {
-                           "t_s":  2.1,
-                           "working_set_mb":  178.7,
-                           "private_mb":  237.7,
-                           "peak_ws_mb":  178.7
+                           "t_s":  2,
+                           "working_set_mb":  174.7,
+                           "private_mb":  244.5,
+                           "peak_ws_mb":  174.7
                        },
                        {
                            "t_s":  3.1,
-                           "working_set_mb":  178.8,
-                           "private_mb":  237.7,
-                           "peak_ws_mb":  178.8
+                           "working_set_mb":  174.8,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  174.8
                        },
                        {
                            "t_s":  4.1,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.2,
-                           "peak_ws_mb":  179.2
+                           "working_set_mb":  175.2,
+                           "private_mb":  217.9,
+                           "peak_ws_mb":  175.2
                        },
                        {
                            "t_s":  5.1,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.2,
-                           "peak_ws_mb":  179.2
+                           "working_set_mb":  181.3,
+                           "private_mb":  228,
+                           "peak_ws_mb":  181.3
                        },
                        {
                            "t_s":  6.1,
-                           "working_set_mb":  179.3,
-                           "private_mb":  209.6,
-                           "peak_ws_mb":  179.3
+                           "working_set_mb":  181.3,
+                           "private_mb":  228,
+                           "peak_ws_mb":  181.3
                        },
                        {
-                           "t_s":  7.2,
-                           "working_set_mb":  178.5,
-                           "private_mb":  208.7,
-                           "peak_ws_mb":  179.4
+                           "t_s":  7.1,
+                           "working_set_mb":  181.4,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.4
                        },
                        {
                            "t_s":  8.2,
-                           "working_set_mb":  178.5,
-                           "private_mb":  208.7,
-                           "peak_ws_mb":  179.4
+                           "working_set_mb":  180.6,
+                           "private_mb":  229.1,
+                           "peak_ws_mb":  181.4
                        },
                        {
                            "t_s":  9.2,
-                           "working_set_mb":  178.6,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "working_set_mb":  180.7,
+                           "private_mb":  229.1,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  10.3,
-                           "working_set_mb":  178.8,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  10.2,
+                           "working_set_mb":  180.9,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  11.3,
-                           "working_set_mb":  178.9,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  11.2,
+                           "working_set_mb":  181,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  12.3,
-                           "working_set_mb":  179.1,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  12.2,
+                           "working_set_mb":  181.2,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  13.3,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  13.2,
+                           "working_set_mb":  181.2,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
                            "t_s":  14.3,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "working_set_mb":  181.3,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  15.4,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  15.3,
+                           "working_set_mb":  181.3,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  16.4,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  16.3,
+                           "working_set_mb":  181.3,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  17.4,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  17.3,
+                           "working_set_mb":  181.4,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
                            "t_s":  18.4,
-                           "working_set_mb":  179.2,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "working_set_mb":  181.4,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  19.5,
-                           "working_set_mb":  179.3,
-                           "private_mb":  209.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  19.4,
+                           "working_set_mb":  181.4,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  20.5,
-                           "working_set_mb":  179.4,
-                           "private_mb":  210.1,
-                           "peak_ws_mb":  179.4
+                           "t_s":  20.4,
+                           "working_set_mb":  181.4,
+                           "private_mb":  229.6,
+                           "peak_ws_mb":  181.4
                        },
                        {
-                           "t_s":  21.5,
-                           "working_set_mb":  179.5,
-                           "private_mb":  210.1,
-                           "peak_ws_mb":  179.5
+                           "t_s":  21.4,
+                           "working_set_mb":  181.6,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.6
                        },
                        {
-                           "t_s":  22.5,
-                           "working_set_mb":  179.5,
-                           "private_mb":  210.1,
-                           "peak_ws_mb":  179.5
+                           "t_s":  22.4,
+                           "working_set_mb":  181.6,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.6
                        },
                        {
                            "t_s":  23.5,
-                           "working_set_mb":  179.6,
-                           "private_mb":  210.1,
-                           "peak_ws_mb":  179.6
+                           "working_set_mb":  181.6,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.6
                        },
                        {
-                           "t_s":  24.6,
-                           "working_set_mb":  179.7,
-                           "private_mb":  210.1,
-                           "peak_ws_mb":  179.7
+                           "t_s":  24.5,
+                           "working_set_mb":  181.7,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.7
                        },
                        {
-                           "t_s":  25.6,
-                           "working_set_mb":  183.9,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  183.9
+                           "t_s":  25.5,
+                           "working_set_mb":  181.8,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.8
                        },
                        {
-                           "t_s":  26.6,
-                           "working_set_mb":  183.9,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  183.9
+                           "t_s":  26.5,
+                           "working_set_mb":  181.8,
+                           "private_mb":  230,
+                           "peak_ws_mb":  181.8
                        },
                        {
-                           "t_s":  27.6,
-                           "working_set_mb":  183.9,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  183.9
+                           "t_s":  27.5,
+                           "working_set_mb":  182,
+                           "private_mb":  230.6,
+                           "peak_ws_mb":  182
                        },
                        {
-                           "t_s":  28.7,
-                           "working_set_mb":  184,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  184
+                           "t_s":  28.6,
+                           "working_set_mb":  182.1,
+                           "private_mb":  230.6,
+                           "peak_ws_mb":  182.1
                        },
                        {
-                           "t_s":  29.7,
-                           "working_set_mb":  184,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  184
+                           "t_s":  29.6,
+                           "working_set_mb":  182.1,
+                           "private_mb":  230.6,
+                           "peak_ws_mb":  182.1
                        },
                        {
-                           "t_s":  30.7,
-                           "working_set_mb":  184,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184
+                           "t_s":  30.6,
+                           "working_set_mb":  182.1,
+                           "private_mb":  230.6,
+                           "peak_ws_mb":  182.1
                        },
                        {
-                           "t_s":  31.7,
-                           "working_set_mb":  184.5,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.5
+                           "t_s":  31.6,
+                           "working_set_mb":  190.5,
+                           "private_mb":  242.6,
+                           "peak_ws_mb":  190.5
                        },
                        {
-                           "t_s":  32.8,
-                           "working_set_mb":  184.6,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.6
+                           "t_s":  32.6,
+                           "working_set_mb":  190.6,
+                           "private_mb":  242.6,
+                           "peak_ws_mb":  190.6
                        },
                        {
-                           "t_s":  33.8,
-                           "working_set_mb":  184.6,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.6
+                           "t_s":  33.6,
+                           "working_set_mb":  190.6,
+                           "private_mb":  242.6,
+                           "peak_ws_mb":  190.6
                        },
                        {
-                           "t_s":  34.8,
-                           "working_set_mb":  184.6,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.6
+                           "t_s":  34.7,
+                           "working_set_mb":  190.6,
+                           "private_mb":  242.6,
+                           "peak_ws_mb":  190.6
                        },
                        {
-                           "t_s":  35.8,
-                           "working_set_mb":  184.6,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.6
+                           "t_s":  35.7,
+                           "working_set_mb":  190.7,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.7
                        },
                        {
-                           "t_s":  36.9,
-                           "working_set_mb":  184.6,
-                           "private_mb":  216,
-                           "peak_ws_mb":  184.6
+                           "t_s":  36.7,
+                           "working_set_mb":  190.7,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.7
                        },
                        {
-                           "t_s":  37.9,
-                           "working_set_mb":  184.7,
-                           "private_mb":  216.1,
-                           "peak_ws_mb":  184.7
+                           "t_s":  37.7,
+                           "working_set_mb":  190.7,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.7
                        },
                        {
-                           "t_s":  38.9,
-                           "working_set_mb":  184.7,
-                           "private_mb":  216.2,
-                           "peak_ws_mb":  184.7
+                           "t_s":  38.7,
+                           "working_set_mb":  190.8,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.8
                        },
                        {
-                           "t_s":  39.9,
-                           "working_set_mb":  184.8,
-                           "private_mb":  216.2,
-                           "peak_ws_mb":  184.8
+                           "t_s":  39.8,
+                           "working_set_mb":  190.8,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.8
                        },
                        {
-                           "t_s":  41,
-                           "working_set_mb":  184.8,
-                           "private_mb":  216.2,
-                           "peak_ws_mb":  184.8
+                           "t_s":  40.8,
+                           "working_set_mb":  190.9,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.9
                        },
                        {
-                           "t_s":  42,
-                           "working_set_mb":  184.8,
-                           "private_mb":  216.2,
-                           "peak_ws_mb":  184.8
+                           "t_s":  41.8,
+                           "working_set_mb":  190.9,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  190.9
                        },
                        {
-                           "t_s":  43,
-                           "working_set_mb":  184.8,
-                           "private_mb":  216.2,
-                           "peak_ws_mb":  184.8
+                           "t_s":  42.8,
+                           "working_set_mb":  191,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  191
                        },
                        {
-                           "t_s":  44,
-                           "working_set_mb":  185,
-                           "private_mb":  216.4,
-                           "peak_ws_mb":  185
+                           "t_s":  43.9,
+                           "working_set_mb":  191,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  191
                        },
                        {
-                           "t_s":  45.1,
-                           "working_set_mb":  185,
-                           "private_mb":  216.4,
-                           "peak_ws_mb":  185
+                           "t_s":  44.9,
+                           "working_set_mb":  191.1,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  191.1
                        },
                        {
-                           "t_s":  46.1,
-                           "working_set_mb":  185,
-                           "private_mb":  216.4,
-                           "peak_ws_mb":  185
+                           "t_s":  45.9,
+                           "working_set_mb":  191.2,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  191.2
                        },
                        {
-                           "t_s":  47.1,
-                           "working_set_mb":  185,
-                           "private_mb":  216.5,
-                           "peak_ws_mb":  185
+                           "t_s":  46.9,
+                           "working_set_mb":  191.2,
+                           "private_mb":  243.2,
+                           "peak_ws_mb":  191.2
                        },
                        {
-                           "t_s":  48.1,
-                           "working_set_mb":  185.3,
-                           "private_mb":  216.7,
-                           "peak_ws_mb":  185.3
+                           "t_s":  48,
+                           "working_set_mb":  191.5,
+                           "private_mb":  244,
+                           "peak_ws_mb":  191.5
                        },
                        {
-                           "t_s":  49.1,
-                           "working_set_mb":  185.5,
-                           "private_mb":  217,
-                           "peak_ws_mb":  185.5
+                           "t_s":  49,
+                           "working_set_mb":  191.8,
+                           "private_mb":  244,
+                           "peak_ws_mb":  191.8
                        },
                        {
-                           "t_s":  50.2,
-                           "working_set_mb":  185.7,
-                           "private_mb":  217.1,
-                           "peak_ws_mb":  185.7
+                           "t_s":  50,
+                           "working_set_mb":  191.8,
+                           "private_mb":  244,
+                           "peak_ws_mb":  191.8
                        },
                        {
-                           "t_s":  51.2,
-                           "working_set_mb":  185.8,
-                           "private_mb":  217.3,
-                           "peak_ws_mb":  185.8
+                           "t_s":  51,
+                           "working_set_mb":  191.8,
+                           "private_mb":  244,
+                           "peak_ws_mb":  191.8
                        },
                        {
-                           "t_s":  52.2,
-                           "working_set_mb":  186,
-                           "private_mb":  217.5,
-                           "peak_ws_mb":  186
+                           "t_s":  52,
+                           "working_set_mb":  192.1,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.1
                        },
                        {
-                           "t_s":  53.2,
-                           "working_set_mb":  186,
-                           "private_mb":  217.5,
-                           "peak_ws_mb":  186
+                           "t_s":  53.1,
+                           "working_set_mb":  192.1,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.1
                        },
                        {
-                           "t_s":  54.3,
-                           "working_set_mb":  186,
-                           "private_mb":  217.5,
-                           "peak_ws_mb":  186
+                           "t_s":  54.1,
+                           "working_set_mb":  192.1,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.1
                        },
                        {
-                           "t_s":  55.3,
-                           "working_set_mb":  186,
-                           "private_mb":  217.5,
-                           "peak_ws_mb":  186
+                           "t_s":  55.1,
+                           "working_set_mb":  192.2,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.2
                        },
                        {
-                           "t_s":  56.3,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.1
+                           "t_s":  56.1,
+                           "working_set_mb":  192.3,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.3
                        },
                        {
-                           "t_s":  57.3,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.1
+                           "t_s":  57.1,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  58.4,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.1
+                           "t_s":  58.1,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  59.4,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.1
+                           "t_s":  59.1,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.8,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  60.4,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.2
+                           "t_s":  60.2,
+                           "working_set_mb":  192.3,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  61.4,
-                           "working_set_mb":  186.1,
-                           "private_mb":  217.6,
-                           "peak_ws_mb":  186.2
+                           "t_s":  61.2,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  62.4,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  62.2,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  63.5,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  63.2,
+                           "working_set_mb":  192.4,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.4
                        },
                        {
-                           "t_s":  64.5,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  64.2,
+                           "working_set_mb":  192.6,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.6
                        },
                        {
-                           "t_s":  65.5,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  65.3,
+                           "working_set_mb":  192.7,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.7
                        },
                        {
-                           "t_s":  66.5,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  66.3,
+                           "working_set_mb":  192.7,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.7
                        },
                        {
-                           "t_s":  67.6,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  67.3,
+                           "working_set_mb":  192.7,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.7
                        },
                        {
-                           "t_s":  68.6,
-                           "working_set_mb":  186.3,
-                           "private_mb":  217.7,
-                           "peak_ws_mb":  186.3
+                           "t_s":  68.3,
+                           "working_set_mb":  192.7,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.7
                        },
                        {
-                           "t_s":  69.6,
-                           "working_set_mb":  186.4,
-                           "private_mb":  217.8,
-                           "peak_ws_mb":  186.4
+                           "t_s":  69.3,
+                           "working_set_mb":  192.9,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.9
                        },
                        {
-                           "t_s":  70.6,
-                           "working_set_mb":  186.5,
-                           "private_mb":  218,
-                           "peak_ws_mb":  186.5
+                           "t_s":  70.3,
+                           "working_set_mb":  192.9,
+                           "private_mb":  244.6,
+                           "peak_ws_mb":  192.9
+                       },
+                       {
+                           "t_s":  71.4,
+                           "working_set_mb":  142.2,
+                           "private_mb":  174.3,
+                           "peak_ws_mb":  198.9
                        }
                    ]
 }

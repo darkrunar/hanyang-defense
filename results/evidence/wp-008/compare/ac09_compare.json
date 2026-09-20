@@ -130,6 +130,7 @@
         "earned_waves": 240,
         "enabled": true,
         "event_count": 159,
+        "events_well_ordered": true,
         "injected": 0,
         "kill_reward": 1,
         "kills_rewarded": 780,
@@ -145,7 +146,7 @@
             "kind": "JANGSEUNG",
             "label": "장승+1",
             "phase": "preparing",
-            "seq": 1,
+            "purchase_seq": 1,
             "sim_time": 0.0,
             "supply_after": 200,
             "tick": 0
@@ -160,7 +161,7 @@
             "kind": "JANGSEUNG",
             "label": "장승+2",
             "phase": "preparing",
-            "seq": 2,
+            "purchase_seq": 2,
             "sim_time": 0.0,
             "supply_after": 160,
             "tick": 0
@@ -175,7 +176,7 @@
             "kind": "HWACHA",
             "label": "화차+3",
             "phase": "preparing",
-            "seq": 3,
+            "purchase_seq": 3,
             "sim_time": 0.0,
             "supply_after": 60,
             "tick": 0
@@ -190,7 +191,7 @@
             "kind": "HWACHA",
             "label": "화차+4",
             "phase": "battle",
-            "seq": 4,
+            "purchase_seq": 4,
             "sim_time": 10.3500000207001,
             "supply_after": 6,
             "tick": 621
@@ -205,7 +206,7 @@
             "kind": "BONGSU",
             "label": "봉수대+5",
             "phase": "battle",
-            "seq": 5,
+            "purchase_seq": 5,
             "sim_time": 21.8333333770007,
             "supply_after": 2,
             "tick": 1310
@@ -220,7 +221,7 @@
             "kind": "HWACHA",
             "label": "화차+6",
             "phase": "battle",
-            "seq": 6,
+            "purchase_seq": 6,
             "sim_time": 37.9333334092002,
             "supply_after": 3,
             "tick": 2276
@@ -235,7 +236,7 @@
             "kind": "HWACHA",
             "label": "화차+7",
             "phase": "battle",
-            "seq": 7,
+            "purchase_seq": 7,
             "sim_time": 48.5500000970985,
             "supply_after": 2,
             "tick": 2913
@@ -250,7 +251,7 @@
             "kind": "HWACHA",
             "label": "화차+8",
             "phase": "battle",
-            "seq": 8,
+            "purchase_seq": 8,
             "sim_time": 61.9000001237963,
             "supply_after": 0,
             "tick": 3714
@@ -265,7 +266,7 @@
             "kind": "HWACHA",
             "label": "화차+9",
             "phase": "battle",
-            "seq": 9,
+            "purchase_seq": 9,
             "sim_time": 74.2500001484986,
             "supply_after": 3,
             "tick": 4455
@@ -1998,6 +1999,7 @@
         "earned_waves": 240,
         "enabled": true,
         "event_count": 127,
+        "events_well_ordered": true,
         "injected": 0,
         "kill_reward": 1,
         "kills_rewarded": 779,
@@ -2013,7 +2015,7 @@
             "kind": "BONGSU",
             "label": "봉수대+1",
             "phase": "preparing",
-            "seq": 1,
+            "purchase_seq": 1,
             "sim_time": 0.0,
             "supply_after": 180,
             "tick": 0
@@ -2028,7 +2030,7 @@
             "kind": "BONGSU",
             "label": "봉수대+2",
             "phase": "preparing",
-            "seq": 2,
+            "purchase_seq": 2,
             "sim_time": 0.0,
             "supply_after": 120,
             "tick": 0
@@ -2043,7 +2045,7 @@
             "kind": "SENSOR",
             "label": "혼천의+3",
             "phase": "preparing",
-            "seq": 3,
+            "purchase_seq": 3,
             "sim_time": 0.0,
             "supply_after": 40,
             "tick": 0
@@ -2058,7 +2060,7 @@
             "kind": "JANGSEUNG",
             "label": "장승+4",
             "phase": "preparing",
-            "seq": 4,
+            "purchase_seq": 4,
             "sim_time": 0.0,
             "supply_after": 0,
             "tick": 0
@@ -2073,7 +2075,7 @@
             "kind": "HWACHA",
             "label": "화차+5",
             "phase": "battle",
-            "seq": 5,
+            "purchase_seq": 5,
             "sim_time": 26.2000000524009,
             "supply_after": 37,
             "tick": 1572
@@ -2088,7 +2090,7 @@
             "kind": "HWACHA",
             "label": "화차+6",
             "phase": "battle",
-            "seq": 6,
+            "purchase_seq": 6,
             "sim_time": 43.7333334207993,
             "supply_after": 4,
             "tick": 2624
@@ -2103,7 +2105,7 @@
             "kind": "HWACHA",
             "label": "화차+7",
             "phase": "battle",
-            "seq": 7,
+            "purchase_seq": 7,
             "sim_time": 54.8500001096974,
             "supply_after": 2,
             "tick": 3291
@@ -2118,7 +2120,7 @@
             "kind": "HWACHA",
             "label": "화차+8",
             "phase": "battle",
-            "seq": 8,
+            "purchase_seq": 8,
             "sim_time": 63.500000126996,
             "supply_after": 19,
             "tick": 3810
@@ -2133,7 +2135,7 @@
             "kind": "HWACHA",
             "label": "화차+9",
             "phase": "battle",
-            "seq": 9,
+            "purchase_seq": 9,
             "sim_time": 77.7666668221996,
             "supply_after": 23,
             "tick": 4666
@@ -3753,6 +3755,7 @@
         "earned_waves": 240,
         "enabled": true,
         "event_count": 88,
+        "events_well_ordered": true,
         "injected": 0,
         "kill_reward": 1,
         "kills_rewarded": 773,
@@ -5496,6 +5499,7 @@
         "earned_waves": 240,
         "enabled": true,
         "event_count": 143,
+        "events_well_ordered": true,
         "injected": 0,
         "kill_reward": 1,
         "kills_rewarded": 780,
@@ -5511,7 +5515,7 @@
             "kind": "HWACHA",
             "label": "화차+1",
             "phase": "preparing",
-            "seq": 1,
+            "purchase_seq": 1,
             "sim_time": 0.0,
             "supply_after": 140,
             "tick": 0
@@ -5526,7 +5530,7 @@
             "kind": "JANGSEUNG",
             "label": "장승+2",
             "phase": "preparing",
-            "seq": 2,
+            "purchase_seq": 2,
             "sim_time": 0.0,
             "supply_after": 100,
             "tick": 0
@@ -5541,7 +5545,7 @@
             "kind": "BONGSU",
             "label": "봉수대+3",
             "phase": "preparing",
-            "seq": 3,
+            "purchase_seq": 3,
             "sim_time": 0.0,
             "supply_after": 40,
             "tick": 0
@@ -5556,7 +5560,7 @@
             "kind": "HWACHA",
             "label": "화차+4",
             "phase": "battle",
-            "seq": 4,
+            "purchase_seq": 4,
             "sim_time": 11.9833333573002,
             "supply_after": 0,
             "tick": 719
@@ -5571,7 +5575,7 @@
             "kind": "HWACHA",
             "label": "화차+5",
             "phase": "battle",
-            "seq": 5,
+            "purchase_seq": 5,
             "sim_time": 26.1166667189009,
             "supply_after": 35,
             "tick": 1567
@@ -5586,7 +5590,7 @@
             "kind": "HWACHA",
             "label": "화차+6",
             "phase": "battle",
-            "seq": 6,
+            "purchase_seq": 6,
             "sim_time": 43.6500000872993,
             "supply_after": 2,
             "tick": 2619
@@ -5601,7 +5605,7 @@
             "kind": "BONGSU",
             "label": "봉수대+7",
             "phase": "battle",
-            "seq": 7,
+            "purchase_seq": 7,
             "sim_time": 49.3666667653983,
             "supply_after": 4,
             "tick": 2962
@@ -5616,7 +5620,7 @@
             "kind": "HWACHA",
             "label": "화차+8",
             "phase": "battle",
-            "seq": 8,
+            "purchase_seq": 8,
             "sim_time": 63.416666793496,
             "supply_after": 57,
             "tick": 3805
@@ -5631,7 +5635,7 @@
             "kind": "HWACHA",
             "label": "화차+9",
             "phase": "battle",
-            "seq": 9,
+            "purchase_seq": 9,
             "sim_time": 76.0500001520991,
             "supply_after": 12,
             "tick": 4563
@@ -7301,6 +7305,7 @@
         "earned_waves": 240,
         "enabled": true,
         "event_count": 107,
+        "events_well_ordered": true,
         "injected": 0,
         "kill_reward": 1,
         "kills_rewarded": 780,
@@ -7316,7 +7321,7 @@
             "kind": "HWACHA",
             "label": "화차+1",
             "phase": "preparing",
-            "seq": 1,
+            "purchase_seq": 1,
             "sim_time": 0.0,
             "supply_after": 140,
             "tick": 0
@@ -7331,7 +7336,7 @@
             "kind": "JANGSEUNG",
             "label": "장승+2",
             "phase": "preparing",
-            "seq": 2,
+            "purchase_seq": 2,
             "sim_time": 0.0,
             "supply_after": 100,
             "tick": 0
@@ -7346,7 +7351,7 @@
             "kind": "BONGSU",
             "label": "봉수대+3",
             "phase": "preparing",
-            "seq": 3,
+            "purchase_seq": 3,
             "sim_time": 0.0,
             "supply_after": 40,
             "tick": 0

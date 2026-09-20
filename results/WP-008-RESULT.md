@@ -1,9 +1,9 @@
 # WP-008 Result
 
 - 작성일: 2026-09-20
-- WP / 상태: WP-008 준비 배치·전투 중 건설·물자 / **REVIEW** (GPT Review REVISE, 2026-09-20; 하단 재리뷰 요청 참조)
+- WP / 상태: WP-008 준비 배치·전투 중 건설·물자 / **REVIEW** (GPT 1차 REVISE 2026-09-20 → 보완 회차 1 `8da6755` 제출, 재리뷰 PENDING; 하단 참조)
 - 기준 커밋: `f39911a` ("docs: plan build economy and siege progression with WP-008 handoff", `wp/005-art-sample`, D-054 READY). 착수 SHA = 기준 커밋.
-- 검증한 구현 커밋: **`ebe263a`** (구현·테스트·스크립트·문서). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
+- 검증한 구현 커밋: **`ebe263a`** (1차 제출) → **`8da6755`** (보완 회차 1, R-01~03). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
 - 브랜치: `wp/008-build-economy` (base `wp/005-art-sample`, stacked Draft PR: https://github.com/darkrunar/hanyang-defense/pull/13). main 병합은 사용자 지시로만.
 - 실행 환경 / 엔진·버전: Godot 4.7.stable.official.5b4e0cb0f (GDScript, 2D, gl_compatibility) · Windows 11 Home 10.0.26200 · AMD Ryzen 5 7600 · NVIDIA GeForce RTX 4070 SUPER · 63.2 GB · 1920×1080 창(캡처는 1280×720도) · vsync off · 보이는 창(D-009 절차)
 
@@ -171,3 +171,38 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 - 기존 `--settings=`가 `--set` 접두어 분기에 걸리는 문제는 본 PR 이전부터 존재. 이번 결과의 ‘지정 임시 파일 사용’ 설명은 현재 파서와 불일치하므로 정정/수정 후 경로 검증 필요. 이번 기능의 신규 회귀로 분류하지 않는다.
 - 경제 모드 초기6초 상태 비교 외에 붕괴/회수/종료/재시작의 양 렌더 모드 동일성 비교를 보강하면 후속 아트 통합 회귀 탐지에 유용하다.
 - WP-009/010은 DRAFT 유지. R-01~03 보완 후 재리뷰하며 지금 DONE/PASS로 전환하지 않는다.
+
+## 보완 회차 1 (2026-09-20, GPT 1차 REVISE → 재리뷰 요청)
+
+- 보완 구현 커밋: **`8da6755`** ("fix(wp-008): GPT review R-01..R-03 …"). 이 절의 증거는 그 커밋의 깨끗한 트리에서 `verify.ps1 -Wp008`로 재생성했다(스크립트가 dirty 트리를 거절한다). 결과·증거 커밋: 이 문서의 커밋.
+- 테스트: **1,683 passed / 0 failed (77.4 s)**, 종료 0 (R-03 회귀 3건 추가: 처치→웨이브→구매 seq 1,2,3·전 런 단조 증가·재시작 후 seq 1부터).
+
+| 항목 | 조치 | 증거 |
+|---|---|---|
+| R-01 성능 증거의 구현 귀속 | 성능 4종을 깨끗한 커밋 `8da6755`에서 export한 release로 재실행. 네 JSON의 `manifest.implementation_sha` = `8da6755577558d5c5f8be9ffd80ba6c6ba3b5124`(dirty 아님), exe SHA-256 `7c103580f9cb…`(게임 자체 해시 = 외부 샘플러 해시). 이전 실행의 원시값은 `perf/run1_fail/`, `run2_fail/`와 git 이력(`2e1f401`)에 그대로 남고 SHA를 손대지 않았다. `verify.ps1 -Wp008`은 이제 dirty 트리에서 시작을 거절하고 JSON의 SHA가 HEAD와 다르면 실패한다 | 아래 성능 표, `perf/*.json` `manifest` |
+| R-02 release 화면 | 캡처를 export한 exe로 실행(`build_out/.../hanyang_defense_wp001.exe -- --capture=wp008_build[_720] --art=greybox\|sample --sha=…`). greybox·sample × 1920×1080·1280×720 = 4런 × 17장. 각 로그 첫 항목 `capture_manifest`에 exe 해시(is_editor_binary false)·구현 SHA·아트 모드·로드된 리소스 수·설정 파일 경로·창 크기·config가 있다. sample 아트 위 건설 바·비용 고스트·회수 고스트·결과 경제 행 겹침은 Claude 육안으로 없음(가독성 판정은 GPT). 에디터 캡처 34장은 삭제(git 이력 `2e1f401`에 보존) | `captures/release_greybox/`, `captures/release_sample/` (PNG 68장 + 로그 4개) |
+| R-03 구매 이벤트 seq | 구매 기록 키를 `purchase_seq`로 분리, `_event()`가 payload의 `seq`를 무시, `events_well_ordered()`를 스냅샷·캡처 로그·verify 검사에 추가. GPT 재현 스크립트(`gpt-review/2026-09-20/repro_event_seq.gd`) 순서는 이제 1,2,3 | 테스트 "Economy unit"(R-03), "AC-02 ledger", 캡처 로그 `econ_log.economy.events_well_ordered` |
+| 관찰: `--settings=` 파서 | `--settings=`를 `--set` 접두어 검사보다 먼저 처리(이전에는 경로가 무시되고 `unknown config key: tings`가 찍혔다). release 캡처 로그의 `settings_path`가 전달한 임시 파일과 같은지 verify가 검사한다. 기존 WP-004 캡처 설명("임시 설정 파일 주입")은 이 수정으로 비로소 사실이 된다 | 캡처 manifest `settings_path` |
+| 관찰: 양 렌더 모드 전체 주기 비교 | 캡처 스크립트에 `state_log` 체크포인트 8개(준비 시작·준비 구매·t20·붕괴·회수·내곽 구매·결과·재시작)를 넣고 verify가 greybox/sample × 1080p/720p 4런의 `state_hash`를 대조한다 → 체크포인트 8/8 전부 동일 | 로그 `state_log`, verify 출력 |
+| P-020 | GPT 판단(초기값 유지, WP-009에서 재평가) 확인. 수치 변경 없음 | — |
+
+### 성능 (보완 회차 1, release `7c103580f9cb…`, 구현 `8da6755`, 보이는 창, greybox)
+
+| 시나리오 | 프레임 | 생존 min / avg | 평균 FPS | 프레임 ms p50 / **p95** / p99 / max | 구간 [0,20) / [20,25) / [25,60] avg FPS · p95 | 창 안 구매 ok / 상한 거절 | 배치 · pv | 워킹셋 MB | 판정 |
+|---|---:|---|---:|---|---|---|---|---|---|
+| build_full_move | 8,837 | 1000 / 1000.0 | **147.3** | 4.37 / **20.87** / 23.87 / 36.36 | 118.3·22.83 / 168.1·19.99 / 160.9·20.11 | 0 / 1 | ok · pv 4→5 | 181.2→193.6 | PASS |
+| build_full_combat | 9,708 | 1000 / 1000.0 | **161.8** | 3.65 / **19.36** / 22.21 / 35.50 | 132.4·21.05 / 177.6·18.92 / 176.3·18.67 | 0 / 1 | ok · pv 4→5 | 181.6→133.6 | PASS |
+| build_grow_move | 10,778 | 1000 / 1000.0 | **179.6** | 3.58 / **17.19** / 19.43 / 26.29 | 157.8·18.03 / 198.1·16.55 / 189.5·16.82 | 2 / 1 | ok · pv 4→6 | 180.9→142.2 | PASS |
+| build_grow_combat | 11,570 | 1000 / 1000.0 | **192.8** | 3.24 / **16.10** / 18.25 / 25.18 | 169.3·17.11 / 209.8·15.70 / 203.8·15.63 | 2 / 1 | ok · pv 4→6 | 181→133.3 | PASS |
+
+### release 캡처 (보완 회차 1)
+
+| 아트 | 시나리오 | 실행파일 | 구현 SHA | 모드 | 리소스 | 클릭 구매 | 결과 | 체크포인트 vs greybox 1080p |
+|---|---|---|---|---|---|---:|---|---|
+| greybox | wp008_build | `7c103580f9cb…` (release: is_editor False) | `8da6755` | greybox | — | 6 | WON / 잔액 1093 | 8/8 동일 |
+| greybox | wp008_build_720 | `7c103580f9cb…` (release: is_editor False) | `8da6755` | greybox | — | 6 | WON / 잔액 1093 | 8/8 동일 |
+| sample | wp008_build | `7c103580f9cb…` (release: is_editor False) | `8da6755` | sample | 17/35 로드 | 6 | WON / 잔액 1093 | 8/8 동일 |
+| sample | wp008_build_720 | `7c103580f9cb…` (release: is_editor False) | `8da6755` | sample | 17/35 로드 | 6 | WON / 잔액 1093 | 8/8 동일 |
+
+- Claude 육안 관측(sample 아트, 판정 아님): 1280×720에서 붉은 거절 고스트 문구("물자 부족: 화차 100 필요 · 잔액 40")가 광장 바닥 위에서 가늘게 보인다(1080p·greybox는 충분). 문구 배경판 추가는 D-053 V-01(기본 표시 정리)과 함께 다루는 편이 맞아 이번 회차에는 바꾸지 않았다. 건설 바·HUD·결과 경제 행은 두 해상도 모두 겹침 없음.
+- AC 재판정(구현자): AC-07 **PASS**(release 두 해상도·두 아트 모드, exe 해시·구현 SHA 연결), AC-08 **PASS**(깨끗한 커밋 귀속, 예산 충족), AC-02 R-03 해소, AC-06 전체 주기 양 모드 비교 추가. 나머지 PASS 유지. 재미·균형·가독성 판정은 GPT.
