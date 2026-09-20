@@ -5,6 +5,9 @@
 #   .\scripts\verify.ps1 -Wp003     tests + WP-003 evidence only (F1/F3 ledgers, F2/F3 captures,
 #                                    release build, collapse perf); the approved WP-001/002
 #                                    evidence files are left untouched
+#   .\scripts\verify.ps1 -Wp008     tests + WP-008 evidence only (build-mode captures at two
+#                                    resolutions, AC-09 strategy comparison, release build, the four
+#                                    build_* transition benchmarks); approved evidence untouched
 #
 # Requires `godot` (4.7.stable) on PATH and, for build/perf, the matching
 # Windows export template. Evidence lands in results\evidence\.
@@ -12,7 +15,7 @@
 # stops the run, regenerated artifacts are deleted first so a stale file can
 # never pass as new evidence, and the perf JSON is checked against the D-009
 # budget (GPT review recommendations).
-param([switch]$Quick, [switch]$Wp003, [switch]$Wp004, [switch]$Wp005)
+param([switch]$Quick, [switch]$Wp003, [switch]$Wp004, [switch]$Wp005, [switch]$Wp008)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 $root = (Get-Location).Path
@@ -32,6 +35,7 @@ function Assert-File([string]$path, [string]$step) {
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
 
+if ($Wp008) { $Wp005 = $true }   # -Wp008 = WP-008 build-mode captures + AC-09 comparison + build_* perf under wp-008/; approved WP-001..005 evidence untouched
 if ($Wp005) { $Wp004 = $true }   # -Wp005 = WP-005 art pipeline captures (greybox / sample, dev fixture) + perf per art mode under wp-005/; approved WP-001..004 evidence untouched
 if ($Wp004) { $Wp003 = $true }   # -Wp004 = WP-004 captures + new release collapse perf under wp-004/; approved WP-001/002/003 evidence untouched
 $evid3 = Join-Path $evid "wp-003"
@@ -40,7 +44,9 @@ $evid5 = Join-Path $evid "wp-005"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
 if ($Wp005) { New-Item -ItemType Directory -Force (Join-Path $evid5 "tests") | Out-Null }
-$report = if ($Wp005) { "$evid5\tests\test_report.txt" } elseif ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
+$evid8 = "$root\results\evidence\wp-008"
+if ($Wp008) { foreach ($d in @("tests", "captures", "compare", "perf")) { New-Item -ItemType Directory -Force (Join-Path $evid8 $d) | Out-Null } }
+$report = if ($Wp008) { "$evid8\tests\test_report.txt" } elseif ($Wp005) { "$evid5\tests\test_report.txt" } elseif ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
 
 # Freshness: remove every artifact this script regenerates.
 $stale = @(
@@ -173,6 +179,67 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
 }
 }   # end of the WP-004 capture block skipped by -Wp005
 
+if ($Wp008) {
+Write-Host "== 4f/6 WP-008 build-mode captures (1920x1080 and 1280x720, real HUD buttons / keys / clicks, throwaway settings file)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid8\captures\wp008_build*", "$evid8\captures\settings_capture.cfg"
+foreach ($sc in @("wp008_build", "wp008_build_720")) {
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid8\captures" "--settings=$evid8\captures\settings_capture.cfg" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid8\captures\${sc}_log.json" "capture $sc"
+    foreach ($n in @("01_preparing", "02_preview_hwacha_cost", "03_bought_in_preparation", "04_insufficient_supply", "05_invalid_terrain",
+                     "06_invalid_overlap", "07_paused_in_preparation", "08_battle_t20", "09_battle_purchase_t45", "10_collapse_recovery_selected",
+                     "11_recovery_preview_B", "12_recovery_placed_free", "13_outer_refused_after_collapse", "14_inner_preview",
+                     "15_inner_purchase", "16_result", "17_restart_preparing")) {
+        Assert-File "$evid8\captures\${sc}_$n.png" "capture $sc"
+    }
+    $log = Get-Content "$evid8\captures\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $expect = @{ launch="TITLE"; start_goes_to_preparing="PREPARING"; esc_pauses_preparing="PAUSED"; esc_resumes_to_preparing="PREPARING";
+                 begin_defense_playing="PLAYING"; second_begin_defense_refused="PLAYING"; r_on_result_restarts_to_preparing="PREPARING" }
+    foreach ($k in $expect.Keys) {
+        $row = $log | Where-Object { $_.label -eq $k -and $_.ui_state } | Select-Object -First 1
+        if ($null -eq $row -or $row.ui_state -ne $expect[$k]) { throw "capture ${sc}: state after '$k' should be $($expect[$k]) (got $($row.ui_state))" }
+    }
+    $econ = @{}; foreach ($row in ($log | Where-Object { $_.econ_log })) { $econ[$row.econ_log] = $row }
+    if ($econ["preparing_start"].economy.supply -ne 240 -or -not $econ["preparing_start"].preparing) { throw "capture ${sc}: preparation must start at 240 supply" }
+    if ($econ["after_preparation_purchases"].economy.purchase_count -ne 3 -or $econ["after_preparation_purchases"].economy.supply -ne 40) { throw "capture ${sc}: expected 3 preparation purchases leaving 40 (got $($econ['after_preparation_purchases'].economy.purchase_count) / $($econ['after_preparation_purchases'].economy.supply))" }
+    foreach ($k in $econ.Keys) { if (-not $econ[$k].economy.balance_ok) { throw "capture ${sc}: ledger invariant broken at '$k'" } }
+    $clicks = @($log | Where-Object { $_.lmb_at })
+    $bought = @($clicks | Where-Object { $_.last_click.buy -and $_.last_click.ok })
+    $refused = @($clicks | Where-Object { $_.last_click.buy -and -not $_.last_click.ok })
+    $reasons = @($refused | ForEach-Object { $_.last_click.reason })
+    if ($bought.Count -lt 5) { throw "capture ${sc}: expected at least 5 accepted purchases by real clicks (got $($bought.Count))" }
+    if ($reasons -notcontains "INSUFFICIENT_SUPPLY") { throw "capture ${sc}: the insufficient-supply click must be refused with INSUFFICIENT_SUPPLY (got $($reasons -join ','))" }
+    foreach ($c in $clicks) { if ($c.accepted_delta -gt 1) { throw "capture ${sc}: one click accepted $($c.accepted_delta) commands" } }
+    $rec = @($clicks | Where-Object { $_.recovery_placed })
+    if ($rec.Count -lt 1) { throw "capture ${sc}: the free recovery was never placed by a click" }
+    $e_rec = $econ["after_recovery"].economy; $e_col = $econ["after_collapse"].economy
+    if ($e_rec.spent -ne $e_col.spent) { throw "capture ${sc}: the recovery must cost nothing (spent $($e_col.spent) -> $($e_rec.spent))" }
+    $previews = @($log | Where-Object { $_.preview_at -and $_.reason })
+    if (@($previews | Where-Object { $_.reason -eq "DISTRICT_LOST" }).Count -lt 1) { throw "capture ${sc}: the outer preview after the collapse must read DISTRICT_LOST" }
+    if (@($previews | Where-Object { $_.reason -eq "TERRAIN_BLOCKED" }).Count -lt 1 -or @($previews | Where-Object { $_.reason -eq "STRUCTURE_OVERLAP" }).Count -lt 1) { throw "capture ${sc}: invalid previews missing" }
+    $second = $log | Where-Object { $_.label -eq "second_begin_defense_refused" } | Select-Object -First 1
+    if ($second.begin_defense_calls_ignored -ne 0) { throw "capture ${sc}: the battle must never see a second 방어 시작" }
+    $results = @($log | Where-Object { $_.wait_result })
+    if ($results.Count -ne 1 -or -not $results[0].result.economy.balance_ok -or $results[0].result.play_mode -ne "build") { throw "capture ${sc}: expected one build-mode result with a balanced ledger" }
+    $restart = $econ["restart_ledger_reset"].economy
+    if ($restart.supply -ne 240 -or $restart.purchase_count -ne 0 -or $restart.earned_kills -ne 0) { throw "capture ${sc}: the restart must reset the ledger" }
+    Write-Host ("capture {0}: purchases by click {1}, refused {2} ({3}), result {4} supply {5}, restart ok" -f $sc, $bought.Count, $refused.Count, ($reasons -join ","), $results[0].result.outcome, $results[0].result.economy.supply)
+}
+
+Write-Host "== 4g/6 WP-008 AC-09 strategy comparison (headless, same seed: no construction vs planned strategies)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid8\compare\ac09_compare.json"
+& godot --headless --path . --script res://game/tools/wp008_compare.gd -- "--out=$evid8\compare\ac09_compare.json" | Out-Host
+Assert-Exit "ac09 compare"
+Assert-File "$evid8\compare\ac09_compare.json" "ac09 compare"
+$cmp = Get-Content "$evid8\compare\ac09_compare.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+if (@($cmp.winning_strategies).Count -lt 1) { throw "ac09: no winning construction strategy" }
+foreach ($name in ($cmp.summary | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })) {
+    $r = $cmp.summary.$name
+    if (-not $r.balance_ok) { throw "ac09: ledger invariant broken in strategy $name" }
+    if ($r.supply_end -ne (240 + $r.earned_kills + $r.earned_waves - $r.spent)) { throw "ac09: formula broken in strategy $name" }
+}
+Write-Host ("ac09: winning strategies {0}; no_build {1} collapse {2:N1}s core {3}" -f (@($cmp.winning_strategies) -join ","), $cmp.summary.no_build.outcome, $cmp.summary.no_build.collapse_sim_time, $cmp.summary.no_build.core_hp)
+} else {
 if ($Wp005) {
 Write-Host "== 4e/6 WP-005 art pipeline captures (greybox / sample with the dev fixture, 1920x1080 and 1280x720)"
 # The fixture is programmatic placeholder art in the ArtSet file contract (NOT game assets):
@@ -279,6 +346,7 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
     Write-Host ("capture {0} over sample art: 11 menu screens, results {1}/{2}" -f $sc, $mr[0].result.outcome, $mr[1].result.outcome)
 }
 }   # end of the WP-005 capture block
+}   # end of the WP-005 capture block skipped by -Wp008
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
@@ -328,7 +396,7 @@ foreach ($sc in @("network_move", "network_combat")) {
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
 # D-027 collapse benchmark contract check, shared by 6c (WP-003/004) and 6d (WP-005 per art mode).
-function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
+function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag, [int]$structuresAtStart = 18) {
     $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $c = $r.collapse
     $types = @($c.semantic_events | ForEach-Object { $_.type })
@@ -338,7 +406,7 @@ function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
     # R-05: every measured frame in exactly one segment, live manifest (10 zones,
     # 18 structures at start, J1/J2 anchors), executable hash present.
     $manOk = ($c.segments_cover_all_frames -eq $true) -and ($c.global_frames -eq $r.frames) -and `
-             (@($r.manifest.zones).Count -eq 10) -and (@($r.manifest.structures_at_start).Count -eq 18) -and `
+             (@($r.manifest.zones).Count -eq 10) -and (@($r.manifest.structures_at_start).Count -eq $structuresAtStart) -and `
              ($r.manifest.executable.sha256.Length -eq 64) -and (-not $r.manifest.executable.is_editor_binary)
     $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames -and $sixOk -and $segOk -and $manOk -and `
           ($c.placement_result -eq "ok") -and (-not $c.natural_collapse_before_trigger) -and ($c.ticks_trigger_to_collapse -ge 0) -and ($c.ticks_trigger_to_collapse -le 2) -and `
@@ -350,7 +418,29 @@ function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
     if ($verdict -ne "PASS") { throw "perf $sc$tag did not meet the WP-003 D-027 contract" }
 }
 
-if (-not $Wp005) {
+if ($Wp008) {
+Write-Host "== 6e/6 WP-008 build-mode transition performance (build_full_* = 24 from the start, build_grow_* = 22 + 2 bought in the window; same exe, D-027 contract + ledger)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid8\perf\perf_build_*_1000_release.json*"
+foreach ($sc in @("build_full_move", "build_full_combat", "build_grow_move", "build_grow_combat")) {
+    $out = "results\evidence\wp-008\perf\perf_${sc}_1000_release.json"
+    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art greybox
+    Assert-File $out "perf $sc"
+    Assert-File "$out.memory.json" "perf $sc memory sampler"
+    $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
+    $startCount = if ($sc -like "build_full_*") { 24 } else { 22 }
+    if ($r.play_mode -ne "build" -or -not $r.economy.benchmark_injected -or -not $r.economy.balance_ok) { throw "perf ${sc}: build mode / flagged injection / ledger invariant missing" }
+    $cmds = @($r.collapse.build_commands | Where-Object { $_.phase -eq "measure" })
+    $capRefused = @($cmds | Where-Object { $_.reason -eq "CAP_REACHED" }).Count
+    $okBuys = @($cmds | Where-Object { $_.ok }).Count
+    if ($capRefused -lt 1) { throw "perf ${sc}: the cap refusal inside the window is missing" }
+    if ($sc -like "build_grow_*" -and $okBuys -ne 2) { throw "perf ${sc}: expected exactly 2 accepted purchases in the window (got $okBuys)" }
+    if ($sc -like "build_full_*" -and $okBuys -ne 0) { throw "perf ${sc}: no purchase may succeed at the cap (got $okBuys)" }
+    if ($r.structure_total -ne 24) { throw "perf ${sc}: structure total at the end must be 24 (got $($r.structure_total))" }
+    if ($r.collapse.build_commands_pending -ne 0) { throw "perf ${sc}: scripted purchases still pending" }
+    Assert-CollapsePerf $out $sc " [build]" $startCount
+    Write-Host ("perf {0}: window purchases ok={1} cap_refused={2} supply_end={3} (injected {4})" -f $sc, $okBuys, $capRefused, $r.economy.supply, $r.economy.injected)
+}
+} elseif (-not $Wp005) {
 Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
 $perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
 Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
@@ -381,4 +471,4 @@ foreach ($art in @("greybox", "sample")) {
     }
 }
 }
-Write-Host "done. evidence in $(if ($Wp005) { $evid5 } else { $evid3 })$(if (-not $Wp003) { ", $evid and $evid2" })"
+Write-Host "done. evidence in $(if ($Wp008) { $evid8 } elseif ($Wp005) { $evid5 } else { $evid3 })$(if (-not $Wp003) { ", $evid and $evid2" })"

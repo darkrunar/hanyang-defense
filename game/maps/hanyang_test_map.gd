@@ -135,6 +135,16 @@ const FIXTURE_C_JANGSEUNG: Array = [
     ["장승 J2", 22, 24],
 ]
 
+## WP-008 build fixture (backlog/WP-008.md): only 4 of fixture C's structures,
+## [kind, label, anchor_x, anchor_y]. 화차·중영 is placed first so it is the
+## recovery target exactly as in fixture C. Fixture C itself is untouched.
+const FIXTURE_BUILD: Array = [
+    [Placement.Kind.HWACHA, "화차·중영", 46, 29],
+    [Placement.Kind.HWACHA, "화차·궁성", 46, 17],
+    [Placement.Kind.BONGSU, "봉수 B8", 44, 33],
+    [Placement.Kind.SENSOR, "혼천의 S3", 44, 39],
+]
+
 ## Recovery placements used by the F2/F3/perf scenarios (D-022).
 const RECOVERY_A: Vector2i = Vector2i(52, 12)   # (1060,260), no bongsu within 180
 const RECOVERY_B: Vector2i = Vector2i(44, 13)   # (900,280), attaches to B2

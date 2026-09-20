@@ -68,6 +68,9 @@ static func build(b: Battle) -> Dictionary:
         "leaked_total": b.sim.leaked_total,
         "seed": b.config.get_int("seed"),
         "forced_hp_writes": rs.forced_hp_writes,        # > 0 only in verification scenarios
+        # WP-008: the supply ledger (all zero / disabled in the classic run)
+        "play_mode": b.play_mode,
+        "economy": b.economy.snapshot(),
         "frozen": true,
     }
 
@@ -88,4 +91,24 @@ static func lines(m: Dictionary) -> Array:
         ["회수 화차", m["recovery"]],
         ["재배치 위치", pos],
         ["핵심 잔여 HP", "%d / %d" % [int(m["core_hp"]), int(m["core_hp_max"])]],
+    ]
+
+
+## WP-008 rows appended to the result panel in build mode only.
+static func economy_lines(m: Dictionary) -> Array:
+    if str(m.get("play_mode", "classic")) != "build":
+        return []
+    var e: Dictionary = m.get("economy", {})
+    var by: Dictionary = e.get("purchases_by_kind", {})
+    var parts: PackedStringArray = PackedStringArray()
+    for kind: int in range(Placement.KIND_NAMES.size()):
+        var n: int = int(by.get(Placement.KIND_NAMES[kind], 0))
+        if n > 0:
+            parts.append("%s %d" % [Placement.kind_label(kind), n])
+    var builds: String = ("%s (총 %d)" % [" · ".join(parts), int(e.get("purchase_count", 0))]) if not parts.is_empty() else "없음"
+    var inj: String = ("  [벤치마크 주입 %d]" % int(e.get("injected", 0))) if int(e.get("injected", 0)) > 0 else ""
+    return [
+        ["물자", "시작 %d + 처치 %d + 웨이브 %d − 소비 %d = 잔액 %d%s" % [int(e.get("start_supply", 0)), int(e.get("earned_kills", 0)),
+            int(e.get("earned_waves", 0)), int(e.get("spent", 0)), int(e.get("supply", 0)), inj]],
+        ["건설", builds],
     ]

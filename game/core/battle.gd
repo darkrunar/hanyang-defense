@@ -10,6 +10,14 @@ extends RefCounted
 ## fire (or evaluate-only) -> arrivals of survivors, stronghold damage ->
 ## collapse if the outer HP hit 0 (once) -> win / lose -> benchmark top-up.
 ## WP-001/002 "sandbox" mode keeps the original tick (immediate arrivals).
+##
+## WP-008 "build" play mode (backlog/WP-008.md, D-054) adds, on top of the
+## waves tick: a PREPARING phase in which step() does nothing until
+## begin_defense(), paid construction (buy_structure: one atomic
+## validate -> place -> charge), and the supply settlement placed AFTER the
+## arrivals and BEFORE the win / lose verdict of the same tick:
+##   fire -> arrivals / stronghold damage -> collapse -> [kill reward, wave
+##   reward] -> win / lose. After WON / LOST nothing is paid or charged.
 
 const TerrainGrid := preload("res://game/core/terrain_grid.gd")
 const PathNetwork := preload("res://game/core/path_network.gd")
@@ -22,6 +30,7 @@ const RunState := preload("res://game/core/run_state.gd")
 const WaveDirector := preload("res://game/core/wave_director.gd")
 const Config := preload("res://game/core/config.gd")
 const TestMap := preload("res://game/maps/hanyang_test_map.gd")
+const Economy := preload("res://game/core/economy.gd")
 
 var config: Config = null
 var grid: TerrainGrid = null
@@ -33,6 +42,8 @@ var hwacha: Hwacha = null
 var network: BongsuNetwork = null
 var run: RunState = null
 var waves: WaveDirector = null
+## WP-008 supply ledger (enabled only in play_mode "build").
+var economy: Economy = null
 
 var sim_time: float = 0.0
 var steps: int = 0
@@ -47,6 +58,17 @@ var arrival_mode: String = "immediate"
 var district_rules: bool = false
 ## "wp001" (8 zones) or "wp003" (8 + Z8/Z9); the zones are rebuilt on reset().
 var zone_set: String = "wp001"
+## WP-008: "classic" or "build".
+var play_mode: String = "classic"
+## WP-008: true from reset() until begin_defense() in build mode; step() is a
+## no-op while preparing (no spawn, no movement, no timers, no sim_time).
+var preparing: bool = false
+var defense_started_tick: int = -1
+## begin_defense() calls refused because the run was not preparing (double
+## click / key repeat: the defence starts exactly once).
+var begin_defense_calls_ignored: int = 0
+## Purchases accepted in this run (label numbering).
+var build_purchases: int = 0
 var _network_dirty: bool = true
 ## Target at the start of the current tick (arrivals are attributed to it).
 var _tick_target_core: bool = false
@@ -70,6 +92,7 @@ func _init(cfg: Config = null) -> void:
     network = BongsuNetwork.new()
     run = RunState.new()
     waves = WaveDirector.new()
+    economy = Economy.new()
     sim = EnemySim.new(grid, path, config.get_int("enemy_capacity"))
     peak_route_alive.resize(path.route_ids.size())
     reset(true)
@@ -92,6 +115,19 @@ func reset(keep_run_id: bool = true) -> void:
     # not only in _init(); otherwise a WP-001/002 scenario keeps WP-003's Z8/Z9.
     zone_set = config.get_str("zone_set")
     density = TestMap.build_zones(zone_set)
+    play_mode = config.get_str("play_mode")
+    economy.enabled = play_mode == "build"
+    economy.configure(config.get_int("start_supply"), config.get_int("kill_reward"), config.get_int("wave_reward"), {
+        Placement.Kind.JANGSEUNG: config.get_int("cost_jangseung"),
+        Placement.Kind.HWACHA: config.get_int("cost_hwacha"),
+        Placement.Kind.BONGSU: config.get_int("cost_bongsu"),
+        Placement.Kind.SENSOR: config.get_int("cost_sensor"),
+    }, config.get_int("structure_cap"))
+    economy.reset()
+    preparing = play_mode == "build"
+    defense_started_tick = -1
+    begin_defense_calls_ignored = 0
+    build_purchases = 0
     sim.arrival_mode = arrival_mode
     placement.district_fn = Callable(TestMap, "district_of_cell") if district_rules else Callable()
     placement.locked_district = -1
@@ -121,13 +157,16 @@ func reset(keep_run_id: bool = true) -> void:
     commands_rejected = 0
     activation_changes = 0
     _place_fixture(config.get_str("fixture"))
+    if economy.enabled and config.get_int("benchmark_supply") > 0:
+        economy.inject(config.get_int("benchmark_supply"), steps, sim_time, "config benchmark_supply (benchmark only)")
     _network_dirty = true
     refresh_network()
     density.evaluate(sim)
     network.detect(placement, sim)
     run.log_event(steps, sim_time, "run_start", {"fixture": config.get_str("fixture"), "run_mode": run_mode,
         "structures": placement.structures.size(), "outer_hp": run.outer_hp, "core_hp": run.core_hp,
-        "goal": [path.goal_cell.x, path.goal_cell.y], "path_version": path.path_version})
+        "goal": [path.goal_cell.x, path.goal_cell.y], "path_version": path.path_version,
+        "play_mode": play_mode, "preparing": preparing, "supply": economy.supply})
 
 
 ## Player-facing restart: everything back to the initial data, new run_id so
@@ -164,6 +203,15 @@ func _place_fixture(name: String) -> void:
                 for j: Array in TestMap.FIXTURE_C_JANGSEUNG:
                     _place_or_error(Placement.Kind.JANGSEUNG, Vector2i(j[1], j[2]), j[0])
                 run.recovery_target_id = first_hwacha_id
+        "build":
+            # WP-008: 화차·중영 / 화차·궁성 / 봉수 B8 / 혼천의 S3, in that order; the
+            # first hwacha is the recovery target (same rule as fixture C).
+            var first_id: int = -1
+            for e: Array in TestMap.FIXTURE_BUILD:
+                var res: Placement.Result = _place_or_error(int(e[0]), Vector2i(e[2], e[3]), e[1])
+                if first_id < 0 and res != null and res.ok and int(e[0]) == Placement.Kind.HWACHA:
+                    first_id = res.structure.id
+            run.recovery_target_id = first_id
         "none":
             pass
         _:
@@ -181,9 +229,24 @@ func _place_or_error(kind: int, anchor: Vector2i, label: String) -> Placement.Re
 
 # ---------------------------------------------------------------- simulation ---
 
-## One fixed simulation step. After WON / LOST nothing advances.
+## WP-008: leave the preparation phase exactly once. Returns false (and counts
+## the call) when the run is not preparing. The run clock and the waves start
+## from 0 on the next step().
+func begin_defense() -> bool:
+    if not preparing:
+        begin_defense_calls_ignored += 1
+        return false
+    preparing = false
+    defense_started_tick = steps
+    run.log_event(steps, sim_time, "defense_started", {"supply": economy.supply,
+        "structures": placement.structures.size(), "purchases": build_purchases})
+    return true
+
+
+## One fixed simulation step. After WON / LOST nothing advances; while
+## preparing (WP-008) nothing advances either.
 func step(dt: float) -> void:
-    if run.ended():
+    if run.ended() or preparing:
         return
     _tick_target_core = run.defense == RunState.Defense.INNER_ONLY
     if spawning_enabled:
@@ -195,6 +258,7 @@ func step(dt: float) -> void:
     var counts: PackedInt32Array = density.evaluate(sim)
     refresh_network()
     network.detect(placement, sim)
+    var killed_before: int = sim.killed_total
     if combat_enabled:
         if targeting_mode == "wp001":
             hwacha.step(dt, placement, density, counts, sim, null, sim_time)
@@ -205,6 +269,8 @@ func step(dt: float) -> void:
             null if targeting_mode == "wp001" else network)
     if arrival_mode == "after_fire":
         _process_arrivals()
+    if economy.enabled:
+        _settle_economy(sim.killed_total - killed_before)
     if run_mode == "waves":
         _update_run_end()
     if benchmark_hold_alive and spawning_enabled and not run.ended():
@@ -224,6 +290,18 @@ func step(dt: float) -> void:
     if run.ended():
         run.end_tick = steps
         run.end_sim_time = sim_time
+
+
+## WP-008 settlement, after the arrivals and before the verdict of this tick:
+## the real kills of this tick (EnemySim killed_total delta: one per
+## individual, arrivals excluded) and the wave bonus the first tick a wave is
+## both fully spawned and fully resolved. Nothing here reads HUD values.
+func _settle_economy(kills_this_tick: int) -> void:
+    if kills_this_tick > 0:
+        economy.reward_kills(kills_this_tick, steps, sim_time)
+    var cleared: int = waves.mark_cleared(steps, sim.alive_count)
+    if cleared >= 0 and economy.reward_wave(cleared, steps, sim_time):
+        run.log_event(steps, sim_time, "wave_reward", {"wave_index": cleared, "paid": economy.wave_reward, "supply": economy.supply})
 
 
 ## Survivors on the doorstep are consumed once and damage the tick-start target.
@@ -349,7 +427,14 @@ func place_structure(kind: int, anchor: Vector2i, label: String = "") -> Placeme
         commands_rejected += 1
         return res
     commands_accepted += 1
-    var s: Placement.Structure = res.structure
+    _configure_new(kind, res.structure)
+    if kind != Placement.Kind.JANGSEUNG:
+        _network_dirty = true
+        refresh_network()
+    return res
+
+
+func _configure_new(kind: int, s: Placement.Structure) -> void:
     match kind:
         Placement.Kind.HWACHA:
             placement.configure_hwacha(
@@ -362,9 +447,63 @@ func place_structure(kind: int, anchor: Vector2i, label: String = "") -> Placeme
             s.detect_range = config.get_num("hwacha_local_range")
         Placement.Kind.SENSOR:
             s.detect_range = config.get_num("sensor_range")
+
+
+# ------------------------------------------------------- WP-008 construction ---
+
+## Structures counted against the cap: on the map (initial, bought, inactive)
+## plus the recovered one waiting for placement.
+func structure_total() -> int:
+    return placement.structures.size() + placement.detached.size()
+
+
+## Every rule of a paid construction without side effects, in the order the
+## HUD reports them: run / mode / cap / supply (global conditions, shown all
+## the time), then the cell rules (terrain, overlap, enemy, district, lost
+## outer district after the collapse, path blocking for 장승). The preview
+## and the command share this so they can never disagree.
+func preview_build(kind: int, anchor: Vector2i) -> int:
+    if run.ended():
+        return Placement.Reject.RUN_ENDED
+    if not economy.enabled:
+        return Placement.Reject.BUILD_DISABLED
+    if kind < 0 or kind >= Placement.KIND_NAMES.size():
+        return Placement.Reject.UNKNOWN_STRUCTURE
+    if structure_total() >= economy.cap:
+        return Placement.Reject.CAP_REACHED
+    if not economy.can_afford(kind):
+        return Placement.Reject.INSUFFICIENT_SUPPLY
+    return placement.validate(kind, anchor, sim)
+
+
+## One paid construction: validate everything, place, configure, charge —
+## or refuse with nothing changed (supply, structures, path, network, HP).
+## Allowed while preparing and while playing; never after WON / LOST.
+func buy_structure(kind: int, anchor: Vector2i) -> Placement.Result:
+    var reason: int = preview_build(kind, anchor)
+    if reason != Placement.Reject.NONE:
+        economy.refuse(reason, kind, anchor, steps, sim_time)
+        return _refuse(reason)
+    var label: String = "%s+%d" % [Placement.kind_label(kind), build_purchases + 1]
+    var res: Placement.Result = placement.try_place(kind, anchor, sim, label)
+    if not res.ok:
+        # Unreachable when preview_build passed (same rules); kept so a refusal
+        # here can never charge anything.
+        commands_rejected += 1
+        economy.refuse(res.reason, kind, anchor, steps, sim_time)
+        return res
+    commands_accepted += 1
+    build_purchases += 1
+    var s: Placement.Structure = res.structure
+    _configure_new(kind, s)
+    var cost: int = economy.charge(kind, steps, sim_time, anchor, s.id, label, "preparing" if preparing else "battle")
     if kind != Placement.Kind.JANGSEUNG:
         _network_dirty = true
         refresh_network()
+        network.detect(placement, sim)
+    run.log_event(steps, sim_time, "purchase", {"kind": Placement.kind_name(kind), "id": s.id, "label": label,
+        "anchor": [anchor.x, anchor.y], "cost": cost, "supply": economy.supply, "total": structure_total(),
+        "preparing": preparing, "path_version": path.path_version, "attached_to": s.attached_to})
     return res
 
 
@@ -545,6 +684,7 @@ func state_hash() -> String:
     parts.append("%s/%s/%.1f/%.1f/%d" % [run.run_name(), run.defense_name(), run.outer_hp, run.core_hp, run.recovery_right])
     parts.append(str(path.path_version))
     parts.append(str(waves.snapshot()["remaining"]))
+    parts.append("%s/%d/%d/%d/%d" % [play_mode, int(preparing), economy.supply, economy.spent, economy.purchases.size()])
     return "|".join(parts)
 
 
@@ -617,6 +757,10 @@ func full_state() -> Dictionary:
         "run": run_snap,
         "waves": waves.snapshot(),
         "waves_accum": Array(waves.accum),
+        "play_mode": play_mode,
+        "preparing": preparing,
+        "defense_started_tick": defense_started_tick,
+        "economy": economy.snapshot(),
     }
 
 
@@ -731,6 +875,11 @@ func snapshot() -> Dictionary:
         "network": network.snapshot(placement),
         "run": run.snapshot(),
         "waves": waves.snapshot(),
+        "play_mode": play_mode,
+        "preparing": preparing,
+        "defense_started_tick": defense_started_tick,
+        "structure_total": structure_total(),
+        "economy": economy.snapshot(),
     }
 
 

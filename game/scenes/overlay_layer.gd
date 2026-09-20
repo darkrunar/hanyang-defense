@@ -38,6 +38,9 @@ var show_zones: bool = true
 var show_ranges: bool = true
 var show_cursor: bool = true
 var place_mode: int = 0
+## WP-008: the kind selected for a paid construction (0..3), 4 = recovery
+## selected, -1 = none. Only read in build mode.
+var build_kind: int = -1
 var recent_shots: Array = []   # [aim, radius, age]
 ## Scripted captures have no real cursor; set this to a world position to draw
 ## the hover panel for the structure there (Vector2.INF = none).
@@ -269,7 +272,9 @@ func _draw() -> void:
     if show_cursor:
         var mouse: Vector2 = get_global_mouse_position()
         var anchor: Vector2i = battle.placement.anchor_for_world(mouse)
-        if battle.run_mode == "waves":
+        if _build_ghost_active():
+            _draw_build_ghost(anchor)
+        elif battle.run_mode == "waves":
             _draw_recovery_ghost(anchor)
         else:
             var ok: bool = battle.placement.preview(place_mode, anchor, battle.sim)
@@ -277,10 +282,38 @@ func _draw() -> void:
             draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), COLOR_GHOST_OK if ok else COLOR_GHOST_BAD, false, 2.0)
         _draw_hover_panel(mouse)
     else:
-        if preview_override.x >= 0 and battle.run_mode == "waves":
+        if preview_override.x >= 0 and _build_ghost_active():
+            _draw_build_ghost(preview_override)
+        elif preview_override.x >= 0 and battle.run_mode == "waves":
             _draw_recovery_ghost(preview_override)
         if hover_override != Vector2.INF:
             _draw_hover_panel(hover_override)
+
+
+func _build_ghost_active() -> bool:
+    return battle.play_mode == "build" and build_kind >= 0 and build_kind < Placement.KIND_NAMES.size()
+
+
+## WP-008: the paid-construction ghost — same rules as buy_structure (never
+## disagrees with the command), cost / balance / refusal text at the cell.
+func _draw_build_ghost(anchor: Vector2i) -> void:
+    var reason: int = battle.preview_build(build_kind, anchor)
+    var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
+    var ok: bool = reason == Placement.Reject.NONE
+    var col: Color = COLOR_GHOST_OK if ok else COLOR_GHOST_BAD
+    draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), col, false, 2.0)
+    _mark("build_ghost_ok" if ok else "build_ghost_bad")
+    var cost: int = battle.economy.cost_of(build_kind)
+    var txt: String
+    if ok:
+        txt = "%s 건설 %d → 잔액 %d" % [Placement.kind_label(build_kind), cost, battle.economy.supply - cost]
+    elif reason == Placement.Reject.INSUFFICIENT_SUPPLY:
+        txt = "물자 부족: %s %d 필요 · 잔액 %d" % [Placement.kind_label(build_kind), cost, battle.economy.supply]
+    elif reason == Placement.Reject.CAP_REACHED:
+        txt = "시설 상한 %d/%d" % [battle.structure_total(), battle.economy.cap]
+    else:
+        txt = Placement.reject_ko(reason)
+    draw_string(font, top_left + Vector2(0.0, -6.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
 
 
 ## WP-003: inner district outline, the two objectives with HP bars, the lost

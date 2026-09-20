@@ -137,6 +137,26 @@ for size in "" _720; do
     done
 done
 
+echo "== 4f/6 WP-008 build-mode captures (real HUD buttons / keys / clicks) + AC-09 comparison"
+EVID8="$EVID/wp-008"
+mkdir -p "$EVID8/captures" "$EVID8/compare" "$EVID8/perf" "$EVID8/tests"
+rm -f "$EVID8"/captures/wp008_build* "$EVID8/compare/ac09_compare.json"
+cp -f "$EVID/test_report.txt" "$EVID8/tests/test_report.txt"
+for sc in wp008_build wp008_build_720; do
+    godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID8/captures")" --settings="$(abs "$EVID8/captures/settings_capture.cfg")"
+    [[ -s "$EVID8/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
+    for n in 01_preparing 03_bought_in_preparation 04_insufficient_supply 10_collapse_recovery_selected 12_recovery_placed_free 15_inner_purchase 16_result 17_restart_preparing; do
+        [[ -s "$EVID8/captures/${sc}_$n.png" ]] || { echo "capture ${sc}_$n.png missing"; exit 1; }
+    done
+    grep -q '"label": *"start_goes_to_preparing"' "$EVID8/captures/${sc}_log.json" || { echo "capture $sc: PREPARING state log missing"; exit 1; }
+    grep -q '"reason": *"INSUFFICIENT_SUPPLY"' "$EVID8/captures/${sc}_log.json" || { echo "capture $sc: insufficient-supply refusal missing"; exit 1; }
+    grep -q '"reason": *"DISTRICT_LOST"' "$EVID8/captures/${sc}_log.json" || { echo "capture $sc: outer refusal after the collapse missing"; exit 1; }
+    grep -q '"balance_ok": *false' "$EVID8/captures/${sc}_log.json" && { echo "capture $sc: ledger invariant broken"; exit 1; }
+done
+godot --headless --path . --script res://game/tools/wp008_compare.gd -- --out="$(abs "$EVID8/compare/ac09_compare.json")"
+[[ -s "$EVID8/compare/ac09_compare.json" ]] || { echo "ac09 comparison missing"; exit 1; }
+grep -q '"winning_strategies": *\[ *"' "$EVID8/compare/ac09_compare.json" || { echo "ac09: no winning strategy"; exit 1; }
+
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi

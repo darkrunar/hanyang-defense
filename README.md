@@ -186,7 +186,35 @@ godot --path . --rendering-driver opengl3 -- --capture=wp004_ui --out-dir=D:/abs
 
 `scripts/verify.*`가 4d(WP-004 캡처 2종, 상태 전이 로그 검사)를 추가로 실행하고 `.\scripts\verify.ps1 -Wp004`는 WP-003 승인 증거를 건드리지 않고 WP-004 캡처와 새 release의 collapse 성능(`results/evidence/wp-004/perf/`)을 만든다.
 
+### WP-008 준비 배치·전투 중 건설·물자 (2026-09-20, IN_PROGRESS)
+
+`--play-mode=build`로 시작하면 **건설 모드**(D-054/D-055)다. 시작 화면 → **준비 단계**(시간·생성·웨이브 정지, 제한 없음) → `방어 시작` 버튼/`Space` 1회 → 전투. 초기 시설은 화차·중영(46,29)·화차·궁성(46,17)·봉수 B8(44,33)·혼천의 S3(44,39) 4개, 시작 물자 240. 실제 처치 1체당 +1, 웨이브가 전부 생성되고 모두 해소될 때 +80. 장승 40 / 화차 100 / 봉수대 60 / 혼천의 80, 시설 총량 상한 24(초기+구매+비활성+회수 대기). 준비·전투 중 모두 건설 가능하며 붕괴 뒤에는 내곽만. 무료 회수는 초기 중영 1대(같은 ID·쿨다운)뿐이고 구매 화차는 회수되지 않는다. 판매·철거·환불은 없다. 결과 화면에 물자 식과 건설 수가 추가된다. 기본 실행(`--play-mode` 없음)은 WP-003 런 그대로다. 모든 수치는 `game/core/config.gd`(`start_supply`, `kill_reward`, `wave_reward`, `cost_*`, `structure_cap`)이며 실험용 초기값이다.
+
+```bash
+# 건설 모드 플레이 (준비 배치 → 방어 시작 → 전투 중 건설 → 붕괴 후 회수·내곽 증설)
+godot --path . --rendering-driver opengl3 -- --play-mode=build
+```
+
+```bash
+# WP-008 캡처: 준비/미리보기/부족/무효/일시정지/전투 중 구매/붕괴/무료 회수/내곽 구매/결과/재시작 (1920x1080, _720 = 1280x720)
+godot --path . --rendering-driver opengl3 -- --capture=wp008_build --out-dir=D:/abs/path/results/evidence/wp-008/captures --settings=D:/abs/path/settings_capture.cfg
+```
+
+```bash
+# AC-09 비교: 같은 시드에서 무건설 vs 계획된 건설 전략 (헤드리스, 잔액·구매·피해·승패·입력 수 JSON)
+godot --headless --path . --script res://game/tools/wp008_compare.gd -- --out=D:/abs/path/results/evidence/wp-008/compare/ac09_compare.json
+```
+
+```bash
+# WP-008 성능: build_full_move|build_full_combat (24시설·화차 12) / build_grow_move|build_grow_combat (22 → 창 안 구매로 24), 벤치마크 물자 주입은 manifest에 표시
+.\scripts\perf_with_memory.ps1 -Scenario build_grow_combat -Out results\evidence\wp-008\perf\perf_build_grow_combat_1000_release.json
+```
+
+`.\scriptserify.ps1 -Wp008`은 테스트 + 캡처 2종(장부·클릭·상태 검사) + AC-09 비교 + 릴리스 빌드 + 성능 4종(D-027 계약 + 장부 검사)을 `results/evidence/wp-008/`에 만들고 승인된 이전 증거는 건드리지 않는다.
+
 ### 조작
+
+건설 모드(`--play-mode=build`): `1`~`4` 건설 종류 선택(커서에 비용·잔액·거절 사유) · `5` 회수 화차 배치 선택 · `LMB` 새로 누를 때마다 최대 1개 구매(누르고 있어도 재구매 없음; 회수 배치만 홀드 재시도) · `Space`/`방어 시작` 버튼 준비 종료 1회 · 우하단 건설 바 버튼은 키와 같다 · `RMB`/`T`/`C`는 없음. 나머지는 WP-003 런과 같다.
 
 WP-003 런: `LMB` 회수 화차 배치(내곽만, 누르고 있으면 셀이 빌 때까지 재시도; 메뉴를 열거나 재시작하면 누르고 있던 입력은 버려짐) · `Esc`/`P` 일시정지 메뉴 · `R` 재시작 확인창(결과 화면에서는 즉시 재시작) · `D` 상세 패널(경로·밀도·화차·봉수망, 좌하단) 접기 · `Z/G/H/F12` 동일 · 자유 설치/철거/`T`/`C`는 비활성. HUD는 좌상단(런 상태·HP·회수 안내·조작)과 좌하단(상세)으로 나뉘어 내곽·핵심 시설을 가리지 않는다. 시설에 커서를 올리면 정보 패널. 아래는 WP-001/002 sandbox 조작(`--set=run_mode=sandbox --set=fixture=b` 등).
 
@@ -216,4 +244,4 @@ WP-003 런: `LMB` 회수 화차 배치(내곽만, 누르고 있으면 셀이 빌
 
 [확장 계획](docs/GAMEPLAY_EXPANSION_PLAN.md) · [개발 요청](docs/NEXT_DEVELOPMENT_REQUEST.md) · [WP-008 건설·물자](backlog/WP-008.md)
 
-구현 순서는 건설·물자 → 성밖/성문 공방 → 공성 적/장승 파괴. 현재는 계획 단계이며 새 기능 실행 가능을 뜻하지 않는다. 기존 그래픽 WP-005는 독립적으로 보완하며, 전체 맵 아트는 후속 지도 확정 뒤 확장한다.
+구현 순서는 건설·물자 → 성밖/성문 공방 → 공성 적/장승 파괴. WP-008은 2026-09-20 `wp/008-build-economy`에서 구현 중이며(위 "WP-008" 절, `results/WP-008-RESULT.md`), GPT PASS 전에는 완료가 아니다. 기존 그래픽 WP-005는 독립적으로 보완하며, 전체 맵 아트는 후속 지도 확정 뒤 확장한다.
