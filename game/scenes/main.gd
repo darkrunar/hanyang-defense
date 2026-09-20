@@ -224,7 +224,11 @@ func _apply_mode_preset(src: Config) -> void:
 
 func _parse_args() -> void:
     for arg: String in OS.get_cmdline_user_args():
-        if arg.begins_with("--set"):
+        if arg.begins_with("--settings="):
+            # Before the "--set" prefix test: "--settings=path" is not a config override
+            # (GPT observation on PR #13; the file path was silently ignored before).
+            _settings_path = arg.substr("--settings=".length())
+        elif arg.begins_with("--set"):
             var kv: String = arg.substr(5).strip_edges().trim_prefix("=")
             var parts: PackedStringArray = kv.split("=", true, 1)
             if parts.size() == 2 and not config.set_value(parts[0], parts[1]):
@@ -258,8 +262,6 @@ func _parse_args() -> void:
             _capture_name = arg.substr("--capture=".length())
         elif arg.begins_with("--out-dir="):
             _capture_dir = arg.substr("--out-dir=".length())
-        elif arg.begins_with("--settings="):
-            _settings_path = arg.substr("--settings=".length())
         elif arg.begins_with("--art="):
             var m: String = arg.substr("--art=".length())
             if m == "greybox" or m == "sample":
@@ -2220,6 +2222,7 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "button", "intent": "title_start"},
                 {"t": 0.0, "do": "ui_state_log", "label": "start_goes_to_preparing"},
                 {"t": 0.0, "do": "econ_log", "label": "preparing_start"},
+                {"t": 0.0, "do": "state_log", "label": "preparing_start"},
                 {"t": 0.0, "do": "capture", "name": pb + "_01_preparing"},
                 {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
                 {"t": 0.0, "do": "preview_at", "anchor": Vector2i(40, 20)},
@@ -2231,6 +2234,7 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(42, 21)},
                 {"t": 0.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
                 {"t": 0.0, "do": "econ_log", "label": "after_preparation_purchases"},
+                {"t": 0.0, "do": "state_log", "label": "after_preparation_purchases"},
                 {"t": 0.0, "do": "capture", "name": pb + "_03_bought_in_preparation"},
                 {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
                 {"t": 0.0, "do": "preview_at", "anchor": Vector2i(52, 20)},
@@ -2252,6 +2256,7 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "hud_button", "name": "begin_defense"},
                 {"t": 0.0, "do": "ui_state_log", "label": "second_begin_defense_refused"},
                 {"t": 20.0, "do": "econ_log", "label": "battle_t20"},
+                {"t": 20.0, "do": "state_log", "label": "battle_t20"},
                 {"t": 20.0, "do": "capture", "name": pb + "_08_battle_t20"},
                 {"t": 45.0, "do": "hud_button", "name": "build_jangseung"},
                 {"t": 45.0, "do": "lmb_at", "anchor": Vector2i(48, 36)},
@@ -2262,12 +2267,14 @@ func _setup_capture_steps() -> void:
                 {"t": 50.0, "do": "force_outer_hp", "value": 1.0, "why": "wp008_build forced collapse (verification only)"},
                 {"t": 50.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp008_build trigger enemy"},
                 {"t": 51.0, "do": "econ_log", "label": "after_collapse"},
+                {"t": 51.0, "do": "state_log", "label": "after_collapse"},
                 {"t": 51.0, "do": "capture", "name": pb + "_10_collapse_recovery_selected"},
                 {"t": 51.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
                 {"t": 51.0, "do": "capture", "name": pb + "_11_recovery_preview_B"},
                 {"t": 51.0, "do": "lmb_at", "anchor": TestMap.RECOVERY_B},
                 {"t": 51.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
                 {"t": 51.5, "do": "econ_log", "label": "after_recovery"},
+                {"t": 51.5, "do": "state_log", "label": "after_recovery"},
                 {"t": 51.5, "do": "capture", "name": pb + "_12_recovery_placed_free"},
                 {"t": 51.5, "do": "hud_button", "name": "build_jangseung"},
                 {"t": 51.5, "do": "preview_at", "anchor": Vector2i(31, 17)},
@@ -2277,13 +2284,16 @@ func _setup_capture_steps() -> void:
                 {"t": 51.5, "do": "lmb_at", "anchor": Vector2i(50, 8)},
                 {"t": 51.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
                 {"t": 52.0, "do": "econ_log", "label": "after_inner_purchase"},
+                {"t": 52.0, "do": "state_log", "label": "after_inner_purchase"},
                 {"t": 52.0, "do": "capture", "name": pb + "_15_inner_purchase"},
                 {"t": 52.0, "do": "wait_result"},
                 {"t": 52.0, "do": "econ_log", "label": "result"},
+                {"t": 52.0, "do": "state_log", "label": "result"},
                 {"t": 52.0, "do": "capture", "name": pb + "_16_result"},
                 {"t": 52.0, "do": "key", "keycode": KEY_R},
                 {"t": 0.0, "do": "ui_state_log", "label": "r_on_result_restarts_to_preparing"},
                 {"t": 0.0, "do": "econ_log", "label": "restart_ledger_reset"},
+                {"t": 0.0, "do": "state_log", "label": "restart_preparing"},
                 {"t": 0.0, "do": "capture", "name": pb + "_17_restart_preparing"},
                 {"t": 0.0, "do": "quit"},
             ]
@@ -2669,7 +2679,8 @@ func _capture_script_step() -> void:
                     "tick": battle.steps, "run_id": battle.run.run_id, "run": battle.run.run_name(),
                     "visible_buttons": menu.visible_buttons(), "flow": flow.snapshot(),
                     "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size(),
-                    "preparing": battle.preparing, "begin_defense_calls_ignored": battle.begin_defense_calls_ignored})
+                    "preparing": battle.preparing, "begin_defense_calls_ignored": battle.begin_defense_calls_ignored,
+                    "settings_path": settings.path if settings != null else ""})
             "econ_log":
                 # WP-008: the ledger and the structure totals at a named point.
                 _capture_log.append({"t": battle.sim_time, "econ_log": step["label"], "tick": battle.steps,
@@ -2791,6 +2802,15 @@ func _do_capture(name: String) -> void:
 
 func _write_capture_log() -> void:
     var path: String = _capture_dir.path_join("%s_log.json" % _capture_name)
+    # R-02 (PR #13 review): the log names the executable that produced the
+    # PNGs (hash, editor or release), the implementation sha passed by the
+    # runner and the rendering / settings choices, so a release capture can
+    # be tied to a commit exactly like a perf JSON.
+    _capture_log.insert(0, {"capture_manifest": {"scenario": _capture_name, "implementation_sha": _build_sha,
+        "executable": _executable_manifest(), "art_mode": _art_mode, "art": _art_report,
+        "settings_path": settings.path if settings != null else "", "window_size": str(DisplayServer.window_get_size()),
+        "engine": Engine.get_version_info().string, "cmdline_user_args": OS.get_cmdline_user_args(),
+        "config": config.to_dictionary()}})
     var f: FileAccess = FileAccess.open(path, FileAccess.WRITE)
     if f != null:
         f.store_string(JSON.stringify(_capture_log, "  "))

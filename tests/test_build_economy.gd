@@ -216,6 +216,25 @@ func _economy_unit(t: RefCounted) -> void:
     t.eq(e.supply, 240, "reset -> start supply")
     t.eq(e.purchases.size(), 0, "reset -> no purchases")
     t.eq(e.waves_rewarded.size(), 0, "reset -> no wave paid")
+    # GPT review R-03 (PR #13): kill -> wave -> purchase must be seq 1, 2, 3 (was 1, 2, 1)
+    e.reward_kills(1, 1, 0.016)
+    e.reward_wave(0, 2, 0.033)
+    e.charge(K_J, 3, 0.05, Vector2i(30, 20), 5, "probe", "battle")
+    e.reward_kills(2, 4, 0.066)
+    e.charge(K_J, 5, 0.08, Vector2i(32, 20), 6, "probe2", "battle")
+    var seqs: Array = []
+    for ev: Dictionary in e.events:
+        seqs.append(int(ev["seq"]))
+    t.eq(seqs, [1, 2, 3, 4, 5], "event seq monotonic, no duplicate (R-03)")
+    t.check(e.events_well_ordered(), "events_well_ordered()")
+    t.eq(int(e.purchases[0]["purchase_seq"]), 1, "purchase ordinal kept as purchase_seq")
+    t.eq(int(e.purchases[1]["purchase_seq"]), 2, "second purchase ordinal 2")
+    t.eq(e.events[2]["type"], "purchase", "third event is the purchase")
+    t.eq(int(e.events[2]["purchase_seq"]), 1, "purchase event carries purchase_seq, not seq")
+    e.reset()
+    t.eq(e.events.size(), 0, "reset clears the events")
+    e.reward_kills(1, 1, 0.016)
+    t.eq(int(e.events[0]["seq"]), 1, "seq restarts at 1 after the reset")
 
 
 func _config_and_fixture(t: RefCounted) -> void:
@@ -339,6 +358,8 @@ func _ac02_ledger(t: RefCounted) -> void:
     t.check(b.run.outer_arrivals > 0, "arrivals happened (%d) and paid nothing" % b.run.outer_arrivals)
     t.eq(b.economy.earned_kills, b.sim.killed_total, "earned_kills == killed_total (1 each)")
     t.eq(b.economy.waves_rewarded, [0, 1, 2], "three waves paid once each, in order")
+    t.check(b.economy.events_well_ordered(), "whole-run ledger events seq 1..n without duplicates (R-03)")
+    t.check(b.economy.events.size() > 10, "ledger holds one event per rewarding tick (%d)" % b.economy.events.size())
     t.eq(b.economy.earned_waves, 240, "3 x 80")
     t.eq(b.economy.supply, 240 + b.sim.killed_total + 240, "final supply matches the formula")
     var ws: Dictionary = b.waves.snapshot()
@@ -360,6 +381,10 @@ func _ac02_ledger(t: RefCounted) -> void:
     t.eq(b.economy.supply, 240, "restart: 240 again, nothing carried over")
     t.eq(b.economy.earned_kills, 0, "restart: no kills carried")
     t.eq(b.economy.waves_rewarded.size(), 0, "restart: no wave paid")
+    t.eq(b.economy.events.size(), 0, "restart: event ledger empty")
+    b.begin_defense()
+    _run_seconds(b, 20.0)   # enough for the first W1 enemies to reach the plaza guns
+    t.check(b.economy.events_well_ordered() and b.economy.events.size() > 0 and int(b.economy.events[0]["seq"]) == 1, "restart: new run's ledger restarts at seq 1 (%d events)" % b.economy.events.size())
 
 
 func _ac02_boundaries(t: RefCounted) -> void:

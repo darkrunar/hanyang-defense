@@ -70,8 +70,18 @@ func _event(tick: int, sim_time: float, type: String, data: Dictionary) -> void:
     _seq += 1
     var e: Dictionary = {"seq": _seq, "tick": tick, "sim_time": sim_time, "type": type, "supply": supply}
     for k: Variant in data:
+        if k == "seq":
+            continue   # never let payload overwrite the ledger ordinal (R-03)
         e[k] = data[k]
     events.append(e)
+
+
+## True when every event seq is 1..n in order with no duplicate (R-03 regression).
+func events_well_ordered() -> bool:
+    for i: int in range(events.size()):
+        if int(events[i]["seq"]) != i + 1:
+            return false
+    return true
 
 
 ## `n` real kills this tick (the EnemySim killed_total delta). Returns the
@@ -112,7 +122,9 @@ func charge(kind: int, tick: int, sim_time: float, anchor: Vector2i, id: int, la
     var cost: int = cost_of(kind)
     supply -= cost
     spent += cost
-    var rec: Dictionary = {"seq": purchases.size() + 1, "tick": tick, "sim_time": sim_time, "kind": Placement.kind_name(kind),
+    # GPT review R-03 (PR #13): the purchase ordinal is "purchase_seq"; the
+    # event ledger's "seq" is set by _event() alone and stays monotonic.
+    var rec: Dictionary = {"purchase_seq": purchases.size() + 1, "tick": tick, "sim_time": sim_time, "kind": Placement.kind_name(kind),
         "anchor": [anchor.x, anchor.y], "cost": cost, "id": id, "label": label, "phase": phase, "supply_after": supply}
     purchases.append(rec)
     purchases_by_kind[Placement.kind_name(kind)] = int(purchases_by_kind.get(Placement.kind_name(kind), 0)) + 1
@@ -165,6 +177,7 @@ func snapshot() -> Dictionary:
         "kills_rewarded": kills_rewarded,
         "waves_rewarded": waves_rewarded.duplicate(),
         "purchase_count": purchases.size(),
+        "events_well_ordered": events_well_ordered(),
         "purchases": purchases.duplicate(true),
         "purchases_by_kind": purchases_by_kind.duplicate(),
         "refusals": refusals.duplicate(),
