@@ -47,3 +47,8 @@ API 기반 자동 실행, CI, 배포, 새 패키지 계정 연결은 현재 초�
 - 시뮬레이션 규칙은 `game/core/`의 SceneTree 비의존 클래스에만 둔다. `game/scenes/`는 상태를 읽고 명령만 전달한다. 헤드리스 테스트(`tests/`)가 `game/core`를 직접 구동하므로 이 경계를 유지한다.
 - 밸런스·시드·시나리오 값은 `game/core/config.gd`에 두고 `--set key=value`로 덮어쓴다. 테스트는 시드를 명시한다.
 - 회귀 확인은 `godot --headless --path . --script res://tests/run_tests.gd` 종료 코드 0을 기준으로 한다. 결과 문서의 증거는 `results/evidence/`에 둔다 (캡처 PNG, 테스트 리포트, 성능 JSON).
+
+
+## 게임 품질 평가 지침 (2026-09-21)
+
+기획·코어루프·시나리오·밸런스·게임샷·UI/연출 리뷰는 [GAME_EVALUATION_GUIDE](docs/GAME_EVALUATION_GUIDE.md)를 함께 따른다. 기능 AC 검증과 플레이 경험 평가를 구분하고, 문제마다 관찰 근거·플레이어 영향·개선안·재검증 방법을 기록한다. 지침은 기존 AC를 소급 변경하거나 비범위 기능을 자동 승인하지 않는다.
