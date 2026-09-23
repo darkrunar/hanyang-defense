@@ -29,6 +29,14 @@ const COLOR_ATTACH: Color = Color(0.70, 0.85, 1.00, 0.55)
 const COLOR_INACTIVE: Color = Color(0.45, 0.45, 0.45)
 const COLOR_GHOST_OK: Color = Color(0.40, 0.95, 0.45, 0.55)
 const COLOR_GHOST_BAD: Color = Color(1.00, 0.30, 0.30, 0.55)
+## Build-ghost target-zone hint: in-range zones the hwacha sees itself (teal),
+## only through the network (amber) or not at all (red).
+const COLOR_HINT_RANGE: Color = Color(1.00, 0.70, 0.30, 0.45)
+const COLOR_HINT_ZONE: Color = Color(0.40, 0.90, 0.85, 0.95)
+const COLOR_HINT_ZONE_SHARED: Color = Color(1.00, 0.78, 0.30, 0.95)
+const COLOR_HINT_NONE: Color = Color(1.00, 0.42, 0.38, 0.95)
+const COLOR_HINT_TEXT: Color = Color(0.85, 0.97, 0.94)
+const SOURCE_KO: Dictionary = {"local": "직접", "shared": "공유", "none": "탐지 없음"}
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 const COLOR_PANEL: Color = Color(0.0, 0.0, 0.0, 0.72)
 
@@ -280,6 +288,8 @@ func _draw() -> void:
             var ok: bool = battle.placement.preview(place_mode, anchor, battle.sim)
             var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
             draw_rect(Rect2(top_left, Vector2(40.0, 40.0)), COLOR_GHOST_OK if ok else COLOR_GHOST_BAD, false, 2.0)
+            if ok and place_mode == Placement.Kind.HWACHA:
+                _draw_hwacha_zone_hint(anchor)
         _draw_hover_panel(mouse)
     else:
         if preview_override.x >= 0 and _build_ghost_active():
@@ -314,6 +324,55 @@ func _draw_build_ghost(anchor: Vector2i) -> void:
     else:
         txt = Placement.reject_ko(reason)
     draw_string(font, top_left + Vector2(0.0, -6.0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
+    # Target-zone hint for a hwacha wherever the cell itself is buildable
+    # (also when only the supply / cap is short, so the player can plan).
+    if build_kind == Placement.Kind.HWACHA and reason in [Placement.Reject.NONE, Placement.Reject.INSUFFICIENT_SUPPLY, Placement.Reject.CAP_REACHED]:
+        _draw_hwacha_zone_hint(anchor)
+
+
+## One line below the ghost, from Battle.hwacha_placement_hint (same rules
+## as the targeting). Pure text so tests can read it.
+static func hwacha_hint_text(hint: Dictionary) -> String:
+    var zones: Array = hint.get("zones", [])
+    var net: String
+    if int(hint.get("attach_id", -1)) >= 0:
+        net = "%s 연결(망의 혼천의 %d)" % [str(hint["attach_label"]), int(hint["group_sensors"])]
+    else:
+        net = "봉수 연결 없음 — 직접 탐지 %d px만" % int(hint.get("local_range", 100.0))
+    if zones.is_empty():
+        return "주의: 사거리 %d px 안에 표적 존 없음 — 적을 봐도 쏘지 않는다 · %s" % [int(hint.get("fire_range", 200.0)), net]
+    var names: PackedStringArray = PackedStringArray()
+    for z: Dictionary in zones:
+        names.append("Z%d %s(%s)" % [int(z["id"]), str(z["name"]), SOURCE_KO.get(str(z["source"]), "?")])
+    if int(hint.get("known_zone_count", 0)) == 0:
+        return "주의: 사거리 안 표적 존 %d개를 탐지할 수단이 없어 쏘지 않는다 — %s · %s" % [zones.size(), ", ".join(names), net]
+    return "표적 존 %d(탐지 %d): %s · %s" % [zones.size(), int(hint["known_zone_count"]), ", ".join(names), net]
+
+
+## Range ring, the candidate zones highlighted, the hint line.
+func _draw_hwacha_zone_hint(anchor: Vector2i) -> void:
+    var hint: Dictionary = battle.hwacha_placement_hint(anchor)
+    var c: Vector2 = Vector2(float(hint["center"][0]), float(hint["center"][1]))
+    var zones: Array = hint["zones"]
+    var none: bool = int(hint.get("known_zone_count", 0)) == 0
+    draw_arc(c, float(hint["fire_range"]), 0.0, TAU, 72, COLOR_HINT_NONE if none else COLOR_HINT_RANGE, 1.5)
+    for z: Dictionary in zones:
+        var zc: Vector2 = Vector2(float(z["center"][0]), float(z["center"][1]))
+        var zcol: Color = COLOR_HINT_ZONE
+        match str(z["source"]):
+            "shared": zcol = COLOR_HINT_ZONE_SHARED
+            "none": zcol = COLOR_HINT_NONE
+        draw_arc(zc, float(z["radius"]), 0.0, TAU, 40, zcol, 3.0)
+        draw_line(c, zc, Color(zcol.r, zcol.g, zcol.b, 0.35), 1.0)
+    _mark("ghost_no_target_zone" if zones.is_empty() else ("ghost_zones_unseen" if none else "ghost_target_zones"))
+    var top_left: Vector2 = Vector2(anchor) * TerrainGrid.CELL_SIZE
+    var txt: String = hwacha_hint_text(hint)
+    var w: float = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+    var pos: Vector2 = top_left + Vector2(0.0, 58.0)
+    if pos.x + w > 1910.0:
+        pos.x = 1910.0 - w
+    draw_rect(Rect2(pos + Vector2(-4.0, -14.0), Vector2(w + 8.0, 19.0)), COLOR_PANEL, true)
+    draw_string(font, pos, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, COLOR_HINT_NONE if none else COLOR_HINT_TEXT)
 
 
 ## WP-003: inner district outline, the two objectives with HP bars, the lost

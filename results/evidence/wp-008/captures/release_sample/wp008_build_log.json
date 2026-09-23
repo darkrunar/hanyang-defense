@@ -353,7 +353,7 @@
         "--out-dir=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample",
         "--settings=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample\\settings_capture.cfg",
         "--art=sample",
-        "--sha=8da6755577558d5c5f8be9ffd80ba6c6ba3b5124"
+        "--sha=28be613c039d4bfc526097e73d99bff1d0671364"
       ],
       "config": {
         "arrival_damage": 1.0,
@@ -403,10 +403,10 @@
       "executable": {
         "basename": "hanyang_defense_wp001.exe",
         "is_editor_binary": false,
-        "sha256": "7c103580f9cb6173ee3393c337099e1c1e7adfd1b55154500bd686884633765d",
-        "size_bytes": 109344112
+        "sha256": "45fc7311aa11d560349d42af24f311f40cc25cfe7fca317d74268373b99f0552",
+        "size_bytes": 109348656
       },
-      "implementation_sha": "8da6755577558d5c5f8be9ffd80ba6c6ba3b5124",
+      "implementation_sha": "28be613c039d4bfc526097e73d99bff1d0671364",
       "scenario": "wp008_build",
       "settings_path": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample\\settings_capture.cfg",
       "window_size": "(1920, 1080)"
@@ -1403,6 +1403,56 @@
     "visible": true
   },
   {
+    "hwacha_hint": {
+      "attach_id": -1,
+      "attach_label": "",
+      "center": [
+        820.0,
+        420.0
+      ],
+      "fire_range": 200.0,
+      "group": -1,
+      "group_sensors": 0,
+      "known_zone_count": 1,
+      "local_range": 100.0,
+      "zone_count": 3,
+      "zones": [
+        {
+          "center": [
+            960.0,
+            310.0
+          ],
+          "distance": 178.044937133789,
+          "id": 7,
+          "name": "광화문 어귀",
+          "radius": 70.0,
+          "source": "none"
+        },
+        {
+          "center": [
+            950.0,
+            560.0
+          ],
+          "distance": 191.049728393555,
+          "id": 8,
+          "name": "광장 남단",
+          "radius": 70.0,
+          "source": "none"
+        },
+        {
+          "center": [
+            950.0,
+            410.0
+          ],
+          "distance": 130.384048461914,
+          "id": 9,
+          "name": "광화문 앞",
+          "radius": 50.0,
+          "source": "local"
+        }
+      ]
+    },
+    "hwacha_hint_text": "표적 존 3(탐지 1): Z7 광화문 어귀(탐지 없음), Z8 광장 남단(탐지 없음), Z9 광화문 앞(직접) · 봉수 연결 없음 — 직접 탐지 100 px만",
     "preview_at": "(40, 20)",
     "reason": "NONE",
     "selection": 1,
@@ -1519,6 +1569,7 @@
     "marks_drawn": {
       "attach_dash": 2,
       "build_ghost_ok": 1,
+      "ghost_target_zones": 1,
       "link_cut": 1
     },
     "network": {
@@ -1575,6 +1626,760 @@
     "peak_alive": 0,
     "play_mode": "build",
     "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample/wp008_build_02_preview_hwacha_cost.png",
+    "png_saved": true,
+    "preparing": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 0,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "run": {
+      "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
+      "collapse_count": 0,
+      "collapse_sim_time": -1.0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_damage_absorbed": 0.0,
+      "core_damage_total": 0.0,
+      "core_hp": 60.0,
+      "core_hp_max": 60.0,
+      "core_invulnerable": false,
+      "defense": "OUTER_ACTIVE",
+      "end_sim_time": -1.0,
+      "end_tick": -1,
+      "event_count": 1,
+      "forced_hp_writes": 0,
+      "outer_arrivals": 0,
+      "outer_damage_total": 0.0,
+      "outer_hp": 360.0,
+      "outer_hp_max": 360.0,
+      "recovery_anchor": [
+        -1,
+        -1
+      ],
+      "recovery_placed": false,
+      "recovery_placed_tick": -1,
+      "recovery_right": 0,
+      "recovery_target_id": 1,
+      "run": "RUNNING",
+      "run_id": 2
+    },
+    "run_mode": "waves",
+    "sample_tiles_drawn": {
+      "edge": 0,
+      "edge_procedural": 142,
+      "gate": 0,
+      "ground": 652,
+      "roof": 198,
+      "skipped": 1,
+      "wall": 50
+    },
+    "seed": 20260913,
+    "selection": 1,
+    "sensor_count": 1,
+    "shared_only_shots": 0,
+    "shots_total": 0,
+    "sim_time": 0.0,
+    "spawned_total": 0,
+    "sprites_drawn": {
+      "bongsu/connected": 1,
+      "hwacha/idle": 2,
+      "sensor/active": 1
+    },
+    "steps": 0,
+    "structure_count": 4,
+    "structure_total": 4,
+    "targeting_mode": "wp002",
+    "waves": {
+      "enabled": true,
+      "gap_left": 0.0,
+      "remaining": [
+        60,
+        60,
+        60
+      ],
+      "scheduled_complete": false,
+      "spawned_by_wave": [
+        0,
+        0,
+        0
+      ],
+      "spawned_extra": 0,
+      "spawned_scheduled": 0,
+      "state": "SPAWNING",
+      "total_budget": 1140,
+      "wave_cleared_tick": [
+        -1,
+        -1,
+        -1
+      ],
+      "wave_index": 0,
+      "wave_name": "W1",
+      "wave_spent_tick": [
+        -1,
+        -1,
+        -1
+      ],
+      "wave_started_tick": [
+        0,
+        -1,
+        -1
+      ]
+    },
+    "zone_set": "wp003",
+    "zones": [
+      {
+        "count": 0,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      },
+      {
+        "count": 0,
+        "id": 8,
+        "name": "광장 남단"
+      },
+      {
+        "count": 0,
+        "id": 9,
+        "name": "광화문 앞"
+      }
+    ],
+    "zoom": 1.0
+  },
+  {
+    "hwacha_hint": {
+      "attach_id": -1,
+      "attach_label": "",
+      "center": [
+        640.0,
+        360.0
+      ],
+      "fire_range": 200.0,
+      "group": -1,
+      "group_sensors": 0,
+      "known_zone_count": 0,
+      "local_range": 100.0,
+      "zone_count": 0,
+      "zones": []
+    },
+    "hwacha_hint_text": "주의: 사거리 200 px 안에 표적 존 없음 — 적을 봐도 쏘지 않는다 · 봉수 연결 없음 — 직접 탐지 100 px만",
+    "preview_at": "(31, 17)",
+    "reason": "NONE",
+    "selection": 1,
+    "t": 0.0
+  },
+  {
+    "activation_changes": 0,
+    "active_count": 4,
+    "alive": 0,
+    "arrival_mode": "after_fire",
+    "art_mode": "sample",
+    "bongsu_count": 1,
+    "candidate_evaluations": 0,
+    "capture": "wp008_build_02b_no_target_zone",
+    "combat_enabled": true,
+    "commands_accepted": 4,
+    "commands_rejected": 0,
+    "damage_applications": 0,
+    "defense_started_tick": -1,
+    "detached": [],
+    "districts": {
+      "detached": 0,
+      "inner_active": 1,
+      "inner_total": 1,
+      "outer_active": 3,
+      "outer_total": 3,
+      "world": 4
+    },
+    "economy": {
+      "balance_ok": true,
+      "benchmark_injected": false,
+      "cap": 24,
+      "costs": {
+        "BONGSU": 60,
+        "HWACHA": 100,
+        "JANGSEUNG": 40,
+        "SENSOR": 80
+      },
+      "earned_kills": 0,
+      "earned_waves": 0,
+      "enabled": true,
+      "event_count": 0,
+      "events_well_ordered": true,
+      "injected": 0,
+      "kill_reward": 1,
+      "kills_rewarded": 0,
+      "purchase_count": 0,
+      "purchases": [],
+      "purchases_by_kind": {},
+      "refusal_total": 0,
+      "refusals": {},
+      "spent": 0,
+      "start_supply": 240,
+      "supply": 240,
+      "wave_reward": 80,
+      "waves_rewarded": []
+    },
+    "enemy_outline": true,
+    "fixture": "build",
+    "flow_state": "PREPARING",
+    "fx": {
+      "alive": 0,
+      "created_by_kind": {},
+      "created_total": 0,
+      "dropped_over_cap": 0,
+      "sim_time": 0.0
+    },
+    "goal": [
+      47,
+      26
+    ],
+    "hwacha_count": 2,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": 3,
+        "cooldown_left": 0.0,
+        "district": 0,
+        "group": 3,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "화차·중영",
+        "last_target_local": 0,
+        "last_target_shared": 0,
+        "shots": 0,
+        "target_zone": -1,
+        "wait_reason": ""
+      },
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.0,
+        "district": 1,
+        "group": -1,
+        "id": 2,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "화차·궁성",
+        "last_target_local": 0,
+        "last_target_shared": 0,
+        "shots": 0,
+        "target_zone": -1,
+        "wait_reason": ""
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "marks_drawn": {
+      "attach_dash": 2,
+      "build_ghost_ok": 1,
+      "ghost_no_target_zone": 1,
+      "link_cut": 1
+    },
+    "network": {
+      "bongsu": [
+        {
+          "active": true,
+          "group": 3,
+          "id": 3,
+          "label": "봉수 B8",
+          "links": []
+        }
+      ],
+      "groups": [
+        3
+      ],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 5,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": 3,
+          "group": 3,
+          "id": 4,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "혼천의 S3"
+        },
+        {
+          "active": true,
+          "attached_to": 3,
+          "group": 3,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "화차·중영"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 2,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "화차·궁성"
+        }
+      ],
+      "topology_version": 4
+    },
+    "path_version": 2,
+    "peak_alive": 0,
+    "play_mode": "build",
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample/wp008_build_02b_no_target_zone.png",
+    "png_saved": true,
+    "preparing": true,
+    "rejected_total": 0,
+    "routes": [
+      {
+        "alive": 0,
+        "id": "S_NAMDAEMUN",
+        "leaked": 0,
+        "name": "남대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "W_SEODAEMUN",
+        "leaked": 0,
+        "name": "서대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      },
+      {
+        "alive": 0,
+        "id": "E_DONGDAEMUN",
+        "leaked": 0,
+        "name": "동대문",
+        "peak_alive": 0,
+        "reachable": true,
+        "spawned": 0
+      }
+    ],
+    "run": {
+      "arrival_damage": 1.0,
+      "collapse_calls_ignored": 0,
+      "collapse_count": 0,
+      "collapse_sim_time": -1.0,
+      "collapse_tick": -1,
+      "core_arrivals": 0,
+      "core_damage_absorbed": 0.0,
+      "core_damage_total": 0.0,
+      "core_hp": 60.0,
+      "core_hp_max": 60.0,
+      "core_invulnerable": false,
+      "defense": "OUTER_ACTIVE",
+      "end_sim_time": -1.0,
+      "end_tick": -1,
+      "event_count": 1,
+      "forced_hp_writes": 0,
+      "outer_arrivals": 0,
+      "outer_damage_total": 0.0,
+      "outer_hp": 360.0,
+      "outer_hp_max": 360.0,
+      "recovery_anchor": [
+        -1,
+        -1
+      ],
+      "recovery_placed": false,
+      "recovery_placed_tick": -1,
+      "recovery_right": 0,
+      "recovery_target_id": 1,
+      "run": "RUNNING",
+      "run_id": 2
+    },
+    "run_mode": "waves",
+    "sample_tiles_drawn": {
+      "edge": 0,
+      "edge_procedural": 142,
+      "gate": 0,
+      "ground": 652,
+      "roof": 198,
+      "skipped": 1,
+      "wall": 50
+    },
+    "seed": 20260913,
+    "selection": 1,
+    "sensor_count": 1,
+    "shared_only_shots": 0,
+    "shots_total": 0,
+    "sim_time": 0.0,
+    "spawned_total": 0,
+    "sprites_drawn": {
+      "bongsu/connected": 1,
+      "hwacha/idle": 2,
+      "sensor/active": 1
+    },
+    "steps": 0,
+    "structure_count": 4,
+    "structure_total": 4,
+    "targeting_mode": "wp002",
+    "waves": {
+      "enabled": true,
+      "gap_left": 0.0,
+      "remaining": [
+        60,
+        60,
+        60
+      ],
+      "scheduled_complete": false,
+      "spawned_by_wave": [
+        0,
+        0,
+        0
+      ],
+      "spawned_extra": 0,
+      "spawned_scheduled": 0,
+      "state": "SPAWNING",
+      "total_budget": 1140,
+      "wave_cleared_tick": [
+        -1,
+        -1,
+        -1
+      ],
+      "wave_index": 0,
+      "wave_name": "W1",
+      "wave_spent_tick": [
+        -1,
+        -1,
+        -1
+      ],
+      "wave_started_tick": [
+        0,
+        -1,
+        -1
+      ]
+    },
+    "zone_set": "wp003",
+    "zones": [
+      {
+        "count": 0,
+        "id": 0,
+        "name": "남문 서편 골목"
+      },
+      {
+        "count": 0,
+        "id": 1,
+        "name": "남문 동편 골목"
+      },
+      {
+        "count": 0,
+        "id": 2,
+        "name": "남대문 대로"
+      },
+      {
+        "count": 0,
+        "id": 3,
+        "name": "서문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 4,
+        "name": "서문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 5,
+        "name": "동문 북편 골목"
+      },
+      {
+        "count": 0,
+        "id": 6,
+        "name": "동문 남편 골목"
+      },
+      {
+        "count": 0,
+        "id": 7,
+        "name": "광화문 어귀"
+      },
+      {
+        "count": 0,
+        "id": 8,
+        "name": "광장 남단"
+      },
+      {
+        "count": 0,
+        "id": 9,
+        "name": "광화문 앞"
+      }
+    ],
+    "zoom": 1.0
+  },
+  {
+    "hwacha_hint": {
+      "attach_id": -1,
+      "attach_label": "",
+      "center": [
+        760.0,
+        560.0
+      ],
+      "fire_range": 200.0,
+      "group": -1,
+      "group_sensors": 0,
+      "known_zone_count": 0,
+      "local_range": 100.0,
+      "zone_count": 1,
+      "zones": [
+        {
+          "center": [
+            950.0,
+            560.0
+          ],
+          "distance": 190.0,
+          "id": 8,
+          "name": "광장 남단",
+          "radius": 70.0,
+          "source": "none"
+        }
+      ]
+    },
+    "hwacha_hint_text": "주의: 사거리 안 표적 존 1개를 탐지할 수단이 없어 쏘지 않는다 — Z8 광장 남단(탐지 없음) · 봉수 연결 없음 — 직접 탐지 100 px만",
+    "preview_at": "(37, 27)",
+    "reason": "NONE",
+    "selection": 1,
+    "t": 0.0
+  },
+  {
+    "activation_changes": 0,
+    "active_count": 4,
+    "alive": 0,
+    "arrival_mode": "after_fire",
+    "art_mode": "sample",
+    "bongsu_count": 1,
+    "candidate_evaluations": 0,
+    "capture": "wp008_build_02c_zone_not_detectable",
+    "combat_enabled": true,
+    "commands_accepted": 4,
+    "commands_rejected": 0,
+    "damage_applications": 0,
+    "defense_started_tick": -1,
+    "detached": [],
+    "districts": {
+      "detached": 0,
+      "inner_active": 1,
+      "inner_total": 1,
+      "outer_active": 3,
+      "outer_total": 3,
+      "world": 4
+    },
+    "economy": {
+      "balance_ok": true,
+      "benchmark_injected": false,
+      "cap": 24,
+      "costs": {
+        "BONGSU": 60,
+        "HWACHA": 100,
+        "JANGSEUNG": 40,
+        "SENSOR": 80
+      },
+      "earned_kills": 0,
+      "earned_waves": 0,
+      "enabled": true,
+      "event_count": 0,
+      "events_well_ordered": true,
+      "injected": 0,
+      "kill_reward": 1,
+      "kills_rewarded": 0,
+      "purchase_count": 0,
+      "purchases": [],
+      "purchases_by_kind": {},
+      "refusal_total": 0,
+      "refusals": {},
+      "spent": 0,
+      "start_supply": 240,
+      "supply": 240,
+      "wave_reward": 80,
+      "waves_rewarded": []
+    },
+    "enemy_outline": true,
+    "fixture": "build",
+    "flow_state": "PREPARING",
+    "fx": {
+      "alive": 0,
+      "created_by_kind": {},
+      "created_total": 0,
+      "dropped_over_cap": 0,
+      "sim_time": 0.0
+    },
+    "goal": [
+      47,
+      26
+    ],
+    "hwacha_count": 2,
+    "hwachas": [
+      {
+        "active": true,
+        "attached_to": 3,
+        "cooldown_left": 0.0,
+        "district": 0,
+        "group": 3,
+        "id": 1,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "화차·중영",
+        "last_target_local": 0,
+        "last_target_shared": 0,
+        "shots": 0,
+        "target_zone": -1,
+        "wait_reason": ""
+      },
+      {
+        "active": true,
+        "attached_to": -1,
+        "cooldown_left": 0.0,
+        "district": 1,
+        "group": -1,
+        "id": 2,
+        "kills": 0,
+        "known_ids": [],
+        "known_local": 0,
+        "known_shared": 0,
+        "label": "화차·궁성",
+        "last_target_local": 0,
+        "last_target_shared": 0,
+        "shots": 0,
+        "target_zone": -1,
+        "wait_reason": ""
+      }
+    ],
+    "jangseung_count": 0,
+    "killed_total": 0,
+    "leaked_total": 0,
+    "marks_drawn": {
+      "attach_dash": 2,
+      "build_ghost_ok": 1,
+      "ghost_zones_unseen": 1,
+      "link_cut": 1
+    },
+    "network": {
+      "bongsu": [
+        {
+          "active": true,
+          "group": 3,
+          "id": 3,
+          "label": "봉수 B8",
+          "links": []
+        }
+      ],
+      "groups": [
+        3
+      ],
+      "link_count": 0,
+      "link_range": 180.0,
+      "rebuilds": 5,
+      "terminals": [
+        {
+          "active": true,
+          "attached_to": 3,
+          "group": 3,
+          "id": 4,
+          "kind": "SENSOR",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "혼천의 S3"
+        },
+        {
+          "active": true,
+          "attached_to": 3,
+          "group": 3,
+          "id": 1,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "화차·중영"
+        },
+        {
+          "active": true,
+          "attached_to": -1,
+          "group": -1,
+          "id": 2,
+          "kind": "HWACHA",
+          "known_local": 0,
+          "known_shared": 0,
+          "label": "화차·궁성"
+        }
+      ],
+      "topology_version": 4
+    },
+    "path_version": 2,
+    "peak_alive": 0,
+    "play_mode": "build",
+    "png": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_sample/wp008_build_02c_zone_not_detectable.png",
     "png_saved": true,
     "preparing": true,
     "rejected_total": 0,
@@ -3140,6 +3945,56 @@
     "visible": true
   },
   {
+    "hwacha_hint": {
+      "attach_id": -1,
+      "attach_label": "",
+      "center": [
+        1060.0,
+        420.0
+      ],
+      "fire_range": 200.0,
+      "group": -1,
+      "group_sensors": 0,
+      "known_zone_count": 2,
+      "local_range": 100.0,
+      "zone_count": 3,
+      "zones": [
+        {
+          "center": [
+            960.0,
+            310.0
+          ],
+          "distance": 148.660690307617,
+          "id": 7,
+          "name": "광화문 어귀",
+          "radius": 70.0,
+          "source": "local"
+        },
+        {
+          "center": [
+            950.0,
+            560.0
+          ],
+          "distance": 178.044937133789,
+          "id": 8,
+          "name": "광장 남단",
+          "radius": 70.0,
+          "source": "none"
+        },
+        {
+          "center": [
+            950.0,
+            410.0
+          ],
+          "distance": 110.45361328125,
+          "id": 9,
+          "name": "광화문 앞",
+          "radius": 50.0,
+          "source": "local"
+        }
+      ]
+    },
+    "hwacha_hint_text": "표적 존 3(탐지 2): Z7 광화문 어귀(직접), Z8 광장 남단(탐지 없음), Z9 광화문 앞(직접) · 봉수 연결 없음 — 직접 탐지 100 px만",
     "preview_at": "(52, 20)",
     "reason": "INSUFFICIENT_SUPPLY",
     "selection": 1,
@@ -3323,7 +4178,8 @@
     "leaked_total": 0,
     "marks_drawn": {
       "attach_dash": 4,
-      "build_ghost_bad": 1
+      "build_ghost_bad": 1,
+      "ghost_target_zones": 1
     },
     "network": {
       "bongsu": [

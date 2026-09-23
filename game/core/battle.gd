@@ -457,6 +457,65 @@ func structure_total() -> int:
     return placement.structures.size() + placement.detached.size()
 
 
+## Build-ghost hint (read-only, no rule): what a hwacha standing at `anchor`
+## could aim at and who could tell it about enemies there. It uses the rules
+## the battle uses: a zone is a candidate when its centre is within the
+## hwacha range (boundary inclusive, Hwacha.select_zone); the hwacha would
+## attach to the nearest active bongsu within the link range
+## (BongsuNetwork.rebuild); it only counts enemies it KNOWS (its own
+## detection radius, or an active sensor of that group). Each candidate zone
+## therefore gets a source: "local" (the zone overlaps the hwacha's own
+## detection circle), "shared" (it overlaps a group sensor's circle) or
+## "none" (in range but nothing can see into it, so never aimed at).
+## `known_zone_count` is the number of zones with a source. Geometric
+## overlap is a necessary condition, not a promise that enemies will walk
+## through the overlapping part.
+func hwacha_placement_hint(anchor: Vector2i) -> Dictionary:
+    var c: Vector2 = placement.footprint_center(anchor)
+    var fire_r: float = config.get_num("hwacha_range")
+    var local_r: float = config.get_num("hwacha_local_range")
+    var link_r: float = network.link_range
+    var best: Placement.Structure = null
+    var best_d2: float = 0.0
+    for b: Placement.Structure in placement.bongsus():   # ascending id: ties keep the lowest
+        if not b.active:
+            continue
+        var d2: float = (b.center - c).length_squared()
+        if d2 > link_r * link_r:
+            continue
+        if best == null or d2 < best_d2:
+            best = b
+            best_d2 = d2
+    var group_sensors: Array = []
+    if best != null and best.group_id >= 0:
+        for sid: Variant in network.group_sensors.get(best.group_id, []):
+            var s: Placement.Structure = placement.get_structure(int(sid))
+            if s != null and s.active:
+                group_sensors.append(s)
+    var zones: Array = []
+    var known_zones: int = 0
+    for z: DensityDetector.Zone in density.zones:
+        if (z.center - c).length_squared() > fire_r * fire_r:
+            continue
+        var d: float = z.center.distance_to(c)
+        var source: String = "none"
+        if d <= local_r + z.radius:
+            source = "local"
+        else:
+            for s: Placement.Structure in group_sensors:
+                if z.center.distance_to(s.center) <= s.detect_range + z.radius:
+                    source = "shared"
+                    break
+        if source != "none":
+            known_zones += 1
+        zones.append({"id": z.id, "name": z.name, "center": [z.center.x, z.center.y], "radius": z.radius,
+            "distance": d, "source": source})
+    return {"center": [c.x, c.y], "fire_range": fire_r, "local_range": local_r, "zones": zones, "zone_count": zones.size(),
+        "known_zone_count": known_zones,
+        "attach_id": best.id if best != null else -1, "attach_label": best.label if best != null else "",
+        "group": best.group_id if best != null else -1, "group_sensors": group_sensors.size()}
+
+
 ## Every rule of a paid construction without side effects, in the order the
 ## HUD reports them: run / mode / cap / supply (global conditions, shown all
 ## the time), then the cell rules (terrain, overlap, enemy, district, lost

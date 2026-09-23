@@ -2507,6 +2507,10 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
                 {"t": 0.0, "do": "preview_at", "anchor": Vector2i(40, 20)},
                 {"t": 0.0, "do": "capture", "name": pb + "_02_preview_hwacha_cost"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(31, 17)},
+                {"t": 0.0, "do": "capture", "name": pb + "_02b_no_target_zone"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(37, 27)},
+                {"t": 0.0, "do": "capture", "name": pb + "_02c_zone_not_detectable"},
                 {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(40, 20)},
                 {"t": 0.0, "do": "hud_button", "name": "build_jangseung"},
                 {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(44, 36)},
@@ -2855,8 +2859,13 @@ func _capture_script_step() -> void:
                 var pv_reason: int = Placement.Reject.NONE
                 if a.x >= 0:
                     pv_reason = battle.preview_build(_sel_kind, a) if (battle.play_mode == "build" and _sel_kind >= 0 and _sel_kind < SEL_RECOVERY) else battle.preview_recovery(a)
-                _capture_log.append({"t": battle.sim_time, "preview_at": str(a), "selection": _sel_kind,
-                    "reason": Placement.reject_name(pv_reason) if a.x >= 0 else ""})
+                var pv_log: Dictionary = {"t": battle.sim_time, "preview_at": str(a), "selection": _sel_kind,
+                    "reason": Placement.reject_name(pv_reason) if a.x >= 0 else ""}
+                if a.x >= 0 and battle.play_mode == "build" and _sel_kind == Placement.Kind.HWACHA:
+                    var hh: Dictionary = battle.hwacha_placement_hint(a)
+                    pv_log["hwacha_hint"] = hh
+                    pv_log["hwacha_hint_text"] = OverlayLayer.hwacha_hint_text(hh)
+                _capture_log.append(pv_log)
             "hover":
                 # Scripted stand-in for the mouse: show the hover panel of the
                 # labelled structure (empty label clears it).

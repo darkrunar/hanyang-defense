@@ -422,7 +422,7 @@ foreach ($art in @("greybox", "sample")) {
         $proc = Start-Process -FilePath $wp8Exe.FullName -ArgumentList $capArgs -PassThru -Wait
         if ($proc.ExitCode -ne 0) { throw "release capture $sc [$art] exited with $($proc.ExitCode)" }
         Assert-File "$capDir\${sc}_log.json" "release capture $sc [$art]"
-        foreach ($n in @("01_preparing", "02_preview_hwacha_cost", "03_bought_in_preparation", "04_insufficient_supply", "05_invalid_terrain",
+        foreach ($n in @("01_preparing", "02_preview_hwacha_cost", "02b_no_target_zone", "02c_zone_not_detectable", "03_bought_in_preparation", "04_insufficient_supply", "05_invalid_terrain",
                          "06_invalid_overlap", "07_paused_in_preparation", "08_battle_t20", "09_battle_purchase_t45", "10_collapse_recovery_selected",
                          "11_recovery_preview_B", "12_recovery_placed_free", "13_outer_refused_after_collapse", "14_inner_preview",
                          "15_inner_purchase", "16_result", "17_restart_preparing")) {
@@ -463,6 +463,14 @@ foreach ($art in @("greybox", "sample")) {
         }
         $second = $log | Where-Object { $_.label -eq "second_begin_defense_refused" } | Select-Object -First 1
         if ($second.begin_defense_calls_ignored -ne 0) { throw "release capture ${sc}: the battle must never see a second 방어 시작" }
+        # target-zone hint on the hwacha ghost: (40,20) has zones in range, (31,17) has none
+        $hz = @($log | Where-Object { $_.hwacha_hint })
+        $withZ = $hz | Where-Object { $_.preview_at -eq "(40, 20)" } | Select-Object -First 1
+        $noZ = $hz | Where-Object { $_.preview_at -eq "(31, 17)" } | Select-Object -First 1
+        if ($null -eq $withZ -or $withZ.hwacha_hint.zone_count -lt 1) { throw "release capture ${sc}: hwacha hint at (40,20) should list target zones" }
+        if ($null -eq $noZ -or $noZ.hwacha_hint.zone_count -ne 0) { throw "release capture ${sc}: hwacha hint at (31,17) should say no target zone" }
+        $unseen = $hz | Where-Object { $_.preview_at -eq "(37, 27)" } | Select-Object -First 1
+        if ($null -eq $unseen -or $unseen.hwacha_hint.zone_count -lt 1 -or $unseen.hwacha_hint.known_zone_count -ne 0) { throw "release capture ${sc}: hwacha hint at (37,27) should list a zone it cannot detect" }
         $results = @($log | Where-Object { $_.wait_result })
         if ($results.Count -ne 1 -or -not $results[0].result.economy.balance_ok -or $results[0].result.play_mode -ne "build") { throw "release capture ${sc}: expected one build-mode result with a balanced ledger" }
         $restart = $econ["restart_ledger_reset"].economy
