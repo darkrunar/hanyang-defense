@@ -173,7 +173,7 @@ godot --headless --path . --script res://game/tools/wp003_f3_evidence.gd -- --ou
 godot --path . --rendering-driver opengl3 -- --capture=wp003_f3b --out-dir=D:/abs/path/results/evidence/wp-003/captures
 ```
 
-증거는 `results/evidence/wp-003/{tests,captures,perf}/`. `scripts/verify.*`가 4c(F1 타임라인·F3 A/B 장부·F2/F3 캡처)·6c(전환 성능, D-027 계약 검사 + 구간 프레임 완전 매핑·실행파일 SHA-256)를 추가로 실행한다. `.\scriptserify.ps1 -Wp003`은 승인된 WP-001/002 증거를 건드리지 않고 WP-003 증거만 재생성한다. 테스트 스위트(WP-001/002 회귀 + WP-003 + 실제 scene 진입 경로)는 종료 코드 0이어야 한다.
+증거는 `results/evidence/wp-003/{tests,captures,perf}/`. `scripts/verify.*`가 4c(F1 타임라인·F3 A/B 장부·F2/F3 캡처)·6c(전환 성능, D-027 계약 검사 + 구간 프레임 완전 매핑·실행파일 SHA-256)를 추가로 실행한다. `.\scripts\verify.ps1 -Wp003`은 승인된 WP-001/002 증거를 건드리지 않고 WP-003 증거만 재생성한다. 테스트 스위트(WP-001/002 회귀 + WP-003 + 실제 scene 진입 경로)는 종료 코드 0이어야 한다.
 
 ### WP-004 플레이 흐름·메뉴·재시작 (2026-09-16)
 
@@ -210,7 +210,7 @@ godot --headless --path . --script res://game/tools/wp008_compare.gd -- --out=D:
 .\scripts\perf_with_memory.ps1 -Scenario build_grow_combat -Out results\evidence\wp-008\perf\perf_build_grow_combat_1000_release.json
 ```
 
-`.\scriptserify.ps1 -Wp008`은 테스트 + 캡처 2종(장부·클릭·상태 검사) + AC-09 비교 + 릴리스 빌드 + 성능 4종(D-027 계약 + 장부 검사)을 `results/evidence/wp-008/`에 만들고 승인된 이전 증거는 건드리지 않는다.
+`.\scripts\verify.ps1 -Wp008`은 테스트 + 캡처 2종(장부·클릭·상태 검사) + AC-09 비교 + 릴리스 빌드 + 성능 4종(D-027 계약 + 장부 검사)을 `results/evidence/wp-008/`에 만들고 승인된 이전 증거는 건드리지 않는다.
 
 ### 코어 루프 단계별 테스트 모드 (2026-09-23, D-056)
 
@@ -221,7 +221,7 @@ godot --headless --path . --script res://game/tools/wp008_compare.gd -- --out=D:
 godot --path . --rendering-driver opengl3 -- --stage=3
 ```
 
-`.\scriptserify_stages.ps1`은 테스트 + 단계별 같은 시드 A/B 확인 + release export + 단계 순회 캡처(greybox/sample × 1080p/720p)를 `results/evidence/stages/`에 만든다.
+`.\scripts\verify_stages.ps1`은 테스트 + 단계별 같은 시드 A/B 확인 + release export + 단계 순회 캡처(greybox/sample × 1080p/720p)를 `results/evidence/stages/`에 만든다.
 
 ### 조작
 
