@@ -63,7 +63,7 @@ foreach ($art in @("greybox", "sample")) {
         $man = ($log | Where-Object { $_.capture_manifest } | Select-Object -First 1).capture_manifest
         if ($man.executable.sha256 -ne $exeSha -or $man.executable.is_editor_binary) { throw "capture $sc [$art]: exe hash '$($man.executable.sha256)' is not the exported $exeSha" }
         if ($man.implementation_sha -ne $sha) { throw "capture $sc [$art]: implementation_sha '$($man.implementation_sha)' != $sha" }
-        if ($man.art_mode -ne $art) { throw "capture $sc: art_mode '$($man.art_mode)' != $art" }
+        if ($man.art_mode -ne $art) { throw "capture ${sc}: art_mode '$($man.art_mode)' != $art" }
         $entered = @($log | Where-Object { $null -ne $_.stage -and $null -ne $_.ok })
         foreach ($id in 1..8) {
             $row = $entered | Where-Object { $_.stage -eq $id } | Select-Object -First 1
