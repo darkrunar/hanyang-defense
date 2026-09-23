@@ -13,6 +13,8 @@ const ResultModel := preload("res://game/core/result_model.gd")
 const Economy := preload("res://game/core/economy.gd")
 const TestMap := preload("res://game/maps/hanyang_test_map.gd")
 const PerfRecorder := preload("res://game/tools/perf_recorder.gd")
+const OverlayLayer := preload("res://game/scenes/overlay_layer.gd")
+const DensityDetector := preload("res://game/core/density_detector.gd")
 
 const SETTINGS_TMP: String = "user://wp008_test_settings.cfg"
 const OUTER_GOAL: Vector2 = Vector2(950.0, 530.0)
@@ -53,6 +55,7 @@ func run(t: RefCounted) -> void:
     _scene_classic_untouched(t, tree)
     _scene_art_modes_equal(t, tree)
     _scene_scenarios(t, tree)
+    _ghost_target_zone_hint(t, tree)
     _cleanup()
 
 
@@ -942,3 +945,82 @@ func _scene_scenarios(t: RefCounted, tree: SceneTree) -> void:
     t.eq(col.battle.placement.structures.size(), 18, "collapse_combat keeps fixture C")
     col._perf = null
     _drop(col)
+
+
+func _ghost_target_zone_hint(t: RefCounted, tree: SceneTree) -> void:
+    t.case("build ghost target-zone hint (user request 2026-09-24): listed zones == the hwacha's candidates, each zone's detection source, and the verdict matches whether the bought gun actually fires")
+    var NO_ZONE: Vector2i = Vector2i(31, 17)     # no zone centre within 200 px
+    var UNSEEN: Vector2i = Vector2i(37, 27)      # Z8 in range (190 px) but beyond its own 100 px, no bongsu within 180
+    var SEEN: Vector2i = Vector2i(46, 25)        # next to the outer stronghold: Z8 inside its own 100 px
+    var b: Battle = _b()
+    var r: float = b.config.get_num("hwacha_range")
+    for a: Vector2i in [NO_ZONE, UNSEEN, SEEN, P2, P3, P4, INNER_FREE]:
+        var hint: Dictionary = b.hwacha_placement_hint(a)
+        var c: Vector2 = b.placement.footprint_center(a)
+        var expect: Array = []
+        for z: DensityDetector.Zone in b.density.zones:
+            if (z.center - c).length_squared() <= r * r:
+                expect.append(z.id)
+        var got: Array = []
+        for z: Dictionary in hint["zones"]:
+            got.append(int(z["id"]))
+        t.eq(got, expect, "hint zones at %s == zones whose centre is within %d px" % [str(a), int(r)])
+    var h_none: Dictionary = b.hwacha_placement_hint(NO_ZONE)
+    var h_unseen: Dictionary = b.hwacha_placement_hint(UNSEEN)
+    var h_seen: Dictionary = b.hwacha_placement_hint(SEEN)
+    t.eq(int(h_none["zone_count"]), 0, "(31,17): no zone in range")
+    t.check(int(h_unseen["zone_count"]) >= 1 and int(h_unseen["known_zone_count"]) == 0, "(37,27): %d zones in range, none detectable" % int(h_unseen["zone_count"]))
+    t.eq(int(h_unseen["attach_id"]), -1, "(37,27): no bongsu within 180 px")
+    t.check(int(h_seen["known_zone_count"]) >= 1, "(46,25): %d detectable zones" % int(h_seen["known_zone_count"]))
+    t.check(OverlayLayer.hwacha_hint_text(h_none).find("표적 존 없음") >= 0, "no-zone text: %s" % OverlayLayer.hwacha_hint_text(h_none))
+    t.check(OverlayLayer.hwacha_hint_text(h_unseen).find("탐지할 수단이 없어") >= 0, "unseen text: %s" % OverlayLayer.hwacha_hint_text(h_unseen))
+    t.check(OverlayLayer.hwacha_hint_text(h_seen).find("탐지 %d" % int(h_seen["known_zone_count"])) >= 0, "seen text: %s" % OverlayLayer.hwacha_hint_text(h_seen))
+    # predicted attachment == real attachment after the purchase
+    b.economy.inject(1000, 0, 0.0, "test funds")
+    var pred: Array = []
+    for a: Vector2i in [NO_ZONE, UNSEEN, SEEN]:
+        pred.append(int(b.hwacha_placement_hint(a)["attach_id"]))
+    var guns: Array = []
+    for a: Vector2i in [NO_ZONE, UNSEEN, SEEN]:
+        var res: Placement.Result = b.buy_structure(K_H, a)
+        t.check(res.ok, "hwacha bought at %s (%s)" % [str(a), Placement.reject_name(res.reason)])
+        guns.append(res.structure.id if res.ok else -1)
+    for i: int in range(3):
+        var g: Placement.Structure = b.placement.get_structure(guns[i])
+        t.eq(g.attached_to if g != null else -99, pred[i], "attachment of gun %d as predicted" % i)
+    # reality over 45 s of the same run
+    b.begin_defense()
+    _run_seconds(b, 45.0)
+    var shots: Array = []
+    for id: int in guns:
+        shots.append(b.placement.get_structure(id).shots_fired)
+    t.eq(shots[0], 0, "no-zone gun fired 0 volleys (warning true)")
+    t.eq(shots[1], 0, "zones-in-range-but-undetectable gun fired 0 volleys (warning true)")
+    t.check(int(shots[2]) > 0, "detectable-zone gun fired %d volleys" % int(shots[2]))
+    # read-only
+    var before: String = b.full_state_json()
+    for i: int in range(20):
+        b.hwacha_placement_hint(Vector2i(30 + i, 18))
+    t.eq(b.full_state_json(), before, "hint queries leave the full state untouched")
+    # linking a bongsu turns the unseen spot into a shared one (same rule the network uses)
+    var n: Battle = _b()
+    n.economy.inject(1000, 0, 0.0, "test funds")
+    t.check(n.buy_structure(K_B, Vector2i(42, 29)).ok, "bongsu next to (37,27) and B8 bought")
+    t.check(n.buy_structure(K_S, Vector2i(50, 28)).ok, "sensor looking into Z8 bought")
+    var h_linked: Dictionary = n.hwacha_placement_hint(UNSEEN)
+    t.check(int(h_linked["attach_id"]) >= 0, "(37,27) now attaches to a bongsu (%s)" % str(h_linked["attach_label"]))
+    t.check(int(h_linked["known_zone_count"]) >= 1, "(37,27) now has %d detectable zones via the network: %s" % [int(h_linked["known_zone_count"]), OverlayLayer.hwacha_hint_text(h_linked)])
+    # the capture log records the hint for the ghost it drew
+    var scene: Node2D = _new_scene(tree)
+    _start(scene)
+    _tap(scene, KEY_2)
+    scene._capture_name = "wp008_build"
+    scene._capture_steps = [{"t": 0.0, "do": "preview_at", "anchor": UNSEEN}]
+    scene._capture_index = 0
+    scene._capture_script_step()
+    var row: Dictionary = scene._capture_log.back()
+    t.eq(int(row["hwacha_hint"]["known_zone_count"]), 0, "capture log carries the hint (known 0 at (37,27))")
+    t.check(str(row["hwacha_hint_text"]).find("탐지할 수단이 없어") >= 0, "capture log carries the warning text")
+    scene._capture_name = ""
+    scene._overlay.preview_override = Vector2i(-1, -1)
+    _drop(scene)
