@@ -212,6 +212,17 @@ godot --headless --path . --script res://game/tools/wp008_compare.gd -- --out=D:
 
 `.\scriptserify.ps1 -Wp008`은 테스트 + 캡처 2종(장부·클릭·상태 검사) + AC-09 비교 + 릴리스 빌드 + 성능 4종(D-027 계약 + 장부 검사)을 `results/evidence/wp-008/`에 만들고 승인된 이전 증거는 건드리지 않는다.
 
+### 코어 루프 단계별 테스트 모드 (2026-09-23, D-056)
+
+코어 루프를 콘텐츠 한 개씩 더해 가는 8단계(적 흐름 → 장승 → 화차 → 봉수망 → 웨이브·거점 → 붕괴·회수 → 반복 플레이 → 준비·건설·물자)로 나누고, 단계마다 그 단계까지의 콘텐츠만 켜진 테스트 모드를 둔다. 분류와 이후 단계(성문·공성 적 등, 미구현)는 [CORE_LOOP_STAGES](docs/CORE_LOOP_STAGES.md)에 있다.
+
+```bash
+# 단계 N 테스트 모드 (1..8 또는 flow / jangseung / hwacha / network / waves / collapse / loop / build). [ / ] 로 단계 전환
+godot --path . --rendering-driver opengl3 -- --stage=3
+```
+
+`.\scriptserify_stages.ps1`은 테스트 + 단계별 같은 시드 A/B 확인 + release export + 단계 순회 캡처(greybox/sample × 1080p/720p)를 `results/evidence/stages/`에 만든다.
+
 ### 조작
 
 건설 모드(`--play-mode=build`): `1`~`4` 건설 종류 선택(커서에 비용·잔액·거절 사유) · `5` 회수 화차 배치 선택 · `LMB` 새로 누를 때마다 최대 1개 구매(누르고 있어도 재구매 없음; 회수 배치만 홀드 재시도) · `Space`/`방어 시작` 버튼 준비 종료 1회 · 우하단 건설 바 버튼은 키와 같다 · `RMB`/`T`/`C`는 없음. 나머지는 WP-003 런과 같다.
