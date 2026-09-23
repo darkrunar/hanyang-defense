@@ -278,6 +278,34 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
     if ($mr.Count -ne 2) { throw "capture ${sc} (sample art): expected LOST then WON results" }
     Write-Host ("capture {0} over sample art: 11 menu screens, results {1}/{2}" -f $sc, $mr[0].result.outcome, $mr[1].result.outcome)
 }
+# V-01 (D-053): the same tick in the developer view (previous default) and the player view (new
+# default), with and without names, at five F2 checkpoints, over the sample art like a normal launch.
+New-Item -ItemType Directory -Force (Join-Path $evid5 "captures\v01") | Out-Null
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid5\captures\v01\*"
+$cps = @("a_battle_t15", "b_collapse_t20.5", "c_recovery_preview_t23.5", "d_recovery_placed_t25.5", "e_inner_fire_t45")
+foreach ($sc in @("wp005_v01", "wp005_v01_720")) {
+    & godot --path . --rendering-driver opengl3 -- "--capture=$sc" "--out-dir=$evid5\captures\v01" "--art=sample" | Out-Host
+    Assert-Exit "capture $sc"
+    Assert-File "$evid5\captures\v01\${sc}_log.json" "capture $sc"
+    $vl = Get-Content "$evid5\captures\v01\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $devOv = 0; $plOv = 0
+    foreach ($cp in $cps) {
+        $rows = @{}
+        foreach ($v in @("dev", "player", "player_nolabels")) {
+            $n = "${sc}_${cp}_$v"
+            Assert-File "$evid5\captures\v01\$n.png" "capture $sc"
+            $rows[$v] = $vl | Where-Object { $_.capture -eq $n } | Select-Object -First 1
+            if ($null -eq $rows[$v]) { throw "capture ${sc}: log row $n missing" }
+        }
+        if ($rows["dev"].steps -ne $rows["player"].steps -or $rows["dev"].steps -ne $rows["player_nolabels"].steps) { throw "capture ${sc} ${cp}: views not captured at the same tick ($($rows['dev'].steps)/$($rows['player'].steps)/$($rows['player_nolabels'].steps))" }
+        if ($rows["dev"].view -ne "dev" -or $rows["player"].view -ne "player") { throw "capture ${sc} ${cp}: view flags wrong" }
+        $po = @($rows["player"].label_overlaps).Count
+        if ($po -ne 0) { throw "capture ${sc} ${cp}: player view has $po overlapping label pair(s): $($rows['player'].label_overlaps | ConvertTo-Json -Compress)" }
+        if (($rows["player"].hud_text -split "`n").Count -ne 4) { throw "capture ${sc} ${cp}: player HUD should have 4 lines" }
+        $devOv += @($rows["dev"].label_overlaps).Count; $plOv += $po
+    }
+    Write-Host ("capture {0}: 5 checkpoints x 3 views at the same tick; label overlaps dev {1} -> player {2}" -f $sc, $devOv, $plOv)
+}
 }   # end of the WP-005 capture block
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
