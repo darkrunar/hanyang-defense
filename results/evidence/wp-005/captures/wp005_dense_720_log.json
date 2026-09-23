@@ -389,11 +389,11 @@
       "alive": 0,
       "created_by_kind": {
         "enemy_despawn": 885,
-        "enemy_hit": 933,
+        "enemy_hit": 991,
         "fire": 24,
         "impact": 24
       },
-      "created_total": 1866,
+      "created_total": 1924,
       "dropped_over_cap": 0,
       "sim_time": 15.0000000300003
     },
@@ -401,6 +401,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS  24  frame 54.5 ms   sim t=15.0s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2015   처치 885   누수 130\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 999870/1000000 (도달 130)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -1398,6 +1399,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 885,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 130,
     "marks_drawn": {
       "attach_dash": 8,
@@ -1667,6 +1676,7 @@
     "steps": 900,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -1786,11 +1796,11 @@
       "alive": 0,
       "created_by_kind": {
         "enemy_despawn": 885,
-        "enemy_hit": 933,
+        "enemy_hit": 991,
         "fire": 24,
         "impact": 24
       },
-      "created_total": 1866,
+      "created_total": 1924,
       "dropped_over_cap": 0,
       "sim_time": 15.0166666967003
     },
@@ -1798,6 +1808,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS  25  frame 52.4 ms   sim t=15.0s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2015   처치 885   누수 130\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 999870/1000000 (도달 130)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -2794,6 +2805,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 885,
+    "label_boxes": 8,
+    "label_overlaps": [],
+    "labels_on": false,
     "leaked_total": 130,
     "marks_drawn": {
       "attach_dash": 8,
@@ -3063,6 +3077,7 @@
     "steps": 901,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -3187,11 +3202,11 @@
       "alive": 0,
       "created_by_kind": {
         "enemy_despawn": 885,
-        "enemy_hit": 933,
+        "enemy_hit": 991,
         "fire": 24,
         "impact": 24
       },
-      "created_total": 1866,
+      "created_total": 1924,
       "dropped_over_cap": 0,
       "sim_time": 15.0333333634003
     },
@@ -3199,6 +3214,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS  26  frame 49.9 ms   sim t=15.0s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2015   처치 885   누수 130\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 999870/1000000 (도달 130)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -4191,6 +4207,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 885,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 130,
     "marks_drawn": {
       "attach_dash": 8,
@@ -4460,6 +4484,7 @@
     "steps": 902,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -4599,11 +4624,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1043,
-        "enemy_hit": 1211,
+        "enemy_hit": 1269,
         "fire": 36,
         "impact": 36
       },
-      "created_total": 2327,
+      "created_total": 2385,
       "dropped_over_cap": 0,
       "sim_time": 20.5000000410006
     },
@@ -4611,6 +4636,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS  20  frame 57.1 ms   sim t=20.5s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2403   처치 1043   누수 360\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/1000000 (도달 360)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 4(활성 4) / 외곽 13(활성 0) / 대기 1\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -4670,6 +4696,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 1043,
+    "label_boxes": 27,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 360,
     "marks_drawn": {
       "attach_dash": 2,
@@ -4914,6 +4943,7 @@
     "steps": 1230,
     "structure_count": 17,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -5039,11 +5069,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5000000510008
     },
@@ -5051,6 +5081,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 126  frame 9.4 ms   sim t=25.5s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2609   처치 1245   누수 364\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/1000000 (도달 360)   핵심 HP 60/60 (도달 4)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -5338,6 +5369,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 1245,
+    "label_boxes": 26,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 364,
     "marks_drawn": {
       "attach_dash": 3,
@@ -5591,6 +5625,7 @@
     "steps": 1530,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -5711,11 +5746,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5166667177008
     },
@@ -5723,6 +5758,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 119  frame 9.9 ms   sim t=25.5s  x6\n동시 생존 1000 (최고 1000)   생성 누계 2609   처치 1245   누수 364\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/1000000 (도달 360)   핵심 HP 60/60 (도달 4)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -6010,6 +6046,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 1245,
+    "label_boxes": 8,
+    "label_overlaps": [],
+    "labels_on": false,
     "leaked_total": 364,
     "marks_drawn": {
       "attach_dash": 3,
@@ -6263,6 +6302,7 @@
     "steps": 1531,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -6705,11 +6745,11 @@
       "created_by_kind": {
         "collapse": 1,
         "enemy_despawn": 1245,
-        "enemy_hit": 1390,
+        "enemy_hit": 1448,
         "fire": 43,
         "impact": 43
       },
-      "created_total": 2722,
+      "created_total": 2780,
       "dropped_over_cap": 0,
       "sim_time": 25.5166667177008
     },
