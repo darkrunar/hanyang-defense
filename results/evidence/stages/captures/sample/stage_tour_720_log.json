@@ -352,7 +352,7 @@
         "--capture=stage_tour_720",
         "--out-dir=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\stages\\captures\\sample",
         "--art=sample",
-        "--sha=a2d6ba6f2bf33354767b8e8f1945210303c5cb7b"
+        "--sha=a5efdfb54d574bfe4cf40f51462112e9d28f375e"
       ],
       "config": {
         "arrival_damage": 1.0,
@@ -402,10 +402,10 @@
       "executable": {
         "basename": "hanyang_defense_wp001.exe",
         "is_editor_binary": false,
-        "sha256": "ac6a92111feaba67ef75e7b5550c449be521b1b40e658cd57438a21365ee96ba",
-        "size_bytes": 109373504
+        "sha256": "cb9aace88363ea4c6f5d99c5d014427c61da72ec9ed4b3fa59fbf79dadd142bc",
+        "size_bytes": 109379888
       },
-      "implementation_sha": "a2d6ba6f2bf33354767b8e8f1945210303c5cb7b",
+      "implementation_sha": "a5efdfb54d574bfe4cf40f51462112e9d28f375e",
       "scenario": "stage_tour_720",
       "settings_path": "user://stage_capture_settings.cfg",
       "window_size": "(1280, 720)"
@@ -490,10 +490,14 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 1 · 적 흐름   Godot 4.7-stable (official) / gl_compatibility\nFPS 212  frame 4.8 ms   sim t=15.0s  x6  [전투 비활성]\n동시 생존 999 (최고 1000)   생성 누계 1116   처치 0   누수 117\n관찰 단계(설치 없음)  Z 밀도  G 사거리  [ / ] 단계  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처",
     "hwacha_count": 0,
     "hwachas": [],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 3,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 117,
     "marks_drawn": {},
     "network": {
@@ -597,6 +601,7 @@
     "structure_count": 0,
     "structure_total": 0,
     "targeting_mode": "wp001",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -763,10 +768,14 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 2 · 장승 — 길 막기   Godot 4.7-stable (official) / gl_compatibility\nFPS 235  frame 4.6 ms   sim t=25.0s  x6  [전투 비활성]\n동시 생존 1000 (최고 1000)   생성 누계 1956   처치 0   누수 956\nLMB 설치  RMB 제거  1장승  Z 밀도  G 사거리  [ / ] 단계  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처",
     "hwacha_count": 0,
     "hwachas": [],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 4,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 956,
     "marks_drawn": {},
     "network": {
@@ -872,6 +881,7 @@
     "structure_count": 1,
     "structure_total": 1,
     "targeting_mode": "wp001",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -1043,6 +1053,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 3 · 화차 — 집중 사격   Godot 4.7-stable (official) / gl_compatibility\nFPS 151  frame 6.7 ms   sim t=25.0s  x6\n동시 생존 996 (최고 1000)   생성 누계 3565   처치 2569   누수 0\nLMB 설치  RMB 제거  1장승 2화차  C 전투  Z 밀도  G 사거리  [ / ] 단계  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -1134,6 +1145,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 2569,
+    "label_boxes": 8,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 0,
     "marks_drawn": {},
     "network": {
@@ -1281,6 +1295,7 @@
     "structure_count": 5,
     "structure_total": 5,
     "targeting_mode": "wp001",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -1450,6 +1465,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 4 · 봉수망 — 탐지 공유   Godot 4.7-stable (official) / gl_compatibility\nFPS  52  frame 20.5 ms   sim t=15.0s  x6\n동시 생존 1000 (최고 1000)   생성 누계 1634   처치 631   누수 3\nLMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  [ / ] 단계  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -2859,6 +2875,9 @@
     ],
     "jangseung_count": 0,
     "killed_total": 631,
+    "label_boxes": 19,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 3,
     "marks_drawn": {
       "attach_dash": 8,
@@ -3133,6 +3152,7 @@
     "structure_count": 16,
     "structure_total": 16,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": false,
       "gap_left": 0.0,
@@ -3302,6 +3322,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 5 · 웨이브·거점 방어   Godot 4.7-stable (official) / gl_compatibility\nFPS 186  frame 5.5 ms   sim t=60.0s  x6\n동시 생존 14 (최고 262)   생성 누계 540   처치 350   누수 176\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 184/360 (도달 176)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -3390,6 +3411,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 350,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 176,
     "marks_drawn": {
       "attach_dash": 8,
@@ -3665,6 +3694,7 @@
     "structure_count": 18,
     "structure_total": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -3856,6 +3886,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 6 · 붕괴·후퇴·회수   Godot 4.7-stable (official) / gl_compatibility\nFPS 185  frame 5.6 ms   sim t=20.5s  x6\n동시 생존 26 (최고 179)   생성 누계 180   처치 114   누수 40\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/40 (도달 40)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 4(활성 4) / 외곽 13(활성 0) / 대기 1\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -3915,6 +3946,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 114,
+    "label_boxes": 27,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 40,
     "marks_drawn": {
       "attach_dash": 2,
@@ -4165,6 +4199,7 @@
     "structure_count": 17,
     "structure_total": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -4338,6 +4373,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 6 · 붕괴·후퇴·회수   Godot 4.7-stable (official) / gl_compatibility\nFPS 289  frame 3.5 ms   sim t=30.0s  x6\n동시 생존 0 (최고 179)   생성 누계 180   처치 140   누수 40\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/40 (도달 40)   핵심 HP 60/60 (도달 0)   웨이브 W1 GAP 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -4415,6 +4451,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 140,
+    "label_boxes": 26,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 40,
     "marks_drawn": {
       "attach_dash": 3,
@@ -4674,6 +4713,7 @@
     "structure_count": 18,
     "structure_total": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 2.54999999510001,
@@ -4850,6 +4890,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 7 · 반복 플레이 — 시작·결과·재시작   Godot 4.7-stable (official) / gl_compatibility\nFPS 288  frame 3.5 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -4927,6 +4968,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 0,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "marks_drawn": {
       "attach_dash": 8,
@@ -5202,6 +5251,7 @@
     "structure_count": 18,
     "structure_total": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -5375,6 +5425,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 7 · 반복 플레이 — 시작·결과·재시작   Godot 4.7-stable (official) / gl_compatibility\nFPS 208  frame 4.8 ms   sim t=10.0s  x6\n동시 생존 129 (최고 179)   생성 누계 180   처치 50   누수 1\nWP-003 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 359/360 (도달 1)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -5583,6 +5634,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 50,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 1,
     "marks_drawn": {
       "attach_dash": 8,
@@ -5858,6 +5917,7 @@
     "structure_count": 18,
     "structure_total": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -6112,6 +6172,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · 테스트 단계 8 · 준비·건설·물자   Godot 4.7-stable (official) / gl_compatibility\nFPS 197  frame 5.3 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #3  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -6153,6 +6214,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "marks_drawn": {
       "attach_dash": 2,
@@ -6306,6 +6375,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
