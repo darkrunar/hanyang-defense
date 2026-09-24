@@ -203,7 +203,7 @@ func step(
             shared_only_shots += 1
         last_shots.append(shot)
         if render_queue.size() < RENDER_QUEUE_CAP:
-            render_queue.append([z.center, s.blast_radius])
+            render_queue.append([z.center, s.blast_radius, s.center])   # aim, radius, muzzle (WP-005 fx)
         if network == null:
             # WP-001 mode: later hwachas must see the enemies this volley removed.
             live_counts = density.evaluate(sim)

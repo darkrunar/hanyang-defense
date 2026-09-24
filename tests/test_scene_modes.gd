@@ -25,6 +25,7 @@ func run(t: RefCounted) -> void:
 
 static func _new_scene(tree: SceneTree) -> Node2D:
     var scene: Node2D = Main.new()
+    scene._art_mode = "greybox"   # WP-003 scene suites render the grey box
     tree.root.add_child(scene)
     if not scene.is_node_ready():
         # The suite runs inside SceneTree._initialize(), before the root has

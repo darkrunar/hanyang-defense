@@ -1,0 +1,54 @@
+[
+  {
+    "mode": "greybox",
+    "scenario": "collapse_move",
+    "avg_fps": 88.537429160683,
+    "p95_ms": 20.485,
+    "alive_min": 1000.0,
+    "frames": 5313,
+    "exe_sha256": "4eaf72dabac7e4b9f81f6146bf9fca2d6f6c54feaa9ee7c874629964ed0b3044",
+    "implementation_sha": "133f39eae114d0e81fe340106c6ddcdcd8f47227",
+    "memory_peak_mb": 192.8,
+    "verdict": "PASS"
+  },
+  {
+    "mode": "greybox",
+    "scenario": "collapse_combat",
+    "avg_fps": 101.62432603056949,
+    "p95_ms": 18.541,
+    "alive_min": 1000.0,
+    "frames": 6098,
+    "exe_sha256": "4eaf72dabac7e4b9f81f6146bf9fca2d6f6c54feaa9ee7c874629964ed0b3044",
+    "implementation_sha": "133f39eae114d0e81fe340106c6ddcdcd8f47227",
+    "memory_peak_mb": 192.4,
+    "verdict": "PASS"
+  },
+  {
+    "mode": "sample",
+    "scenario": "collapse_move",
+    "avg_fps": 84.45819269466631,
+    "p95_ms": 20.904,
+    "alive_min": 1000.0,
+    "frames": 5068,
+    "exe_sha256": "4eaf72dabac7e4b9f81f6146bf9fca2d6f6c54feaa9ee7c874629964ed0b3044",
+    "implementation_sha": "133f39eae114d0e81fe340106c6ddcdcd8f47227",
+    "memory_peak_mb": 194.5,
+    "verdict": "PASS",
+    "fps_change_percent": -4.607358158788932,
+    "p95_change_ms": 0.4190000000000005
+  },
+  {
+    "mode": "sample",
+    "scenario": "collapse_combat",
+    "avg_fps": 97.25975798185802,
+    "p95_ms": 18.732,
+    "alive_min": 1000.0,
+    "frames": 5836,
+    "exe_sha256": "4eaf72dabac7e4b9f81f6146bf9fca2d6f6c54feaa9ee7c874629964ed0b3044",
+    "implementation_sha": "133f39eae114d0e81fe340106c6ddcdcd8f47227",
+    "memory_peak_mb": 194.0,
+    "verdict": "PASS",
+    "fps_change_percent": -4.294806390547256,
+    "p95_change_ms": 0.19099999999999895
+  }
+]

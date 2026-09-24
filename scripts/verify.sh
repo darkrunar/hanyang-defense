@@ -100,6 +100,43 @@ for sc in wp004_ui wp004_ui_720; do
     grep -q '"lmb_after_release_accepted_delta": *1' "$EVID4/captures/${sc}_log.json" || { echo "capture $sc: new press after the release must place"; exit 1; }
 done
 
+echo "== 4e/6 WP-005 art pipeline captures (greybox / sample with the dev fixture; not game assets)"
+EVID5="$EVID/wp-005"
+mkdir -p "$EVID5/captures" "$EVID5/perf" "$EVID5/tests"
+rm -f "$EVID5"/captures/wp005_*
+cp -f "$EVID/test_report.txt" "$EVID5/tests/test_report.txt"
+godot --headless --path . --script res://game/tools/wp005_dev_fixture.gd
+for art in greybox sample assets; do
+    for size in "" _720; do
+        sc="wp005_${art}${size}"
+        extra="--art=sample"; [[ "$art" == "greybox" ]] && extra="--art=greybox"
+        [[ "$art" == "sample" ]] && extra="$extra --art-dir=user://wp005_art_fixture"
+        godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID5/captures")" $extra
+        [[ -s "$EVID5/captures/${sc}_log.json" ]] || { echo "capture $sc produced no log"; exit 1; }
+        for n in a_dense_t15 b_collapse_t20.5 c_invalid_preview_t23 d_valid_preview_t23.5 e_recovery_placed_t25.5 f_inner_fire_t45 g_run_end; do
+            [[ -s "$EVID5/captures/${sc}_$n.png" ]] || { echo "capture ${sc}_$n.png missing"; exit 1; }
+        done
+    done
+done
+for size in "" _720; do
+    godot --path . --rendering-driver opengl3 -- --capture=wp005_dense$size --out-dir="$(abs "$EVID5/captures")" --art=sample
+    [[ -s "$EVID5/captures/wp005_dense${size}_a2_1000_nolabels_t15.png" ]] || { echo "dense capture wp005_dense$size missing"; exit 1; }
+done
+godot --path . --rendering-driver opengl3 -- --capture=wp005_closeup --out-dir="$(abs "$EVID5/captures")" --art=sample
+[[ -s "$EVID5/captures/wp005_closeup_d_recovery_B_x3_t25.5.png" ]] || { echo "closeup capture missing"; exit 1; }
+mkdir -p "$EVID5/captures/menus"
+for sc in wp004_ui wp004_ui_720; do
+    godot --path . --rendering-driver opengl3 -- --capture=$sc --out-dir="$(abs "$EVID5/captures/menus")" --settings="$(abs "$EVID5/captures/menus/settings_capture.cfg")" --art=sample
+    [[ -s "$EVID5/captures/menus/${sc}_10_result_won.png" ]] || { echo "menu capture $sc over sample art missing"; exit 1; }
+done
+for size in "" _720; do
+    for label in initial before_collapse after_collapse after_recovery; do
+        g=$(grep -o "\"state_log\": *\"$label\"[^}]*\"state_hash\": *\"[^\"]*\"" "$EVID5/captures/wp005_greybox${size}_log.json" | grep -o '"state_hash": *"[^"]*"' | head -1)
+        s=$(grep -o "\"state_log\": *\"$label\"[^}]*\"state_hash\": *\"[^\"]*\"" "$EVID5/captures/wp005_sample${size}_log.json" | grep -o '"state_hash": *"[^"]*"' | head -1)
+        [[ -n "$g" && "$g" == "$s" ]] || { echo "capture wp005$size: state differs at $label"; exit 1; }
+    done
+done
+
 if [[ "${1:-}" == "--quick" ]]; then
     echo "quick mode: skipping build and perf"; exit 0
 fi

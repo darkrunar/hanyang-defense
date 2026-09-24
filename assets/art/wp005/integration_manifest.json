@@ -1,0 +1,343 @@
+{
+  "contract_count": 35,
+  "dir": "res://assets/art/wp005",
+  "enemy_atlas": true,
+  "enemy_frame_size": [
+    12,
+    16
+  ],
+  "loaded": [
+    {
+      "asset_id": "terrain_sample",
+      "frame_size": [
+        20,
+        20
+      ],
+      "frames": 4,
+      "path": "res://assets/art/wp005/terrain/terrain_sample_ground_v01.png",
+      "pivot": [
+        10.0,
+        10.0
+      ],
+      "sha256": "7aa74ade09550f88637ccabd2ba9e05b604db20accda0def85c367dd6cdb8d46",
+      "state": "ground"
+    },
+    {
+      "asset_id": "building_sample",
+      "frame_size": [
+        20,
+        20
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/buildings/building_sample_roof_v01.png",
+      "pivot": [
+        10.0,
+        10.0
+      ],
+      "sha256": "7ac789a753cb1f7d48836cc39e51470177839625e279398db55dfc6416c8f96d",
+      "state": "roof"
+    },
+    {
+      "asset_id": "building_sample",
+      "frame_size": [
+        20,
+        20
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/buildings/building_sample_wall_v01.png",
+      "pivot": [
+        10.0,
+        10.0
+      ],
+      "sha256": "faf9234af8ffecf63bc5e7f3ee2f3ce16d49750e18dea973032852e0813516a2",
+      "state": "wall"
+    },
+    {
+      "asset_id": "hwacha",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/hwacha_idle_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "1e006a02f750df2c08ec4021f970a08c4cdea8e27d7b8e325a14a2592985cb0f",
+      "state": "idle"
+    },
+    {
+      "asset_id": "hwacha",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/hwacha_inactive_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "1945fe8386e9bb3b37c2ce990e0c41f86eba32ed2087da683da589790044b4a2",
+      "state": "inactive"
+    },
+    {
+      "asset_id": "jangseung",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/jangseung_idle_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "a863a411ed41cf0c750cb169f1652ddcd5750d4dceb737c27690bcc5010ac822",
+      "state": "idle"
+    },
+    {
+      "asset_id": "jangseung",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/jangseung_inactive_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "ed3408cf6dc0601d276906500393b971996fd27652c695e1bed2194671f93465",
+      "state": "inactive"
+    },
+    {
+      "asset_id": "bongsu",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/bongsu_connected_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "8a7c97eb3a2ddf27ac5e0442588c4b6a907305d7041fd66a0386af61d1d90c94",
+      "state": "connected"
+    },
+    {
+      "asset_id": "bongsu",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/bongsu_disconnected_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "4b723ce3224b7baa1e6424ba154bf4087c92df94d6053f0434e9c3f2140cd87c",
+      "state": "disconnected"
+    },
+    {
+      "asset_id": "sensor",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/sensor_active_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "7fb511c5df571407c73d262575db9f0362109671dfd9eea04e741bcbfe356b21",
+      "state": "active"
+    },
+    {
+      "asset_id": "sensor",
+      "frame_size": [
+        40,
+        40
+      ],
+      "frames": 1,
+      "path": "res://assets/art/wp005/facilities/sensor_inactive_v01.png",
+      "pivot": [
+        20.0,
+        20.0
+      ],
+      "sha256": "7a1a8e449dd55411db5a7e099a3f3941553618bbe6eca1698c545f693a910104",
+      "state": "inactive"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "6af14d45c251810d155cb804eba2e59270eaf0b2d0f3619118f291550f4c4866",
+      "state": "walk_down"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "a1158d6e20173645217db080967cdf578aeb722a2ef6265c2a9d872f2da6e485",
+      "state": "walk_up"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "14efce53d3fd7c60bc6e0b2a35baaa184df82d2372758065337990464e17c8cb",
+      "state": "walk_left"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "bd35013005b7f80665809ccafa28f7bff63dea59ae479cfaba62791a710f10fc",
+      "state": "walk_right"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_hit_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "2f8b64e2c5da48dbff87586fc3a0afbe63c537ba0ad60c9132c30151e86bc6e2",
+      "state": "hit"
+    },
+    {
+      "asset_id": "enemy_basic",
+      "frame_size": [
+        12,
+        16
+      ],
+      "frames": 2,
+      "path": "res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png",
+      "pivot": [
+        6.0,
+        16.0
+      ],
+      "sha256": "cee1102713856b6cf051f3030b774170945f2be2929d68ddcd8fb6f884e1e40a",
+      "state": "despawn"
+    }
+  ],
+  "loaded_count": 17,
+  "missing": [
+    {
+      "id": "bongsu/pulse",
+      "reason": "missing: res://assets/art/wp005/facilities/bongsu_pulse_v01.png"
+    },
+    {
+      "id": "building_sample/gate",
+      "reason": "missing: res://assets/art/wp005/buildings/building_sample_gate_v01.png"
+    },
+    {
+      "id": "combat_fx/collapse",
+      "reason": "missing: res://assets/art/wp005/fx/combat_fx_collapse_v01.png"
+    },
+    {
+      "id": "combat_fx/fire",
+      "reason": "missing: res://assets/art/wp005/fx/combat_fx_fire_v01.png"
+    },
+    {
+      "id": "combat_fx/impact",
+      "reason": "missing: res://assets/art/wp005/fx/combat_fx_impact_v01.png"
+    },
+    {
+      "id": "core_post/collapsed",
+      "reason": "missing: res://assets/art/wp005/objectives/core_post_collapsed_v01.png"
+    },
+    {
+      "id": "core_post/hit",
+      "reason": "missing: res://assets/art/wp005/objectives/core_post_hit_v01.png"
+    },
+    {
+      "id": "core_post/normal",
+      "reason": "missing: res://assets/art/wp005/objectives/core_post_normal_v01.png"
+    },
+    {
+      "id": "hwacha/fire",
+      "reason": "missing: res://assets/art/wp005/facilities/hwacha_fire_v01.png"
+    },
+    {
+      "id": "interaction_marks/link_cut",
+      "reason": "missing: res://assets/art/wp005/marks/interaction_marks_link_cut_v01.png"
+    },
+    {
+      "id": "interaction_marks/link_ok",
+      "reason": "missing: res://assets/art/wp005/marks/interaction_marks_link_ok_v01.png"
+    },
+    {
+      "id": "interaction_marks/place_bad",
+      "reason": "missing: res://assets/art/wp005/marks/interaction_marks_place_bad_v01.png"
+    },
+    {
+      "id": "interaction_marks/place_ok",
+      "reason": "missing: res://assets/art/wp005/marks/interaction_marks_place_ok_v01.png"
+    },
+    {
+      "id": "interaction_marks/recovery_wait",
+      "reason": "missing: res://assets/art/wp005/marks/interaction_marks_recovery_wait_v01.png"
+    },
+    {
+      "id": "outer_post/collapsed",
+      "reason": "missing: res://assets/art/wp005/objectives/outer_post_collapsed_v01.png"
+    },
+    {
+      "id": "outer_post/hit",
+      "reason": "missing: res://assets/art/wp005/objectives/outer_post_hit_v01.png"
+    },
+    {
+      "id": "outer_post/normal",
+      "reason": "missing: res://assets/art/wp005/objectives/outer_post_normal_v01.png"
+    },
+    {
+      "id": "terrain_sample/edge",
+      "reason": "missing: res://assets/art/wp005/terrain/terrain_sample_edge_v01.png"
+    }
+  ],
+  "missing_count": 18,
+  "version": "v01"
+}

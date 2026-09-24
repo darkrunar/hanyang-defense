@@ -10,7 +10,9 @@ param(
     [string]$Exe = "build_out\windows\hanyang_defense_wp001.exe",
     [int]$Warmup = 10,
     [int]$Measure = 60,
-    [Parameter(Mandatory = $true)][string]$Out
+    [Parameter(Mandatory = $true)][string]$Out,
+    [ValidateSet("greybox", "sample")][string]$Art = "greybox",   # WP-005: rendering choice only (D-049)
+    [string]$ArtDir = ""
 )
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
@@ -22,11 +24,14 @@ $sha = (& git rev-parse HEAD 2>$null); if (-not $sha) { $sha = "unknown" }
 # files under results/ are expected to change during a verification run.
 $dirty = (& git status --porcelain --untracked-files=no -- game project.godot export_presets.cfg 2>$null)
 $shaTag = if ($dirty) { "$sha-dirty" } else { $sha }
-$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag")
+$args = @("--", "--perf", "--scenario=$Scenario", "--warmup=$Warmup", "--measure=$Measure", "--out=$outAbs", "--sha=$shaTag", "--art=$Art")
+if ($ArtDir -ne "") { $args += "--art-dir=$ArtDir" }
 # R-05: hash the executable that is about to run, independently of the game's
 # own self-hash in the perf JSON manifest (the two must agree).
 $exeItem = Get-Item (Resolve-Path $Exe)
 $exeSha256 = (Get-FileHash -Algorithm SHA256 $exeItem.FullName).Hash.ToLower()
+# The window stays visible: the D-009 procedure (WP-001..004 evidence) measures a
+# normal foreground window; a hidden window is not comparable (PR #12 review).
 $proc = Start-Process -FilePath $exeItem.FullName -ArgumentList $args -PassThru
 $samples = @()
 $t0 = Get-Date
@@ -47,6 +52,8 @@ $measureStart = $Warmup  # sampler t≈0 is process start; the game's window beg
 $inWindow = $samples | Where-Object { $_.t_s -ge $measureStart }
 $report = [ordered]@{
     scenario            = $Scenario
+    art_mode            = $Art
+    art_dir             = $ArtDir
     exe                 = $exeItem.Name          # basename only: no local paths in evidence
     exe_sha256          = $exeSha256
     exe_size_bytes      = $exeItem.Length
