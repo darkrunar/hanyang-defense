@@ -1,0 +1,179 @@
+== 1/4 headless test suite (includes the core-loop stage suite)
+ERROR: ConfigFile parse error at user://wp004_test_corrupt.cfg:0: Unexpected identifier 'not'.
+   at: _parse (core/io/config_file.cpp:293)
+   GDScript backtrace (most recent call first):
+       [0] load (res://game/core/user_settings.gd:40)
+       [1] _settings_unit (res://tests/test_play_flow.gd:278)
+       [2] run (res://tests/test_play_flow.gd:26)
+       [3] _run_all (res://tests/run_tests.gd:42)
+--stage=9: ë‹¨ê³„ 9 ì„±ë°– ì ‘ê·¼Â·ì„±ë¬¸ ê³µë°© â€” WP-009 (DRAFT): ì•„ì§ êµ¬í˜„ë˜ì§€ ì•Šì•„ í…ŒìŠ¤íŠ¸ ëª¨ë“œê°€ ì—†ë‹¤
+TOTAL passed=1929 failed=0
+== 2/4 per-stage A/B checks (headless, same seed)
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+stage 1 flow       PASS {"alive":1000,"killed":0,"leaked":1061,"route_alive":[297,352,351],"route_leaked":[390,335,336],"t":30.0000000600011} | 
+stage 2 jangseung  PASS {"jangseung_44_36":{"avg_east":25.9783333333333,"avg_west":0.0,"path_version":3},"no_jangseung":{"avg_east":12.3083333333333,"avg_west":12.7},"seal_refused":"WOULD_BLOCK_ALL_PATHS","window":"25..35 s"} | 
+stage 3 hwacha     PASS {"gun_kills_bottleneck":616,"gun_kills_open":178,"killed":3161,"leaked":5,"stage1_leaked":1347,"t":35.0,"window":"20..35 s"} | 
+stage 4 network    PASS {"groups":[5],"killed":1069,"network_off":{"killed":693,"shared_only_shots":0,"shots":13},"shared_only_shots":34,"shots":47,"t":20.0} | 
+stage 5 waves      PASS {"core_hp":60.0,"ended_at":99.8333335330054,"killed":826,"outcome":"WON","outer_arrivals":314,"outer_hp":46.0,"spawned":1140} | 
+stage 6 collapse   PASS {"collapse_t":20.4500000409006,"core_arrivals":18,"core_hp":42.0,"ended_at":105.150000210307,"h1_shots":89,"outcome":"WON","recovery_t":20.4666667076006} | 
+stage 7 loop       PASS {"note":"screens / input checked by tests/test_stage_ladder.gd scene cases","play_mode":"classic","preparing":false,"structures":18,"supply":0} | 
+stage 8 build      PASS {"note":"screens / input checked by tests/test_stage_ladder.gd scene cases","play_mode":"build","preparing":true,"structures":4,"supply":240} | 
+stage 9 gate       PLANNED WP-009 (DRAFT) ???±ë°– ?‘ê·¼Â·?±ë¬¸ ê³µë°©
+stage 10 siege      PLANNED WP-010 (DRAFT) ??ê³µì„± ?Â·ì¥???Œê´´
+stage 11 character  PLANNED ?„ë³´ (WP ?†ìŒ) ??ìºë¦­???„ì¥ ê°œì…(?¬ì¡¸Â·?¬ë˜)
+stage 12 resources  PLANNED ?„ë³´ (WP ?†ìŒ) ???•ë³´Â·??Â· ???±ì¥
+stage 13 meta       PLANNED ?„ë³´ (WP ?†ìŒ) ??ê·œì¥ê°?ë©”í? ?±ì¥
+written: <repo>\results\evidence\stages\stage_report.json
+== 3/4 release export
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started ?„ë¡œ?íŠ¸ ì´ˆê¸°??(5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | ?Œì¼ êµ¬ì¡° ?¤ìº” ì¤?..[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | ?„ì—­ ?´ë˜???´ë¦„??ë¶ˆëŸ¬?¤ëŠ” ì¤?..[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | GDExtensions ê²€ì¦?ì¤?..[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | ?¤í† ë¡œë“œ ?¤í¬ë¦½íŠ¸ë¥?ë§Œë“œ??ì¤?..[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | ?ŒëŸ¬ê·¸ì¸??ì´ˆê¸°??ì¤?..[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | ?Œì¼ ?¤ìº” ?œì‘ ì¤?..[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started ?„ì—­ ?´ë˜?¤ë? ?±ë¡?˜ëŠ” ì¤?.. (19 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1msavepack[22m | Started ?¨í‚¹ ì¤?(102 steps)[39m[0m
+[   1% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/building_sample_roof_v01.png-fe7df75f3f5335b57d9b07070d3890af.ctex[39m[0m
+[   1% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/buildings/building_sample_roof_v01.png.import[39m[0m
+[   2% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/building_sample_wall_v01.png-645cdb5f7e0a846c1fd2aaa266776fb8.ctex[39m[0m
+[   2% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/buildings/building_sample_wall_v01.png.import[39m[0m
+[   4% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_despawn_v01.png-9491e24e97b892b9f3295c705853771b.ctex[39m[0m
+[   4% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_despawn_v01.png.import[39m[0m
+[   6% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_hit_v01.png-f7f2c7b5ea0212f170dbeb41113e177a.ctex[39m[0m
+[   6% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_hit_v01.png.import[39m[0m
+[   8% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_walk_down_v01.png-28f360f9169257440b1cb9bc4f6abc22.ctex[39m[0m
+[   8% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_walk_down_v01.png.import[39m[0m
+[  10% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_walk_left_v01.png-0337ed6f037fcbcc28601ef4e20572b1.ctex[39m[0m
+[  10% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_walk_left_v01.png.import[39m[0m
+[  12% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_walk_right_v01.png-f93445b80608651b0468fecec28889c9.ctex[39m[0m
+[  12% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_walk_right_v01.png.import[39m[0m
+[  13% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/enemy_basic_walk_up_v01.png-05945356928f8cc7cdc2020423e0d21c.ctex[39m[0m
+[  13% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemies/enemy_basic_walk_up_v01.png.import[39m[0m
+[  15% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/bongsu_connected_v01.png-129e6eb339f686ff6b23ac99dd68f5fa.ctex[39m[0m
+[  15% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/bongsu_connected_v01.png.import[39m[0m
+[  17% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/bongsu_disconnected_v01.png-858003a7d4b27db9d06692df47407b1d.ctex[39m[0m
+[  17% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/bongsu_disconnected_v01.png.import[39m[0m
+[  19% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/hwacha_idle_v01.png-34d5d086f794e9c9d7edfcfdb0501a67.ctex[39m[0m
+[  19% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/hwacha_idle_v01.png.import[39m[0m
+[  21% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/hwacha_inactive_v01.png-78c25f0aa859c2f2522760ef78561f09.ctex[39m[0m
+[  21% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/hwacha_inactive_v01.png.import[39m[0m
+[  23% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/jangseung_idle_v01.png-34894bbdcfa4bc439e70753cd4e32024.ctex[39m[0m
+[  23% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/jangseung_idle_v01.png.import[39m[0m
+[  25% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/jangseung_inactive_v01.png-9381f0075fdbac2bece3f8663f7be157.ctex[39m[0m
+[  25% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/jangseung_inactive_v01.png.import[39m[0m
+[  26% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/sensor_active_v01.png-01f7b5d4745af8bfb8535d9aa93d9323.ctex[39m[0m
+[  26% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/sensor_active_v01.png.import[39m[0m
+[  28% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/sensor_inactive_v01.png-9f774a3a1cbdf764ef151dbf5cc99469.ctex[39m[0m
+[  28% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/facilities/sensor_inactive_v01.png.import[39m[0m
+[  30% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/imported/terrain_sample_ground_v01.png-39aa4532788c26200239f6abae0b6a94.ctex[39m[0m
+[  30% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/terrain/terrain_sample_ground_v01.png.import[39m[0m
+[  32% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/enemy_geometry.json[39m[0m
+[  33% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://assets/art/wp005/integration_manifest.json[39m[0m
+[  35% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/battle.gdc[39m[0m
+[  37% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/bongsu_network.gdc[39m[0m
+[  38% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/config.gdc[39m[0m
+[  40% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/density_detector.gdc[39m[0m
+[  42% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/economy.gdc[39m[0m
+[  44% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/enemy_sim.gdc[39m[0m
+[  46% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/hwacha.gdc[39m[0m
+[  48% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/path_network.gdc[39m[0m
+[  50% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/placement.gdc[39m[0m
+[  51% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/play_flow.gdc[39m[0m
+[  53% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/result_model.gdc[39m[0m
+[  55% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/run_state.gdc[39m[0m
+[  57% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/stage_ladder.gdc[39m[0m
+[  59% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/terrain_grid.gdc[39m[0m
+[  61% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/user_settings.gdc[39m[0m
+[  62% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/wave_director.gdc[39m[0m
+[  64% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/maps/hanyang_test_map.gdc[39m[0m
+[  66% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/art_set.gdc[39m[0m
+[  67% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/fx_layer.gdc[39m[0m
+[  69% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/main.gdc[39m[0m
+[  71% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/exported/133200997/export-3b56fb062743eda937727145e83ed2c8-main.scn[39m[0m
+[  73% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/menu_layer.gdc[39m[0m
+[  74% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/overlay_layer.gdc[39m[0m
+[  76% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/terrain_layer.gdc[39m[0m
+[  78% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/dump_map.gdc[39m[0m
+[  80% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/f3_tracker.gdc[39m[0m
+[  82% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/import_wp005_sources.gdc[39m[0m
+[  84% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/perf_recorder.gdc[39m[0m
+[  86% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/probe_occupancy.gdc[39m[0m
+[  87% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/stage_checks.gdc[39m[0m
+[  89% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/stage_report.gdc[39m[0m
+[  91% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp003_f3_evidence.gdc[39m[0m
+[  93% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp003_timeline.gdc[39m[0m
+[  95% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp005_dev_fixture.gdc[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp008_compare.gdc[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/battle.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/bongsu_network.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/config.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/density_detector.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/economy.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/enemy_sim.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/hwacha.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/path_network.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/placement.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/play_flow.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/result_model.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/run_state.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/stage_ladder.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/terrain_grid.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/user_settings.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/core/wave_director.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/maps/hanyang_test_map.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/art_set.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/fx_layer.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/main.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/main.tscn.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/menu_layer.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/overlay_layer.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/scenes/terrain_layer.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/dump_map.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/f3_tracker.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/import_wp005_sources.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/perf_recorder.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/probe_occupancy.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/stage_checks.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/stage_report.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp003_f3_evidence.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp003_timeline.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp005_dev_fixture.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://game/tools/wp008_compare.gd.remap[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/global_script_class_cache.cfg[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://.godot/uid_cache.bin[39m[0m
+[  97% ] [90m[1msavepack[22m | ?Œì¼ ?€??ì¤? res://project.binary[39m[0m
+[92m[ DONE ][39m [1msavepack[22m
+[0m
+== 4/4 stage tour on the release exe (greybox / sample x 1920x1080 / 1280x720)
+capture stage_tour [greybox]: exe ac6a92111fea... sha a2d6ba6, stages 1..8 entered, stage 6 collapse ok, end È­¸é PREPARING ¡¤ ¹°ÀÚ 240 ¡¤ ±¸¸Å 0 ¡¤ ½Ã¼³ 4/24
+capture stage_tour_720 [greybox]: exe ac6a92111fea... sha a2d6ba6, stages 1..8 entered, stage 6 collapse ok, end È­¸é PREPARING ¡¤ ¹°ÀÚ 240 ¡¤ ±¸¸Å 0 ¡¤ ½Ã¼³ 4/24
+capture stage_tour [sample]: exe ac6a92111fea... sha a2d6ba6, stages 1..8 entered, stage 6 collapse ok, end È­¸é PREPARING ¡¤ ¹°ÀÚ 240 ¡¤ ±¸¸Å 0 ¡¤ ½Ã¼³ 4/24
+capture stage_tour_720 [sample]: exe ac6a92111fea... sha a2d6ba6, stages 1..8 entered, stage 6 collapse ok, end È­¸é PREPARING ¡¤ ¹°ÀÚ 240 ¡¤ ±¸¸Å 0 ¡¤ ½Ã¼³ 4/24
+done: 4 tours, final state identical across art modes and resolutions. evidence in <repo>\results\evidence\stages
