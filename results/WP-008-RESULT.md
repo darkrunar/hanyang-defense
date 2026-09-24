@@ -1,7 +1,7 @@
 # WP-008 Result
 
 - 작성일: 2026-09-20
-- WP / 상태: WP-008 준비 배치·전투 중 건설·물자 / **REVIEW** (GPT 1차 REVISE 2026-09-20 → 보완 회차 1 `8da6755` → 사용자 요청 추가 `28be613`, 재리뷰 PENDING; 하단 참조)
+- WP / 상태: WP-008 준비 배치·전투 중 건설·물자 / **REVIEW** (GPT 1차 REVISE 2026-09-20 → 보완 회차 1 `8da6755` → 사용자 요청 추가 `28be613` → WP-005 V-01 통합 `c0f09a4`, 재리뷰 PENDING; 하단 참조)
 - 기준 커밋: `f39911a` ("docs: plan build economy and siege progression with WP-008 handoff", `wp/005-art-sample`, D-054 READY). 착수 SHA = 기준 커밋.
 - 검증한 구현 커밋: **`ebe263a`** (1차 제출) → **`8da6755`** (보완 회차 1, R-01~03). 결과·증거 커밋: 이 문서의 커밋(별도 문서 커밋으로 자기참조 회피).
 - 브랜치: `wp/008-build-economy` (base `wp/005-art-sample`, stacked Draft PR: https://github.com/darkrunar/hanyang-defense/pull/13). main 병합은 사용자 지시로만.
@@ -230,3 +230,21 @@ git clone https://github.com/darkrunar/hanyang-defense.git && cd hanyang-defense
 | build_full_combat | 159.8 | 19.11 | 1000 | `28be613` |
 | build_grow_move | 185.8 | 16.32 | 1000 | `28be613` |
 | build_grow_combat | 195.8 | 15.58 | 1000 | `28be613` |
+
+## 통합 (2026-09-24): WP-005 V-01 병합
+
+- 사용자 요청("통합")으로 `wp/005-art-sample`(V-01 플레이어 보기, `5f6333a`)을 이 브랜치에 병합했다. 병합 커밋은 **`c0f09a4`**이며 재리뷰 대상 HEAD가 이 커밋으로 바뀐다. 이 절의 증거는 그 커밋의 깨끗한 트리에서 `verify.ps1 -Wp008`로 다시 만들었다.
+- 충돌은 모두 양쪽 추가(명령행 설명, 캡처 시나리오, 캡처 기록 필드, 스위트 목록, README 절)여서 둘 다 유지했다. 규칙·수치 변경은 없다.
+- 병합 후 추가: 건설 모드의 플레이어 보기 HUD. 준비 단계 안내, 물자 줄(잔액·처치/웨이브 보상·시설 수/상한·구매 수), 건설 조작 줄(Space는 준비 중에만)을 넣었고, 장부 식은 상세 패널(D)로 옮겼다. 일반 `--play-mode=build` 실행이 이제 플레이어 보기로 시작한다. 검증 캡처는 이전처럼 개발자 보기다.
+- 테스트 **1,769 / 0** (WP-008 1,713 + V-01 46 + 건설 HUD 10).
+- release 캡처 greybox·sample × 1080p·720p 4회 통과, 체크포인트 8개 동일, exe `d453ea2ab741…`.
+
+| 성능 (보이는 창, greybox) | 평균 FPS 병합 전 → 후 | p95 ms 병합 전 → 후 | alive min | 구현 SHA |
+|---|---|---|---:|---|
+| build_full_move | 153.1 → **132.1** | 19.61 → **22.29** | 1000 | `c0f09a4` |
+| build_full_combat | 159.8 → **156.4** | 19.11 → **19.93** | 1000 | `c0f09a4` |
+| build_grow_move | 185.8 → **168.0** | 16.32 → **17.54** | 1000 | `c0f09a4` |
+| build_grow_combat | 195.8 → **183.7** | 15.58 → **16.71** | 1000 | `c0f09a4` |
+
+- 관측: 네 조건 모두 예산 안이지만 build_full_move의 p95가 19.61 → 22.29 ms로 올라 여유가 5.4 → 2.7 ms로 줄었다. 나머지 셋은 ±1 ms 안에서 움직였다. 원인은 분리하지 않았다(A/B NOT RUN). 후보는 두 가지다. V-01의 문구 상자 기록이 캡처가 아닐 때도 매 프레임 문자열 폭을 재는 것, 그리고 회차 간 측정 편차(통합 테스트 리포트 F-05)다. 문구 상자 기록을 캡처 모드에서만 켜는 것이 다음 보완 후보다.
+
