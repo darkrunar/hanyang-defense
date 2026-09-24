@@ -32,6 +32,10 @@ extends Node2D
 ##                         --labels=off hides structure name labels (AC-03 legend comparison).
 ##   --settings=path.cfg   user settings file (default user://settings.cfg; never read by --perf/--capture
 ##                         unless given explicitly, WP-004 §6)
+##   --view=player|dev     WP-005 V-01 (D-053) display defaults. A normal launch starts in the player view
+##                         (density zones, range rings and the detail panel collapsed, short structure
+##                         names, wave / HP / recovery first); --perf / --capture keep the developer view.
+##                         Z / G / D bring each piece back at any time.
 ##   --play-mode=build     WP-008 (D-054): preparation phase + paid construction + supply ledger on the
 ##                         "build" fixture (4 structures). Never the default; the classic run is unchanged.
 ##
@@ -135,6 +139,12 @@ var _show_zones: bool = true
 var _show_ranges: bool = true
 var _show_hud: bool = true
 var _show_detail: bool = true
+## WP-005 V-01: player view vs developer view (see --view).
+var _player_view: bool = false
+var _view_arg: String = ""
+## Capture-only: freeze the battle while several captures of one tick are
+## taken (before / after comparisons at the same simulation tick).
+var _capture_hold: bool = false
 var _mouse_down: bool = false
 ## run_id the held click was issued in (R-03): a retry never crosses a restart.
 var _mouse_down_run_id: int = -1
@@ -200,6 +210,7 @@ func _ready() -> void:
     battle = Battle.new(config)
     _build_scene()
     _apply_run_mode()
+    _set_player_view(_view_arg == "player" or (_view_arg == "" and _perf == null and _capture_name == ""))
 
 
 var _explicit_sets: Dictionary = {}
@@ -272,6 +283,8 @@ func _parse_args() -> void:
             _art_dir = arg.substr("--art-dir=".length())
         elif arg.begins_with("--labels="):
             _show_labels = arg.substr("--labels=".length()) != "off"
+        elif arg.begins_with("--view="):
+            _view_arg = arg.substr("--view=".length())
         elif arg.begins_with("--art-outline="):
             _enemy_outline = arg.substr("--art-outline=".length()) != "off"
         elif arg.begins_with("--play-mode="):
@@ -838,7 +851,7 @@ func _physics_process(delta: float) -> void:
     # wins; GPT review 2026-09-19 boundary observation).
     _check_run_end()
     _apply_intents()
-    if flow.battle_active():
+    if flow.battle_active() and not _capture_hold:
         var dt: float = config.get_num("fixed_dt")
         for _i: int in range(_sim_speed):
             battle.step(dt)
@@ -876,6 +889,7 @@ func _physics_process(delta: float) -> void:
         _notice_timer -= delta
         if _notice_timer <= 0.0:
             _notice.text = ""
+            _sync_bottom_panel()
     # --quit-after: by simulated time, or as soon as a waves run has ended
     # (sim_time freezes after WON/LOST, so waiting for it would hang).
     if _quit_after >= 0.0 and (battle.sim_time >= _quit_after or battle.run.ended()):
@@ -911,6 +925,7 @@ func _process(delta: float) -> void:
     _overlay.recent_shots = _recent_shots
     _overlay.show_zones = _show_zones
     _overlay.show_ranges = _show_ranges
+    _overlay.debug_labels = (not _player_view) or _show_detail
     _overlay.place_mode = _place_mode
     _overlay.build_kind = _sel_kind if battle.play_mode == "build" else SEL_NONE
     _overlay.sim_time = battle.sim_time
@@ -1203,6 +1218,7 @@ func _handle_key_event(event: InputEvent) -> void:
             KEY_D:
                 _show_detail = not _show_detail
                 _detail.visible = _show_detail
+                _sync_bottom_panel()
             KEY_F12:
                 _screenshot_to_user()
             KEY_ESCAPE:
@@ -1221,6 +1237,7 @@ func _reset_input_state() -> void:
     _recent_shots.clear()
     _notice_timer = 0.0
     _notice.text = ""
+    _sync_bottom_panel()
     if _overlay != null:
         _overlay.hover_override = Vector2.INF
         _overlay.preview_override = Vector2i(-1, -1)
@@ -1320,6 +1337,14 @@ func _say(msg: String) -> void:
     _last_notice = msg
     _notice.text = msg
     _notice_timer = 3.0
+    _sync_bottom_panel()
+
+
+## V-01: the bottom-left panel only shows when it has something to say
+## (the detail lines, or a notice); an empty dark strip is not left behind.
+func _sync_bottom_panel() -> void:
+    if _hud_bottom != null:
+        _hud_bottom.visible = _show_detail or _notice.text != ""
 
 
 # =================================================================== hud ===
@@ -1346,6 +1371,9 @@ func _update_hud() -> void:
     var sim := battle.sim
     var lines: PackedStringArray = PackedStringArray()
     var detail: PackedStringArray = PackedStringArray()
+    if _player_view:
+        _update_player_hud(detail)
+        return
     lines.append("한양 디펜스 · %s   Godot %s / %s" % [
         ("WP-008 건설·물자 프로토타입 (build)" if battle.play_mode == "build" else "WP-003 검증·붕괴·후퇴·재편 프로토타입") if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
@@ -1423,6 +1451,104 @@ func _update_hud() -> void:
         lines.append("LMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
     else:
         lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
+    _hud.text = "\n".join(lines)
+    _detail.text = "\n".join(detail)
+
+
+# ============================================================ V-01 view ===
+# D-053 / docs/art/WP005_VISUAL_REVISION_PLAN.md V-01: the default display of
+# a normal launch. Nothing here changes the battle; it only picks what the
+# HUD / overlay show by default. The developer view is the previous display.
+
+const WAVE_STATE_KO: Dictionary = {"SPAWNING": "진격 중", "WAITING_CLEAR": "잔적 정리", "GAP": "다음 웨이브 대기", "DONE": "모든 웨이브 종료"}
+
+
+## Top HUD font: 18 px in the player view (about 12 px at 1280x720, where the
+## 15 px developer HUD shrinks to 10 px), 15 px in the developer view.
+const HUD_FONT_PLAYER: int = 18
+const HUD_FONT_DEV: int = 15
+
+
+func _set_player_view(on: bool) -> void:
+    _player_view = on
+    if _hud != null:
+        _hud.add_theme_font_size_override("font_size", HUD_FONT_PLAYER if on else HUD_FONT_DEV)
+    _show_zones = not on
+    _show_ranges = not on
+    _show_detail = not on
+    if _detail != null:
+        _detail.visible = _show_detail
+        _sync_bottom_panel()
+    if _overlay != null:
+        _overlay.show_zones = _show_zones
+        _overlay.show_ranges = _show_ranges
+        _overlay.debug_labels = (not on) or _show_detail
+
+
+## Player view: what to defend, how it goes, what to do next. The developer
+## lines (engine, FPS, counters, zones, per-hwacha, network) go to the detail
+## panel, which D opens.
+func _update_player_hud(detail: PackedStringArray) -> void:
+    var sim := battle.sim
+    var lines: PackedStringArray = PackedStringArray()
+    if battle.run_mode == "waves":
+        var rs := battle.run
+        var ws: Dictionary = battle.waves.snapshot()
+        var state: String = WAVE_STATE_KO.get(str(ws["state"]), str(ws["state"]))
+        if str(ws["state"]) == "GAP":
+            state += " %.0fs" % maxf(float(ws["gap_left"]), 0.0)
+        var head: String = "웨이브 %s/%d · %s · %s" % [str(ws["wave_name"]).trim_prefix("W"), (ws["spawned_by_wave"] as Array).size(),
+            state, "외곽 방어 중" if rs.defense == 0 else "외곽 붕괴 — 내곽 방어"]
+        if rs.run == 1:
+            head = "★ 승리 — 핵심 시설 사수 · R 다시 시작"
+        elif rs.run == 2:
+            head = "✖ 패배 — 핵심 시설 함락 · R 다시 시작"
+        var build: bool = battle.play_mode == "build"
+        if build and battle.preparing and not rs.ended():
+            head = "준비 단계 — 시간·웨이브 정지 · 시설을 고르고(1~4) 빈 칸을 클릭한 뒤 Space로 방어 시작"
+        if flow.state == PlayFlow.State.PAUSED:
+            head += "   [일시정지]"
+        lines.append(head)
+        lines.append("외곽 거점 HP %.0f/%.0f · 핵심 시설 HP %.0f/%.0f · 처치 %d · 도달 %d" % [
+            rs.outer_hp, rs.outer_hp_max, rs.core_hp, rs.core_hp_max, sim.killed_total, rs.outer_arrivals + rs.core_arrivals])
+        if build:
+            # WP-008 in the player view: the balance and what earns more, the
+            # structure count against the cap (the ledger formula is in D).
+            var eco := battle.economy
+            lines.append("물자 %d (처치 +%d · 웨이브 완료 +%d) · 시설 %d/%d · 구매 %d" % [eco.supply, eco.kill_reward, eco.wave_reward,
+                battle.structure_total(), eco.cap, eco.purchases.size()])
+        if rs.collapse_count == 0:
+            lines.append("외곽 거점이 무너지면 화차·중영 1대를 회수해 내곽(노란 테두리)에 다시 놓을 수 있다")
+        elif rs.recovery_right > 0:
+            lines.append("▶ 외곽 붕괴! 회수한 화차·중영을 내곽 빈 칸에 클릭해 배치 (누르고 있으면 재시도)")
+        else:
+            lines.append("회수 화차 재배치 완료 %s" % str(rs.recovery_anchor))
+        if build:
+            lines.append("1~4 건설 · 5 회수 화차 · 클릭 1회 = 1개 구매%s · Esc 일시정지 · R 다시 시작 · D 상세" % [" · Space 방어 시작" if battle.preparing else ""])
+        else:
+            lines.append("Esc 일시정지 · R 다시 시작 · L 이름 · Z 밀도 · G 사거리 · D 상세 · H HUD · F12 캡처")
+    else:
+        lines.append("동시 생존 %d · 처치 %d · 누수 %d%s" % [sim.alive_count, sim.killed_total, sim.leaked_total,
+            "   [일시정지]" if flow.state == PlayFlow.State.PAUSED else ""])
+        lines.append("LMB 설치 · RMB 제거 · 1장승 2화차 3봉수대 4혼천의 · T 활성 · C 전투 · Esc 일시정지 · R 초기화 · Z 밀도 · G 사거리 · D 상세")
+    detail.append("한양 디펜스 · %s   Godot %s / %s" % ["WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
+        Engine.get_version_info().string, RenderingServer.get_current_rendering_method()])
+    detail.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s" % [_fps_smoothed, _frame_ms_smoothed, battle.sim_time, _sim_speed,
+        "" if battle.combat_enabled else "  [전투 비활성]"])
+    detail.append("동시 생존 %d (최고 %d)   생성 누계 %d   처치 %d   누수 %d" % [sim.alive_count, battle.peak_alive, sim.spawned_total,
+        sim.killed_total, sim.leaked_total])
+    detail.append("경로별 생존: %s   경로 버전 %d" % [battle.route_summary(), battle.path.path_version])
+    var hparts: PackedStringArray = PackedStringArray()
+    for s: Placement.Structure in battle.placement.hwachas():
+        hparts.append("%s g%d 로컬%d/공유%d → %s %d발/%d처치%s" % [s.label.trim_prefix("화차·"), s.group_id, s.known_local, s.known_shared,
+            ("Z%d" % s.last_zone) if s.last_zone >= 0 else "--", s.shots_fired, s.kills, "" if s.active else "[비활성]"])
+    detail.append("화차: " + "  ".join(hparts))
+    detail.append("봉수망: 봉수대 %d(활성 %d) · 그룹 %s · 공유전용 사격 %d" % [battle.placement.count_of(Placement.Kind.BONGSU),
+        _active_of(Placement.Kind.BONGSU), str(battle.network.snapshot(battle.placement)["groups"]), battle.hwacha.shared_only_shots])
+    if battle.play_mode == "build":
+        var e2 := battle.economy
+        detail.append("장부: 물자 %d = 시작 %d + 처치 %d + 웨이브 %d − 소비 %d%s" % [e2.supply, e2.start_supply, e2.earned_kills,
+            e2.earned_waves, e2.spent, (" + 주입 %d[벤치마크]" % e2.injected) if e2.injected > 0 else ""])
     _hud.text = "\n".join(lines)
     _detail.text = "\n".join(detail)
 
@@ -2301,6 +2427,45 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pb + "_17_restart_preparing"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_v01", "wp005_v01_720":
+            # WP-005 V-01 evidence (D-053): the F2 timeline; at each checkpoint
+            # the battle is held and the same tick is captured in the
+            # developer view (the previous default), the player view, and the
+            # player view without names. Label boxes + overlapping pairs are
+            # logged per capture. Art mode from --art (default greybox here;
+            # verify runs it with --art=sample like a normal launch).
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pv: String = _capture_name
+            _capture_steps = [{"t": 0.0, "do": "art_log", "label": "launch"}]
+            var checkpoints: Array = [
+                [15.0, "a_battle_t15", []],
+                [20.5, "b_collapse_t20.5", [{"do": "force_outer_hp", "value": 1.0, "why": "V-01 forced collapse (verification only)", "t": 20.0},
+                    {"do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "V-01 trigger enemy", "t": 20.0}]],
+                [23.5, "c_recovery_preview_t23.5", [{"do": "preview_at", "anchor": TestMap.RECOVERY_B, "t": 23.0}]],
+                [25.5, "d_recovery_placed_t25.5", [{"do": "preview_at", "anchor": Vector2i(-1, -1), "t": 25.0},
+                    {"do": "place_recovery", "anchor": TestMap.RECOVERY_B, "t": 25.0}]],
+                [45.0, "e_inner_fire_t45", []],
+            ]
+            for cp: Array in checkpoints:
+                for pre: Dictionary in cp[2]:
+                    _capture_steps.append(pre)
+                var ct: float = cp[0]
+                _capture_steps.append_array([
+                    {"t": ct, "do": "hold", "on": true},
+                    {"t": ct, "do": "view", "player": false},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_dev"},
+                    {"t": ct, "do": "view", "player": true},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_player"},
+                    {"t": ct, "do": "labels", "on": false},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_player_nolabels"},
+                    {"t": ct, "do": "labels", "on": true},
+                    {"t": ct, "do": "hold", "on": false},
+                ])
+            _capture_steps.append({"t": 45.0, "do": "quit"})
         "wp005_playtest", "wp005_playtest_720":
             # docs/PLAYTEST_WP005.md T1..T4 as a scripted run: no verification
             # hooks; the collapse comes from real arrivals (run with
@@ -2507,6 +2672,12 @@ func _capture_script_step() -> void:
                     return
                 _capture_log.append({"t": battle.sim_time, "wait_collapse": battle.run.collapse_count, "outer_hp": battle.run.outer_hp,
                     "tick": battle.steps, "run": battle.run.run_name()})
+            "hold":
+                _capture_hold = bool(step["on"])
+                _capture_log.append({"t": battle.sim_time, "hold": _capture_hold, "tick": battle.steps})
+            "view":
+                _set_player_view(bool(step["player"]))
+                _capture_log.append({"t": battle.sim_time, "view": "player" if _player_view else "dev", "tick": battle.steps})
             "labels":
                 _show_labels = bool(step["on"])
                 _overlay.show_labels = _show_labels
@@ -2797,6 +2968,11 @@ func _do_capture(name: String) -> void:
     snap["art_mode"] = _art_mode
     snap["flow_state"] = flow.state_name()
     snap["selection"] = _sel_kind
+    snap["view"] = "player" if _player_view else "dev"
+    snap["labels_on"] = _show_labels
+    snap["hud_text"] = _hud.text
+    snap["label_boxes"] = _overlay.text_boxes.size()
+    snap["label_overlaps"] = _overlay.label_overlaps()
     if _fx != null:
         snap["fx"] = _fx.snapshot()
         snap["sprites_drawn"] = _overlay.sprites_drawn.duplicate()

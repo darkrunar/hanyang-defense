@@ -71,6 +71,14 @@ var marks_drawn: Dictionary = {}
 ## Close-up / alignment evidence: 40x40 footprints and the 20 px grid of the
 ## sample region (capture step "footprints").
 var show_footprints: bool = false
+## WP-005 V-01 (D-053): false = player view (short structure names, the
+## outer objective label above its marker); true = the developer labels as
+## before (group / local / shared numbers). main.gd sets it every frame.
+var debug_labels: bool = true
+## Label boxes drawn this frame (structure names, objective HP bars + text,
+## district / recovery / route labels): [kind, Rect2]. Evidence only: the
+## capture log counts the overlapping pairs (V-01 "문구가 겹치지 않음").
+var text_boxes: Array = []
 const COLOR_FOOTPRINT: Color = Color(0.20, 0.95, 0.95, 0.9)
 const COLOR_GRID: Color = Color(1.0, 1.0, 1.0, 0.12)
 const COLOR_OFF_MARK: Color = Color(0.55, 0.55, 0.55, 0.95)
@@ -85,6 +93,41 @@ const COLOR_HP_BG: Color = Color(0.1, 0.1, 0.1, 0.8)
 const COLOR_HP_OUTER: Color = Color(0.95, 0.60, 0.20)
 const COLOR_HP_CORE: Color = Color(0.95, 0.30, 0.30)
 const Hwacha := preload("res://game/core/hwacha.gd")
+
+
+## Draw a label and record its box (baseline at pos.y; ascent ~0.8 size).
+func _label(pos: Vector2, txt: String, size: int, col: Color, kind: String) -> void:
+    draw_string(font, pos, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+    var w: float = font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+    text_boxes.append([kind, Rect2(pos + Vector2(0.0, -float(size) * 0.82), Vector2(w, float(size) * 1.05))])
+
+
+## Overlapping label pairs of the last frame, e.g. ["structure:화차·중영", "objective:외곽 거점"].
+func label_overlaps() -> Array:
+    var out: Array = []
+    for i: int in range(text_boxes.size()):
+        var a: Rect2 = (text_boxes[i][1] as Rect2).grow(-1.0)
+        for j: int in range(i + 1, text_boxes.size()):
+            var b: Rect2 = (text_boxes[j][1] as Rect2).grow(-1.0)
+            if a.intersects(b):
+                out.append([str(text_boxes[i][0]), str(text_boxes[j][0])])
+    return out
+
+
+## Structure name label: short in the player view, with the network /
+## detection numbers in the developer view (unchanged text).
+static func structure_label(s: Placement.Structure, debug: bool, targeting_mode: String) -> String:
+    match s.kind:
+        Placement.Kind.JANGSEUNG:
+            return "장승"
+        Placement.Kind.BONGSU, Placement.Kind.SENSOR:
+            if not debug:
+                return s.label
+            return "%s g%s" % [s.label, str(s.group_id) if s.group_id >= 0 else "-"]
+        _:
+            if not debug or targeting_mode != "wp002":
+                return s.label
+            return s.label + " g%s L%d/S%d" % [str(s.group_id) if s.group_id >= 0 else "-", s.known_local, s.known_shared]
 
 
 func _mark(kind: String) -> void:
@@ -137,6 +180,7 @@ func _draw() -> void:
         return
     sprites_drawn = {}
     marks_drawn = {}
+    text_boxes = []
     var counts: PackedInt32Array = battle.density.counts
     var targeted: Dictionary = {}
     for s: Placement.Structure in battle.placement.hwachas():
@@ -184,7 +228,7 @@ func _draw() -> void:
         if not s.active:
             _draw_off_mark(s.center)
         if show_labels:
-            draw_string(font, s.center + Vector2(-16.0, -24.0), "장승", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, COLOR_TEXT)
+            _label(s.center + Vector2(-16.0, -24.0), "장승", 13, COLOR_TEXT, "structure:장승")
 
     for s: Placement.Structure in battle.placement.bongsus():
         var col: Color = COLOR_BONGSU if s.active else COLOR_INACTIVE
@@ -205,8 +249,8 @@ func _draw() -> void:
         if show_ranges and s.active:
             draw_arc(s.center, net.link_range, 0.0, TAU, 64, Color(COLOR_LINK.r, COLOR_LINK.g, COLOR_LINK.b, 0.10), 1.0)
         if show_labels:
-            draw_string(font, s.center + Vector2(-30.0, -24.0), "%s g%s" % [s.label, str(s.group_id) if s.group_id >= 0 else "-"],
-                HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col if s.active else COLOR_INACTIVE)
+            _label(s.center + Vector2(-30.0, -24.0), structure_label(s, debug_labels, battle.targeting_mode), 12,
+                col if s.active else COLOR_INACTIVE, "structure:" + s.label)
 
     for s: Placement.Structure in battle.placement.sensors():
         var col: Color = COLOR_SENSOR if s.active else COLOR_INACTIVE
@@ -221,8 +265,7 @@ func _draw() -> void:
         if show_ranges and s.active and s.group_id >= 0:
             draw_arc(s.center, s.detect_range, 0.0, TAU, 64, COLOR_SENSOR_RANGE, 1.5)
         if show_labels:
-            draw_string(font, s.center + Vector2(-34.0, -24.0), "%s g%s" % [s.label, str(s.group_id) if s.group_id >= 0 else "-"],
-                HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+            _label(s.center + Vector2(-34.0, -24.0), structure_label(s, debug_labels, battle.targeting_mode), 12, col, "structure:" + s.label)
 
     for s: Placement.Structure in battle.placement.hwachas():
         var col: Color = COLOR_HWACHA if s.active else COLOR_INACTIVE
@@ -248,10 +291,8 @@ func _draw() -> void:
         if s.last_zone >= 0 and battle.combat_enabled and s.active:
             draw_line(s.center, s.last_aim, COLOR_HWACHA_FIRE, 3.0 if s.muzzle_timer > 0.0 else 1.0)
         if show_labels:
-            var tag: String = s.label
-            if battle.targeting_mode == "wp002":
-                tag += " g%s L%d/S%d" % [str(s.group_id) if s.group_id >= 0 else "-", s.known_local, s.known_shared]
-            draw_string(font, s.center + Vector2(-30.0, -24.0), tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, COLOR_TEXT if s.active else COLOR_INACTIVE)
+            _label(s.center + Vector2(-30.0, -24.0), structure_label(s, debug_labels, battle.targeting_mode), 12,
+                COLOR_TEXT if s.active else COLOR_INACTIVE, "structure:" + s.label)
 
     if draw_blasts:
         for shot: Array in recent_shots:
@@ -274,8 +315,7 @@ func _draw() -> void:
             label_pos += Vector2(6.0, -80.0)
         else:
             label_pos += Vector2(-96.0, -80.0)
-        draw_string(font, label_pos, "%s %d" % [TestMap.ROUTES[i][1], battle.sim.route_alive[i]],
-            HORIZONTAL_ALIGNMENT_LEFT, -1, 18, TestMap.route_color(i))
+        _label(label_pos, "%s %d" % [TestMap.ROUTES[i][1], battle.sim.route_alive[i]], 18, TestMap.route_color(i), "route:" + str(TestMap.ROUTES[i][1]))
 
     if show_cursor:
         var mouse: Vector2 = get_global_mouse_position()
@@ -386,13 +426,14 @@ func _draw_wp003_layer() -> void:
         draw_rect(Rect2(0.0, 0.0, 1920.0, 1080.0), COLOR_OUTER_LOST, true)
     draw_rect(rect, COLOR_INNER_FILL, true)
     draw_rect(rect, COLOR_INNER, false, 3.0 if rs.recovery_right > 0 else 1.5)
-    draw_string(font, rect.position + Vector2(6.0, -6.0), "내곽 (회수 화차 배치 가능 구역)" if rs.recovery_right > 0 else "내곽",
-        HORIZONTAL_ALIGNMENT_LEFT, -1, 14, COLOR_INNER)
+    _label(rect.position + Vector2(6.0, -6.0), "내곽 (회수 화차 배치 가능 구역)" if rs.recovery_right > 0 else "내곽", 14, COLOR_INNER, "district:내곽")
     # objectives
     var outer_c: Vector2 = battle.grid.cell_center(TestMap.OUTER_GOAL_CELL.x, TestMap.OUTER_GOAL_CELL.y)
     var core_c: Vector2 = battle.grid.cell_center(TestMap.CORE_GOAL_CELL.x, TestMap.CORE_GOAL_CELL.y)
     _sprite("outer_post", _objective_state("outer", rs.defense == 1), outer_c)
-    _draw_objective(outer_c, "외곽 거점", rs.outer_hp, rs.outer_hp_max, COLOR_GOAL_OUTER, COLOR_HP_OUTER, rs.defense == 0, false)
+    # V-01: in the player view the outer bar + label go above the marker, off
+    # the 화차·중영 label right below it; the developer view keeps them below.
+    _draw_objective(outer_c, "외곽 거점", rs.outer_hp, rs.outer_hp_max, COLOR_GOAL_OUTER, COLOR_HP_OUTER, rs.defense == 0, not debug_labels)
     # The core's bar and label go ABOVE its marker: the legal recovery anchors
     # (A / B) lie right below it and must stay readable (R-07).
     _sprite("core_post", _objective_state("core", rs.core_hp <= 0.0), core_c)
@@ -407,8 +448,11 @@ func _draw_wp003_layer() -> void:
             draw_rect(Rect2(p - Vector2(20.0, 20.0), Vector2(40.0, 40.0)), COLOR_INNER, false, 2.0)
             _mark("recovery_slot")
             _sprite("interaction_marks", "recovery_wait", p + Vector2(0.0, -30.0))
-            draw_string(font, p + Vector2(28.0, -6.0), "%s 회수 대기 1/1" % d.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, COLOR_INNER)
-            draw_string(font, p + Vector2(28.0, 12.0), "재장전 잔여 %.2fs 동결 · 발사 %d · 처치 %d" % [d.cooldown_left, d.shots_fired, d.kills], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, COLOR_TEXT)
+            _label(p + Vector2(28.0, -6.0), "%s 회수 대기 1/1" % d.label, 14, COLOR_INNER, "recovery:slot")
+            if debug_labels:
+                _label(p + Vector2(28.0, 12.0), "재장전 잔여 %.2fs 동결 · 발사 %d · 처치 %d" % [d.cooldown_left, d.shots_fired, d.kills], 12, COLOR_TEXT, "recovery:detail")
+            else:
+                _label(p + Vector2(28.0, 12.0), "내곽 빈 칸을 클릭해 배치", 12, COLOR_TEXT, "recovery:detail")
 
 
 ## normal / hit (damaged within OBJECTIVE_HIT_SECONDS of sim time) / collapsed
@@ -437,8 +481,8 @@ func _draw_objective(c: Vector2, name: String, hp: float, hp_max: float, col: Co
     draw_rect(Rect2(origin, Vector2(w, 10.0)), COLOR_HP_BG, true)
     if hp_max > 0.0:
         draw_rect(Rect2(origin, Vector2(w * clampf(hp / hp_max, 0.0, 1.0), 10.0)), bar, true)
-    draw_string(font, text_pos, "%s HP %.0f/%.0f%s" % [name, hp, hp_max, "  ◀ 현재 목표" if is_target else ""],
-        HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
+    text_boxes.append(["objective_bar:" + name, Rect2(origin, Vector2(w, 10.0))])
+    _label(text_pos, "%s HP %.0f/%.0f%s" % [name, hp, hp_max, "  ◀ 현재 목표" if is_target else ""], 13, col, "objective:" + name)
 
 
 func _draw_recovery_ghost(anchor: Vector2i) -> void:
