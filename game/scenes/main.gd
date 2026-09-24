@@ -36,6 +36,15 @@ extends Node2D
 ##                         (density zones, range rings and the detail panel collapsed, short structure
 ##                         names, wave / HP / recovery first); --perf / --capture keep the developer view.
 ##                         Z / G / D bring each piece back at any time.
+##   --play-mode=build     WP-008 (D-054): preparation phase + paid construction + supply ledger on the
+##                         "build" fixture (4 structures). Never the default; the classic run is unchanged.
+##
+## WP-008 build-mode controls (PREPARING and PLAYING):
+##   1 / 2 / 3 / 4   select 장승 / 화차 / 봉수대 / 혼천의 to buy (cost shown at the cursor)
+##   5               select the free recovery placement (after the collapse)
+##   LMB             one paid construction per NEW press (no hold retry); the recovery
+##                   placement keeps its hold retry
+##   Space           방어 시작 (PREPARING only, once)
 
 const Battle := preload("res://game/core/battle.gd")
 const Config := preload("res://game/core/config.gd")
@@ -100,6 +109,19 @@ const HUD_DETAIL_WIDTH: float = 830.0
 var _font: Font = null
 
 var _place_mode: int = Placement.Kind.JANGSEUNG
+## WP-008 selection in build mode: a kind to buy (0..3), the free recovery
+## placement (SEL_RECOVERY) or nothing (SEL_NONE, recovery clicks still work).
+const SEL_NONE: int = -1
+const SEL_RECOVERY: int = 4
+var _sel_kind: int = SEL_NONE
+var _recovery_prompt_run: int = -1
+var _play_mode_arg: String = ""
+var _build_bar: PanelContainer = null
+var _build_label: Label = null
+var _build_buttons: Dictionary = {}
+var _begin_button: Button = null
+## Paid-build attempts issued by the scene (AC-04 evidence: one per press).
+var build_clicks: Array = []
 ## WP-004: top-level UI state (TITLE / PLAYING / PAUSED / SETTINGS / CONFIRM /
 ## RESULT), the menu layer, the persisted settings and the frozen result.
 var flow: PlayFlow = PlayFlow.new()
@@ -174,6 +196,15 @@ func _ready() -> void:
     # scenarios pin their own presets in _apply_run_mode; --set overrides here.
     config = Config.for_wp003()
     _parse_args()
+    if _play_mode_arg != "":
+        # --play-mode pins play_mode (and the build fixture unless --set fixture
+        # was given) exactly like an explicit --set, so a scripted preset
+        # cannot silently drop it.
+        config.values["play_mode"] = _play_mode_arg
+        _explicit_sets["play_mode"] = true
+        if _play_mode_arg == "build" and not _explicit_sets.has("fixture"):
+            config.values["fixture"] = "build"
+            _explicit_sets["fixture"] = true
     if _art_mode == "":
         _art_mode = "greybox" if (_perf != null or _capture_name != "") else "sample"
     battle = Battle.new(config)
@@ -190,6 +221,7 @@ var _explicit_sets: Dictionary = {}
 const MODE_KEYS: Array[String] = [
     "targeting_mode", "fixture", "zone_set", "arrival_mode", "run_mode", "district_rules",
     "outer_hp", "core_hp", "arrival_damage", "wave_gap_seconds", "benchmark_core_invulnerable",
+    "play_mode", "benchmark_supply",
 ]
 
 
@@ -203,7 +235,11 @@ func _apply_mode_preset(src: Config) -> void:
 
 func _parse_args() -> void:
     for arg: String in OS.get_cmdline_user_args():
-        if arg.begins_with("--set"):
+        if arg.begins_with("--settings="):
+            # Before the "--set" prefix test: "--settings=path" is not a config override
+            # (GPT observation on PR #13; the file path was silently ignored before).
+            _settings_path = arg.substr("--settings=".length())
+        elif arg.begins_with("--set"):
             var kv: String = arg.substr(5).strip_edges().trim_prefix("=")
             var parts: PackedStringArray = kv.split("=", true, 1)
             if parts.size() == 2 and not config.set_value(parts[0], parts[1]):
@@ -237,8 +273,6 @@ func _parse_args() -> void:
             _capture_name = arg.substr("--capture=".length())
         elif arg.begins_with("--out-dir="):
             _capture_dir = arg.substr("--out-dir=".length())
-        elif arg.begins_with("--settings="):
-            _settings_path = arg.substr("--settings=".length())
         elif arg.begins_with("--art="):
             var m: String = arg.substr("--art=".length())
             if m == "greybox" or m == "sample":
@@ -253,6 +287,12 @@ func _parse_args() -> void:
             _view_arg = arg.substr("--view=".length())
         elif arg.begins_with("--art-outline="):
             _enemy_outline = arg.substr("--art-outline=".length()) != "off"
+        elif arg.begins_with("--play-mode="):
+            var pm: String = arg.substr("--play-mode=".length())
+            if pm == "build" or pm == "classic":
+                _play_mode_arg = pm
+            else:
+                printerr("unknown --play-mode: %s (classic|build)" % pm)
 
 
 func _build_scene() -> void:
@@ -361,6 +401,48 @@ func _build_scene() -> void:
     _hud_pause_button.focus_mode = Control.FOCUS_NONE
     _hud_pause_button.pressed.connect(func() -> void: queue_intent("pause"))
     _hud_layer.add_child(_hud_pause_button)
+
+    # WP-008: construction bar (bottom-right, over the solid block below the
+    # 동대문 corridor). Real Button nodes: a click is consumed by the Control
+    # and never reaches the field. Hidden outside build mode.
+    _build_bar = _make_panel()
+    _build_bar.name = "BuildBar"
+    _build_bar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+    _build_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+    _build_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+    _build_bar.offset_right = -16.0
+    _build_bar.offset_bottom = -16.0
+    _hud_layer.add_child(_build_bar)
+    var bv: VBoxContainer = VBoxContainer.new()
+    bv.add_theme_constant_override("separation", 6)
+    _build_bar.add_child(bv)
+    _build_label = _make_hud_label(560.0, 16)
+    _build_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
+    bv.add_child(_build_label)
+    var bh: HBoxContainer = HBoxContainer.new()
+    bh.add_theme_constant_override("separation", 6)
+    bv.add_child(bh)
+    for spec: Array in [["build_jangseung", Placement.Kind.JANGSEUNG], ["build_hwacha", Placement.Kind.HWACHA],
+            ["build_bongsu", Placement.Kind.BONGSU], ["build_sensor", Placement.Kind.SENSOR], ["build_recovery", SEL_RECOVERY]]:
+        var b: Button = Button.new()
+        b.name = spec[0]
+        b.add_theme_font_size_override("font_size", 16)
+        b.custom_minimum_size = Vector2(104.0, 40.0)
+        b.focus_mode = Control.FOCUS_NONE
+        var kind: int = spec[1]
+        b.pressed.connect(func() -> void: _select_build(kind, "button"))
+        bh.add_child(b)
+        _build_buttons[spec[0]] = b
+    _begin_button = Button.new()
+    _begin_button.name = "begin_defense"
+    _begin_button.text = "방어 시작 (Space)"
+    _begin_button.add_theme_font_size_override("font_size", 18)
+    _begin_button.custom_minimum_size = Vector2(200.0, 44.0)
+    _begin_button.focus_mode = Control.FOCUS_NONE
+    _begin_button.pressed.connect(func() -> void: queue_intent("begin_defense"))
+    bv.add_child(_begin_button)
+    _build_buttons["begin_defense"] = _begin_button
+    _build_bar.visible = false
 
     menu = MenuLayer.new()
     menu.name = "Menu"
@@ -474,7 +556,14 @@ func _apply_run_mode() -> void:
         config.values["combat_enabled"] = not _perf.scenario.ends_with("move")
         # R-02: hold the D-009 load (alive >= target) for every measured frame.
         config.values["benchmark_hold_alive"] = true
-        if _perf.scenario.begins_with("collapse"):
+        if _perf.scenario.begins_with("build"):
+            # WP-008 AC-08: the D-027 transition benchmark on the build profile
+            # (24-structure worst case, benchmark supply injected and flagged).
+            _apply_mode_preset(Config.for_wp008())
+            config.values["outer_hp"] = 1000000.0
+            config.values["benchmark_core_invulnerable"] = true
+            config.values["benchmark_supply"] = 3000
+        elif _perf.scenario.begins_with("collapse"):
             # WP-003 D-027 transition benchmark: fixture C + 10 zones, waves OFF,
             # 1000 held by top-up, outer HP 1e6 until the scripted trigger,
             # core invulnerable (attempts counted). All of it goes into the manifest.
@@ -490,8 +579,10 @@ func _apply_run_mode() -> void:
             # WP-001 sandbox: global targeting + the four original hwachas.
             _apply_mode_preset(Config.for_wp001())
         battle.reset()
-        if _perf.scenario.begins_with("collapse"):
+        if _is_transition_perf():
             battle.waves.enabled = false   # finite waves off: the load is the benchmark top-up
+        if _perf.scenario.begins_with("build"):
+            _setup_build_perf()
         _perf_structures_at_start = _structure_manifest()
         _perf_next_toggle = _perf.warmup_seconds
         _perf_pv_start = battle.path.path_version
@@ -520,6 +611,8 @@ func _apply_run_mode() -> void:
         title += " [capture:%s]" % _capture_name
     if _art_mode != "greybox":
         title += " [art:%s]" % _art_mode
+    if battle.play_mode == "build":
+        title += " [play:build]"
     DisplayServer.window_set_title(title)
     _sync_terrain_marker()
     _apply_play_flow_mode()
@@ -531,18 +624,24 @@ func _apply_run_mode() -> void:
 ## user's settings file; a normal launch starts on TITLE with the settings
 ## loaded (missing / broken file -> defaults, launch never blocked).
 func _apply_play_flow_mode() -> void:
-    var scripted: bool = _perf != null or (_capture_name != "" and not _capture_name.begins_with("wp004"))
+    var menu_capture: bool = _capture_name.begins_with("wp004") or _capture_name.begins_with("wp008")
+    var scripted: bool = _perf != null or (_capture_name != "" and not menu_capture)
     if scripted:
         flow.start_bypass()
         settings = null           # never read or written by the verification modes
         menu.show_state("PLAYING", {})
         _hud_pause_button.visible = false
+        if battle.preparing:
+            # Bypass modes have no preparation screen: the scenario's own
+            # setup (perf) has run, the defence starts now (logged event).
+            battle.begin_defense()
+        _sync_build_bar()
         return
     var path: String = _settings_path if _settings_path != "" else UserSettings.DEFAULT_PATH
-    if _capture_name.begins_with("wp004"):
+    if menu_capture:
         _overlay.show_cursor = false
         if _settings_path == "":
-            path = "user://wp004_capture_settings.cfg"   # never the player's real file
+            path = "user://%s_capture_settings.cfg" % _capture_name.substr(0, 5)   # never the player's real file
     settings = UserSettings.new(path)
     if _capture_name == "" or _settings_path != "":
         settings.load()
@@ -550,6 +649,7 @@ func _apply_play_flow_mode() -> void:
     flow = PlayFlow.new()   # fresh machine on TITLE (a previous scripted bypass never leaks in)
     _hud_pause_button.visible = false
     battle.reset()          # TITLE shows the initial field; nothing ticks until "게임 시작"
+    flow.build_mode = battle.play_mode == "build"   # after the reset: the preset may have changed the mode
     _reset_input_state()
     _sync_menu()
 
@@ -611,6 +711,7 @@ func _apply_intent(intent: String, arg: Variant) -> void:
         "result_restart": act = flow.request_restart()
         "result_to_title": act = flow.request_to_title()
         "back": act = flow.back()
+        "begin_defense": act = flow.begin_defense()
         _:
             printerr("unknown intent: %s" % intent)
     match act:
@@ -620,6 +721,12 @@ func _apply_intent(intent: String, arg: Variant) -> void:
             _discard_run_to_title()
         PlayFlow.ACT_QUIT:
             get_tree().quit()
+        PlayFlow.ACT_BEGIN_DEFENSE:
+            # WP-008: the flow accepted exactly one 방어 시작; the battle leaves
+            # its preparation phase in the same frame (waves from 0).
+            if battle.begin_defense():
+                _clear_field_input()
+                _say("방어 시작 — 웨이브 W1 진입. 전투 중에도 물자로 건설할 수 있다")
     _sync_menu()
 
 
@@ -652,13 +759,14 @@ func _clear_field_input() -> void:
 
 func _sync_menu() -> void:
     var st: String = flow.state_name()
-    var ctx: Dictionary = {"confirm": flow.confirm_text(), "result": flow.result}
+    var ctx: Dictionary = {"confirm": flow.confirm_text(), "result": flow.result, "pause_return": PlayFlow.STATE_NAMES[flow.pause_return]}
     if settings != null:
         ctx["window_mode_label"] = settings.window_mode_label()
         if not bool(settings.last_save.get("ok", true)):
             ctx["settings_notice"] = "설정 저장 실패: %s" % str(settings.last_save.get("path", ""))
     menu.show_state(st, ctx)
     var open: bool = flow.menu_open()
+    _sync_build_bar()
     if open:
         _clear_field_input()
     elif _menu_was_open:
@@ -672,7 +780,52 @@ func _sync_menu() -> void:
     var before_run: bool = st == "TITLE" or (st == "SETTINGS" and flow.settings_return == PlayFlow.State.TITLE)
     _hud_layer.visible = _show_hud and not before_run
     if _hud_pause_button != null:
-        _hud_pause_button.visible = st == "PLAYING"
+        _hud_pause_button.visible = flow.field_active()
+
+
+## WP-008: the construction bar follows the flow state (PREPARING / PLAYING
+## in build mode only) and the 방어 시작 button exists only while preparing.
+func _sync_build_bar() -> void:
+    if _build_bar == null:
+        return
+    var build: bool = battle.play_mode == "build"
+    _build_bar.visible = build and (flow.field_active() or flow.bypass)
+    if _begin_button != null:
+        _begin_button.visible = build and flow.state == PlayFlow.State.PREPARING
+    if not build:
+        return
+    var eco := battle.economy
+    for spec: Array in [["build_jangseung", Placement.Kind.JANGSEUNG, "1 장승"], ["build_hwacha", Placement.Kind.HWACHA, "2 화차"],
+            ["build_bongsu", Placement.Kind.BONGSU, "3 봉수대"], ["build_sensor", Placement.Kind.SENSOR, "4 혼천의"]]:
+        var b: Button = _build_buttons[spec[0]]
+        var kind: int = spec[1]
+        b.text = "%s %d" % [spec[2], eco.cost_of(kind)]
+        b.disabled = false
+        b.modulate = Color(1.0, 0.85, 0.4) if _sel_kind == kind else (Color(1, 1, 1, 1) if eco.can_afford(kind) else Color(0.7, 0.7, 0.7, 1))
+    var rb: Button = _build_buttons["build_recovery"]
+    rb.text = "5 회수 화차 %s" % ("1/1" if battle.run.recovery_right > 0 else ("0/1" if battle.run.collapse_count > 0 else "—"))
+    rb.modulate = Color(1.0, 0.85, 0.4) if _sel_kind == SEL_RECOVERY else Color(1, 1, 1, 1)
+    var sel: String
+    match _sel_kind:
+        SEL_NONE: sel = "선택 없음 (1~4 건설, 5 회수)"
+        SEL_RECOVERY: sel = "회수 화차 배치 (무료, 내곽만)"
+        _: sel = "%s 건설 · 비용 %d" % [Placement.kind_label(_sel_kind), eco.cost_of(_sel_kind)]
+    _build_label.text = "물자 %d   시설 %d/%d   %s%s" % [eco.supply, battle.structure_total(), eco.cap, sel,
+        "   [준비 중: 시간·생성 정지]" if battle.preparing else ""]
+
+
+## Selection change (keys 1..5 or the bar buttons). Never a battle command.
+func _select_build(kind: int, source: String) -> void:
+    if battle.play_mode != "build":
+        return
+    _sel_kind = kind
+    _mouse_down = false   # a selection change drops any pending hold
+    if kind == SEL_RECOVERY:
+        _say("선택: 회수 화차 배치 (무료 · 내곽 빈 칸 · 누르고 있으면 재시도)")
+    else:
+        _say("선택: %s 건설 — 비용 %d · 잔액 %d · 클릭 1회에 1개" % [Placement.kind_label(kind), battle.economy.cost_of(kind), battle.economy.supply])
+    _sync_build_bar()
+    build_clicks.append({"select": kind, "source": source, "tick": battle.steps, "run_id": battle.run.run_id})
 
 
 ## The run just reached WON / LOST while PLAYING: freeze the result model
@@ -711,18 +864,25 @@ func _physics_process(delta: float) -> void:
         # Menus open: no battle tick, no held-click retry; the capture script
         # (wp004_ui) still advances so it can drive the menus.
         _capture_script_step()
-    if _mouse_down and flow.battle_active():
+    if flow.field_active() and battle.play_mode == "build":
+        _prompt_recovery()
+    if _mouse_down and flow.field_active():
         # Held-click retry dispatches by mode exactly like the initial press
         # (Codex review on PR #4: a refused recovery click must never fall
         # through to free construction in the WP-003 run). A hold issued in a
         # previous run is dropped, never retried in the new one (R-03); no
-        # retry while the release fence is up (R-01).
+        # retry while the release fence is up (R-01). WP-008: a paid build is
+        # never retried (one press = at most one purchase), only the free
+        # recovery placement keeps the hold retry.
         if _mouse_down_run_id != battle.run.run_id:
             _mouse_down = false
         elif not _fence.is_empty():
             pass
         elif battle.run_mode == "waves":
-            _try_recovery_at_cursor()
+            if _recovery_selected():
+                _try_recovery_at_cursor()
+            else:
+                _mouse_down = false
         else:
             _try_place_at_cursor()
     if _notice_timer > 0.0:
@@ -767,6 +927,7 @@ func _process(delta: float) -> void:
     _overlay.show_ranges = _show_ranges
     _overlay.debug_labels = (not _player_view) or _show_detail
     _overlay.place_mode = _place_mode
+    _overlay.build_kind = _sel_kind if battle.play_mode == "build" else SEL_NONE
     _overlay.sim_time = battle.sim_time
     _overlay.queue_redraw()
     if _perf != null:
@@ -972,12 +1133,19 @@ func _handle_key_event(event: InputEvent) -> void:
             _mouse_down = mb.pressed
             _mouse_down_run_id = battle.run.run_id
             if mb.pressed:
-                if waves_mode:
+                if waves_mode and battle.play_mode == "build" and not _recovery_selected():
+                    # WP-008 AC-04: one paid construction per new press, never
+                    # retried while held, never re-bought after a refusal.
+                    _mouse_down = false
+                    _try_buy_at_cursor()
+                elif waves_mode:
                     _try_recovery_at_cursor()
                 else:
                     _try_place_at_cursor()
         elif mb.button_index == MOUSE_BUTTON_RIGHT and mb.pressed:
-            if waves_mode:
+            if battle.play_mode == "build":
+                _say("건설 모드에는 철거·판매·환불이 없다 (WP-008)")
+            elif waves_mode:
                 _say("WP-003 런에서는 시설 철거를 제공하지 않는다 (회수 화차 배치만 가능)")
             else:
                 var res: Placement.Result = battle.remove_at_world(get_global_mouse_position())
@@ -987,9 +1155,23 @@ func _handle_key_event(event: InputEvent) -> void:
                     _say("제거 실패: 커서 아래 시설 없음")
     elif event is InputEventKey and event.pressed and not event.echo:
         var key: InputEventKey = event
-        if not _fence.is_empty() and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
+        if not _fence.is_empty() and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_T, KEY_C, KEY_SPACE]:
             _fence_refuse(_input_name(key))   # field commands only; view toggles and menu keys are not fenced
             return
+        if battle.play_mode == "build":
+            # WP-008: 1..4 pick a kind to buy, 5 the free recovery placement,
+            # Space starts the defence (flow refuses it outside PREPARING).
+            # The sandbox debug commands (T / C / RMB removal) stay unavailable.
+            match key.keycode:
+                KEY_1: _select_build(Placement.Kind.JANGSEUNG, "key"); return
+                KEY_2: _select_build(Placement.Kind.HWACHA, "key"); return
+                KEY_3: _select_build(Placement.Kind.BONGSU, "key"); return
+                KEY_4: _select_build(Placement.Kind.SENSOR, "key"); return
+                KEY_5: _select_build(SEL_RECOVERY, "key"); return
+                KEY_SPACE: queue_intent("begin_defense"); return
+                KEY_T, KEY_C:
+                    _say("건설 모드에는 활성 전환·전투 토글 디버그 명령이 없다 (WP-008)")
+                    return
         if waves_mode and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
             _say("WP-003 런에서는 자유 설치·활성 전환·전투 토글 디버그 명령을 제공하지 않는다")
             return
@@ -1050,6 +1232,8 @@ func _reset_input_state() -> void:
     _mouse_down = false
     _mouse_down_run_id = -1
     _intents.clear()
+    _sel_kind = SEL_NONE
+    _recovery_prompt_run = -1
     _recent_shots.clear()
     _notice_timer = 0.0
     _notice.text = ""
@@ -1094,17 +1278,47 @@ func _try_recovery_at_cursor() -> void:
 
 
 static func _reason_ko(reason: int) -> String:
-    match reason:
-        Placement.Reject.NO_RECOVERY_RIGHT: return "회수권 없음 (붕괴 전이거나 이미 배치함)"
-        Placement.Reject.RUN_ENDED: return "런 종료 — R로 재시작"
-        Placement.Reject.DISTRICT_LOST: return "붕괴한 외곽에는 설치 불가"
-        Placement.Reject.WRONG_DISTRICT: return "내곽(경복궁·광화문·광장 북단)에만 배치 가능"
-        Placement.Reject.DISTRICT_SPLIT: return "구역 경계에 걸침"
-        Placement.Reject.ENEMY_OCCUPIES_CELL: return "적이 점유 중 (누르고 있으면 재시도)"
-        Placement.Reject.STRUCTURE_OVERLAP: return "다른 시설과 겹침"
-        Placement.Reject.TERRAIN_BLOCKED: return "지형"
-        Placement.Reject.OUT_OF_BOUNDS: return "지도 밖"
-        _: return Placement.reject_name(reason)
+    if reason == Placement.Reject.ENEMY_OCCUPIES_CELL:
+        return "적이 점유 중 (누르고 있으면 재시도)"
+    return Placement.reject_ko(reason)
+
+
+## WP-008: true when a click means the free recovery placement (classic run,
+## or build mode with 5 / nothing selected).
+func _recovery_selected() -> bool:
+    return battle.play_mode != "build" or _sel_kind == SEL_RECOVERY or _sel_kind == SEL_NONE
+
+
+## WP-008: the collapse hands out the recovery right; switch the selection to
+## the free placement once per run (the player may switch back to buying).
+func _prompt_recovery() -> void:
+    if battle.run.recovery_right > 0 and _recovery_prompt_run != battle.run.run_id:
+        _recovery_prompt_run = battle.run.run_id
+        _sel_kind = SEL_RECOVERY
+        _mouse_down = false
+        _say("▶ 외곽 붕괴 — 회수 화차 배치로 전환 (무료, 내곽만). 1~4로 유료 건설과 전환 가능")
+        _sync_build_bar()
+
+
+## WP-008: one paid construction at the cursor (one call per press).
+func _try_buy_at_cursor() -> void:
+    var anchor: Vector2i = battle.placement.anchor_for_world(_cursor_world())
+    var kind: int = _sel_kind
+    var before: int = battle.economy.supply
+    var res: Placement.Result = battle.buy_structure(kind, anchor)
+    build_clicks.append({"buy": Placement.kind_name(kind), "anchor": [anchor.x, anchor.y], "ok": res.ok,
+        "reason": Placement.reject_name(res.reason), "supply_before": before, "supply_after": battle.economy.supply,
+        "tick": battle.steps, "run_id": battle.run.run_id, "preparing": battle.preparing})
+    if res.ok:
+        _say("건설: %s #%d @%s  −%d → 잔액 %d  (시설 %d/%d%s)" % [res.structure.label, res.structure.id, str(anchor),
+            battle.economy.cost_of(kind), battle.economy.supply, battle.structure_total(), battle.economy.cap,
+            (", 경로 버전 %d" % battle.path.path_version) if kind == Placement.Kind.JANGSEUNG else ((", 그룹 %d" % res.structure.group_id) if kind == Placement.Kind.BONGSU else (", 부착 %d" % res.structure.attached_to))])
+    else:
+        var why: String = Placement.reject_ko(res.reason)
+        if res.reason == Placement.Reject.INSUFFICIENT_SUPPLY:
+            why += " (%d 필요, 잔액 %d)" % [battle.economy.cost_of(kind), battle.economy.supply]
+        _say("건설 거절: %s @%s — %s" % [Placement.kind_label(kind), str(anchor), why])
+    _sync_build_bar()
 
 
 func _try_place_at_cursor() -> void:
@@ -1161,7 +1375,7 @@ func _update_hud() -> void:
         _update_player_hud(detail)
         return
     lines.append("한양 디펜스 · %s   Godot %s / %s" % [
-        "WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
+        ("WP-008 건설·물자 프로토타입 (build)" if battle.play_mode == "build" else "WP-003 검증·붕괴·후퇴·재편 프로토타입") if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
     ])
     lines.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s%s" % [
@@ -1204,7 +1418,7 @@ func _update_hud() -> void:
             end_txt = "  ★ 승리 — 핵심 시설 사수 (R 재시작)"
         elif rs.run == 2:
             end_txt = "  ✖ 패배 — 핵심 HP 0 (R 재시작)"
-        lines.append("WP-003 런 #%d  %s / %s%s" % [rs.run_id, rs.run_name(), "외곽 방어 중" if rs.defense == 0 else "내곽 방어 (외곽 붕괴)", end_txt])
+        lines.append("%s 런 #%d  %s / %s%s" % ["건설(WP-008)" if battle.play_mode == "build" else "WP-003", rs.run_id, rs.run_name(), "외곽 방어 중" if rs.defense == 0 else "내곽 방어 (외곽 붕괴)", end_txt])
         lines.append("외곽 거점 HP %.0f/%.0f (도달 %d)   핵심 HP %.0f/%.0f (도달 %d)   웨이브 %s %s 잔여 %s" % [
             rs.outer_hp, rs.outer_hp_max, rs.outer_arrivals, rs.core_hp, rs.core_hp_max, rs.core_arrivals,
             ws["wave_name"], ws["state"], str(ws["remaining"])])
@@ -1218,13 +1432,22 @@ func _update_hud() -> void:
                 battle.placement.get_any(rs.recovery_target_id).attached_to if battle.placement.get_any(rs.recovery_target_id) != null else -1]
         lines.append(rec + "   시설: 내곽 %d(활성 %d) / 외곽 %d(활성 %d) / 대기 %d" % [
             dc["inner_total"], dc["inner_active"], dc["outer_total"], dc["outer_active"], dc["detached"]])
+        if battle.play_mode == "build":
+            var eco := battle.economy
+            lines.append("건설 모드 (WP-008)  물자 %d = 시작 %d + 처치 %d + 웨이브 %d − 소비 %d%s   구매 %d   시설 %d/%d" % [
+                eco.supply, eco.start_supply, eco.earned_kills, eco.earned_waves, eco.spent,
+                (" + 주입 %d[벤치마크]" % eco.injected) if eco.injected > 0 else "", eco.purchases.size(), battle.structure_total(), eco.cap])
+            if battle.preparing:
+                lines.append("▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다")
     detail.append("봉수망 [%s]: 봉수대 %d(활성 %d) 센서 %d 간선 %d 그룹 %s 위상 v%d | 공유전용 사격 %d" % [
         battle.targeting_mode, battle.placement.count_of(Placement.Kind.BONGSU),
         _active_of(Placement.Kind.BONGSU), battle.placement.count_of(Placement.Kind.SENSOR),
         net["link_count"], str(net["groups"]), net["topology_version"], battle.hwacha.shared_only_shots
     ])
     detail.append("화차 인지: " + "  ".join(nparts))
-    if battle.run_mode == "waves":
+    if battle.play_mode == "build":
+        lines.append("1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처")
+    elif battle.run_mode == "waves":
         lines.append("LMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
     else:
         lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
@@ -1280,18 +1503,30 @@ func _update_player_hud(detail: PackedStringArray) -> void:
             head = "★ 승리 — 핵심 시설 사수 · R 다시 시작"
         elif rs.run == 2:
             head = "✖ 패배 — 핵심 시설 함락 · R 다시 시작"
+        var build: bool = battle.play_mode == "build"
+        if build and battle.preparing and not rs.ended():
+            head = "준비 단계 — 시간·웨이브 정지 · 시설을 고르고(1~4) 빈 칸을 클릭한 뒤 Space로 방어 시작"
         if flow.state == PlayFlow.State.PAUSED:
             head += "   [일시정지]"
         lines.append(head)
         lines.append("외곽 거점 HP %.0f/%.0f · 핵심 시설 HP %.0f/%.0f · 처치 %d · 도달 %d" % [
             rs.outer_hp, rs.outer_hp_max, rs.core_hp, rs.core_hp_max, sim.killed_total, rs.outer_arrivals + rs.core_arrivals])
+        if build:
+            # WP-008 in the player view: the balance and what earns more, the
+            # structure count against the cap (the ledger formula is in D).
+            var eco := battle.economy
+            lines.append("물자 %d (처치 +%d · 웨이브 완료 +%d) · 시설 %d/%d · 구매 %d" % [eco.supply, eco.kill_reward, eco.wave_reward,
+                battle.structure_total(), eco.cap, eco.purchases.size()])
         if rs.collapse_count == 0:
             lines.append("외곽 거점이 무너지면 화차·중영 1대를 회수해 내곽(노란 테두리)에 다시 놓을 수 있다")
         elif rs.recovery_right > 0:
             lines.append("▶ 외곽 붕괴! 회수한 화차·중영을 내곽 빈 칸에 클릭해 배치 (누르고 있으면 재시도)")
         else:
             lines.append("회수 화차 재배치 완료 %s" % str(rs.recovery_anchor))
-        lines.append("Esc 일시정지 · R 다시 시작 · L 이름 · Z 밀도 · G 사거리 · D 상세 · H HUD · F12 캡처")
+        if build:
+            lines.append("1~4 건설 · 5 회수 화차 · 클릭 1회 = 1개 구매%s · Esc 일시정지 · R 다시 시작 · D 상세" % [" · Space 방어 시작" if battle.preparing else ""])
+        else:
+            lines.append("Esc 일시정지 · R 다시 시작 · L 이름 · Z 밀도 · G 사거리 · D 상세 · H HUD · F12 캡처")
     else:
         lines.append("동시 생존 %d · 처치 %d · 누수 %d%s" % [sim.alive_count, sim.killed_total, sim.leaked_total,
             "   [일시정지]" if flow.state == PlayFlow.State.PAUSED else ""])
@@ -1310,6 +1545,10 @@ func _update_player_hud(detail: PackedStringArray) -> void:
     detail.append("화차: " + "  ".join(hparts))
     detail.append("봉수망: 봉수대 %d(활성 %d) · 그룹 %s · 공유전용 사격 %d" % [battle.placement.count_of(Placement.Kind.BONGSU),
         _active_of(Placement.Kind.BONGSU), str(battle.network.snapshot(battle.placement)["groups"]), battle.hwacha.shared_only_shots])
+    if battle.play_mode == "build":
+        var e2 := battle.economy
+        detail.append("장부: 물자 %d = 시작 %d + 처치 %d + 웨이브 %d − 소비 %d%s" % [e2.supply, e2.start_supply, e2.earned_kills,
+            e2.earned_waves, e2.spent, (" + 주입 %d[벤치마크]" % e2.injected) if e2.injected > 0 else ""])
     _hud.text = "\n".join(lines)
     _detail.text = "\n".join(detail)
 
@@ -1516,10 +1755,97 @@ func _col_state_snapshot(label: String, t_measure: float) -> void:
     _col_snapshots[label] = snap
 
 
+## D-027 transition scenarios: WP-003/004/005 collapse_* and the WP-008 build_*
+## variants share the trigger / recovery script and the segment ledger.
+func _is_transition_perf() -> bool:
+    return _perf != null and (_perf.scenario.begins_with("collapse") or _perf.scenario.begins_with("build"))
+
+
+## WP-008 AC-08 setup (before the perf starts, during the preparation phase):
+## buy the extra structures with the injected benchmark supply.
+##   build_full_*: 24 from the start, hwacha-heavy (12 hwacha, 5 bongsu, 5 sensors, 2 jangseung)
+##   build_grow_*: 22 network-heavy (6 hwacha, 8 bongsu, 6 sensors, 2 jangseung), 2 bought in the measure
+var _perf_build_plan: Array = []
+var _perf_build_log: Array = []
+
+
+const BUILD_PERF_SETUP_FULL: Array = [
+    [Placement.Kind.HWACHA, Vector2i(30, 25)], [Placement.Kind.HWACHA, Vector2i(64, 25)],
+    [Placement.Kind.HWACHA, Vector2i(34, 18)], [Placement.Kind.HWACHA, Vector2i(38, 18)],
+    [Placement.Kind.HWACHA, Vector2i(58, 18)], [Placement.Kind.HWACHA, Vector2i(62, 18)],
+    [Placement.Kind.HWACHA, Vector2i(34, 27)], [Placement.Kind.HWACHA, Vector2i(38, 27)],
+    [Placement.Kind.HWACHA, Vector2i(58, 27)], [Placement.Kind.HWACHA, Vector2i(62, 27)],
+    [Placement.Kind.BONGSU, Vector2i(34, 21)], [Placement.Kind.BONGSU, Vector2i(42, 21)],
+    [Placement.Kind.BONGSU, Vector2i(50, 21)], [Placement.Kind.BONGSU, Vector2i(58, 21)],
+    [Placement.Kind.SENSOR, Vector2i(30, 27)], [Placement.Kind.SENSOR, Vector2i(62, 29)],
+    [Placement.Kind.SENSOR, Vector2i(47, 15)], [Placement.Kind.SENSOR, Vector2i(50, 12)],
+    [Placement.Kind.JANGSEUNG, Vector2i(44, 36)], [Placement.Kind.JANGSEUNG, Vector2i(22, 24)],
+]
+const BUILD_PERF_SETUP_GROW: Array = [
+    [Placement.Kind.HWACHA, Vector2i(30, 25)], [Placement.Kind.HWACHA, Vector2i(64, 25)],
+    [Placement.Kind.HWACHA, Vector2i(34, 18)], [Placement.Kind.HWACHA, Vector2i(62, 18)],
+    [Placement.Kind.BONGSU, Vector2i(34, 21)], [Placement.Kind.BONGSU, Vector2i(42, 21)],
+    [Placement.Kind.BONGSU, Vector2i(50, 21)], [Placement.Kind.BONGSU, Vector2i(58, 21)],
+    [Placement.Kind.BONGSU, Vector2i(34, 29)], [Placement.Kind.BONGSU, Vector2i(42, 29)],
+    [Placement.Kind.BONGSU, Vector2i(58, 29)],
+    [Placement.Kind.SENSOR, Vector2i(30, 27)], [Placement.Kind.SENSOR, Vector2i(62, 27)],
+    [Placement.Kind.SENSOR, Vector2i(47, 15)], [Placement.Kind.SENSOR, Vector2i(50, 12)],
+    [Placement.Kind.SENSOR, Vector2i(38, 18)],
+    [Placement.Kind.JANGSEUNG, Vector2i(44, 36)], [Placement.Kind.JANGSEUNG, Vector2i(22, 24)],
+]
+## Measured-window purchases (t_measure, kind, anchor). The grow variant buys a
+## 장승 (path rebuild) and a 화차 (-> 24); both variants then attempt one more
+## purchase that the cap must refuse. Plaza corner cells: a lane cell stays
+## enemy-occupied for the whole window at 1,000 alive (first run: 1,530
+## refusals at (22,28)), and the plaza is lost after the 20 s collapse.
+const BUILD_PERF_MEASURE_GROW: Array = [
+    [5.0, Placement.Kind.JANGSEUNG, Vector2i(31, 17)],
+    [10.0, Placement.Kind.HWACHA, Vector2i(64, 17)],
+    [12.0, Placement.Kind.HWACHA, Vector2i(36, 24)],
+]
+const BUILD_PERF_MEASURE_FULL: Array = [
+    [5.0, Placement.Kind.HWACHA, Vector2i(38, 27)],
+]
+
+
+func _setup_build_perf() -> void:
+    var full: bool = _perf.scenario.begins_with("build_full")
+    var setup: Array = BUILD_PERF_SETUP_FULL if full else BUILD_PERF_SETUP_GROW
+    _perf_build_plan = (BUILD_PERF_MEASURE_FULL if full else BUILD_PERF_MEASURE_GROW).duplicate(true)
+    for e: Array in setup:
+        var res: Placement.Result = battle.buy_structure(e[0], e[1])
+        _perf_build_log.append({"phase": "setup", "kind": Placement.kind_name(e[0]), "anchor": [e[1].x, e[1].y],
+            "ok": res.ok, "reason": Placement.reject_name(res.reason), "supply": battle.economy.supply})
+        if not res.ok:
+            printerr("perf build setup: %s at %s refused: %s" % [Placement.kind_name(e[0]), str(e[1]), Placement.reject_name(res.reason)])
+    battle.begin_defense()
+
+
+## Purchases inside the measured window; a refusal (enemy on the cell) is
+## retried on the next tick as a NEW command and every attempt is logged,
+## a cap refusal is final.
+func _perf_build_step(t: float) -> void:
+    if _perf_build_plan.is_empty():
+        return
+    var next: Array = _perf_build_plan[0]
+    if t < float(next[0]):
+        return
+    var res: Placement.Result = battle.buy_structure(next[1], next[2])
+    _perf_build_log.append({"phase": "measure", "t_measure": t, "tick": battle.steps, "kind": Placement.kind_name(next[1]),
+        "anchor": [next[2].x, next[2].y], "ok": res.ok, "reason": Placement.reject_name(res.reason),
+        "supply": battle.economy.supply, "total": battle.structure_total(), "path_version": battle.path.path_version})
+    if res.ok or res.reason != Placement.Reject.ENEMY_OCCUPIES_CELL:
+        _perf_build_plan.pop_front()
+    if res.ok and next[1] == Placement.Kind.JANGSEUNG:
+        _perf_rebuilds += 1
+
+
 func _perf_collapse_step() -> void:
     if _perf.phase() != "measure":
         return
     var t: float = _perf.elapsed_in_phase()
+    if _perf.scenario.begins_with("build"):
+        _perf_build_step(t)
     if not _col_snapshots.has("measure_start"):
         _col_state_snapshot("measure_start", t)
     if not _col_triggered and t >= 20.0:
@@ -1551,7 +1877,7 @@ func _perf_collapse_step() -> void:
 ## ticked; the phase may already read "done" for the very last frame, which
 ## still belongs to the last segment (R-05: segments cover every frame).
 func _col_sample_frame(frame_us: int) -> void:
-    if _perf == null or not _perf.scenario.begins_with("collapse"):
+    if not _is_transition_perf():
         return
     var t: float = _perf.elapsed_in_phase()
     _col_frame_index += 1
@@ -1570,7 +1896,7 @@ func _perf_script_step() -> void:
     if _perf == null:
         return
     _perf_collect_shots()
-    if _perf.scenario.begins_with("collapse"):
+    if _is_transition_perf():
         _perf_collapse_step()
         return
     if _perf.scenario == "network_combat":
@@ -1605,7 +1931,7 @@ func _perf_script_step() -> void:
 
 
 func _collapse_perf_extra() -> Dictionary:
-    if _perf == null or not _perf.scenario.begins_with("collapse"):
+    if not _is_transition_perf():
         return {}
     _col_close_segment("post_placement_25_60")
     _col_state_snapshot("end", _perf.elapsed_in_phase())
@@ -1655,6 +1981,9 @@ func _collapse_perf_extra() -> Dictionary:
         "districts": battle.district_counts(),
         "core_damage_absorbed": battle.run.core_damage_absorbed,
         "natural_collapse_before_trigger": battle.run.collapse_tick >= 0 and _col_trigger_tick >= 0 and battle.run.collapse_tick < _col_trigger_tick,
+        # WP-008 AC-08: the construction commands of the benchmark and the ledger
+        "build_commands": _perf_build_log.duplicate(true),
+        "build_commands_pending": _perf_build_plan.size(),
     }
 
 
@@ -1693,6 +2022,16 @@ func _scripted_command_manifest() -> Dictionary:
             return {"trigger_t_measure": 20.0, "trigger_outer_hp": 1.0, "trigger_enemy": [950.0, 530.0],
                 "recovery_t_measure": 25.0, "recovery_anchor": [TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y],
                 "waves_enabled": battle.waves.enabled}
+        "build_full_move", "build_full_combat", "build_grow_move", "build_grow_combat":
+            var plan: Array = []
+            for e: Array in (BUILD_PERF_MEASURE_FULL if _perf.scenario.begins_with("build_full") else BUILD_PERF_MEASURE_GROW):
+                plan.append({"t_measure": e[0], "kind": Placement.kind_name(e[1]), "anchor": [e[2].x, e[2].y]})
+            return {"trigger_t_measure": 20.0, "trigger_outer_hp": 1.0, "trigger_enemy": [950.0, 530.0],
+                "recovery_t_measure": 25.0, "recovery_anchor": [TestMap.RECOVERY_B.x, TestMap.RECOVERY_B.y],
+                "waves_enabled": battle.waves.enabled, "play_mode": battle.play_mode,
+                "benchmark_supply": config.get_int("benchmark_supply"), "structure_cap": battle.economy.cap,
+                "setup_purchases": (BUILD_PERF_SETUP_FULL if _perf.scenario.begins_with("build_full") else BUILD_PERF_SETUP_GROW).size(),
+                "measure_purchases": plan}
         _:
             return {}
 
@@ -1746,6 +2085,9 @@ func _finish_perf() -> void:
         "fx": _fx.snapshot() if _fx != null else {},
         "targeting_mode": battle.targeting_mode,
         "fixture": config.get_str("fixture"),
+        "play_mode": battle.play_mode,
+        "economy": battle.economy.snapshot(),
+        "structure_total": battle.structure_total(),
         "structure_count": battle.placement.structures.size(),
         "active_structure_count": _active_total(),
         "bongsu_count": battle.placement.count_of(Placement.Kind.BONGSU),
@@ -1988,6 +2330,101 @@ func _setup_capture_steps() -> void:
                 {"t": 25.0, "do": "button", "intent": "result_to_title"},
                 {"t": 0.0, "do": "ui_state_log", "label": "result_to_title_immediate"},
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
+                {"t": 0.0, "do": "quit"},
+            ]
+        "wp008_build", "wp008_build_720":
+            # WP-008 AC-07: the real build-mode flow (TITLE -> PREPARING -> 방어 시작
+            # -> battle -> collapse -> free recovery -> inner purchase -> RESULT)
+            # driven by the real HUD buttons and real key / mouse events, at
+            # 1920x1080 or 1280x720. The collapse is forced with the verification
+            # hooks (logged, never in the menus) so the run stays short.
+            _apply_mode_preset(Config.for_wp008())
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            _sim_speed = 6
+            var pb: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "ui_state_log", "label": "launch"},
+                {"t": 0.0, "do": "button", "intent": "title_start"},
+                {"t": 0.0, "do": "ui_state_log", "label": "start_goes_to_preparing"},
+                {"t": 0.0, "do": "econ_log", "label": "preparing_start"},
+                {"t": 0.0, "do": "state_log", "label": "preparing_start"},
+                {"t": 0.0, "do": "capture", "name": pb + "_01_preparing"},
+                {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(40, 20)},
+                {"t": 0.0, "do": "capture", "name": pb + "_02_preview_hwacha_cost"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(31, 17)},
+                {"t": 0.0, "do": "capture", "name": pb + "_02b_no_target_zone"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(37, 27)},
+                {"t": 0.0, "do": "capture", "name": pb + "_02c_zone_not_detectable"},
+                {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(40, 20)},
+                {"t": 0.0, "do": "hud_button", "name": "build_jangseung"},
+                {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(44, 36)},
+                {"t": 0.0, "do": "hud_button", "name": "build_bongsu"},
+                {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(42, 21)},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 0.0, "do": "econ_log", "label": "after_preparation_purchases"},
+                {"t": 0.0, "do": "state_log", "label": "after_preparation_purchases"},
+                {"t": 0.0, "do": "capture", "name": pb + "_03_bought_in_preparation"},
+                {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(52, 20)},
+                {"t": 0.0, "do": "capture", "name": pb + "_04_insufficient_supply"},
+                {"t": 0.0, "do": "lmb_at", "anchor": Vector2i(52, 20)},
+                {"t": 0.0, "do": "hud_button", "name": "build_jangseung"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(45, 15)},
+                {"t": 0.0, "do": "capture", "name": pb + "_05_invalid_terrain"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(46, 29)},
+                {"t": 0.0, "do": "capture", "name": pb + "_06_invalid_overlap"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 0.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 0.0, "do": "ui_state_log", "label": "esc_pauses_preparing"},
+                {"t": 0.0, "do": "capture", "name": pb + "_07_paused_in_preparation"},
+                {"t": 0.0, "do": "key", "keycode": KEY_ESCAPE},
+                {"t": 0.0, "do": "ui_state_log", "label": "esc_resumes_to_preparing"},
+                {"t": 0.0, "do": "hud_button", "name": "begin_defense"},
+                {"t": 0.0, "do": "ui_state_log", "label": "begin_defense_playing"},
+                {"t": 0.0, "do": "hud_button", "name": "begin_defense"},
+                {"t": 0.0, "do": "ui_state_log", "label": "second_begin_defense_refused"},
+                {"t": 20.0, "do": "econ_log", "label": "battle_t20"},
+                {"t": 20.0, "do": "state_log", "label": "battle_t20"},
+                {"t": 20.0, "do": "capture", "name": pb + "_08_battle_t20"},
+                {"t": 45.0, "do": "hud_button", "name": "build_jangseung"},
+                {"t": 45.0, "do": "lmb_at", "anchor": Vector2i(48, 36)},
+                {"t": 45.0, "do": "hud_button", "name": "build_hwacha"},
+                {"t": 45.0, "do": "lmb_at", "anchor": Vector2i(36, 24)},
+                {"t": 45.0, "do": "econ_log", "label": "battle_purchase_t45"},
+                {"t": 45.0, "do": "capture", "name": pb + "_09_battle_purchase_t45"},
+                {"t": 50.0, "do": "force_outer_hp", "value": 1.0, "why": "wp008_build forced collapse (verification only)"},
+                {"t": 50.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "wp008_build trigger enemy"},
+                {"t": 51.0, "do": "econ_log", "label": "after_collapse"},
+                {"t": 51.0, "do": "state_log", "label": "after_collapse"},
+                {"t": 51.0, "do": "capture", "name": pb + "_10_collapse_recovery_selected"},
+                {"t": 51.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 51.0, "do": "capture", "name": pb + "_11_recovery_preview_B"},
+                {"t": 51.0, "do": "lmb_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 51.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 51.5, "do": "econ_log", "label": "after_recovery"},
+                {"t": 51.5, "do": "state_log", "label": "after_recovery"},
+                {"t": 51.5, "do": "capture", "name": pb + "_12_recovery_placed_free"},
+                {"t": 51.5, "do": "hud_button", "name": "build_jangseung"},
+                {"t": 51.5, "do": "preview_at", "anchor": Vector2i(31, 17)},
+                {"t": 51.5, "do": "capture", "name": pb + "_13_outer_refused_after_collapse"},
+                {"t": 51.5, "do": "preview_at", "anchor": Vector2i(50, 8)},
+                {"t": 51.5, "do": "capture", "name": pb + "_14_inner_preview"},
+                {"t": 51.5, "do": "lmb_at", "anchor": Vector2i(50, 8)},
+                {"t": 51.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 52.0, "do": "econ_log", "label": "after_inner_purchase"},
+                {"t": 52.0, "do": "state_log", "label": "after_inner_purchase"},
+                {"t": 52.0, "do": "capture", "name": pb + "_15_inner_purchase"},
+                {"t": 52.0, "do": "wait_result"},
+                {"t": 52.0, "do": "econ_log", "label": "result"},
+                {"t": 52.0, "do": "state_log", "label": "result"},
+                {"t": 52.0, "do": "capture", "name": pb + "_16_result"},
+                {"t": 52.0, "do": "key", "keycode": KEY_R},
+                {"t": 0.0, "do": "ui_state_log", "label": "r_on_result_restarts_to_preparing"},
+                {"t": 0.0, "do": "econ_log", "label": "restart_ledger_reset"},
+                {"t": 0.0, "do": "state_log", "label": "restart_preparing"},
+                {"t": 0.0, "do": "capture", "name": pb + "_17_restart_preparing"},
                 {"t": 0.0, "do": "quit"},
             ]
         "wp005_v01", "wp005_v01_720":
@@ -2306,11 +2743,20 @@ func _capture_script_step() -> void:
                     "attached_to": rr.structure.attached_to if rr.ok else -1})
             "preview_at":
                 # Scripted stand-in for the placement cursor at a fixed anchor
-                # (Vector2i(-1,-1) clears it).
+                # (Vector2i(-1,-1) clears it). In build mode with a kind selected
+                # the preview is the paid-construction ghost.
                 var a: Vector2i = step["anchor"]
                 _overlay.preview_override = a
-                _capture_log.append({"t": battle.sim_time, "preview_at": str(a),
-                    "reason": Placement.reject_name(battle.preview_recovery(a)) if a.x >= 0 else ""})
+                var pv_reason: int = Placement.Reject.NONE
+                if a.x >= 0:
+                    pv_reason = battle.preview_build(_sel_kind, a) if (battle.play_mode == "build" and _sel_kind >= 0 and _sel_kind < SEL_RECOVERY) else battle.preview_recovery(a)
+                var pv_log: Dictionary = {"t": battle.sim_time, "preview_at": str(a), "selection": _sel_kind,
+                    "reason": Placement.reject_name(pv_reason) if a.x >= 0 else ""}
+                if a.x >= 0 and battle.play_mode == "build" and _sel_kind == Placement.Kind.HWACHA:
+                    var hh: Dictionary = battle.hwacha_placement_hint(a)
+                    pv_log["hwacha_hint"] = hh
+                    pv_log["hwacha_hint_text"] = OverlayLayer.hwacha_hint_text(hh)
+                _capture_log.append(pv_log)
             "hover":
                 # Scripted stand-in for the mouse: show the hover panel of the
                 # labelled structure (empty label clears it).
@@ -2412,7 +2858,41 @@ func _capture_script_step() -> void:
                 _capture_log.append({"t": battle.sim_time, "ui_state": flow.state_name(), "label": step["label"],
                     "tick": battle.steps, "run_id": battle.run.run_id, "run": battle.run.run_name(),
                     "visible_buttons": menu.visible_buttons(), "flow": flow.snapshot(),
-                    "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size()})
+                    "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size(),
+                    "preparing": battle.preparing, "begin_defense_calls_ignored": battle.begin_defense_calls_ignored,
+                    "settings_path": settings.path if settings != null else ""})
+            "econ_log":
+                # WP-008: the ledger and the structure totals at a named point.
+                _capture_log.append({"t": battle.sim_time, "econ_log": step["label"], "tick": battle.steps,
+                    "run_id": battle.run.run_id, "run": battle.run.run_name(), "preparing": battle.preparing,
+                    "economy": battle.economy.snapshot(), "structure_total": battle.structure_total(),
+                    "districts": battle.district_counts(), "selection": _sel_kind,
+                    "build_clicks": build_clicks.duplicate(true), "recovery": battle.run.snapshot()})
+            "hud_button":
+                # A real HUD Button press (construction bar / 방어 시작), then the
+                # intent frame, exactly what a click does.
+                var hb: Button = _build_buttons.get(step["name"], null)
+                var hb_before: String = flow.state_name()
+                var hb_visible: bool = hb != null and hb.visible and _build_bar.visible
+                if hb != null and hb_visible:
+                    hb.pressed.emit()
+                    _apply_intents()
+                _capture_log.append({"t": battle.sim_time, "hud_button": step["name"], "found": hb != null, "visible": hb_visible,
+                    "state_before": hb_before, "state_after": flow.state_name(), "selection": _sel_kind,
+                    "preparing": battle.preparing, "tick": battle.steps, "run_id": battle.run.run_id})
+            "lmb_at":
+                # A real left-click (press + release) with the cursor on the anchor.
+                var la: Vector2i = step["anchor"]
+                _cursor_world_override = battle.grid.cell_center(la.x, la.y)
+                var a0l: int = battle.commands_accepted
+                var s0: int = battle.economy.supply
+                _probe_mouse(true)
+                _probe_mouse(false)
+                _cursor_world_override = Vector2.INF
+                _capture_log.append({"t": battle.sim_time, "lmb_at": str(la), "accepted_delta": battle.commands_accepted - a0l,
+                    "supply_before": s0, "supply_after": battle.economy.supply, "selection": _sel_kind,
+                    "last_click": build_clicks.back() if not build_clicks.is_empty() else {},
+                    "recovery_placed": battle.run.recovery_placed, "tick": battle.steps, "run_id": battle.run.run_id})
             "force_core_hp":
                 battle.force_core_hp(step["value"], step["why"])
                 _capture_log.append({"t": battle.sim_time, "force_core_hp": step["value"], "why": step["why"]})
@@ -2486,6 +2966,8 @@ func _do_capture(name: String) -> void:
     snap["png"] = path
     snap["png_saved"] = err == OK
     snap["art_mode"] = _art_mode
+    snap["flow_state"] = flow.state_name()
+    snap["selection"] = _sel_kind
     snap["view"] = "player" if _player_view else "dev"
     snap["labels_on"] = _show_labels
     snap["hud_text"] = _hud.text
@@ -2505,6 +2987,15 @@ func _do_capture(name: String) -> void:
 
 func _write_capture_log() -> void:
     var path: String = _capture_dir.path_join("%s_log.json" % _capture_name)
+    # R-02 (PR #13 review): the log names the executable that produced the
+    # PNGs (hash, editor or release), the implementation sha passed by the
+    # runner and the rendering / settings choices, so a release capture can
+    # be tied to a commit exactly like a perf JSON.
+    _capture_log.insert(0, {"capture_manifest": {"scenario": _capture_name, "implementation_sha": _build_sha,
+        "executable": _executable_manifest(), "art_mode": _art_mode, "art": _art_report,
+        "settings_path": settings.path if settings != null else "", "window_size": str(DisplayServer.window_get_size()),
+        "engine": Engine.get_version_info().string, "cmdline_user_args": OS.get_cmdline_user_args(),
+        "config": config.to_dictionary()}})
     var f: FileAccess = FileAccess.open(path, FileAccess.WRITE)
     if f != null:
         f.store_string(JSON.stringify(_capture_log, "  "))

@@ -30,6 +30,10 @@ var spawned_scheduled: int = 0
 var spawned_extra: int = 0
 var wave_started_tick: PackedInt32Array = PackedInt32Array()
 var wave_spent_tick: PackedInt32Array = PackedInt32Array()
+## WP-008: tick at which the wave was RESOLVED (budget spent and no enemy
+## alive), -1 until then. Recorded by mark_cleared() in the tick it happens
+## (the state transition itself still runs in the next step(), unchanged).
+var wave_cleared_tick: PackedInt32Array = PackedInt32Array()
 
 
 func configure(table: Array, gap: float, routes: int) -> void:
@@ -50,6 +54,8 @@ func reset() -> void:
     wave_started_tick.fill(-1)
     wave_spent_tick.resize(waves.size())
     wave_spent_tick.fill(-1)
+    wave_cleared_tick.resize(waves.size())
+    wave_cleared_tick.fill(-1)
     gap_left = 0.0
     if waves.is_empty():
         state = State.DONE
@@ -124,6 +130,8 @@ func step(dt: float, tick: int, sim: EnemySim) -> int:
                 wave_spent_tick[current] = tick
         State.WAITING_CLEAR:
             if sim.alive_count == 0:
+                if wave_cleared_tick[current] < 0:
+                    wave_cleared_tick[current] = tick
                 if is_last_wave():
                     state = State.DONE
                 else:
@@ -134,6 +142,19 @@ func step(dt: float, tick: int, sim: EnemySim) -> int:
             if gap_left <= 0.0:
                 _start_wave(current + 1, tick)
     return spawned
+
+
+## WP-008: the wave whose budget is fully spawned and whose enemies are all
+## resolved as of this tick. Returns its index the FIRST time it is seen
+## (the caller pays the wave reward once), -1 otherwise. Pure bookkeeping:
+## the state machine above is not advanced here.
+func mark_cleared(tick: int, alive: int) -> int:
+    if not enabled or state != State.WAITING_CLEAR or alive != 0:
+        return -1
+    if wave_cleared_tick[current] >= 0:
+        return -1
+    wave_cleared_tick[current] = tick
+    return current
 
 
 func snapshot() -> Dictionary:
@@ -154,4 +175,5 @@ func snapshot() -> Dictionary:
         "scheduled_complete": scheduled_complete(),
         "wave_started_tick": Array(wave_started_tick),
         "wave_spent_tick": Array(wave_spent_tick),
+        "wave_cleared_tick": Array(wave_cleared_tick),
     }

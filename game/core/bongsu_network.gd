@@ -39,6 +39,14 @@ var sensor_seen: Dictionary = {}
 var hwacha_known: Dictionary = {}
 ## hwacha id -> Dictionary { enemy_id: true } for the local part only
 var hwacha_local: Dictionary = {}
+## WP-008 perf (D-055): zone membership per enemy slot as a bit mask, computed
+## once per detection pass instead of once per hwacha per known enemy
+## (measured: 12 active hwacha x 1,000 enemies spent 12.4 ms of a 16 ms tick
+## in the per-hwacha distance loop). Same inequality, same counts.
+var detect_serial: int = 0
+var _zone_mask: PackedInt32Array = PackedInt32Array()
+var _mask_serial: int = -1
+var _mask_zones: int = -1
 
 
 func reset() -> void:
@@ -176,6 +184,7 @@ func detect(placement: Placement, sim: EnemySim) -> void:
     sensor_seen.clear()
     hwacha_known.clear()
     hwacha_local.clear()
+    detect_serial += 1
     var live: PackedInt32Array = sim.live_slots()
     var px: PackedFloat32Array = sim.pos_x
     var py: PackedFloat32Array = sim.pos_y
@@ -232,21 +241,68 @@ func known_zone_counts(h: Placement.Structure, density: DensityDetector, sim: En
     out_local.fill(0)
     var known: Dictionary = hwacha_known.get(h.id, {})
     var local: Dictionary = hwacha_local.get(h.id, {})
+    if zn > 31:
+        # More zones than mask bits: the original per-enemy distance loop.
+        for id: int in known:
+            var s: int = known[id]
+            if not sim.is_id_alive(id):
+                continue
+            var ex: float = sim.pos_x[s]
+            var ey: float = sim.pos_y[s]
+            for zi: int in range(zn):
+                var z: DensityDetector.Zone = density.zones[zi]
+                var dx: float = ex - z.center.x
+                var dy: float = ey - z.center.y
+                if dx * dx + dy * dy <= z.radius * z.radius:
+                    counts[zi] += 1
+                    if local.has(id):
+                        out_local[zi] += 1
+        return counts
+    _ensure_zone_masks(density, sim)
     for id: int in known:
         var s: int = known[id]
         if not sim.is_id_alive(id):
             continue
-        var ex: float = sim.pos_x[s]
-        var ey: float = sim.pos_y[s]
-        for zi: int in range(zn):
-            var z: DensityDetector.Zone = density.zones[zi]
-            var dx: float = ex - z.center.x
-            var dy: float = ey - z.center.y
-            if dx * dx + dy * dy <= z.radius * z.radius:
+        var m: int = _zone_mask[s]
+        if m == 0:
+            continue
+        var is_local: bool = local.has(id)
+        var zi: int = 0
+        while m != 0:
+            if m & 1:
                 counts[zi] += 1
-                if local.has(id):
+                if is_local:
                     out_local[zi] += 1
+            m >>= 1
+            zi += 1
     return counts
+
+
+## Zone bit mask of every living slot for the current detection pass
+## (positions do not change between detect() and the hwacha decisions).
+func _ensure_zone_masks(density: DensityDetector, sim: EnemySim) -> void:
+    var zn: int = density.zones.size()
+    if _mask_serial == detect_serial and _mask_zones == zn and _zone_mask.size() == sim.capacity:
+        return
+    if _zone_mask.size() != sim.capacity:
+        _zone_mask.resize(sim.capacity)
+    _zone_mask.fill(0)
+    var px: PackedFloat32Array = sim.pos_x
+    var py: PackedFloat32Array = sim.pos_y
+    var live: PackedInt32Array = sim.live_slots()
+    for zi: int in range(zn):
+        var z: DensityDetector.Zone = density.zones[zi]
+        var cx: float = z.center.x
+        var cy: float = z.center.y
+        var r2: float = z.radius * z.radius
+        var bit: int = 1 << zi
+        for s: int in live:
+            var dx: float = px[s] - cx
+            var dy: float = py[s] - cy
+            if dx * dx + dy * dy <= r2:
+                _zone_mask[s] |= bit
+    _mask_serial = detect_serial
+    _mask_zones = zn
 
 
 func known_count(hwacha_id: int) -> int:
