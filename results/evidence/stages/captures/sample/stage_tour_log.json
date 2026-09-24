@@ -352,7 +352,7 @@
         "--capture=stage_tour",
         "--out-dir=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\stages\\captures\\sample",
         "--art=sample",
-        "--sha=5c0fa064d572f6c9311eb81a9bba7b092507981d"
+        "--sha=a2d6ba6f2bf33354767b8e8f1945210303c5cb7b"
       ],
       "config": {
         "arrival_damage": 1.0,
@@ -402,10 +402,10 @@
       "executable": {
         "basename": "hanyang_defense_wp001.exe",
         "is_editor_binary": false,
-        "sha256": "c63bfb660276056892f977306b7672fef600f9623935fa963ef8444d23824108",
-        "size_bytes": 109369120
+        "sha256": "ac6a92111feaba67ef75e7b5550c449be521b1b40e658cd57438a21365ee96ba",
+        "size_bytes": 109373504
       },
-      "implementation_sha": "5c0fa064d572f6c9311eb81a9bba7b092507981d",
+      "implementation_sha": "a2d6ba6f2bf33354767b8e8f1945210303c5cb7b",
       "scenario": "stage_tour",
       "settings_path": "user://stage_capture_settings.cfg",
       "window_size": "(1920, 1080)"
@@ -5985,6 +5985,56 @@
     "visible": true
   },
   {
+    "hwacha_hint": {
+      "attach_id": -1,
+      "attach_label": "",
+      "center": [
+        820.0,
+        420.0
+      ],
+      "fire_range": 200.0,
+      "group": -1,
+      "group_sensors": 0,
+      "known_zone_count": 1,
+      "local_range": 100.0,
+      "zone_count": 3,
+      "zones": [
+        {
+          "center": [
+            960.0,
+            310.0
+          ],
+          "distance": 178.044937133789,
+          "id": 7,
+          "name": "광화문 어귀",
+          "radius": 70.0,
+          "source": "none"
+        },
+        {
+          "center": [
+            950.0,
+            560.0
+          ],
+          "distance": 191.049728393555,
+          "id": 8,
+          "name": "광장 남단",
+          "radius": 70.0,
+          "source": "none"
+        },
+        {
+          "center": [
+            950.0,
+            410.0
+          ],
+          "distance": 130.384048461914,
+          "id": 9,
+          "name": "광화문 앞",
+          "radius": 50.0,
+          "source": "local"
+        }
+      ]
+    },
+    "hwacha_hint_text": "표적 존 3(탐지 1): Z7 광화문 어귀(탐지 없음), Z8 광장 남단(탐지 없음), Z9 광화문 앞(직접) · 봉수 연결 없음 — 직접 탐지 100 px만",
     "preview_at": "(40, 20)",
     "reason": "NONE",
     "selection": 1,
@@ -6107,6 +6157,7 @@
     "marks_drawn": {
       "attach_dash": 2,
       "build_ghost_ok": 1,
+      "ghost_target_zones": 1,
       "link_cut": 1
     },
     "network": {
