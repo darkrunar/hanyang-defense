@@ -1582,6 +1582,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 202  frame 5.0 ms   sim t=15.0s  x6\n동시 생존 62 (최고 179)   생성 누계 180   처치 112   누수 6\nWP-003 런 #1  RUNNING / 외곽 방어 중\n외곽 거점 HP 354/360 (도달 6)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 4(활성 4) / 외곽 14(활성 14) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -1840,6 +1841,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 112,
+    "label_boxes": 26,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 6,
     "marks_drawn": {
       "attach_dash": 8,
@@ -2112,6 +2121,7 @@
     "steps": 900,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -4990,6 +5000,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 215  frame 5.4 ms   sim t=20.5s  x6\n동시 생존 31 (최고 179)   생성 누계 181   처치 114   누수 36\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 4(활성 4) / 외곽 13(활성 0) / 대기 1\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -5049,6 +5060,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 114,
+    "label_boxes": 27,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 36,
     "marks_drawn": {
       "attach_dash": 2,
@@ -5297,6 +5311,7 @@
     "steps": 1230,
     "structure_count": 17,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -5437,6 +5452,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 231  frame 4.4 ms   sim t=23.0s  x6\n동시 생존 18 (최고 179)   생성 누계 181   처치 127   누수 36\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 4(활성 4) / 외곽 13(활성 0) / 대기 1\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -5508,6 +5524,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 127,
+    "label_boxes": 27,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 36,
     "marks_drawn": {
       "attach_dash": 2,
@@ -5758,6 +5777,7 @@
     "steps": 1380,
     "structure_count": 17,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -5898,6 +5918,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 214  frame 8.8 ms   sim t=23.5s  x6\n동시 생존 18 (최고 179)   생성 누계 181   처치 127   누수 36\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 4(활성 4) / 외곽 13(활성 0) / 대기 1\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -5971,6 +5992,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 127,
+    "label_boxes": 27,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 36,
     "marks_drawn": {
       "attach_dash": 2,
@@ -6221,6 +6245,7 @@
     "steps": 1410,
     "structure_count": 17,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -7440,6 +7465,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 255  frame 4.2 ms   sim t=25.5s  x6\n동시 생존 6 (최고 179)   생성 누계 181   처치 139   누수 36\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -7529,6 +7555,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 139,
+    "label_boxes": 26,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 36,
     "marks_drawn": {
       "attach_dash": 3,
@@ -7785,6 +7814,7 @@
     "steps": 1530,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -7912,6 +7942,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 207  frame 4.9 ms   sim t=45.0s  x6\n동시 생존 350 (최고 350)   생성 누계 541   처치 154   누수 37\nWP-003 런 #1  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 59/60 (도달 1)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -8001,6 +8032,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 154,
+    "label_boxes": 26,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 37,
     "marks_drawn": {
       "attach_dash": 3,
@@ -8257,6 +8291,7 @@
     "steps": 2700,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -8954,6 +8989,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-003 검증·붕괴·후퇴·재편 프로토타입   Godot 4.7-stable (official) / gl_compatibility\nFPS 233  frame 4.5 ms   sim t=105.5s  x6\n동시 생존 0 (최고 570)   생성 누계 1141   처치 1073   누수 68\nWP-003 런 #1  WON / 내곽 방어 (외곽 붕괴)  ★ 승리 — 핵심 시설 사수 (R 재시작)\n외곽 거점 HP 0/360 (도달 36)   핵심 HP 28/60 (도달 32)   웨이브 W3 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 6)   시설: 내곽 5(활성 5) / 외곽 13(활성 0) / 대기 0\nLMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -9045,6 +9081,9 @@
     ],
     "jangseung_count": 2,
     "killed_total": 1073,
+    "label_boxes": 26,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 68,
     "marks_drawn": {
       "attach_dash": 3,
@@ -9301,6 +9340,7 @@
     "steps": 6329,
     "structure_count": 18,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,

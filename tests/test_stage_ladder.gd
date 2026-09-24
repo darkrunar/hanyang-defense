@@ -139,6 +139,25 @@ func _scene_each_stage(t: RefCounted, tree: SceneTree) -> void:
         t.check(scene._stage_label.text.find(str(st["title"])) >= 0, "stage %d panel names the stage" % id)
         t.check(scene._stage_label.text.find("지금:") >= 0, "stage %d panel has the live line" % id)
         _drop(scene)
+    # integration 2026-09-24: stage modes are a developer tool -> developer view by default
+    var sd: Node2D = _new_scene(tree, "3")
+    t.eq(sd._player_view, false, "--stage opens in the developer view")
+    t.eq(sd._show_zones and sd._show_ranges, true, "zones and rings on (stage 3 asks to look at them)")
+    _drop(sd)
+    var sp: Node2D = Main.new()
+    sp._settings_path = SETTINGS_TMP
+    sp._art_mode = "greybox"
+    sp._stage_arg = "2"
+    sp._view_arg = "player"
+    tree.root.add_child(sp)
+    if not sp.is_node_ready():
+        sp._ready()
+    sp.set_process(false)
+    sp.set_physics_process(false)
+    t.eq(sp._player_view, true, "--stage with --view=player: player view")
+    sp._update_hud()
+    t.check(sp._hud.text.find("1장승") >= 0 and sp._hud.text.find("2화차") < 0, "player HUD uses the stage's own controls line (%s)" % sp._hud.text.get_slice("\n", 1))
+    _drop(sp)
     var planned: Node2D = _new_scene(tree, "9")
     t.eq(planned._stage, 0, "--stage=9 (planned) enters no stage")
     t.check(planned._last_notice.find("WP-009") >= 0, "and says it is WP-009 DRAFT (%s)" % planned._last_notice)

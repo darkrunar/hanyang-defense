@@ -8,7 +8,7 @@
         "--out-dir=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_greybox",
         "--settings=D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_greybox\\settings_capture.cfg",
         "--art=greybox",
-        "--sha=28be613c039d4bfc526097e73d99bff1d0671364"
+        "--sha=c0f09a49e977029fc5604ab4123f81f6bc541303"
       ],
       "config": {
         "arrival_damage": 1.0,
@@ -58,10 +58,10 @@
       "executable": {
         "basename": "hanyang_defense_wp001.exe",
         "is_editor_binary": false,
-        "sha256": "45fc7311aa11d560349d42af24f311f40cc25cfe7fca317d74268373b99f0552",
-        "size_bytes": 109348656
+        "sha256": "d453ea2ab74140c7468e6ea2a91a124ee4f771704e325568725df2c94c3d2ad0",
+        "size_bytes": 109355216
       },
-      "implementation_sha": "28be613c039d4bfc526097e73d99bff1d0671364",
+      "implementation_sha": "c0f09a49e977029fc5604ab4123f81f6bc541303",
       "scenario": "wp008_build",
       "settings_path": "D:\\SuperTrunk\\Josun_Defence\\results\\evidence\\wp-008\\captures\\release_greybox\\settings_capture.cfg",
       "window_size": "(1920, 1080)"
@@ -756,6 +756,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS   0  frame 0.0 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -797,6 +798,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -928,6 +937,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -1144,6 +1154,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  13  frame 10.1 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -1185,6 +1196,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -1316,6 +1335,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -1486,6 +1506,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  19  frame 17.6 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -1527,6 +1548,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -1658,6 +1687,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -1840,6 +1870,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  19  frame 17.6 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -1881,6 +1912,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -2012,6 +2051,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -3148,6 +3188,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  22  frame 20.0 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 40 = 시작 240 + 처치 0 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -3207,6 +3248,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -3356,6 +3405,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -3622,6 +3672,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  24  frame 25.1 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 40 = 시작 240 + 처치 0 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -3681,6 +3732,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -3830,6 +3889,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -4073,6 +4133,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  24  frame 25.1 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 40 = 시작 240 + 처치 0 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -4132,6 +4193,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -4281,6 +4350,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -4487,6 +4557,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  25  frame 26.8 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 40 = 시작 240 + 처치 0 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -4546,6 +4617,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -4695,6 +4774,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -4955,6 +5035,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS  26  frame 28.6 ms   sim t=0.0s  x6  [일시정지]\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 40 = 시작 240 + 처치 0 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -5014,6 +5095,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 0,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -5163,6 +5252,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -7132,6 +7222,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 279  frame 3.6 ms   sim t=20.0s  x6\n동시 생존 59 (최고 179)   생성 누계 180   처치 57   누수 64\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 296/360 (도달 64)   핵심 HP 60/60 (도달 0)   웨이브 W1 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 5(활성 5) / 대기 0\n건설 모드 (WP-008)  물자 97 = 시작 240 + 처치 57 + 웨이브 0 − 소비 200   구매 3   시설 7/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -7205,6 +7296,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 57,
+    "label_boxes": 15,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 64,
     "network": {
       "bongsu": [
@@ -7354,6 +7453,7 @@
     "structure_count": 7,
     "structure_total": 7,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
@@ -7923,6 +8023,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 231  frame 4.3 ms   sim t=45.0s  x6\n동시 생존 283 (최고 299)   생성 누계 540   처치 133   누수 124\n건설(WP-008) 런 #2  RUNNING / 외곽 방어 중\n외곽 거점 HP 236/360 (도달 124)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 2(활성 2) / 외곽 6(활성 6) / 대기 0\n건설 모드 (WP-008)  물자 153 = 시작 240 + 처치 133 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -8061,6 +8162,14 @@
     ],
     "jangseung_count": 1,
     "killed_total": 133,
+    "label_boxes": 16,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 124,
     "network": {
       "bongsu": [
@@ -8220,6 +8329,7 @@
     "structure_count": 8,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -11639,6 +11749,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 297  frame 3.9 ms   sim t=51.0s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 2(활성 2) / 외곽 5(활성 0) / 대기 1\n건설 모드 (WP-008)  물자 196 = 시작 240 + 처치 176 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -11698,6 +11809,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 176,
+    "label_boxes": 17,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -11846,6 +11960,7 @@
     "structure_count": 7,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -12078,6 +12193,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 297  frame 3.9 ms   sim t=51.0s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n▶ 붕괴! 화차·중영 회수 1/1 — 내곽(노란 테두리) 빈 칸을 클릭해 배치 (누르고 있으면 재시도)   시설: 내곽 2(활성 2) / 외곽 5(활성 0) / 대기 1\n건설 모드 (WP-008)  물자 196 = 시작 240 + 처치 176 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 3,
     "hwachas": [
       {
@@ -12137,6 +12253,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 176,
+    "label_boxes": 17,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -12285,6 +12404,7 @@
     "structure_count": 7,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -15724,6 +15844,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 737  frame 11.2 ms   sim t=51.5s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 7)   시설: 내곽 3(활성 3) / 외곽 5(활성 0) / 대기 0\n건설 모드 (WP-008)  물자 196 = 시작 240 + 처치 176 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -15809,6 +15930,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 176,
+    "label_boxes": 16,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -15967,6 +16091,7 @@
     "structure_count": 8,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -16203,6 +16328,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 639  frame 11.0 ms   sim t=51.5s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 7)   시설: 내곽 3(활성 3) / 외곽 5(활성 0) / 대기 0\n건설 모드 (WP-008)  물자 196 = 시작 240 + 처치 176 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -16288,6 +16414,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 176,
+    "label_boxes": 16,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -16446,6 +16575,7 @@
     "structure_count": 8,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -16670,6 +16800,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 467  frame 18.8 ms   sim t=51.5s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 7)   시설: 내곽 3(활성 3) / 외곽 5(활성 0) / 대기 0\n건설 모드 (WP-008)  물자 196 = 시작 240 + 처치 176 + 웨이브 80 − 소비 300   구매 4   시설 8/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -16755,6 +16886,9 @@
     ],
     "jangseung_count": 1,
     "killed_total": 176,
+    "label_boxes": 16,
+    "label_overlaps": [],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -16913,6 +17047,7 @@
     "structure_count": 8,
     "structure_total": 8,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -20468,6 +20603,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 432  frame 21.3 ms   sim t=52.0s  x6\n동시 생존 184 (최고 299)   생성 누계 541   처치 176   누수 181\n건설(WP-008) 런 #2  RUNNING / 내곽 방어 (외곽 붕괴)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 60/60 (도달 0)   웨이브 W2 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 7)   시설: 내곽 4(활성 4) / 외곽 5(활성 0) / 대기 0\n건설 모드 (WP-008)  물자 156 = 시작 240 + 처치 176 + 웨이브 80 − 소비 340   구매 5   시설 9/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -20567,6 +20703,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 176,
+    "label_boxes": 17,
+    "label_overlaps": [
+      [
+        "objective:핵심 시설",
+        "structure:장승"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 181,
     "network": {
       "bongsu": [
@@ -20725,6 +20869,7 @@
     "structure_count": 9,
     "structure_total": 9,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -22192,6 +22337,7 @@
       47,
       10
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 351  frame 3.8 ms   sim t=103.4s  x6\n동시 생존 0 (최고 584)   생성 누계 1141   처치 953   누수 188\n건설(WP-008) 런 #2  WON / 내곽 방어 (외곽 붕괴)  ★ 승리 — 핵심 시설 사수 (R 재시작)\n외곽 거점 HP 0/360 (도달 181)   핵심 HP 53/60 (도달 7)   웨이브 W3 WAITING_CLEAR 잔여 [0, 0, 0]\n회수 화차 배치 완료 0/1 @(44, 13) (부착 7)   시설: 내곽 4(활성 4) / 외곽 5(활성 0) / 대기 0\n건설 모드 (WP-008)  물자 1093 = 시작 240 + 처치 953 + 웨이브 240 − 소비 340   구매 5   시설 9/24\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 4,
     "hwachas": [
       {
@@ -22278,6 +22424,14 @@
     ],
     "jangseung_count": 2,
     "killed_total": 953,
+    "label_boxes": 17,
+    "label_overlaps": [
+      [
+        "objective:핵심 시설",
+        "structure:장승"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 188,
     "network": {
       "bongsu": [
@@ -22436,6 +22590,7 @@
     "structure_count": 9,
     "structure_total": 9,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": -0.000000009999984784681,
@@ -23364,6 +23519,7 @@
       47,
       26
     ],
+    "hud_text": "한양 디펜스 · WP-008 건설·물자 프로토타입 (build)   Godot 4.7-stable (official) / gl_compatibility\nFPS 325  frame 4.3 ms   sim t=0.0s  x6\n동시 생존 0 (최고 0)   생성 누계 0   처치 0   누수 0\n건설(WP-008) 런 #3  RUNNING / 외곽 방어 중\n외곽 거점 HP 360/360 (도달 0)   핵심 HP 60/60 (도달 0)   웨이브 W1 SPAWNING 잔여 [60, 60, 60]\n회수 화차: 붕괴 전 (외곽 HP 0이 되면 화차·중영 1대를 회수해 내곽에 재배치)   시설: 내곽 1(활성 1) / 외곽 3(활성 3) / 대기 0\n건설 모드 (WP-008)  물자 240 = 시작 240 + 처치 0 + 웨이브 0 − 소비 0   구매 0   시설 4/24\n▶ 준비 중: 시간·생성·웨이브 정지. 시설을 고르고(1~4) 빈 칸을 클릭해 배치한 뒤 [방어 시작]을 누른다\n1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처",
     "hwacha_count": 2,
     "hwachas": [
       {
@@ -23405,6 +23561,14 @@
     ],
     "jangseung_count": 0,
     "killed_total": 0,
+    "label_boxes": 12,
+    "label_overlaps": [
+      [
+        "objective_bar:외곽 거점",
+        "structure:화차·중영"
+      ]
+    ],
+    "labels_on": true,
     "leaked_total": 0,
     "network": {
       "bongsu": [
@@ -23536,6 +23700,7 @@
     "structure_count": 4,
     "structure_total": 4,
     "targeting_mode": "wp002",
+    "view": "dev",
     "waves": {
       "enabled": true,
       "gap_left": 0.0,
