@@ -1,0 +1,1479 @@
+
+== path + placement (AC-02, AC-03) ==
+  -- AC-02 jangseung reroutes traffic and removal restores it
+     PASS  reference run: west lane carries traffic (5.0 > 0.0)
+     PASS  reference run: east lane carries traffic (6.0 > 0.0)
+     PASS  placing a jangseung in the south-west lane is accepted
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  blocked cell is impassable
+     PASS  south route still reaches the goal
+     PASS  blocked west lane holds no enemies (= 0)
+     PASS  east lane absorbs the diverted flow (detour observed) (13.0 > 6.0)
+     PASS  south route still reaches the objective by the detour (545.0 > 0.0)
+     ....  t=35s west lane: reference=5 blocked=0 | east lane: reference=6 blocked=13
+     ....  south-route objective arrivals at t=35s: reference=551 detoured=545
+     PASS  jangseung removal succeeds
+     PASS  removal bumps path_version (= 4)
+     PASS  removed cell is passable again
+     PASS  west lane carries traffic again after removal (20.0 > 0.0)
+     ....  after removal west lane=20 east lane=15
+  -- AC-03 a placement that would seal a route is refused, state intact
+     PASS  first jangseung plugs the west-north lane
+     PASS  west route still connected via the south lane
+     PASS  second jangseung sealing the last west lane is refused
+     PASS  rejection reason (= 5)
+     PASS  refused placement does not bump path_version (= 3)
+     PASS  refused placement adds no structure (= 5)
+     PASS  distance field unchanged after refusal
+     PASS  flow field unchanged after refusal
+     PASS  every refused footprint cell is left clear
+     PASS  west route is still reachable after the refusal
+     PASS  preview reports the sealing placement as not allowed
+     PASS  preview leaves path_version untouched (= 3)
+     PASS  preview leaves dist/flow untouched
+     PASS  preview leaves the tentative cells clear
+     PASS  preview allows a non-blocking hwacha on the same cells
+     PASS  preview allows a jangseung on open plaza ground
+     PASS  west route keeps producing traffic (351.0 > 0.0)
+     PASS  west route still reaches the objective (335.0 > 0.0)
+  -- AC-03 a cell occupied by a living enemy refuses a structure
+     PASS  test enemy placed inside the footprint
+     PASS  placement onto the occupied cell is refused
+     PASS  rejection reason (= 4)
+     PASS  refusal names the occupied cell (= 3504)
+     PASS  refusal does not bump path_version (= 2)
+     PASS  refusal adds no structure (= 4)
+     PASS  occupant removed (= 1)
+     PASS  the same placement is accepted once the cell is clear
+     PASS  accepted placement bumps path_version (= 3)
+  -- AC-03 occupancy follows movement (R-01 regression, both edges)
+     PASS  after one tick the enemy stands inside the footprint (cell 3596)
+     PASS  cached cell matches the post-move position (= 3596)
+     PASS  placement onto the just-entered cell is refused
+     PASS  rejection reason (= 4)
+     PASS  path_version unchanged by the refusal (= 2)
+     PASS  no structure added by the refusal (= 4)
+     PASS  footprint cells stay passable
+     PASS  enemy still outside: placement accepted
+     PASS  enemy crossed the footprint edge this tick (y=759.696)
+     PASS  entering edge: refused on the very tick the enemy crosses in
+     PASS  leaving edge: refused while the enemy is still inside
+     PASS  enemy left the footprint this tick (y=719.843)
+     PASS  leaving edge: accepted on the very tick the enemy steps out
+     PASS  accepted placement bumps path_version (= 3)
+     PASS  cursor-side occupancy and placement agree on all 24 anchors (= 0)
+  -- AC-03 the occupancy rule under saturation (measured, known limitation)
+     PASS  field saturated before probing (1000.0 >= 1000.0)
+     PASS  every south-lane attempt is either accepted or refused for occupancy (= 720)
+     PASS  no other refusal reason appears on open lane cells (= 0)
+     ....  saturated south lanes: 38/720 anchors legal (5.28%) - measured, see P-007
+     PASS  every probe structure was removed again, state left clean (= 0)
+  -- AC-03 terrain, bounds and overlap refusals
+     PASS  placement on static terrain is refused
+     PASS  rejection reason (= 2)
+     PASS  placement crossing the grid edge is refused
+     PASS  rejection reason (= 1)
+     PASS  first structure on open ground accepted
+     PASS  overlapping structure is refused
+     PASS  rejection reason (= 3)
+     PASS  hwacha placed on open ground
+     PASS  all routes still reachable with a hwacha down
+     PASS  exactly one jangseung survived the refusals (= 1)
+  -- an enemy standing on a cell that becomes impassable still moves
+     PASS  jangseung placed
+     PASS  enemy teleported onto the blocked cell
+     PASS  stranded enemy escapes instead of freezing (moved 116.6 px) (116.572906494141 > 5.0)
+
+== density + hwacha (AC-04, AC-05) ==
+  -- AC-04 density counts known coordinates, boundary inclusive
+     PASS  8 enemies placed at known coordinates (= 8)
+     PASS  count = 3 inside + 2 exactly on the radius (= 5)
+     PASS  batch evaluate matches the single-zone count (= 5)
+  -- AC-04 dead enemies leave the density immediately
+     PASS  all six counted while alive (= 6)
+     PASS  one lethal volley kills all six (= 6)
+     PASS  density drops to zero, no dead enemy counted (= 0)
+     PASS  each death counted exactly once (= 6)
+     PASS  alive count consistent (= 0)
+  -- AC-05 hwacha aims at the densest in-range zone and ignores out-of-range
+     PASS  picks the densest zone inside the firing range (= 1)
+     PASS  follows the density when it moves to another in-range zone (= 0)
+     PASS  a zone exactly at the range boundary is targetable (= 0)
+     PASS  a zone just beyond the range is not (= -1)
+  -- AC-05 equal density ties break on the stable zone id
+     PASS  three-way tie picks the lowest zone id (= 0)
+     PASS  tie among the leaders picks the lowest of those ids (= 1)
+     PASS  tie-break is stable across repeated evaluations
+  -- AC-05 no enemies means no shot, and the cooldown is not burned
+     PASS  an empty zone is never targeted (= -1)
+     PASS  an empty field produces no shots (= 0)
+     PASS  hwacha #1 stays ready while holding fire (= 0.0)
+     PASS  hwacha #2 stays ready while holding fire (= 0.0)
+     PASS  hwacha #3 stays ready while holding fire (= 0.0)
+     PASS  hwacha #4 stays ready while holding fire (= 0.0)
+     PASS  fires on the first step after a target appears (= 1)
+  -- AC-05 a volley damages each enemy once and counts each death once
+     PASS  7 enemies staged (= 7)
+     PASS  first volley kills nobody (= 0)
+     PASS  enemy exactly on the blast edge took damage once (= 35.0)
+     PASS  enemy just outside took no damage (= 60.0)
+     PASS  distant enemy took no damage (= 60.0)
+     PASS  second volley still kills nobody (= 0)
+     PASS  damage accumulates once per volley (= 10.0)
+     PASS  third volley kills the five inside the blast (= 5)
+     PASS  kill counter totals five, no double counting (= 5)
+     PASS  the two outside survive (= 2)
+     PASS  firing again over the dead adds no kills (= 0)
+     PASS  kill counter unchanged (= 5)
+  -- AC-05 cooldown gates the fire rate
+     PASS  5 s at a 1 s cooldown produced 5 volleys
+
+== flow + determinism (AC-01, AC-06) ==
+  -- AC-01 1000 concurrent living enemies across all three entries
+     PASS  concurrent living enemies at t=30 s (1000.0 >= 1000.0)
+     PASS  peak concurrent living enemies (1000.0 >= 1000.0)
+     PASS  cumulative spawns exceed the concurrent count (the two are distinct) (2061.0 > 1000.0)
+     PASS  route 남대문 has living enemies (297.0 > 0.0)
+     PASS  route 남대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 서대문 has living enemies (352.0 > 0.0)
+     PASS  route 서대문 has spawned enemies (687.0 > 0.0)
+     PASS  route 동대문 has living enemies (351.0 > 0.0)
+     PASS  route 동대문 has spawned enemies (687.0 > 0.0)
+     ....  alive=1000 peak=1000 spawned=2061 leaked=1061 killed=0 | per-route alive 남대문 297 / 서대문 352 / 동대문 351
+     PASS  south-west lane is in use (13.0 > 0.0)
+     PASS  south-east lane is in use (9.0 > 0.0)
+  -- AC-01 spawned = alive + killed + leaked at all times
+     PASS  book-keeping at t=5s (= 1000)
+     PASS  book-keeping at t=10s (= 1487)
+     PASS  book-keeping at t=15s (= 1996)
+     PASS  book-keeping at t=20s (= 2581)
+     PASS  book-keeping at t=25s (= 3117)
+     PASS  book-keeping at t=30s (= 3634)
+     PASS  per-route alive counts sum to the total (= 1000)
+  -- AC-06 same seed, same instant: the jangseung raises the fired-on density
+     ....  baseline : east-lane density avg 24.8 / west-lane avg 24.7 / 화차·중영 kills 231 / south arrivals 2
+     ....  with 장승 : east-lane density avg 44.1 / west-lane avg 0.0 / 화차·중영 kills 863 / south arrivals 0
+     PASS  blocking the west lane raises the density in the zone the hwacha fires on (44.1333333333333 > 24.8483333333333)
+     PASS  the same hwacha kills more over the same window (863.0 > 231.0)
+     PASS  fewer south-route enemies reach the objective (0 < 2)
+     PASS  the blocked lane stays empty in the choked case (= 0.0)
+  -- the same seed and the same inputs reproduce the same run
+     PASS  alive count reproduces (= 1000)
+     PASS  kill count reproduces (= 1578)
+     PASS  leak count reproduces (= 3)
+     PASS  per-zone densities reproduce (= [18, 15, 84, 22, 0, 54, 0, 23])
+     PASS  enemy positions reproduce (= 1026439.994)
+     PASS  a different seed gives a different run (1006834.965 != 1026439.994)
+
+== WP-002 bongsu network (AC-01..05, AC-07) ==
+  -- AC-01 bongsu links: exact 180 boundary, just outside, chain, cycle, split, inactive
+     PASS  exactly 180 px is linked (boundary inclusive) (= 1)
+     PASS  linked bongsu share a group (= 1)
+     PASS  group id is the smallest bongsu id of the component (= 1)
+     PASS  181.1 px is not linked (just outside) (= 0)
+     PASS  unlinked bongsu forms its own group (3 != 1)
+     PASS  chain d-e forms one group (= 3)
+     PASS  triangle cycle has 3 edges (= 3)
+     PASS  cycle collapses into one group
+     PASS  one group total (= 1)
+     PASS  s1 reaches s3 through s2 (multi-hop) (= 1)
+     PASS  deactivating a relay changes the topology version
+     PASS  inactive relay splits the component (1 != 3)
+     PASS  inactive bongsu has no group (= -1)
+     PASS  no edges through an inactive node (= 0)
+     PASS  reactivation restores the component (= 1)
+  -- AC-01 terminal attachment: nearest, ties by id, none beyond 180, re-attach on change
+     PASS  sensor attaches to the nearest bongsu (= 2)
+     PASS  sensor inherits the group (= 1)
+     PASS  equidistant bongsu: lowest id wins (= 1)
+     PASS  no bongsu within 180: unattached (= -1)
+     PASS  unattached terminal has no group (= -1)
+     PASS  re-attach after change: nearest active is out of range (= -1)
+     PASS  tie loser becomes the only candidate after the change (= 1)
+     PASS  re-attach after recovery (= 2)
+     PASS  terminal exactly at 180 px attaches (= 1)
+     PASS  terminal at 184.4 px does not attach (= -1)
+  -- AC-01 terminals never relay or merge groups
+     PASS  a sensor between two nets does not merge them (1 != 2)
+     PASS  sensor attaches to exactly one bongsu (lowest id on tie) (= 1)
+     PASS  hwacha 200 px from both bongsu attaches to none (= -1)
+     PASS  two groups remain (= 2)
+     PASS  hwacha attached to the right net (= 2)
+     PASS  no shared detection crosses from the other group (= 0)
+     PASS  mid sensor belongs to the left group only (= 1)
+  -- AC-02 fixture A: no fire disconnected, fire once connected, same position/seed/cooldown
+     PASS  enemy is outside local 100 and inside range 200 (155.24 px)
+     PASS  enemy is inside the sensor range
+     PASS  H attached to B (= 2)
+     PASS  S attached to B (= 2)
+     PASS  hwacha starts ready (= 0.0)
+     PASS  disconnected: hwacha knows nothing (= 0)
+     PASS  disconnected: no volley over 3 s (= 0)
+     PASS  wait reason reported (= 표적 없음)
+     PASS  cooldown untouched while holding fire (= 0.0)
+     PASS  connected: one shared enemy (= 1)
+     PASS  connected: still zero local (= 0)
+     PASS  connected: fired on the first tick (= 1)
+     PASS  fired at Z0 (= 0)
+     PASS  target came through the network (= 1)
+     PASS  counted as a shared-only volley (= 1)
+     PASS  enemy took one volley (no damage bonus from the network) (= 26.0)
+  -- AC-03 disconnection is honoured before the next volley; local fire continues; recovery re-acquires
+     PASS  first volley through the network (= 1)
+     PASS  cooldown is running after the volley
+     PASS  no stale shared volley after disconnection (ready for >1 s) (= 1)
+     PASS  cooldown ran down normally (not reset by the toggle) (= 0.0)
+     PASS  known set is empty while disconnected (= 0)
+     PASS  H2 has no group while the bongsu is inactive (= -1)
+     PASS  H2 detects the local enemy without any network (= 1)
+     PASS  H2 fires locally while disconnected (= 1)
+     PASS  …and the target was local (= 1)
+     PASS  fixture hwacha H still did not fire at the shared-only enemy (= 1)
+     PASS  recovery: shared target re-acquired and fired (1 -> 2)
+     PASS  local test enemy removed
+     PASS  H2 still active
+  -- AC-03 last source gone -> dropped; another source keeps it; slot reuse is not confused
+     PASS  known through two sensors counts once (= 1)
+     PASS  other sensor keeps the target after one source is lost (= 1)
+     PASS  last source gone: target dropped immediately (= 0)
+     PASS  source back: target re-acquired (= 1)
+     PASS  enemy left the sensor range: dropped (= 0)
+     PASS  back in range: known again (= 1)
+     PASS  dead enemy is not known (= 0)
+     PASS  pool reused the same slot (= 0)
+     PASS  reused slot has a new individual id (131072 != 65536)
+     PASS  new individual in the reused slot is not known (= 0)
+     PASS  old id is dead even though the slot is alive again
+     PASS  sensor/bongsu commands never touched the path field (= 2)
+  -- AC-04 other groups, out-of-range zones, partial observation, exact detection edges
+     PASS  sensor sees an enemy exactly at 140 px
+     PASS  sensor does not see 140.5 px
+     PASS  hwacha local detection exactly at 100 px
+     PASS  hwacha local does not see 100.5 px
+     PASS  bongsu still active (= true)
+     PASS  two separate groups (1 != 4)
+     PASS  hwacha knows only its own group's single enemy (= 1)
+     PASS  fires at its own Z0 (1) not the other net's Z5 (5) (= 0)
+     PASS  one volley (= 1)
+     PASS  other sensor is in the other group
+     PASS  enemy survives one volley (hp 60 > 34) (= 1)
+     PASS  sensor relayed through the second bongsu (= 1)
+     PASS  hwacha knows the three shared enemies (= 3)
+     PASS  but Z2 is 400 px away: no volley beyond the firing range (= 0)
+     PASS  wait reason explains it (= 알려진 표적이 사거리 밖)
+     PASS  both relays active
+     PASS  global density of Z7 is 2 (= 2)
+     PASS  hwacha counts only the observed enemy in Z7 (no global leak) (= 1)
+     PASS  relay and sensor active
+     PASS  both enemies alive
+  -- AC-05 duplicate sensors / local overlap / cycles do not amplify; earlier kills excluded
+     PASS  variant 1: every fixture placement accepted
+     PASS  variant 1 sensor count (= 1)
+     PASS  variant 1 bongsu count (= 1)
+     PASS  variant 1 link count (= 0)
+     PASS  variant 1: one group (= 1)
+     PASS  variant 1: S1 in the group (= 1)
+     PASS  variant 1: H in the group (= 1)
+     PASS  variant 1: S1 sees all six (= 6)
+     PASS  variant 1: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: every fixture placement accepted
+     PASS  variant 2 sensor count (= 2)
+     PASS  variant 2 bongsu count (= 1)
+     PASS  variant 2 link count (= 0)
+     PASS  variant 2: one group (= 1)
+     PASS  variant 2: S1 in the group (= 1)
+     PASS  variant 2: S2 in the group (= 1)
+     PASS  variant 2: H in the group (= 1)
+     PASS  variant 2: S1 sees all six (= 6)
+     PASS  variant 2: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 2: S2 sees all six (= 6)
+     PASS  variant 2: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: every fixture placement accepted
+     PASS  variant 3 sensor count (= 2)
+     PASS  variant 3 bongsu count (= 3)
+     PASS  variant 3 link count (= 3)
+     PASS  variant 3: one group (= 1)
+     PASS  variant 3: S1 in the group (= 1)
+     PASS  variant 3: S2 in the group (= 1)
+     PASS  variant 3: H in the group (= 1)
+     PASS  variant 3: S1 sees all six (= 6)
+     PASS  variant 3: S1 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  variant 3: S2 sees all six (= 6)
+     PASS  variant 3: S2 sees the same individuals (= [65536, 65537, 65538, 65539, 65540, 65541])
+     PASS  single sensor: hwacha knows the six enemies (= 6)
+     PASS  two sensors seeing the same enemies: same known count (= 6)
+     PASS  same zone density (= 6)
+     PASS  same number of volleys over the window (= 2)
+     PASS  same kills (= 6)
+     PASS  same number of damage applications (= 12)
+     PASS  three bongsu in a cycle: no amplification of known enemies (= 6)
+     PASS  cycle: same zone density (= 6)
+     PASS  cycle: same volleys (= 2)
+     PASS  cycle: same kills (= 6)
+     PASS  cycle: same damage applications (= 12)
+     ....  dup cases: known=6 zone=6 shots=2 kills=6 damage_events=12
+     PASS  enemy seen locally and by a sensor counts once (= 1)
+     PASS  …as local (= 1)
+     PASS  …and not again as shared (= 0)
+     PASS  setup intact
+     PASS  first hwacha fired (= 1)
+     PASS  first hwacha killed all four (= 4)
+     PASS  second hwacha saw no living enemy after the first volley (= 0)
+     PASS  setup intact
+  -- AC-06 combat-off ticks still evaluate per-hwacha candidates (R-02)
+     PASS  one candidate evaluation per active hwacha per tick (300 ticks x 4) (= 1200)
+     PASS  no volley while combat is off (= 0)
+     PASS  no damage while combat is off (= 0)
+     PASS  no kills while combat is off (= 0)
+     PASS  화차·중영 cooldown untouched (= 0.0)
+     PASS  화차·서영 cooldown untouched (= 0.0)
+     PASS  화차·동영 cooldown untouched (= 0.0)
+     PASS  화차·궁성 cooldown untouched (= 0.0)
+     PASS  hwachas know enemies through the network with combat off
+     PASS  at least one hwacha selected a would-be target zone
+     PASS  combat-on evaluations (1142) are bounded by ticks x hwachas; cooldown ticks skip evaluation
+  -- AC-07 bongsu/sensor placement: rejections, non-blocking, inactive keeps footprint, no path change
+     PASS  bongsu placed inside a lane
+     PASS  bongsu placement does not change the path version (= 2)
+     PASS  lane stays passable (non-blocking)
+     PASS  footprint cell still reachable
+     PASS  sensor over the bongsu is refused (= 3)
+     PASS  inactive structure keeps its footprint (= 3)
+     PASS  activation change does not change the path version (= 2)
+     PASS  sensor on the solid block is refused (= 2)
+     PASS  bongsu crossing the edge is refused (= 1)
+     PASS  bongsu onto a living enemy is refused (= 4)
+     PASS  preview agrees
+     PASS  accepted once the cell is clear
+     PASS  removal succeeds
+     PASS  removal frees the entry (= 1)
+     PASS  removed footprint is placeable again
+     PASS  none of this touched the path version (= 2)
+     PASS  test enemy cleared
+     PASS  unknown structure id is refused for activation
+     PASS  unknown structure id is refused for removal
+  -- same seed + same command sequence reproduce groups, known ids, shots (fixture B)
+     PASS  groups reproduce (= [5])
+     PASS  known ids per hwacha reproduce (= [[65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131145, 131148, 131150, 131154, 131156, 131157, 131159, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131202, 131204, 131211, 131212, 131214, 131220, 131222, 131232, 131241, 131242, 131243, 131244, 131247, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131289, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131331, 131332, 131333, 131334, 131335, 131336, 131345, 131346, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131370, 131373, 131374, 131379, 131380, 131384, 131385, 131399, 131406, 131408, 131424, 131427, 131433, 131437, 131444, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131490, 131493, 131495, 131497, 131500, 131502, 131505, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131570, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131603, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131646, 131649, 131654, 131658, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131703, 131705, 131709, 131712, 131714, 131717, 131720, 131734, 131736, 131738, 131739, 131742, 131745, 131747, 131753, 131754, 131760, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131817, 131820, 131823, 131825, 131829, 131831, 131832, 131834, 131843, 131847, 131850, 131855, 131856, 131858, 131867, 131868, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131903, 131904, 131907, 131909, 131918, 131925, 131927, 131933, 131934, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 131991, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132050, 132053, 132054, 132059, 132063, 132066, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131168, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131285, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131529, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131652, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131898, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559]])
+     PASS  shots reproduce (= [17, 14, 0, 13])
+     PASS  shared-only volleys reproduce (= 31)
+     PASS  kills reproduce (= [184, 439, 0, 413])
+     PASS  a different seed differs ([[65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131085, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131160, 131162, 131163, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131226, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131258, 131261, 131262, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131319, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131432, 131433, 131441, 131442, 131445, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131499, 131504, 131505, 131506, 131507, 131508, 131514, 131517, 131519, 131525, 131529, 131532, 131534, 131544, 131546, 131553, 131562, 131565, 131570, 131571, 131573, 131577, 131583, 131585, 131588, 131592, 131598, 131604, 131606, 131610, 131612, 131615, 131621, 131622, 131624, 131628, 131629, 131630, 131631, 131633, 131634, 131636, 131643, 131654, 131657, 131658, 131664, 131665, 131666, 131667, 131676, 131691, 131693, 131696, 131702, 131704, 131711, 131718, 131723, 131724, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131772, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131822, 131823, 131828, 131844, 131849, 131856, 131858, 131859, 131865, 131867, 131870, 131876, 131879, 131882, 131885, 131894, 131895, 131896, 131901, 131903, 131904, 131906, 131909, 131913, 131918, 131919, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131991, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132069, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197013, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131844, 131849, 131856, 131858, 131865, 131870, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131180, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131259, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131286, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131366, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131835, 131844, 131849, 131856, 131858, 131865, 131870, 131871, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604], [65550, 65580, 65589, 65634, 65646, 65652, 65682, 65694, 65703, 65721, 65736, 65751, 65757, 65769, 65778, 65796, 65805, 65859, 65865, 65868, 65874, 65886, 65889, 65895, 65907, 65910, 65919, 65925, 65931, 65934, 65943, 65949, 65958, 65988, 65994, 66000, 66003, 66012, 66015, 66021, 66039, 66045, 66084, 66099, 66108, 66126, 66132, 66138, 66150, 66162, 66174, 66180, 66186, 66204, 66207, 66219, 66225, 66234, 66249, 66258, 66261, 66282, 66294, 66315, 66318, 66321, 66330, 66333, 66345, 66357, 66369, 66372, 66375, 66384, 66387, 66399, 66405, 66408, 66417, 66423, 66426, 66429, 66453, 66465, 66474, 66489, 66492, 66498, 66510, 66522, 66525, 66528, 66531, 66534, 131077, 131079, 131081, 131084, 131095, 131096, 131114, 131121, 131128, 131129, 131133, 131137, 131139, 131143, 131145, 131147, 131150, 131153, 131158, 131159, 131162, 131166, 131169, 131173, 131174, 131177, 131181, 131185, 131187, 131190, 131193, 131201, 131205, 131206, 131208, 131210, 131211, 131214, 131220, 131228, 131233, 131237, 131240, 131241, 131244, 131246, 131252, 131254, 131256, 131261, 131264, 131267, 131268, 131275, 131276, 131282, 131285, 131289, 131291, 131292, 131297, 131298, 131301, 131304, 131312, 131316, 131320, 131328, 131331, 131333, 131342, 131344, 131345, 131350, 131352, 131358, 131360, 131368, 131372, 131386, 131387, 131396, 131408, 131411, 131417, 131418, 131421, 131423, 131433, 131441, 131448, 131449, 131453, 131465, 131468, 131471, 131475, 131480, 131486, 131504, 131505, 131506, 131507, 131508, 131514, 131519, 131525, 131529, 131532, 131534, 131544, 131565, 131570, 131571, 131573, 131583, 131585, 131588, 131592, 131598, 131606, 131612, 131615, 131621, 131624, 131629, 131630, 131633, 131634, 131636, 131643, 131657, 131658, 131664, 131665, 131666, 131667, 131691, 131693, 131696, 131702, 131704, 131711, 131727, 131733, 131735, 131741, 131759, 131760, 131765, 131768, 131769, 131787, 131792, 131793, 131796, 131799, 131807, 131816, 131817, 131828, 131844, 131849, 131856, 131858, 131865, 131870, 131876, 131879, 131882, 131885, 131895, 131896, 131901, 131904, 131906, 131909, 131913, 131918, 131921, 131927, 131928, 131936, 131940, 131943, 131948, 131954, 131960, 131966, 131973, 131978, 131979, 131985, 131990, 131994, 131996, 132009, 132011, 132021, 132032, 132035, 132036, 132038, 132044, 132048, 132050, 132051, 132056, 132071, 196618, 196630, 196663, 196692, 196725, 196761, 196785, 196810, 196915, 196945, 196972, 197115, 197116, 197131, 197137, 197154, 197178, 197184, 197224, 197253, 197281, 197356, 197400, 197424, 197485, 197493, 197544, 197583, 197601, 197604]] != [[65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131145, 131148, 131150, 131154, 131156, 131157, 131159, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131202, 131204, 131211, 131212, 131214, 131220, 131222, 131232, 131241, 131242, 131243, 131244, 131247, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131289, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131331, 131332, 131333, 131334, 131335, 131336, 131345, 131346, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131370, 131373, 131374, 131379, 131380, 131384, 131385, 131399, 131406, 131408, 131424, 131427, 131433, 131437, 131444, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131490, 131493, 131495, 131497, 131500, 131502, 131505, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131570, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131603, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131646, 131649, 131654, 131658, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131703, 131705, 131709, 131712, 131714, 131717, 131720, 131734, 131736, 131738, 131739, 131742, 131745, 131747, 131753, 131754, 131760, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131817, 131820, 131823, 131825, 131829, 131831, 131832, 131834, 131843, 131847, 131850, 131855, 131856, 131858, 131867, 131868, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131903, 131904, 131907, 131909, 131918, 131925, 131927, 131933, 131934, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 131991, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132050, 132053, 132054, 132059, 132063, 132066, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131168, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131285, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131529, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131652, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131898, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559], [65538, 65541, 65565, 65580, 65586, 65595, 65607, 65610, 65619, 65622, 65634, 65637, 65640, 65652, 65667, 65673, 65709, 65721, 65736, 65748, 65754, 65760, 65772, 65775, 65787, 65808, 65829, 65847, 65862, 65880, 65886, 65892, 65895, 65919, 65958, 65973, 65976, 66006, 66009, 66015, 66030, 66036, 66039, 66042, 66048, 66051, 66069, 66075, 66081, 66090, 66120, 66135, 66141, 66150, 66177, 66180, 66183, 66210, 66228, 66231, 66240, 66267, 66276, 66294, 66297, 66300, 66336, 66348, 66354, 66357, 66369, 66372, 66375, 66390, 66393, 66396, 66402, 66411, 66420, 66423, 66426, 66429, 66441, 66453, 66462, 66477, 66480, 66483, 66489, 66492, 66501, 66528, 131073, 131082, 131090, 131091, 131093, 131096, 131103, 131105, 131106, 131108, 131109, 131110, 131117, 131118, 131124, 131127, 131139, 131148, 131150, 131154, 131156, 131157, 131160, 131161, 131162, 131169, 131172, 131181, 131184, 131185, 131186, 131187, 131190, 131195, 131196, 131199, 131201, 131204, 131211, 131212, 131220, 131222, 131232, 131242, 131248, 131250, 131255, 131259, 131267, 131276, 131281, 131283, 131288, 131294, 131297, 131298, 131303, 131306, 131310, 131316, 131322, 131325, 131332, 131333, 131334, 131335, 131345, 131350, 131352, 131355, 131360, 131361, 131363, 131364, 131366, 131369, 131373, 131374, 131380, 131384, 131385, 131399, 131406, 131408, 131427, 131433, 131437, 131445, 131447, 131450, 131451, 131454, 131457, 131465, 131466, 131467, 131471, 131475, 131481, 131489, 131493, 131495, 131497, 131500, 131502, 131508, 131511, 131517, 131519, 131526, 131527, 131531, 131538, 131541, 131543, 131544, 131547, 131552, 131553, 131556, 131567, 131569, 131571, 131573, 131574, 131579, 131580, 131595, 131601, 131609, 131612, 131614, 131616, 131621, 131625, 131628, 131633, 131634, 131636, 131640, 131644, 131645, 131649, 131654, 131663, 131664, 131667, 131669, 131670, 131673, 131674, 131681, 131685, 131687, 131691, 131705, 131712, 131717, 131720, 131734, 131736, 131738, 131739, 131745, 131747, 131753, 131754, 131762, 131766, 131771, 131783, 131784, 131788, 131790, 131793, 131799, 131801, 131804, 131805, 131807, 131813, 131814, 131820, 131823, 131829, 131832, 131834, 131847, 131850, 131855, 131856, 131858, 131867, 131876, 131882, 131883, 131886, 131888, 131894, 131901, 131904, 131907, 131909, 131918, 131927, 131933, 131943, 131946, 131949, 131951, 131960, 131969, 131972, 131976, 131987, 131990, 132005, 132014, 132015, 132017, 132018, 132032, 132041, 132042, 132045, 132048, 132053, 132059, 132069, 196647, 196657, 196741, 196762, 196792, 196938, 196957, 196972, 196989, 196995, 196996, 197008, 197073, 197094, 197095, 197113, 197125, 197127, 197128, 197254, 197266, 197352, 197355, 197428, 197452, 197472, 197559]])
+     PASS  fixture B produces shared-only volleys (31)
+     PASS  reset restores exactly the 16 fixture structures (= 16)
+     PASS  reset clears enemies (= 0)
+     PASS  reset clears shot counters (= 0)
+     PASS  reset clears known sets (= 0)
+     PASS  reset restores activation
+
+== WP-003 collapse / retreat (AC-01..06, F1..F4) ==
+  -- setup: fixture C = 18 structures, 10 zones, outer goal, recovery target H1
+     PASS  18 structures placed (= 18)
+     PASS  4 hwacha (= 4)
+     PASS  8 bongsu (= 8)
+     PASS  4 sensors (= 4)
+     PASS  2 outer jangseung (= 2)
+     PASS  stable ids 1..18 in creation order (= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+     PASS  inner structures: H4, B2, B3, S4 (= 4)
+     PASS  outer structures (= 14)
+     PASS  inner ids are H4(4), B2(6), B3(7), S4(16) (= [4, 6, 7, 16])
+     PASS  10 candidate zones (8 + Z8 + Z9) (= 10)
+     PASS  Z8 centre (= (950.0, 560.0))
+     PASS  Z9 centre (= (950.0, 410.0))
+     PASS  run starts with the outer stronghold as the goal (= (47, 26))
+     PASS  route 0 reaches the outer goal with the jangseung standing
+     PASS  route 1 reaches the outer goal with the jangseung standing
+     PASS  route 2 reaches the outer goal with the jangseung standing
+     PASS  run state (= RUNNING)
+     PASS  defense state (= OUTER_ACTIVE)
+     PASS  outer HP 360 (D-032) (= 360.0)
+     PASS  outer HP max 360 (D-032) (= 360.0)
+     PASS  core HP 60 (= 60.0)
+     PASS  recovery target bound to H1's id at creation (= 1)
+     PASS  no recovery right before the collapse (= 0)
+     PASS  wave budget 1140 (= 1140)
+     PASS  no enemies at start (= 0)
+     PASS  WP-003 arrival mode (= after_fire)
+     PASS  WP-002 default keeps 8 zones (= 8)
+     PASS  WP-002 default keeps immediate arrivals (= immediate)
+     PASS  WP-002 default keeps the core goal (= (47, 10))
+  -- AC-01 outer HP 0 by real arrivals -> exactly one collapse, overflow dropped, one recovery right
+     PASS  collapse happened once (= 1)
+     PASS  outer HP clamped at 0 (= 0.0)
+     PASS  overflow (2) was NOT forwarded to the core (= 60.0)
+     PASS  all three arrivals consumed (= 3)
+     PASS  consumed enemies are gone (leaks, not kills) (= 0)
+     PASS  arrivals are not kills (= 0)
+     PASS  defense state switched (= INNER_ONLY)
+     PASS  one recovery right created (= 1)
+     PASS  one collapse event (= 1)
+     PASS  one recovery_created event (= 1)
+     PASS  goal is now the core (= (47, 10))
+     PASS  exactly one path rebuild for the target change (= 5)
+     PASS  H1 is detached (waiting)
+     PASS  H1 is not on the map
+     PASS  no active outer structure (= 0)
+     PASS  13 outer structures keep their footprint (= 13)
+     PASS  inner structures stay active (= 4)
+     PASS  jangseung still standing (blocking kept) (= 2)
+     PASS  route 0 reaches the core with the jangseung kept
+     PASS  route 1 reaches the core with the jangseung kept
+     PASS  route 2 reaches the core with the jangseung kept
+     PASS  post-collapse arrivals damage the core (60 -> 58) (= 58.0)
+     PASS  collapse count still 1 (= 1)
+     PASS  no second recovery right (= 1)
+     PASS  still one collapse event (= 1)
+     PASS  outer HP unchanged at 0 (= 0.0)
+  -- AC-01/F4 contrast: an enemy killed by fire on the doorstep deals no damage
+     PASS  H1 killed it on the doorstep (= 1)
+     PASS  no stronghold damage (= 360.0)
+     PASS  no arrival recorded (= 0)
+     PASS  no collapse (= 0)
+     PASS  a surviving arrival deals exactly arrival_damage 1 (= 359.0)
+     PASS  one arrival (= 1)
+  -- AC-01/AC-03 R-04 duplicate collapse callback: refused in waiting / placed / ended states, nothing changes
+     PASS  real collapse through arrival damage (= 1)
+     PASS  no ignored call yet (= 0)
+     PASS  duplicate call in the waiting state is refused (= false)
+     PASS  waiting: full state unchanged (= {"alive":0,"arrival_mode":"after_fire","combat_enabled":true,"config":{"arrival_damage":1.0,"arrival_mode":"after_fire","benchmark_core_invulnerable":false,"benchmark_hold_alive":false,"bongsu_link_range":180.0,"combat_enabled":true,"core_hp":60.0,"district_rules":true,"enemy_capacity":6000,"enemy_draw_size":9.0,"enemy_hp":60.0,"enemy_lane_offset":7.0,"enemy_speed":58.0,"enemy_speed_jitter":0.22,"fixed_dt":0.0166666667,"fixture":"c","goal_radius":26.0,"hwacha_blast_radius":55.0,"hwacha_cooldown":0.8,"hwacha_damage":34.0,"hwacha_local_range":100.0,"hwacha_range":200.0,"max_steps_per_frame":4,"outer_hp":360.0,"run_mode":"waves","seed":20260913,"sensor_range":140.0,"spawn_rate":420.0,"target_alive":1000,"targeting_mode":"wp002","wave_gap_seconds":5.0,"zone_set":"wp003"},"damage_applications":1,"detached":[{"active":false,"anchor":[46,29],"attached_to":10,"blast_radius":55.0,"center":[940.0,600.0],"cooldown":0.8,"cooldown_left":0.8,"damage":34.0,"detached":true,"detect_range":100.0,"district":0,"fire_range":200.0,"group":5,"id":1,"kills":0,"kind":"HWACHA","known_local":1,"known_shared":0,"label":"화차·중영","last_aim":[950.0,560.0],"last_target_local":1,"last_target_shared":0,"last_zone":8,"muzzle_timer":0.12,"shots":1,"wait_reason":""}],"enemies":[],"hwacha_totals":{"candidate_evaluations":4,"kills":0,"shared_only":0,"shots":1},"killed_total":0,"leaked_total":1,"network":{"edges":{"6":[7],"7":[6]},"groups":[6],"hwacha_known":{"2":[],"3":[],"4":[]},"sensor_seen":{"16":[]},"topology_version":17},"path":{"goal":[47,10],"path_version":5},"placement_counters":{"activation_changes":13,"commands_accepted":18,"commands_rejected":0,"locked_district":0,"next_id":19,"rejected_total":0},"rng_state":-8314009927011941027,"route_alive":[0,0,0],"route_leaked":[1,0,0],"route_spawned":[1,0,0],"run":{"arrival_damage":1.0,"collapse_count":1,"collapse_sim_time":0.0,"collapse_tick":0,"core_arrivals":0,"core_damage_absorbed":0.0,"core_damage_total":0.0,"core_hp":60.0,"core_hp_max":60.0,"core_invulnerable":false,"defense":"INNER_ONLY","end_sim_time":-1.0,"end_tick":-1,"event_count":7,"forced_hp_writes":1,"outer_arrivals":1,"outer_damage_total":1.0,"outer_hp":0.0,"outer_hp_max":360.0,"recovery_anchor":[-1,-1],"recovery_placed":false,"recovery_placed_tick":-1,"recovery_right":1,"recovery_target_id":1,"run":"RUNNING"},"run_mode":"waves","sim_time":0.0166666667,"spawned_total":1,"spawning_enabled":false,"steps":1,"structures":[{"active":false,"anchor":[30,25],"attached_to":-1,"blast_radius":55.0,"center":[620.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":2,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·서영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":false,"anchor":[64,25],"attached_to":-1,"blast_radius":55.0,"center":[1300.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":3,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·동영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":true,"anchor":[46,17],"attached_to":6,"blast_radius":55.0,"center":[940.0,360.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":6,"id":4,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·궁성","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":false,"anchor":[34,21],"attached_to":-1,"blast_radius":0.0,"center":[700.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":5,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[42,21],"attached_to":-1,"blast_radius":0.0,"center":[860.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":6,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[50,21],"attached_to":-1,"blast_radius":0.0,"center":[1020.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":7,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,21],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":8,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[34,29],"attached_to":-1,"blast_radius":0.0,"center":[700.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":9,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B5","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[42,29],"attached_to":-1,"blast_radius":0.0,"center":[860.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":10,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B6","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,29],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":11,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B7","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,33],"attached_to":-1,"blast_radius":0.0,"center":[900.0,680.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":12,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B8","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[30,27],"attached_to":-1,"blast_radius":0.0,"center":[620.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":13,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[62,27],"attached_to":-1,"blast_radius":0.0,"center":[1260.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":14,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,39],"attached_to":-1,"blast_radius":0.0,"center":[900.0,800.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":15,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[47,15],"attached_to":7,"blast_radius":0.0,"center":[960.0,320.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":1,"fire_range":0.0,"group":6,"id":16,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,36],"attached_to":-1,"blast_radius":0.0,"center":[900.0,740.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":17,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[22,24],"attached_to":-1,"blast_radius":0.0,"center":[460.0,500.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":18,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""}],"targeting_mode":"wp002","waves":{"enabled":true,"gap_left":0.0,"remaining":[60,60,60],"scheduled_complete":false,"spawned_by_wave":[0,0,0],"spawned_extra":0,"spawned_scheduled":0,"state":"SPAWNING","total_budget":1140,"wave_index":0,"wave_name":"W1","wave_spent_tick":[-1,-1,-1],"wave_started_tick":[0,-1,-1]},"waves_accum":[0.0,0.0,0.0],"zone_counts":[0,0,0,0,0,0,0,0,1,0],"zone_set":"wp003","zones":[{"center":[900.0,750.0],"id":0,"name":"남문 서편 골목","radius":45.0},{"center":[980.0,750.0],"id":1,"name":"남문 동편 골목","radius":45.0},{"center":[940.0,1000.0],"id":2,"name":"남대문 대로","radius":70.0},{"center":[460.0,500.0],"id":3,"name":"서문 북편 골목","radius":45.0},{"center":[460.0,580.0],"id":4,"name":"서문 남편 골목","radius":45.0},{"center":[1460.0,500.0],"id":5,"name":"동문 북편 골목","radius":45.0},{"center":[1460.0,580.0],"id":6,"name":"동문 남편 골목","radius":45.0},{"center":[960.0,310.0],"id":7,"name":"광화문 어귀","radius":70.0},{"center":[950.0,560.0],"id":8,"name":"광장 남단","radius":70.0},{"center":[950.0,410.0],"id":9,"name":"광화문 앞","radius":50.0}]})
+     PASS  waiting: right still 1 (= 1)
+     PASS  waiting: one collapse event (= 1)
+     PASS  waiting: one recovery_created event (= 1)
+     PASS  waiting: no new event (= 7)
+     PASS  waiting: no path rebuild (= 5)
+     PASS  waiting: network topology unchanged (= 17)
+     PASS  waiting: ignored counter 1 (= 1)
+     PASS  placement at B accepted
+     PASS  duplicate call after the placement is refused (= false)
+     PASS  placed: full state unchanged (= {"alive":0,"arrival_mode":"after_fire","combat_enabled":true,"config":{"arrival_damage":1.0,"arrival_mode":"after_fire","benchmark_core_invulnerable":false,"benchmark_hold_alive":false,"bongsu_link_range":180.0,"combat_enabled":true,"core_hp":60.0,"district_rules":true,"enemy_capacity":6000,"enemy_draw_size":9.0,"enemy_hp":60.0,"enemy_lane_offset":7.0,"enemy_speed":58.0,"enemy_speed_jitter":0.22,"fixed_dt":0.0166666667,"fixture":"c","goal_radius":26.0,"hwacha_blast_radius":55.0,"hwacha_cooldown":0.8,"hwacha_damage":34.0,"hwacha_local_range":100.0,"hwacha_range":200.0,"max_steps_per_frame":4,"outer_hp":360.0,"run_mode":"waves","seed":20260913,"sensor_range":140.0,"spawn_rate":420.0,"target_alive":1000,"targeting_mode":"wp002","wave_gap_seconds":5.0,"zone_set":"wp003"},"damage_applications":1,"detached":[],"enemies":[],"hwacha_totals":{"candidate_evaluations":4,"kills":0,"shared_only":0,"shots":1},"killed_total":0,"leaked_total":1,"network":{"edges":{"6":[7],"7":[6]},"groups":[6],"hwacha_known":{"1":[],"2":[],"3":[],"4":[]},"sensor_seen":{"16":[]},"topology_version":18},"path":{"goal":[47,10],"path_version":5},"placement_counters":{"activation_changes":13,"commands_accepted":19,"commands_rejected":0,"locked_district":0,"next_id":19,"rejected_total":0},"rng_state":-8314009927011941027,"route_alive":[0,0,0],"route_leaked":[1,0,0],"route_spawned":[1,0,0],"run":{"arrival_damage":1.0,"collapse_count":1,"collapse_sim_time":0.0,"collapse_tick":0,"core_arrivals":0,"core_damage_absorbed":0.0,"core_damage_total":0.0,"core_hp":60.0,"core_hp_max":60.0,"core_invulnerable":false,"defense":"INNER_ONLY","end_sim_time":-1.0,"end_tick":-1,"event_count":8,"forced_hp_writes":1,"outer_arrivals":1,"outer_damage_total":1.0,"outer_hp":0.0,"outer_hp_max":360.0,"recovery_anchor":[44,13],"recovery_placed":true,"recovery_placed_tick":1,"recovery_right":0,"recovery_target_id":1,"run":"RUNNING"},"run_mode":"waves","sim_time":0.0166666667,"spawned_total":1,"spawning_enabled":false,"steps":1,"structures":[{"active":true,"anchor":[44,13],"attached_to":6,"blast_radius":55.0,"center":[900.0,280.0],"cooldown":0.8,"cooldown_left":0.8,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":6,"id":1,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·중영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":1,"wait_reason":""},{"active":false,"anchor":[30,25],"attached_to":-1,"blast_radius":55.0,"center":[620.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":2,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·서영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":false,"anchor":[64,25],"attached_to":-1,"blast_radius":55.0,"center":[1300.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":3,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·동영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":true,"anchor":[46,17],"attached_to":6,"blast_radius":55.0,"center":[940.0,360.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":6,"id":4,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·궁성","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":false,"anchor":[34,21],"attached_to":-1,"blast_radius":0.0,"center":[700.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":5,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[42,21],"attached_to":-1,"blast_radius":0.0,"center":[860.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":6,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[50,21],"attached_to":-1,"blast_radius":0.0,"center":[1020.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":7,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,21],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":8,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[34,29],"attached_to":-1,"blast_radius":0.0,"center":[700.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":9,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B5","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[42,29],"attached_to":-1,"blast_radius":0.0,"center":[860.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":10,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B6","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,29],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":11,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B7","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,33],"attached_to":-1,"blast_radius":0.0,"center":[900.0,680.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":12,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B8","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[30,27],"attached_to":-1,"blast_radius":0.0,"center":[620.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":13,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[62,27],"attached_to":-1,"blast_radius":0.0,"center":[1260.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":14,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,39],"attached_to":-1,"blast_radius":0.0,"center":[900.0,800.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":15,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[47,15],"attached_to":7,"blast_radius":0.0,"center":[960.0,320.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":1,"fire_range":0.0,"group":6,"id":16,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,36],"attached_to":-1,"blast_radius":0.0,"center":[900.0,740.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":17,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[22,24],"attached_to":-1,"blast_radius":0.0,"center":[460.0,500.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":18,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""}],"targeting_mode":"wp002","waves":{"enabled":true,"gap_left":0.0,"remaining":[60,60,60],"scheduled_complete":false,"spawned_by_wave":[0,0,0],"spawned_extra":0,"spawned_scheduled":0,"state":"SPAWNING","total_budget":1140,"wave_index":0,"wave_name":"W1","wave_spent_tick":[-1,-1,-1],"wave_started_tick":[0,-1,-1]},"waves_accum":[0.0,0.0,0.0],"zone_counts":[0,0,0,0,0,0,0,0,1,0],"zone_set":"wp003","zones":[{"center":[900.0,750.0],"id":0,"name":"남문 서편 골목","radius":45.0},{"center":[980.0,750.0],"id":1,"name":"남문 동편 골목","radius":45.0},{"center":[940.0,1000.0],"id":2,"name":"남대문 대로","radius":70.0},{"center":[460.0,500.0],"id":3,"name":"서문 북편 골목","radius":45.0},{"center":[460.0,580.0],"id":4,"name":"서문 남편 골목","radius":45.0},{"center":[1460.0,500.0],"id":5,"name":"동문 북편 골목","radius":45.0},{"center":[1460.0,580.0],"id":6,"name":"동문 남편 골목","radius":45.0},{"center":[960.0,310.0],"id":7,"name":"광화문 어귀","radius":70.0},{"center":[950.0,560.0],"id":8,"name":"광장 남단","radius":70.0},{"center":[950.0,410.0],"id":9,"name":"광화문 앞","radius":50.0}]})
+     PASS  placed: right stays consumed (0) (= 0)
+     PASS  placed: H1 stays on the map, not detached again
+     PASS  placed: 18 structures (= 18)
+     PASS  placed: still one collapse event (= 1)
+     PASS  placed: still one recovery_created event (= 1)
+     PASS  placed: no new event (= 8)
+     PASS  placed: no path rebuild (= 5)
+     PASS  placed: network topology unchanged (= 18)
+     PASS  placed: ignored counter 2 (= 2)
+     PASS  run ended (= LOST)
+     PASS  duplicate call after the end is refused (= false)
+     PASS  ended: full state unchanged (= {"alive":0,"arrival_mode":"after_fire","combat_enabled":true,"config":{"arrival_damage":1.0,"arrival_mode":"after_fire","benchmark_core_invulnerable":false,"benchmark_hold_alive":false,"bongsu_link_range":180.0,"combat_enabled":true,"core_hp":60.0,"district_rules":true,"enemy_capacity":6000,"enemy_draw_size":9.0,"enemy_hp":60.0,"enemy_lane_offset":7.0,"enemy_speed":58.0,"enemy_speed_jitter":0.22,"fixed_dt":0.0166666667,"fixture":"c","goal_radius":26.0,"hwacha_blast_radius":55.0,"hwacha_cooldown":0.8,"hwacha_damage":34.0,"hwacha_local_range":100.0,"hwacha_range":200.0,"max_steps_per_frame":4,"outer_hp":360.0,"run_mode":"waves","seed":20260913,"sensor_range":140.0,"spawn_rate":420.0,"target_alive":1000,"targeting_mode":"wp002","wave_gap_seconds":5.0,"zone_set":"wp003"},"damage_applications":1,"detached":[],"enemies":[],"hwacha_totals":{"candidate_evaluations":5,"kills":0,"shared_only":0,"shots":1},"killed_total":0,"leaked_total":2,"network":{"edges":{"6":[7],"7":[6]},"groups":[6],"hwacha_known":{"1":[131072],"2":[],"3":[],"4":[131072]},"sensor_seen":{"16":[131072]},"topology_version":18},"path":{"goal":[47,10],"path_version":5},"placement_counters":{"activation_changes":13,"commands_accepted":19,"commands_rejected":0,"locked_district":0,"next_id":19,"rejected_total":0},"rng_state":-6030865374570777829,"route_alive":[0,0,0],"route_leaked":[2,0,0],"route_spawned":[2,0,0],"run":{"arrival_damage":1.0,"collapse_count":1,"collapse_sim_time":0.0,"collapse_tick":0,"core_arrivals":1,"core_damage_absorbed":0.0,"core_damage_total":1.0,"core_hp":0.0,"core_hp_max":60.0,"core_invulnerable":false,"defense":"INNER_ONLY","end_sim_time":0.0333333334,"end_tick":2,"event_count":11,"forced_hp_writes":2,"outer_arrivals":1,"outer_damage_total":1.0,"outer_hp":0.0,"outer_hp_max":360.0,"recovery_anchor":[44,13],"recovery_placed":true,"recovery_placed_tick":1,"recovery_right":0,"recovery_target_id":1,"run":"LOST"},"run_mode":"waves","sim_time":0.0333333334,"spawned_total":2,"spawning_enabled":false,"steps":2,"structures":[{"active":true,"anchor":[44,13],"attached_to":6,"blast_radius":55.0,"center":[900.0,280.0],"cooldown":0.8,"cooldown_left":0.7833333333000001,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":6,"id":1,"kills":0,"kind":"HWACHA","known_local":1,"known_shared":0,"label":"화차·중영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":1,"wait_reason":"재장전"},{"active":false,"anchor":[30,25],"attached_to":-1,"blast_radius":55.0,"center":[620.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":2,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·서영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"비활성"},{"active":false,"anchor":[64,25],"attached_to":-1,"blast_radius":55.0,"center":[1300.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":-1,"id":3,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":0,"label":"화차·동영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"비활성"},{"active":true,"anchor":[46,17],"attached_to":6,"blast_radius":55.0,"center":[940.0,360.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":6,"id":4,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":1,"label":"화차·궁성","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"표적 없음"},{"active":false,"anchor":[34,21],"attached_to":-1,"blast_radius":0.0,"center":[700.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":5,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[42,21],"attached_to":-1,"blast_radius":0.0,"center":[860.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":6,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[50,21],"attached_to":-1,"blast_radius":0.0,"center":[1020.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":6,"id":7,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,21],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":8,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[34,29],"attached_to":-1,"blast_radius":0.0,"center":[700.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":9,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B5","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[42,29],"attached_to":-1,"blast_radius":0.0,"center":[860.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":10,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B6","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[58,29],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":11,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B7","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,33],"attached_to":-1,"blast_radius":0.0,"center":[900.0,680.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":12,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B8","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[30,27],"attached_to":-1,"blast_radius":0.0,"center":[620.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":13,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[62,27],"attached_to":-1,"blast_radius":0.0,"center":[1260.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":14,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,39],"attached_to":-1,"blast_radius":0.0,"center":[900.0,800.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":-1,"id":15,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[47,15],"attached_to":7,"blast_radius":0.0,"center":[960.0,320.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":1,"fire_range":0.0,"group":6,"id":16,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[44,36],"attached_to":-1,"blast_radius":0.0,"center":[900.0,740.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":17,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":false,"anchor":[22,24],"attached_to":-1,"blast_radius":0.0,"center":[460.0,500.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":18,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""}],"targeting_mode":"wp002","waves":{"enabled":true,"gap_left":0.0,"remaining":[60,60,60],"scheduled_complete":false,"spawned_by_wave":[0,0,0],"spawned_extra":0,"spawned_scheduled":0,"state":"SPAWNING","total_budget":1140,"wave_index":0,"wave_name":"W1","wave_spent_tick":[-1,-1,-1],"wave_started_tick":[0,-1,-1]},"waves_accum":[0.0,0.0,0.0],"zone_counts":[0,0,0,0,0,0,0,0,0,0],"zone_set":"wp003","zones":[{"center":[900.0,750.0],"id":0,"name":"남문 서편 골목","radius":45.0},{"center":[980.0,750.0],"id":1,"name":"남문 동편 골목","radius":45.0},{"center":[940.0,1000.0],"id":2,"name":"남대문 대로","radius":70.0},{"center":[460.0,500.0],"id":3,"name":"서문 북편 골목","radius":45.0},{"center":[460.0,580.0],"id":4,"name":"서문 남편 골목","radius":45.0},{"center":[1460.0,500.0],"id":5,"name":"동문 북편 골목","radius":45.0},{"center":[1460.0,580.0],"id":6,"name":"동문 남편 골목","radius":45.0},{"center":[960.0,310.0],"id":7,"name":"광화문 어귀","radius":70.0},{"center":[950.0,560.0],"id":8,"name":"광장 남단","radius":70.0},{"center":[950.0,410.0],"id":9,"name":"광화문 앞","radius":50.0}]})
+     PASS  ended: no new event (= 11)
+     PASS  ended: ignored counter 3 (= 3)
+     PASS  restart clears the ignored counter (= 0)
+     PASS  restart clears the collapse (= 0)
+  -- AC-02 living and new enemies switch to the core, state preserved, no teleport
+     PASS  collapse happened (= 1)
+     PASS  enemy 0 keeps its id
+     PASS  enemy 0 keeps its hp (= 60.0)
+     PASS  enemy 0 moved at most one tick (1.01 px), no teleport
+     PASS  enemy 1 keeps its id
+     PASS  enemy 1 keeps its hp (= 60.0)
+     PASS  enemy 1 moved at most one tick (0.77 px), no teleport
+     PASS  enemy 2 keeps its id
+     PASS  enemy 2 keeps its hp (= 60.0)
+     PASS  enemy 2 moved at most one tick (0.83 px), no teleport
+     PASS  enemy 3 keeps its id
+     PASS  enemy 3 keeps its hp (= 60.0)
+     PASS  enemy 3 moved at most one tick (0.78 px), no teleport
+     PASS  enemy 4 keeps its id
+     PASS  enemy 4 keeps its hp (= 60.0)
+     PASS  enemy 4 moved at most one tick (1.11 px), no teleport
+     PASS  new enemy spawned after the collapse (= 1)
+     PASS  no further outer arrivals after the collapse (= 1)
+     PASS  flying enemies reached the core or died on the way (0 arrived, 6 killed)
+     PASS  nobody is stuck on the abandoned target (= 0)
+     PASS  one target_changed event (= 1)
+  -- AC-03 outer functions stop; only H1 can be restored, once, inner only, same id
+     PASS  no recovery before the collapse (= 11)
+     PASS  H1 fired before the collapse
+     PASS  collapsed (= 1)
+     PASS  inactive outer hwacha fired nothing (= 0)
+     PASS  inactive outer hwacha knows nothing (= 0)
+     PASS  only the inner B2-B3 link remains (= 1)
+     PASS  refused: outer district (H1's old spot) (= 8)
+     PASS  right kept after refusal (outer district (H1's old spot)) (= 1)
+     PASS  no structure change (outer district (H1's old spot)) (= 17)
+     PASS  refused: footprint straddles outer/inner (plaza strip) (= 7)
+     PASS  right kept after refusal (footprint straddles outer/inner (plaza strip)) (= 1)
+     PASS  no structure change (footprint straddles outer/inner (plaza strip)) (= 17)
+     PASS  refused: wall (= 2)
+     PASS  right kept after refusal (wall) (= 1)
+     PASS  no structure change (wall) (= 17)
+     PASS  refused: on S4 (= 3)
+     PASS  right kept after refusal (on S4) (= 1)
+     PASS  no structure change (on S4) (= 17)
+     PASS  refused: living enemy on the cell (= 4)
+     PASS  right kept after occupancy refusal (= 1)
+     PASS  preview agrees (= 4)
+     PASS  occupant cleared
+     PASS  re-activating an outer structure is refused
+     PASS  new outer placement refused after the collapse (= 8)
+     PASS  preview says B is legal (= 0)
+     PASS  recovery placement at B accepted
+     PASS  same id (= 1)
+     PASS  same object
+     PASS  shot counter preserved (= 1)
+     PASS  cooldown preserved across the detached period (= 0.7833333333)
+     PASS  attached to B2 (= 6)
+     PASS  same group as S4 (= 6)
+     PASS  right consumed (= 0)
+     PASS  placed flag
+     PASS  nothing left waiting (= 0)
+     PASS  18 structures on the map again (= 18)
+     PASS  second placement refused (= 11)
+     PASS  no hwacha duplicated (= 4)
+     PASS  one recovery_placed event (= 1)
+  -- AC-03 detached H1 cooldown is frozen; an inactive outer hwacha keeps decrementing
+     PASS  collapsed (= 1)
+     PASS  detached H1: cooldown frozen at 0.5 (= 0.5)
+     PASS  inactive H2: cooldown ran down (existing policy kept) (= 0.0)
+     PASS  after placement the cooldown resumes (0.25)
+  -- F1 normal defense (D-032 outer HP 360): 18 structures, 1140 enemies, no input -> WON without collapse
+     PASS  F1 starts from the D-032 outer HP 360 (= 360.0)
+     PASS  run WON within 300 s (ended at 99.8 s) (= WON)
+     PASS  no collapse (= 0)
+     PASS  outer HP > 0 (46) (46.0 > 0.0)
+     PASS  core untouched (= 60.0)
+     PASS  all 1140 spawned (= 1140)
+     PASS  no survivors (= 0)
+     PASS  ledger: spawned = killed + arrived + alive (= 1140)
+     PASS  no forced HP writes (= 0)
+     PASS  wave director spawned exactly the budget (= 1140)
+     ....  F1: ended 99.8 s, outer_hp 46, killed 826, arrived 314, peak alive 394
+  -- F2 real waves, forced collapse at 20 s, H1 -> B at collapse+5 s, WON
+     PASS  no natural collapse before 20 s (= 0)
+     PASS  collapse through real arrival damage within 1 ticks
+     PASS  core alive at collapse+5 s (60) (60.0 > 0.0)
+     PASS  right available at +5 s (= 1)
+     PASS  recovery placement at B succeeded at +5 s (NONE)
+     PASS  H1 attached to B2 (= 6)
+     PASS  run WON (ended at 105.5 s) (= WON)
+     PASS  won from INNER_ONLY (= INNER_ONLY)
+     PASS  core survived (28) (28.0 > 0.0)
+     PASS  1140 waves + 1 trigger enemy (= 1141)
+     PASS  extra budget recorded (= 1)
+     PASS  no survivors (= 0)
+     ....  F2: collapse tick 1200, placed tick 1500, H1 shots after 84, core_hp 28, ended 105.5 s
+     ....  F2 +0 ticks: core_hp 60, placement ok
+     ....  F2 +600 ticks: core_hp 59, placement ok
+  -- F3 controlled A/B: connection alone changes shared fire, kills and core damage
+     PASS  A: H4 deactivated for the controlled test
+     PASS  B: H4 deactivated for the controlled test
+     PASS  state hash identical right before the placement (same snapshot) (= 0.000|0|1|-8314009927011941027|2:0.0000:0:0:false|3:0.0000:0:0:false|4:0.0000:0:0:false|D1:0.8000:1:0|RUNNING/INNER_ONLY/0.0/60.0/1|5|[60, 60, 60])
+     PASS  R-06: COMPLETE structured state identical before the placement (10791 chars: every enemy id/pos/hp, structures, network, waves, rng)
+     PASS  R-06: the shared state has no enemy on the field and H1 waiting
+     PASS  both placements succeeded (A NONE, B NONE)
+     PASS  A is not attached to any bongsu (= -1)
+     PASS  B is attached to B2 (= 6)
+     PASS  A run: S4 sees all 12 on the first detection (= 12)
+     PASS  B run: S4 sees all 12 on the first detection (= 12)
+     PASS  A: the 12 are outside H1's local radius (= 0)
+     PASS  B: the 12 are outside H1's local radius (= 0)
+     PASS  B knows Z9 density 12 through the network (= 12)
+     PASS  A knows Z9 density 0 (= 0)
+     PASS  A: zero shared-only volleys (= 0)
+     PASS  B: at least one shared-only volley (1) (1.0 >= 1.0)
+     PASS  kills B - A >= 6 (12 - 0) (12.0 >= 6.0)
+     PASS  core damage A - B >= 6 (12 - 0) (12.0 >= 6.0)
+     PASS  B core survives (60) (60.0 > 0.0)
+     ....  F3 A: shots 0 kills 0 shared 0 core dmg 12 | B: shots 2 kills 12 shared 1 core dmg 0
+  -- F4 lose priority, frozen after the end, refused commands, restart resets everything
+     PASS  empty schedule counts as complete
+     PASS  collapsed (= 1)
+     PASS  still running: one enemy alive (= RUNNING)
+     PASS  last enemy consumed -> alive 0 (= 0)
+     PASS  core HP 0 in the same tick (= 0.0)
+     PASS  LOST wins over WON when both conditions hit in one tick (= LOST)
+     PASS  state unchanged for 120 ticks after the end (= 0.000|0|2|-6030865374570777829|2:0.0000:0:0:false|3:0.0000:0:0:false|4:0.0000:0:0:true|D1:0.8000:1:0|LOST/INNER_ONLY/0.0/0.0/1|5|[60, 60, 60])
+     PASS  R-06: complete structured state unchanged for 120 ticks after the end
+     PASS  no tick advanced after the end (= 2)
+     PASS  recovery refused after the end (= 10)
+     PASS  placement refused after the end (= 10)
+     PASS  removal refused after the end (= 10)
+     PASS  activation refused after the end
+     PASS  run_id advanced (= 2)
+     PASS  running again (= RUNNING)
+     PASS  outer active again (= OUTER_ACTIVE)
+     PASS  outer HP restored to 360 (D-032) (= 360.0)
+     PASS  outer HP max restored to 360 (= 360.0)
+     PASS  core HP restored (= 60.0)
+     PASS  18 structures restored (= 18)
+     PASS  no detached structure (= 0)
+     PASS  no recovery right (= 0)
+     PASS  no enemies (= 0)
+     PASS  spawn counters reset (= 0)
+     PASS  wave table restored (= 1140)
+     PASS  goal back on the outer stronghold (= (47, 26))
+     PASS  event log cleared (only run_start) (= 1)
+     PASS  all structures active again
+     PASS  empty schedule + no enemies + core alive -> WON (= WON)
+     PASS  WON state frozen for 120 ticks (= 0.000|0|0|-222909052377122513|1:0.0000:0:0:true|2:0.0000:0:0:true|3:0.0000:0:0:true|4:0.0000:0:0:true|WON/OUTER_ACTIVE/360.0/60.0/0|4|[60, 60, 60])
+     PASS  run ids differ (1 != 2)
+     PASS  restarted run reproduces the fresh run (state hash excludes run_id) (= 133933.521|129|180|2011065352812074855|1:0.3333:7:36:true|2:0.3833:4:14:true|3:0.0000:0:0:true|4:0.0000:0:0:true|RUNNING/OUTER_ACTIVE/359.0/60.0/0|4|[0, 0, 0])
+     PASS  R-06: restarted run reproduces the fresh run in the COMPLETE structured state (run_id excluded)
+     PASS  full_state lists every living enemy and all 18 structures
+
+== WP-003 scene entry paths (R-02 zones, R-03 restart input) ==
+  -- R-02 scene path: --perf move/combat/network_move/network_combat keep the 8 WP-001 zones
+     PASS  move: the scene starts from the WP-003 default (10 zones) before the scenario is applied (= 10)
+     PASS  perf move: the scene's detector holds exactly 8 zones (= 8)
+     PASS  perf move: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  perf move: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  perf move: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  perf move: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  perf move: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  perf move: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  perf move: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  perf move: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  perf move: live DensityDetector has 8 zones (= 8)
+     PASS  perf move: battle.zone_set (= wp001)
+     PASS  perf move: run_mode sandbox (= sandbox)
+     PASS  perf move: arrival_mode immediate (= immediate)
+     PASS  perf move: EnemySim arrival_mode immediate (= immediate)
+     PASS  perf move: district rules off (= false)
+     PASS  perf move: wave director off (= false)
+     PASS  perf move: goal is the WP-001 core cell (= (47, 10))
+     PASS  perf move: no jangseung in the fixture (= 0)
+     PASS  move: targeting_mode (= wp001)
+     PASS  move: fixture (= wp001)
+     PASS  move: structure count (= 4)
+     PASS  move: load held for the benchmark (= true)
+     PASS  move: combat switch (= false)
+     PASS  move: zone manifest source has 8 entries (= 8)
+     PASS  combat: the scene starts from the WP-003 default (10 zones) before the scenario is applied (= 10)
+     PASS  perf combat: the scene's detector holds exactly 8 zones (= 8)
+     PASS  perf combat: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  perf combat: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  perf combat: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  perf combat: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  perf combat: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  perf combat: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  perf combat: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  perf combat: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  perf combat: live DensityDetector has 8 zones (= 8)
+     PASS  perf combat: battle.zone_set (= wp001)
+     PASS  perf combat: run_mode sandbox (= sandbox)
+     PASS  perf combat: arrival_mode immediate (= immediate)
+     PASS  perf combat: EnemySim arrival_mode immediate (= immediate)
+     PASS  perf combat: district rules off (= false)
+     PASS  perf combat: wave director off (= false)
+     PASS  perf combat: goal is the WP-001 core cell (= (47, 10))
+     PASS  perf combat: no jangseung in the fixture (= 0)
+     PASS  combat: targeting_mode (= wp001)
+     PASS  combat: fixture (= wp001)
+     PASS  combat: structure count (= 4)
+     PASS  combat: load held for the benchmark (= true)
+     PASS  combat: combat switch (= true)
+     PASS  combat: zone manifest source has 8 entries (= 8)
+     PASS  network_move: the scene starts from the WP-003 default (10 zones) before the scenario is applied (= 10)
+     PASS  perf network_move: the scene's detector holds exactly 8 zones (= 8)
+     PASS  perf network_move: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  perf network_move: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  perf network_move: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  perf network_move: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  perf network_move: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  perf network_move: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  perf network_move: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  perf network_move: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  perf network_move: live DensityDetector has 8 zones (= 8)
+     PASS  perf network_move: battle.zone_set (= wp001)
+     PASS  perf network_move: run_mode sandbox (= sandbox)
+     PASS  perf network_move: arrival_mode immediate (= immediate)
+     PASS  perf network_move: EnemySim arrival_mode immediate (= immediate)
+     PASS  perf network_move: district rules off (= false)
+     PASS  perf network_move: wave director off (= false)
+     PASS  perf network_move: goal is the WP-001 core cell (= (47, 10))
+     PASS  perf network_move: no jangseung in the fixture (= 0)
+     PASS  network_move: targeting_mode (= wp002)
+     PASS  network_move: fixture (= b)
+     PASS  network_move: structure count (= 16)
+     PASS  network_move: load held for the benchmark (= true)
+     PASS  network_move: combat switch (= false)
+     PASS  network_move: zone manifest source has 8 entries (= 8)
+     PASS  network_combat: the scene starts from the WP-003 default (10 zones) before the scenario is applied (= 10)
+     PASS  perf network_combat: the scene's detector holds exactly 8 zones (= 8)
+     PASS  perf network_combat: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  perf network_combat: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  perf network_combat: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  perf network_combat: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  perf network_combat: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  perf network_combat: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  perf network_combat: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  perf network_combat: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  perf network_combat: live DensityDetector has 8 zones (= 8)
+     PASS  perf network_combat: battle.zone_set (= wp001)
+     PASS  perf network_combat: run_mode sandbox (= sandbox)
+     PASS  perf network_combat: arrival_mode immediate (= immediate)
+     PASS  perf network_combat: EnemySim arrival_mode immediate (= immediate)
+     PASS  perf network_combat: district rules off (= false)
+     PASS  perf network_combat: wave director off (= false)
+     PASS  perf network_combat: goal is the WP-001 core cell (= (47, 10))
+     PASS  perf network_combat: no jangseung in the fixture (= 0)
+     PASS  network_combat: targeting_mode (= wp002)
+     PASS  network_combat: fixture (= b)
+     PASS  network_combat: structure count (= 16)
+     PASS  network_combat: load held for the benchmark (= true)
+     PASS  network_combat: combat switch (= true)
+     PASS  network_combat: zone manifest source has 8 entries (= 8)
+  -- R-02 scene path: --capture ac01/ac02/ac06/wp002_a keep the 8 WP-001 zones
+     PASS  capture ac01: the scene's detector holds exactly 8 zones (= 8)
+     PASS  capture ac01: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  capture ac01: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  capture ac01: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  capture ac01: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac01: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac01: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac01: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac01: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  capture ac01: live DensityDetector has 8 zones (= 8)
+     PASS  capture ac01: battle.zone_set (= wp001)
+     PASS  capture ac01: run_mode sandbox (= sandbox)
+     PASS  capture ac01: arrival_mode immediate (= immediate)
+     PASS  capture ac01: EnemySim arrival_mode immediate (= immediate)
+     PASS  capture ac01: district rules off (= false)
+     PASS  capture ac01: wave director off (= false)
+     PASS  capture ac01: goal is the WP-001 core cell (= (47, 10))
+     PASS  capture ac01: no jangseung in the fixture (= 0)
+     PASS  ac01: WP-001 global targeting (= wp001)
+     PASS  ac01: the four WP-001 hwachas (= 4)
+     PASS  capture ac02: the scene's detector holds exactly 8 zones (= 8)
+     PASS  capture ac02: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  capture ac02: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  capture ac02: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  capture ac02: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac02: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac02: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac02: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac02: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  capture ac02: live DensityDetector has 8 zones (= 8)
+     PASS  capture ac02: battle.zone_set (= wp001)
+     PASS  capture ac02: run_mode sandbox (= sandbox)
+     PASS  capture ac02: arrival_mode immediate (= immediate)
+     PASS  capture ac02: EnemySim arrival_mode immediate (= immediate)
+     PASS  capture ac02: district rules off (= false)
+     PASS  capture ac02: wave director off (= false)
+     PASS  capture ac02: goal is the WP-001 core cell (= (47, 10))
+     PASS  capture ac02: no jangseung in the fixture (= 0)
+     PASS  ac02: WP-001 global targeting (= wp001)
+     PASS  ac02: the four WP-001 hwachas (= 4)
+     PASS  capture ac06: the scene's detector holds exactly 8 zones (= 8)
+     PASS  capture ac06: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  capture ac06: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  capture ac06: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  capture ac06: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac06: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac06: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  capture ac06: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  capture ac06: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  capture ac06: live DensityDetector has 8 zones (= 8)
+     PASS  capture ac06: battle.zone_set (= wp001)
+     PASS  capture ac06: run_mode sandbox (= sandbox)
+     PASS  capture ac06: arrival_mode immediate (= immediate)
+     PASS  capture ac06: EnemySim arrival_mode immediate (= immediate)
+     PASS  capture ac06: district rules off (= false)
+     PASS  capture ac06: wave director off (= false)
+     PASS  capture ac06: goal is the WP-001 core cell (= (47, 10))
+     PASS  capture ac06: no jangseung in the fixture (= 0)
+     PASS  ac06: WP-001 global targeting (= wp001)
+     PASS  ac06: the four WP-001 hwachas (= 4)
+     PASS  capture wp002_a: the scene's detector holds exactly 8 zones (= 8)
+     PASS  capture wp002_a: Z0 id/name/centre/radius match the WP-001 table ({ "id": 0, "name": "남문 서편 골목", "center": [900.0, 750.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z1 id/name/centre/radius match the WP-001 table ({ "id": 1, "name": "남문 동편 골목", "center": [980.0, 750.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z2 id/name/centre/radius match the WP-001 table ({ "id": 2, "name": "남대문 대로", "center": [940.0, 1000.0], "radius": 70.0 })
+     PASS  capture wp002_a: Z3 id/name/centre/radius match the WP-001 table ({ "id": 3, "name": "서문 북편 골목", "center": [460.0, 500.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z4 id/name/centre/radius match the WP-001 table ({ "id": 4, "name": "서문 남편 골목", "center": [460.0, 580.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z5 id/name/centre/radius match the WP-001 table ({ "id": 5, "name": "동문 북편 골목", "center": [1460.0, 500.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z6 id/name/centre/radius match the WP-001 table ({ "id": 6, "name": "동문 남편 골목", "center": [1460.0, 580.0], "radius": 45.0 })
+     PASS  capture wp002_a: Z7 id/name/centre/radius match the WP-001 table ({ "id": 7, "name": "광화문 어귀", "center": [960.0, 310.0], "radius": 70.0 })
+     PASS  capture wp002_a: live DensityDetector has 8 zones (= 8)
+     PASS  capture wp002_a: battle.zone_set (= wp001)
+     PASS  capture wp002_a: run_mode sandbox (= sandbox)
+     PASS  capture wp002_a: arrival_mode immediate (= immediate)
+     PASS  capture wp002_a: EnemySim arrival_mode immediate (= immediate)
+     PASS  capture wp002_a: district rules off (= false)
+     PASS  capture wp002_a: wave director off (= false)
+     PASS  capture wp002_a: goal is the WP-001 core cell (= (47, 10))
+     PASS  capture wp002_a: no jangseung in the fixture (= 0)
+     PASS  wp002_a: WP-002 targeting (= wp002)
+     PASS  wp002_a: fixture A starts empty (= 0)
+     PASS  wp002_a: no spawning (= false)
+  -- scene path: WP-003 scenarios keep 10 zones, waves mode, outer HP 360 (D-032)
+     PASS  collapse_move: 10 zones (= 10)
+     PASS  collapse_move: waves mode (= waves)
+     PASS  collapse_move: after_fire arrivals (= after_fire)
+     PASS  collapse_move: finite waves off for the benchmark (= false)
+     PASS  collapse_move: benchmark outer HP 1e6 until the trigger (= 1000000.0)
+     PASS  collapse_move: benchmark core invulnerable (= true)
+     PASS  collapse_move: fixture C (= 18)
+     PASS  collapse_combat: 10 zones (= 10)
+     PASS  collapse_combat: waves mode (= waves)
+     PASS  collapse_combat: after_fire arrivals (= after_fire)
+     PASS  collapse_combat: finite waves off for the benchmark (= false)
+     PASS  collapse_combat: benchmark outer HP 1e6 until the trigger (= 1000000.0)
+     PASS  collapse_combat: benchmark core invulnerable (= true)
+     PASS  collapse_combat: fixture C (= 18)
+     PASS  wp003_f2: 10 zones (= 10)
+     PASS  wp003_f2: outer HP 360 (= 360.0)
+     PASS  wp003_f2: outer HP max 360 (= 360.0)
+     PASS  wp003_f2: real waves (= true)
+     PASS  wp003_f3a: 10 zones (= 10)
+     PASS  wp003_f3a: jitter 0 (= 0.0)
+     PASS  wp003_f3a: lane offset 0 (= 0.0)
+     PASS  wp003_f3a: waves off (= false)
+     PASS  wp003_f3a: H4 deactivated (= false)
+     PASS  wp003_f3a: outer HP forced to 1 for the collapse trigger (= 1.0)
+     PASS  wp003_f3a: trigger enemy on the outer stronghold (= 1)
+     PASS  wp003_f3b: 10 zones (= 10)
+     PASS  wp003_f3b: jitter 0 (= 0.0)
+     PASS  wp003_f3b: lane offset 0 (= 0.0)
+     PASS  wp003_f3b: waves off (= false)
+     PASS  wp003_f3b: H4 deactivated (= false)
+     PASS  wp003_f3b: outer HP forced to 1 for the collapse trigger (= 1.0)
+     PASS  wp003_f3b: trigger enemy on the outer stronghold (= 1)
+     PASS  interactive default run: outer HP 360 (= 360.0)
+     PASS  interactive default run: waves mode (= waves)
+  -- R-03 real keys: held click / pause / stale run_id never carry into the new run (WP-004: R -> confirm -> new run)
+     PASS  interactive launch shows TITLE (= TITLE)
+     PASS  게임 시작 -> PLAYING (= PLAYING)
+     PASS  P pauses (= PAUSED)
+     PASS  entering the menu drops the held click (= false)
+     PASS  다시 시작 opens the confirmation (= CONFIRM)
+     PASS  run_id advanced by the confirmed restart (= 3)
+     PASS  new run is PLAYING (pause cleared) (= PLAYING)
+     PASS  held click cleared by the restart (= false)
+     PASS  held-click run id cleared (= -1)
+     PASS  new run advanced exactly one tick in the frame that started it (= 1)
+     PASS  no command retried in the new run on the next physics tick (= 0)
+     PASS  nothing placed in the new run (= 18)
+     PASS  the new run keeps advancing (not paused) (= 2)
+     PASS  stale-run hold dropped (= false)
+     PASS  stale-run hold issued no command (= 0)
+     PASS  current-run hold still retries (refused: no recovery right yet)
+     PASS  sandbox R: confirmation first (= CONFIRM)
+     PASS  sandbox R confirmed: playing (= PLAYING)
+     PASS  sandbox R: held click cleared (= false)
+
+== WP-004 play flow (AC-01..07: menus, freeze, confirm, restart, input boundary, result, settings) ==
+  -- PlayFlow unit: legal transitions, return targets, refusals, Esc one level, no quit/restart from TITLE/RESULT Esc
+     PASS  starts on TITLE (= TITLE)
+     PASS  pause refused on TITLE (= )
+     PASS  Esc on TITLE does nothing (= )
+     PASS  start -> new run (= new_run)
+     PASS  PLAYING after start (= PLAYING)
+     PASS  start refused while playing (= )
+     PASS  settings from PLAYING pauses first (= )
+     PASS  SETTINGS (= SETTINGS)
+     PASS  return target PAUSED (never PLAYING) (= 2)
+     PASS  Esc closes settings (= )
+     PASS  back to PAUSED, not PLAYING (= PAUSED)
+     PASS  Esc on PAUSED resumes (= )
+     PASS  PLAYING (= PLAYING)
+     PASS  R while playing opens CONFIRM (= )
+     PASS  CONFIRM (= CONFIRM)
+     PASS  restart confirm text (= 현재 전투를 종료하고 처음부터 시작할까요?)
+     PASS  restart ok label (= 다시 시작)
+     PASS  Esc on CONFIRM cancels only (= )
+     PASS  cancel returns to PLAYING (opened from R) (= PLAYING)
+     PASS  pause (= )
+     PASS  to title from PAUSED opens CONFIRM (= )
+     PASS  to-title confirm text (= 현재 전투를 종료하고 시작 화면으로 돌아갈까요? 진행 상황은 저장되지 않습니다.)
+     PASS  to-title ok label (= 시작 화면으로)
+     PASS  cancel (= )
+     PASS  cancel returns to PAUSED (opened from the pause menu) (= PAUSED)
+     PASS  restart from PAUSED opens CONFIRM (= )
+     PASS  confirm -> new run (= new_run)
+     PASS  PLAYING after confirmed restart (= PLAYING)
+     PASS  run ended -> RESULT
+     PASS  RESULT (= RESULT)
+     PASS  pause refused on RESULT (= )
+     PASS  Esc on RESULT does nothing (= )
+     PASS  still RESULT (= RESULT)
+     PASS  RESULT restart is immediate (no confirm) (= new_run)
+     PASS  previous result discarded on restart
+     PASS  ended again
+     PASS  RESULT -> title immediate (= to_title)
+     PASS  TITLE (= TITLE)
+     PASS  quit only from TITLE (= quit)
+     PASS  every refused request was logged (= 5)
+     PASS  transitions logged (17)
+  -- ResultModel unit: mm:ss floor, recovery states, outer result text, values from the real ledgers
+     PASS  105.5 s -> 01:45 (floor) (= 01:45)
+     PASS  59.99 -> 00:59 (= 00:59)
+     PASS  0 -> 00:00 (= 00:00)
+     PASS  not valid before the run ended (= false)
+     PASS  valid after the end (= true)
+     PASS  outcome LOST (= LOST)
+     PASS  collapsed, H1 not placed -> 회수 후 미배치 (= 회수 후 미배치)
+     PASS  no anchor (= <null>)
+     PASS  collapse time text (= 외곽 붕괴 · 00:00)
+     PASS  outer arrivals from RunState (= 1)
+     PASS  core arrivals from RunState (= 1)
+     PASS  kills from EnemySim (= 0)
+     PASS  core HP 0 (= 0.0)
+     PASS  core HP max 60 (= 60.0)
+     PASS  wave 1 (1-based) (= 1)
+     PASS  play time = end sim time (= 0.0333333334)
+     PASS  unplaced position shows — (= —)
+     PASS  결과 line (= 패배)
+     PASS  placed at B
+     PASS  WON with an empty schedule (= WON)
+     PASS  재배치 완료 (= 재배치 완료)
+     PASS  anchor (44,13) (= [44, 13])
+     PASS  world centre (900,280) (= [900.0, 280.0])
+     PASS  position line (= (44, 13))
+     PASS  won (= true)
+  -- UserSettings unit: missing -> defaults, save/reload persists, corrupt/invalid -> defaults, save failure reported
+     PASS  missing file: not ok (= false)
+     PASS  reason missing (= missing)
+     PASS  default windowed (= windowed)
+     PASS  save ok (= true)
+     PASS  file written
+     PASS  reload ok (= loaded)
+     PASS  fullscreen persisted across instances (= app relaunch) (= fullscreen)
+     PASS  label (= 전체화면)
+     PASS  toggle saves (= true)
+     PASS  toggle persisted (= windowed)
+     PASS  corrupt file: not ok (= false)
+     PASS  corrupt -> parse_error (= parse_error)
+     PASS  corrupt -> default (= windowed)
+     PASS  out-of-range value -> invalid_value (= invalid_value)
+     PASS  invalid -> default (= windowed)
+     PASS  setting an invalid mode is refused (= false)
+     PASS  save into a missing directory fails (= false)
+     PASS  failure carries an error string (File not found)
+     PASS  value stays usable in the session after a failed save (= fullscreen)
+  -- interactive launch: TITLE, static field, no battle tick, HUD hidden, settings loaded from the injected path
+     PASS  TITLE (= TITLE)
+     PASS  not bypassed (= false)
+     PASS  menu layer visible
+     PASS  TITLE panel (= TITLE)
+     PASS  TITLE buttons: 게임 시작 / 설정 / 종료 (= ["title_quit", "title_settings", "title_start"])
+     PASS  HUD hidden on TITLE (= false)
+     PASS  settings path injected (= user://wp004_test_settings.cfg)
+     PASS  no file -> defaults, launch not blocked (= missing)
+     PASS  no battle tick on TITLE (30 frames) (= 0)
+     PASS  TITLE field is the initial state
+  -- AC-01 TITLE -> PLAYING -> RESULT -> restart / title through real buttons; F1 win, F2 recovery win, F4 loss
+     PASS  게임 시작 -> PLAYING (= PLAYING)
+     PASS  HUD shown while playing
+     PASS  menu hidden while playing
+     PASS  first frame advanced one tick (= 1)
+     PASS  F1 ended -> RESULT (100 frames) (= RESULT)
+     PASS  F1 WON (= WON)
+     PASS  result model WON (= WON)
+     PASS  외곽 유지 (= 외곽 유지)
+     PASS  회수 없음 (= 회수 없음)
+     PASS  F1 play time 99.8 s -> 01:39 (= 01:39)
+     PASS  F1 kills 826 (= 826)
+     PASS  F1 outer arrivals 314 (= 314)
+     PASS  RESULT buttons (= ["result_restart", "result_to_title"])
+     PASS  다시 시작 pressed
+     PASS  RESULT restart -> PLAYING without confirmation (= PLAYING)
+     PASS  run_id + 1 (= 3)
+     PASS  new run ticked once in that frame (= 1)
+     PASS  previous result discarded
+     PASS  20 s played (= 1201)
+     PASS  collapsed at tick 1201 (= 1)
+     PASS  H1 placed at B by the real click
+     PASS  F2 WON (= WON)
+     PASS  재배치 완료 (= 재배치 완료)
+     PASS  position (44,13) (= [44, 13])
+     PASS  외곽 붕괴 · 00:20 (외곽 붕괴 · 00:20)
+     PASS  restart again
+     PASS  LOST -> RESULT (= RESULT)
+     PASS  result LOST (= LOST)
+     PASS  core HP 0 (= 0.0)
+     PASS  시작 화면으로 pressed
+     PASS  RESULT -> TITLE without confirmation (= TITLE)
+     PASS  TITLE discards the run: initial field again
+     PASS  HUD hidden on TITLE (= false)
+     PASS  TITLE start is a new run (never a continuation) (= 6)
+  -- AC-02 PAUSED / SETTINGS / CONFIRM: 120 UI frames each, battle structured state unchanged, no placement, no catch-up on resume
+     PASS  enemies moving, H1 waiting for recovery
+     PASS  state PAUSED (= PAUSED)
+     PASS  PAUSED: complete battle state unchanged over 120 frames
+     PASS  PAUSED: no tick (= 602)
+     PASS  PAUSED: no placement (= 18)
+     PASS  PAUSED: no command at all (= 0)
+     PASS  PAUSED: recovery right untouched (= 1)
+     PASS  pause_settings opened
+     PASS  state SETTINGS (= SETTINGS)
+     PASS  SETTINGS: complete battle state unchanged over 120 frames
+     PASS  SETTINGS: no tick (= 602)
+     PASS  SETTINGS: no placement (= 18)
+     PASS  SETTINGS: no command at all (= 0)
+     PASS  SETTINGS: recovery right untouched (= 1)
+     PASS  settings Esc -> PAUSED (= PAUSED)
+     PASS  pause_restart opened
+     PASS  state CONFIRM (= CONFIRM)
+     PASS  CONFIRM: complete battle state unchanged over 120 frames
+     PASS  CONFIRM: no tick (= 602)
+     PASS  CONFIRM: no placement (= 18)
+     PASS  CONFIRM: no command at all (= 0)
+     PASS  CONFIRM: recovery right untouched (= 1)
+     PASS  cancel
+     PASS  confirm cancel -> PAUSED (= PAUSED)
+     PASS  계속하기
+     PASS  PLAYING again (= PLAYING)
+     PASS  resume frame advanced exactly one tick (no catch-up) (= 603)
+     PASS  5 more frames -> 5 more ticks (= 608)
+     PASS  sim time advanced by 6 ticks only
+  -- AC-03 R while playing / 다시 시작 while paused: cancel restores the entry state, confirm makes exactly one new run; RESULT restart needs no confirm
+     PASS  R while PLAYING opens CONFIRM (no immediate reset) (= CONFIRM)
+     PASS  CONFIRM buttons (= ["confirm_cancel", "confirm_ok"])
+     PASS  ok label (= 다시 시작)
+     PASS  battle untouched while the confirmation is open
+     PASS  취소
+     PASS  cancel from R -> back to PLAYING (battle resumes) (= PLAYING)
+     PASS  same run (= 2)
+     PASS  확인
+     PASS  confirmed restart: exactly one new run (= 3)
+     PASS  one confirm_restart transition (= 1)
+     PASS  다시 시작 (paused)
+     PASS  CONFIRM from PAUSED (= CONFIRM)
+     PASS  취소
+     PASS  cancel from the pause menu stays PAUSED (= PAUSED)
+     PASS  시작 화면으로 (paused)
+     PASS  to-title ok label (= 시작 화면으로)
+     PASS  취소
+     PASS  cancel keeps PAUSED (= PAUSED)
+     PASS  시작 화면으로 again
+     PASS  확인
+     PASS  confirmed -> TITLE exactly once (= TITLE)
+     PASS  one confirm_to_title transition (= 1)
+     PASS  RESULT (= RESULT)
+     PASS  double click -> exactly one new run (= 6)
+     PASS  second click dropped as stale (= 1)
+     PASS  PLAYING (= PLAYING)
+  -- AC-04 new run == WP-003 initial state (run_id excluded) after WON / LOST / in-progress; stale hold and pending inputs never act
+     PASS  hold active
+     PASS  opening the confirmation dropped the hold (= false)
+     PASS  confirm
+     PASS  new run (= 3)
+     PASS  in-progress restart: state == fresh WP-003 run after the same tick (run_id excluded)
+     PASS  no recovery right carried over (= 0)
+     PASS  H1 back on the map (= 0)
+     PASS  forced HP writes cleared (= 0)
+     PASS  1 tick (= 1)
+     PASS  (fresh reference not stepped) (= 0)
+     PASS  LOST (= RESULT)
+     PASS  restart after LOST
+     PASS  restart after LOST: initial state
+     PASS  played to WON (= WON)
+     PASS  restart after WON
+     PASS  restart after WON: initial state
+     PASS  RESULT (= RESULT)
+     PASS  RESULT kept over the pending pause / restart (= RESULT)
+     PASS  no automatic new run (= 5)
+     PASS  both pending inputs dropped as stale (= 2)
+  -- AC-05 Esc hierarchy (settings -> pause -> play, confirm cancel only), menu input consumed, new field input only after a fresh press
+     PASS  Esc on TITLE does not quit (still TITLE) (= TITLE)
+     PASS  Esc -> PAUSED (= PAUSED)
+     PASS  설정
+     PASS  SETTINGS (= SETTINGS)
+     PASS  R / P do nothing in SETTINGS (= SETTINGS)
+     PASS  Esc closes SETTINGS -> PAUSED (one level) (= PAUSED)
+     PASS  다시 시작
+     PASS  R does nothing in CONFIRM (= CONFIRM)
+     PASS  Esc on CONFIRM cancels only (-> PAUSED) (= PAUSED)
+     PASS  press while paused is consumed (= false)
+     PASS  Esc on PAUSED resumes (= PLAYING)
+     PASS  the release after resume placed nothing (= 18)
+     PASS  no command issued by the leftover release / hold (= 0)
+     PASS  recovery right still available (= 1)
+     PASS  a press before the resuming Esc is released places nothing (R-01) (= 18)
+     PASS  and is not held for retry (= false)
+     PASS  a fresh press places H1 at B
+     PASS  exactly one accepted command (= 19)
+     PASS  Esc on RESULT does nothing (= RESULT)
+  -- AC-05 R-01 release fence: Esc held + LMB, held LMB across the release, Enter held + button, close click press/release, R held after RESULT restart, viewport-routed events
+     PASS  (a) Esc -> PAUSED (= PAUSED)
+     PASS  (a) second Esc press resumes (no release yet) (= PLAYING)
+     PASS  (a) fence = the held Esc (= ["Escape"])
+     PASS  (a) LMB press while Esc is held: no command (= 0)
+     PASS  (a) not even a rejected command (= 0)
+     PASS  (a) H1 not placed (= false)
+     PASS  (a) recovery right intact (= 1)
+     PASS  (a) the refusal is logged (= 1)
+     PASS  (a) logged input (= mouse1)
+     PASS  (a) the refused press is not held for retry (= false)
+     PASS  (a) 30 frames later still no command (= 0)
+     PASS  (a) the Esc release opens the fence
+     PASS  (a) the LMB still held from the blocked press never places after the release (= 0)
+     PASS  (a) its release places nothing (= 0)
+     PASS  (a) a NEW press after the release places exactly once (= 1)
+     PASS  (a) H1 placed at B
+     PASS  (b) P -> PAUSED (= PAUSED)
+     PASS  (b) 계속하기 emits while Enter is held
+     PASS  (b) PLAYING (= PLAYING)
+     PASS  (b) fence = the held Enter (= ["Enter"])
+     PASS  (b) LMB while Enter is held: no command (= 0)
+     PASS  (b) Enter release opens the fence
+     PASS  (b) new press places once (= 1)
+     PASS  (c) the press is in the held ledger (= ["mouse1"])
+     PASS  (c) 계속하기 closes PAUSED
+     PASS  (c) PLAYING (= PLAYING)
+     PASS  (c) nothing held at close time: fence empty
+     PASS  (c) the closing click placed nothing (= 0)
+     PASS  (c) the next new press places once (= 1)
+     PASS  (d) RESULT (= RESULT)
+     PASS  (d) R restarts immediately (= PLAYING)
+     PASS  (d) new run (3 != 2)
+     PASS  (d) fence = the held R (= ["R"])
+     PASS  (d) R still held after the collapse: fence intact (= ["R"])
+     PASS  (d) LMB while R is held: no command in the new run (= 0)
+     PASS  (d) R release opens the fence
+     PASS  (d) new press places once (= 1)
+     PASS  (e) routed Esc pauses (= PAUSED)
+     PASS  (e) routed click while PAUSED: no command (= 0)
+     PASS  (e) routed Esc press resumes (= PLAYING)
+     PASS  (e) fence = the held Esc (= ["Escape"])
+     PASS  (e) routed LMB while Esc is held: no command (= 0)
+     PASS  (e) H1 not placed (= false)
+     PASS  (e) routed Esc release opens the fence
+     PASS  (e) routed new press places once (= 1)
+     PASS  (e) H1 placed
+  -- AC-05 run already LOST (stepped outside the loop) before a pending pause is applied: RESULT wins, pause stale
+     PASS  battle LOST before the frame (= LOST)
+     PASS  UI still PLAYING before the frame (= PLAYING)
+     PASS  RESULT shown, not PAUSED (= RESULT)
+     PASS  the pending pause was dropped as stale (= 1)
+     PASS  result model built (= LOST)
+  -- AC-06 result model == battle ledgers, frozen for 120 frames, pause time excluded, unplaced shown as —
+     PASS  RESULT (= RESULT)
+     PASS  outcome (= LOST)
+     PASS  play time = battle end sim time (= 2.05000000409999)
+     PASS  play time == ticks * dt (2.050), pause frames excluded
+     PASS  mm:ss (= 00:02)
+     PASS  wave 1-based (= 1)
+     PASS  kills (= 0)
+     PASS  outer arrivals (= 1)
+     PASS  core arrivals (= 1)
+     PASS  collapsed (= true)
+     PASS  collapse time (= 1.0166666687)
+     PASS  미배치 (= 회수 후 미배치)
+     PASS  position — (= —)
+     PASS  core hp (= 0.0)
+     PASS  core hp max (= 60.0)
+     PASS  result unchanged after 120 frames on RESULT (= {"collapse_time_seconds":1.0166666687,"core_arrivals":1,"core_hp":0.0,"core_hp_max":60.0,"end_tick":123,"forced_hp_writes":2,"frozen":true,"kills":0,"leaked_total":2,"outcome":"LOST","outer_arrivals":1,"outer_collapsed":true,"outer_hp":0.0,"outer_hp_max":360.0,"outer_result":"외곽 붕괴 · 00:01","play_time_seconds":2.05000000409999,"play_time_text":"00:02","recovery":"회수 후 미배치","recovery_anchor":null,"recovery_world":null,"run_id":2,"seed":20260913,"spawned_total":62,"valid":true,"wave_name":"W1","wave_reached":1,"waves_total":3,"won":false})
+     PASS  battle unchanged after 120 frames on RESULT
+  -- AC-07 settings screen: toggle applies + saves, same value on TITLE and PAUSED, persists across launches, save failure notice
+     PASS  설정 from TITLE
+     PASS  SETTINGS (= SETTINGS)
+     PASS  default label (= 창 모드)
+     PASS  toggle
+     PASS  fullscreen in memory (= fullscreen)
+     PASS  label updated (= 전체화면)
+     PASS  saved immediately
+     PASS  뒤로
+     PASS  back -> TITLE (= TITLE)
+     PASS  설정 from PAUSED
+     PASS  same value shown from PAUSED (= 전체화면)
+     PASS  relaunch keeps fullscreen (= fullscreen)
+     PASS  unwritable settings path still launches (= TITLE)
+     PASS  설정
+     PASS  toggle
+     PASS  value applied for the session (= fullscreen)
+     PASS  save failure notice shown (설정 저장 실패: user://wp004_no_such_dir/deeper/settings.cfg)
+  -- AC-08 scripted modes bypass the menus and never load settings; wp004_ui capture keeps the menus
+     PASS  --perf bypasses the menus (= true)
+     PASS  PLAYING at once (= PLAYING)
+     PASS  menu hidden (= false)
+     PASS  settings not loaded in perf mode (= <null>)
+     PASS  battle ticks without any menu interaction (= 3)
+     PASS  WP-003 zones for collapse scenarios (= 10)
+     PASS  --capture=ac02 bypasses (= true)
+     PASS  legacy 8 zones (= 8)
+     PASS  wp004_ui keeps the menus (= false)
+     PASS  wp004_ui starts on TITLE (= TITLE)
+     PASS  capture without --settings uses a throwaway path, not the player's file (= user://wp004_capture_settings.cfg)
+     PASS  capture with --settings uses the injected path (= user://wp004_test_settings.cfg)
+
+== WP-005 art sample pipeline (loader, atlas, tiles, fx events, greybox == sample battle state) ==
+  -- ArtSet: missing directory -> every contract entry missing, grey box kept; fixture -> all loaded, frame strips sliced, atlas built, pivots by rule and by pivots.json, malformed files reported
+     PASS  nothing loaded from a missing directory (= 0)
+     PASS  every contract entry reported missing (required + optional) (= 35)
+     PASS  the 5 interaction marks are optional (procedural allowed) (= 5)
+     PASS  no enemy atlas
+     PASS  frames() is null -> caller keeps the grey box (= <null>)
+     PASS  contract lists 35 files for the 11 manifest ids (= 35)
+     PASS  fixture: every contract file loaded (= 35)
+     PASS  fixture: nothing missing (= 0)
+     PASS  hwacha fire strip: 3 frames (= 3)
+     PASS  hwacha frame 40x40 (= (40, 40))
+     PASS  third frame region (= [P: (80.0, 0.0), S: (40.0, 40.0)])
+     PASS  frame index wraps (= [P: (0.0, 0.0), S: (40.0, 40.0)])
+     PASS  40x40 facility pivot = footprint centre (= (20.0, 20.0))
+     PASS  taller post canvas (= (40, 48))
+     PASS  post pivot: bottom centre minus half footprint (= (20.0, 28.0))
+     PASS  enemy pivot: body bottom centre (= (6.0, 16.0))
+     PASS  file sha256 recorded (= 64)
+     PASS  enemy atlas built
+     PASS  atlas frame 12x16 (= (12, 16))
+     PASS  2 px gutters (= (14, 18))
+     PASS  4 columns x 3 rows (= (56, 54))
+     PASS  walk_left frame 1 lands at atlas cell (1,1) (= (0.749, 0.349, 0.149, 1.0))
+     PASS  gutter column transparent (= 0.0)
+     PASS  pivots.json override applied (= (20.0, 36.0))
+     PASS  strip whose width is not a multiple of the frame count is refused
+     PASS  wrong canvas size refused
+     PASS  refused file -> grey box for that element only (= <null>)
+     PASS  the other files still load (= 33)
+     PASS  report lists exactly the two refusals (= 2)
+     PASS  fixture ships the optional marks too (= 0)
+  -- Terrain sample plan: every cell of x30..65 / y6..30 classified, ground on open cells, edges where walls touch, wall vs roof modules, one gate; grid untouched
+     PASS  sample rect = cells x30..65, y6..30 (= [P: (30, 6), S: (36, 25)])
+     PASS  one ground tile per open cell (652) (= 652)
+     PASS  wall + roof modules cover every wall cell (248) (= 248)
+     PASS  both street-facing walls and roofs exist
+     PASS  at least one edge tile per open cell touching a wall (118 cells)
+     PASS  one gate module (= 1)
+     PASS  all four ground variants used (= 4)
+     PASS  the base tile covers most of the floor (452 of 652), variants are sparse
+     PASS  north and south edges present in the plaza
+     PASS  planning does not touch the grid (= 1068)
+     PASS  plan is deterministic (= 1043)
+  -- Enemy atlas frame: walking direction from the flow field (down/up/left/right), two frames alternating, stranded enemy faces down
+     PASS  down, frame 0 (= 0)
+     PASS  down, frame 1 (phase) (= 1)
+     PASS  slot parity offsets the frame (= 1)
+     PASS  up (= 2)
+     PASS  left (= 4)
+     PASS  right (= 6)
+     PASS  no flow (stranded) -> down (= 0)
+     PASS  sample scene renders enemies from the atlas
+     PASS  16 floats per instance (transform, colour, custom) (= 16)
+  -- AC-05 pipeline: greybox and sample scenes run the same F2 commands -> identical full_state at initial, before/after collapse, after recovery, end
+     PASS  greybox scene (= greybox)
+     PASS  sample scene (= sample)
+     PASS  sample scene loaded the fixture set
+     PASS  identical configuration in both modes (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  initial: full_state identical (tick 1)
+     PASS  initial: state hash (= 0.000|0|0|-222909052377122513|1:0.0000:0:0:true|2:0.0000:0:0:true|3:0.0000:0:0:true|4:0.0000:0:0:true|RUNNING/OUTER_ACTIVE/360.0/60.0/0|4|[60, 60, 60])
+     PASS  t5: full_state identical (tick 301)
+     PASS  t5: state hash (= 168291.403|150|150|-7098011785759896813|1:0.4167:1:0:true|2:0.0000:0:0:true|3:0.0000:0:0:true|4:0.0000:0:0:true|RUNNING/OUTER_ACTIVE/360.0/60.0/0|4|[10, 10, 10])
+     PASS  before_collapse: full_state identical (tick 1200)
+     PASS  before_collapse: state hash (= 30968.113|31|180|2011065352812074855|1:0.0000:18:57:true|2:0.0000:12:57:true|3:0.0000:0:0:true|4:0.0000:0:0:true|RUNNING/OUTER_ACTIVE/325.0/60.0/0|4|[0, 0, 0])
+     PASS  collapsed (= 1)
+     PASS  after_collapse: full_state identical (tick 1202)
+     PASS  after_collapse: state hash (= 30928.143|31|181|-3933619059837469227|2:0.0000:12:57:false|3:0.0000:0:0:false|4:0.0000:0:0:true|D1:0.8000:19:57|RUNNING/INNER_ONLY/0.0/60.0/1|5|[0, 0, 0])
+     PASS  H1 placed at B in both
+     PASS  after_recovery: full_state identical (tick 1501)
+     PASS  after_recovery: state hash (= 6159.736|8|181|-3933619059837469227|1:0.7833:19:57:true|2:0.0000:12:57:false|3:0.0000:0:0:false|4:0.3167:5:23:true|RUNNING/INNER_ONLY/0.0/60.0/0|5|[0, 0, 0])
+     PASS  greybox run ended (WON)
+     PASS  same outcome (= WON)
+     PASS  end: full_state identical (tick 6329)
+     PASS  end: state hash (= 0.000|0|1141|4042348837495789653|1:0.8000:84:59:true|2:0.0000:12:57:false|3:0.0000:0:0:false|4:0.8000:71:957:true|WON/INNER_ONLY/0.0/28.0/0|5|[0, 0, 0])
+     PASS  six checkpoints compared (= 6)
+     PASS  sample scene reached RESULT like the grey box (= RESULT)
+     PASS  grey box RESULT (= RESULT)
+  -- AC-04: one fire + one impact per real volley, despawn fx == kills, collapse fx once, fx frozen while PAUSED (120 frames), none survive a restart
+     PASS  fx layer present in sample mode
+     PASS  volleys happened (25)
+     PASS  fire fx == volleys (= 25)
+     PASS  impact fx == volleys (= 25)
+     PASS  despawn fx == kills (under the ledger cap) (= 113)
+     PASS  no collapse fx before the collapse (= 0)
+     PASS  hit fx follow damage applications
+     PASS  no battle tick -> no new fx (rendering never invents events) (= 284)
+     PASS  collapsed (= 1)
+     PASS  one collapse fx (= 1)
+     PASS  still one after more frames (= 1)
+     PASS  outer post shows collapsed (= collapsed)
+     PASS  PAUSED (= PAUSED)
+     PASS  effects unchanged over 120 paused frames (= [["impact","(950.0, 560.0)",15.9166666985004,55.0],["fire","(620.0, 520.0)",16.0166666987004,0.0],["impact","(460.0, 580.0)",16.0166666987004,55.0],["enemy_despawn","(480.5881, 570.2853)",16.0166666987004,0.0],["enemy_hit","(462.087, 569.1224)",16.0166666987004,0.0],["collapse","(950.0, 530.0)",16.0333333654004,0.0]])
+     PASS  fx time did not advance (= 16.1333333656004)
+     PASS  (effects may have expired naturally before the pause)
+     PASS  new run (= PLAYING)
+     PASS  no effect of the previous run survives the restart (= 0)
+     PASS  collapse fx counter follows the new run (= 0)
+     PASS  objective hit flash cleared (= -1.0)
+     PASS  no stale collapse fx in the new run (= 1)
+  -- Sample wiring: overlay/terrain/fx share the art set, labels toggle with L, blasts move to the fx layer, grey box keeps the WP-004 stride and no fx layer
+     PASS  one art set shared by the layers
+     PASS  overlay blast rings off (fx layer draws impacts) (= false)
+     PASS  labels on by default (= true)
+     PASS  L hides the structure labels (= false)
+     PASS  core normal (= normal)
+     PASS  core hit within 0.4 s (= hit)
+     PASS  back to normal (= normal)
+     PASS  enemy multimesh uses the atlas (= ():<ImageTexture#-9223371574525032594>)
+     PASS  atlas shader material
+     PASS  grey box: no art set, no fx layer
+     PASS  grey box keeps the 12-float instance layout (= 12)
+     PASS  grey box keeps the blast rings (= true)
+     PASS  grey box: no shader
+  -- Reviewed assets in assets/art/wp005: contract files load (40x40, pivot rule, sha), the missing rest is reported, an interactive launch defaults to sample, battle state == grey box
+     PASS  the 13 integrated files + 4 derived states load (17)
+     PASS  hwacha/idle loaded
+     PASS  hwacha/idle is 40x40 (= (40, 40))
+     PASS  hwacha/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/idle sha recorded (= 64)
+     PASS  hwacha/idle stands within 2 px of the canvas bottom (row 37)
+     PASS  hwacha/inactive loaded
+     PASS  hwacha/inactive is 40x40 (= (40, 40))
+     PASS  hwacha/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  hwacha/inactive sha recorded (= 64)
+     PASS  hwacha/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  jangseung/idle loaded
+     PASS  jangseung/idle is 40x40 (= (40, 40))
+     PASS  jangseung/idle pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/idle sha recorded (= 64)
+     PASS  jangseung/idle stands within 2 px of the canvas bottom (row 37)
+     PASS  jangseung/inactive loaded
+     PASS  jangseung/inactive is 40x40 (= (40, 40))
+     PASS  jangseung/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  jangseung/inactive sha recorded (= 64)
+     PASS  jangseung/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  bongsu/connected loaded
+     PASS  bongsu/connected is 40x40 (= (40, 40))
+     PASS  bongsu/connected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/connected sha recorded (= 64)
+     PASS  bongsu/connected stands within 2 px of the canvas bottom (row 37)
+     PASS  bongsu/disconnected loaded
+     PASS  bongsu/disconnected is 40x40 (= (40, 40))
+     PASS  bongsu/disconnected pivot = footprint centre (= (20.0, 20.0))
+     PASS  bongsu/disconnected sha recorded (= 64)
+     PASS  bongsu/disconnected stands within 2 px of the canvas bottom (row 37)
+     PASS  sensor/active loaded
+     PASS  sensor/active is 40x40 (= (40, 40))
+     PASS  sensor/active pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/active sha recorded (= 64)
+     PASS  sensor/active stands within 2 px of the canvas bottom (row 37)
+     PASS  sensor/inactive loaded
+     PASS  sensor/inactive is 40x40 (= (40, 40))
+     PASS  sensor/inactive pivot = footprint centre (= (20.0, 20.0))
+     PASS  sensor/inactive sha recorded (= 64)
+     PASS  sensor/inactive stands within 2 px of the canvas bottom (row 37)
+     PASS  loaded + missing + optional = contract (= 35)
+     PASS  interaction marks stay procedural (optional) (= 5)
+     PASS  frames not delivered yet are reported missing, not invented
+     PASS  enemy atlas built from the 6 shipped strips (12x16)
+     PASS  terrain ground strip: 4 variants (= 4)
+     PASS  roof / wall modules shipped
+     PASS  gate / edge tiles still missing (reported)
+     PASS  interactive launch without --art shows the reviewed art (= sample)
+     PASS  scene loaded the same set
+     PASS  enemies render from the shipped atlas
+     PASS  enemy rim outline on by default (D-052) (= 1.0)
+     PASS  outline can be switched off (--art-outline=off / capture step) (= 0.0)
+     PASS  no close-up camera outside captures (= <null>)
+     PASS  zoom step creates a 3x camera at the centre
+     PASS  the camera and the render frames do not touch the battle state (TITLE, nothing ticks)
+     PASS  factor 1 removes the camera (= <null>)
+     PASS  footprint overlay off by default (= false)
+     PASS  240 frames: battle state identical to the grey box
+     PASS  scripted capture without --art stays grey box (= greybox)
+
+== WP-005 real asset integration (R-01/R-03, AC-05 F1/F2/F4) ==
+  -- R-01/03 real assets: enemy bounds and inactive silhouettes
+     PASS  all twelve enemy frames checked (= 12)
+     PASS  walk_down/0.0 fits canvas without clipping
+     PASS  walk_down/1.0 fits canvas without clipping
+     PASS  walk_up/0.0 fits canvas without clipping
+     PASS  walk_up/1.0 fits canvas without clipping
+     PASS  walk_left/0.0 fits canvas without clipping
+     PASS  walk_left/1.0 fits canvas without clipping
+     PASS  walk_right/0.0 fits canvas without clipping
+     PASS  walk_right/1.0 fits canvas without clipping
+     PASS  hit/0.0 fits canvas without clipping
+     PASS  hit/1.0 fits canvas without clipping
+     PASS  despawn/0.0 fits canvas without clipping
+     PASS  despawn/1.0 fits canvas without clipping
+     PASS  hwacha inactive state exists
+     PASS  jangseung inactive state exists
+     PASS  bongsu inactive state exists
+     PASS  sensor inactive state exists
+  -- AC-05 real asset F1
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F1 initial real assets: full_state identical
+     PASS  F1 before_collapse real assets: full_state identical
+     PASS  F1 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= WON)
+     PASS  F1 end real assets: full_state identical
+  -- AC-05 real asset F2
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F2 initial real assets: full_state identical
+     PASS  F2 before_collapse real assets: full_state identical
+     PASS  collapse occurred (= 1)
+     PASS  F2 after_collapse real assets: full_state identical
+     PASS  same recovery accepted in both modes
+     PASS  F2 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= WON)
+     PASS  F2 end real assets: full_state identical
+  -- AC-05 real asset F4
+     PASS  real resource set and enemy atlas loaded
+     PASS  uses production directory, not fixture (= res://assets/art/wp005)
+     PASS  same configuration and seed (= { "seed": 20260913, "target_alive": 1000, "spawn_rate": 420.0, "combat_enabled": true, "enemy_capacity": 6000, "benchmark_hold_alive": false, "enemy_speed": 58.0, "enemy_speed_jitter": 0.22, "enemy_lane_offset": 7.0, "enemy_hp": 60.0, "enemy_draw_size": 9.0, "goal_radius": 26.0, "targeting_mode": "wp002", "fixture": "c", "bongsu_link_range": 180.0, "sensor_range": 140.0, "hwacha_local_range": 100.0, "zone_set": "wp003", "arrival_mode": "after_fire", "run_mode": "waves", "district_rules": true, "outer_hp": 360.0, "core_hp": 60.0, "arrival_damage": 1.0, "wave_gap_seconds": 5.0, "benchmark_core_invulnerable": false, "hwacha_range": 200.0, "hwacha_blast_radius": 55.0, "hwacha_damage": 34.0, "hwacha_cooldown": 0.8, "fixed_dt": 0.0166666667, "max_steps_per_frame": 4 })
+     PASS  F4 initial real assets: full_state identical
+     PASS  F4 before_collapse real assets: full_state identical
+     PASS  collapse occurred (= 1)
+     PASS  F4 after_collapse real assets: full_state identical
+     PASS  F4 after_commands_t25 real assets: full_state identical
+     PASS  both runs ended
+     PASS  expected scenario outcome (= LOST)
+     PASS  F4 end real assets: full_state identical
+
+== WP-005 V-01 player view (defaults, HUD order, toggles, labels, display only) ==
+  -- V-01 defaults: a normal launch is the player view; --perf / --capture / --view=dev keep the developer view
+     PASS  normal launch: player view (= true)
+     PASS  density zones collapsed (= false)
+     PASS  range rings collapsed (= false)
+     PASS  detail panel collapsed (= false)
+     PASS  detail label hidden (= false)
+     PASS  empty bottom panel hidden (= false)
+     PASS  short structure names (= false)
+     PASS  player HUD font 18 px (readable at 720p) (= 18)
+     PASS  --view=dev: developer view (= false)
+     PASS  --view=dev: overlays and detail as before (= true)
+     PASS  --view=dev: HUD font 15 px as before (= 15)
+     PASS  --capture keeps the developer view (existing evidence reproducible) (= false)
+     PASS  capture: zones as before (= true)
+     PASS  --view=player applies to a capture too (= true)
+     PASS  --perf keeps the developer view (= false)
+  -- V-01 HUD: wave / HP / recovery first in the top panel, the developer lines move to the detail panel
+     PASS  first line is the wave (웨이브 1/3 · 진격 중 · 외곽 방어 중)
+     PASS  both objectives' HP
+     PASS  what happens at the collapse
+     PASS  no engine / FPS / counters in the top panel
+     PASS  four lines (the developer HUD had 7+) (= 4)
+     PASS  engine and FPS moved to the detail panel
+     PASS  network counters kept in the detail panel
+     PASS  collapse: recovery instruction shown
+     PASS  collapse: defence state in the first line
+     PASS  developer view: HUD unchanged (engine line in the top panel)
+  -- V-01 toggles: Z / G / D / L / H still reach every developer display from the player view
+     PASS  Z shows the zones (= true)
+     PASS  G shows the rings (= true)
+     PASS  D opens the detail panel (= true)
+     PASS  bottom panel shown with the detail (= true)
+     PASS  detail on -> developer labels (= true)
+     PASS  detail off -> short names again (= false)
+     PASS  bottom panel hidden again (= false)
+     PASS  a notice shows the bottom panel (= true)
+     PASS  L hides the names (= false)
+     PASS  H hides the HUD (= false)
+     PASS  Esc still pauses (= PAUSED)
+  -- V-01 labels: short names in the player view, the developer text unchanged
+     PASS  hwacha player label = name (= 화차·궁성)
+     PASS  hwacha developer label unchanged (= 화차·궁성 g5 L0/S0)
+     PASS  bongsu player label = name (= 봉수 B2)
+     PASS  bongsu developer label unchanged (= 봉수 B2 g5)
+     PASS  sensor player label = name (= 혼천의 S1)
+     PASS  wp001 mode: name only (as before) (= 화차·궁성)
+  -- V-01 is display only: player and developer views run the same battle to the same state
+     PASS  player view == developer view after 600 frames (= {"alive":129,"arrival_mode":"after_fire","combat_enabled":true,"config":{"arrival_damage":1.0,"arrival_mode":"after_fire","benchmark_core_invulnerable":false,"benchmark_hold_alive":false,"bongsu_link_range":180.0,"combat_enabled":true,"core_hp":60.0,"district_rules":true,"enemy_capacity":6000,"enemy_draw_size":9.0,"enemy_hp":60.0,"enemy_lane_offset":7.0,"enemy_speed":58.0,"enemy_speed_jitter":0.22,"fixed_dt":0.0166666667,"fixture":"c","goal_radius":26.0,"hwacha_blast_radius":55.0,"hwacha_cooldown":0.8,"hwacha_damage":34.0,"hwacha_local_range":100.0,"hwacha_range":200.0,"max_steps_per_frame":4,"outer_hp":360.0,"run_mode":"waves","seed":20260913,"sensor_range":140.0,"spawn_rate":420.0,"target_alive":1000,"targeting_mode":"wp002","wave_gap_seconds":5.0,"zone_set":"wp003"},"damage_applications":120,"detached":[],"enemies":[{"cell":2709,"hp":26.0,"id":65537,"off_x":-3.0460598468780518,"off_y":5.371089935302734,"route":1,"slot":1,"speed":46.303977966308594,"x":425.7954406738281,"y":575.370849609375},{"cell":2470,"hp":60.0,"id":65538,"off_x":-4.837611198425293,"off_y":-3.7121689319610596,"route":2,"slot":2,"speed":49.848175048828125,"x":1414.300048828125,"y":506.2875671386719},{"cell":2471,"hp":60.0,"id":65541,"off_x":3.5003271102905273,"off_y":4.174145698547363,"route":2,"slot":5,"speed":48.214698791503906,"x":1439.3829345703125,"y":514.1741333007813},{"cell":2529,"hp":26.0,"id":65543,"off_x":2.9303760528564453,"off_y":3.0226364135742188,"route":1,"slot":7,"speed":70.21517181396484,"x":672.4588012695313,"y":535.88330078125},{"cell":2473,"hp":60.0,"id":65544,"off_x":6.979602813720703,"off_y":1.4621686935424805,"route":2,"slot":8,"speed":46.208648681640625,"x":1474.5689697265625,"y":511.46221923828125},{"cell":2466,"hp":60.0,"id":65547,"off_x":-2.544886589050293,"off_y":-4.220941543579102,"route":2,"slot":11,"speed":61.401092529296875,"x":1330.056640625,"y":505.77923583984375},{"cell":2758,"hp":60.0,"id":65550,"off_x":-5.4388227462768555,"off_y":5.437831878662109,"route":2,"slot":14,"speed":51.06019592285156,"x":1417.8165283203125,"y":575.4378051757813},{"cell":4176,"hp":60.0,"id":131087,"off_x":5.671574592590332,"off_y":0.2394561767578125,"route":0,"slot":15,"speed":53.57658767700195,"x":975.6694946289063,"y":864.5639038085938},{"cell":2529,"hp":26.0,"id":65552,"off_x":2.984109878540039,"off_y":-2.687427520751953,"route":1,"slot":16,"speed":70.68975067138672,"x":662.0087280273438,"y":530.1705932617188},{"cell":2756,"hp":60.0,"id":65553,"off_x":6.530683517456055,"off_y":6.164223670959473,"route":2,"slot":17,"speed":58.42448425292969,"x":1372.6624755859375,"y":576.164306640625},{"cell":2470,"hp":60.0,"id":65556,"off_x":6.930462837219238,"off_y":2.5431346893310547,"route":2,"slot":20,"speed":54.67807388305664,"x":1413.964111328125,"y":512.5430908203125},{"cell":2470,"hp":60.0,"id":65559,"off_x":-6.42478609085083,"off_y":-5.436531066894531,"route":2,"slot":23,"speed":54.086002349853516,"x":1404.150146484375,"y":504.5634765625},{"cell":2710,"hp":26.0,"id":65561,"off_x":-4.884249687194824,"off_y":-5.934604644775391,"route":1,"slot":25,"speed":50.36100769042969,"x":449.9032897949219,"y":564.0652465820313},{"cell":2560,"hp":60.0,"id":65562,"off_x":3.286078453063965,"off_y":-3.2456538677215576,"route":2,"slot":26,"speed":68.7578125,"x":1296.9010009765625,"y":522.5989379882813},{"cell":2473,"hp":60.0,"id":65565,"off_x":-6.644015789031982,"off_y":-3.7281877994537354,"route":2,"slot":29,"speed":50.281646728515625,"x":1461.1295166015625,"y":506.2720947265625},{"cell":2756,"hp":60.0,"id":65568,"off_x":4.355673789978027,"off_y":-0.48262834548950195,"route":2,"slot":32,"speed":61.95294189453125,"x":1360.885986328125,"y":569.5173950195313},{"cell":2759,"hp":60.0,"id":65571,"off_x":3.344820022583008,"off_y":-0.5072894096374512,"route":2,"slot":35,"speed":56.30503463745117,"x":1422.2984619140625,"y":569.492919921875},{"cell":2470,"hp":60.0,"id":65574,"off_x":0.16722774505615234,"off_y":2.6120834350585938,"route":2,"slot":38,"speed":58.56298065185547,"x":1404.1658935546875,"y":512.61181640625},{"cell":2470,"hp":60.0,"id":65577,"off_x":-0.9996528625488281,"off_y":6.347667694091797,"route":2,"slot":41,"speed":58.45707702636719,"x":1404.3424072265625,"y":516.34765625},{"cell":2475,"hp":60.0,"id":65580,"off_x":-3.3917789459228516,"off_y":6.413440704345703,"route":2,"slot":44,"speed":46.455413818359375,"x":1514.8856201171875,"y":516.4139404296875},{"cell":2471,"hp":60.0,"id":65583,"off_x":-0.6549768447875977,"off_y":-1.5970239639282227,"route":2,"slot":47,"speed":59.458351135253906,"x":1422.0418701171875,"y":508.40313720703125},{"cell":2707,"hp":60.0,"id":65585,"off_x":4.010923385620117,"off_y":5.8148698806762695,"route":1,"slot":49,"speed":45.58701705932617,"x":393.90435791015625,"y":575.8148803710938},{"cell":2764,"hp":60.0,"id":65586,"off_x":-4.795527458190918,"off_y":-4.915947914123535,"route":2,"slot":50,"speed":45.956947326660156,"x":1522.2088623046875,"y":565.0840454101563},{"cell":2756,"hp":60.0,"id":65589,"off_x":6.905101776123047,"off_y":-2.7201037406921387,"route":2,"slot":53,"speed":67.64266204833984,"x":1367.39306640625,"y":567.2799682617188},{"cell":2711,"hp":26.0,"id":65591,"off_x":6.323143005371094,"off_y":-3.9212849140167236,"route":1,"slot":55,"speed":58.277156829833984,"x":468.7562255859375,"y":566.0782470703125},{"cell":2469,"hp":60.0,"id":65592,"off_x":6.354330062866211,"off_y":4.373987197875977,"route":2,"slot":56,"speed":66.11022186279297,"x":1385.6971435546875,"y":514.3739013671875},{"cell":2708,"hp":60.0,"id":65594,"off_x":2.9561500549316406,"off_y":-5.868570327758789,"route":1,"slot":58,"speed":51.87140655517578,"x":413.11016845703125,"y":564.1309814453125},{"cell":2475,"hp":60.0,"id":65595,"off_x":-0.11054754257202148,"off_y":-3.541966438293457,"route":2,"slot":59,"speed":48.699798583984375,"x":1518.67626953125,"y":506.4580383300781},{"cell":2639,"hp":26.0,"id":65596,"off_x":0.5135941505432129,"off_y":2.820013999938965,"route":0,"slot":60,"speed":67.72294616699219,"x":950.8305053710938,"y":557.3876342773438},{"cell":2711,"hp":26.0,"id":65597,"off_x":-1.284888744354248,"off_y":1.422795295715332,"route":1,"slot":61,"speed":58.90473175048828,"x":460.6551208496094,"y":571.4225463867188},{"cell":2470,"hp":60.0,"id":65598,"off_x":4.24362850189209,"off_y":6.288421630859375,"route":2,"slot":62,"speed":65.53864288330078,"x":1400.8553466796875,"y":516.28857421875},{"cell":2468,"hp":60.0,"id":65601,"off_x":-2.175985336303711,"off_y":5.844330787658691,"route":2,"slot":65,"speed":70.23845672607422,"x":1368.617919921875,"y":515.8446044921875},{"cell":2715,"hp":26.0,"id":65603,"off_x":4.89988899230957,"off_y":0.7755961418151855,"route":1,"slot":67,"speed":68.43653106689453,"x":544.1398315429688,"y":570.7755737304688},{"cell":2759,"hp":60.0,"id":65604,"off_x":-5.186084747314453,"off_y":-3.121706485748291,"route":2,"slot":68,"speed":62.49789047241211,"x":1421.49951171875,"y":566.8782958984375},{"cell":2707,"hp":60.0,"id":65606,"off_x":-0.4507265090942383,"off_y":-0.5059671401977539,"route":1,"slot":70,"speed":49.383968353271484,"x":381.0257873535156,"y":569.494384765625},{"cell":2764,"hp":60.0,"id":65607,"off_x":5.0993146896362305,"off_y":-0.7898201942443848,"route":2,"slot":71,"speed":51.826698303222656,"x":1526.197998046875,"y":569.2103271484375},{"cell":2707,"hp":60.0,"id":65609,"off_x":-4.905605792999268,"off_y":0.6331677436828613,"route":1,"slot":73,"speed":55.27082443237305,"x":380.4230651855469,"y":570.6329956054688},{"cell":2477,"hp":60.0,"id":65610,"off_x":-2.194046974182129,"off_y":1.3105897903442383,"route":2,"slot":74,"speed":49.21403121948242,"x":1542.0074462890625,"y":511.31036376953125},{"cell":2708,"hp":60.0,"id":65612,"off_x":0.6270780563354492,"off_y":-5.029326438903809,"route":1,"slot":76,"speed":57.274444580078125,"x":416.8096923828125,"y":564.9703369140625},{"cell":2475,"hp":60.0,"id":65613,"off_x":-2.1907601356506348,"off_y":-2.629751205444336,"route":2,"slot":77,"speed":53.94146728515625,"x":1506.8338623046875,"y":507.3702392578125},{"cell":2709,"hp":60.0,"id":65615,"off_x":-4.8493194580078125,"off_y":-3.041956663131714,"route":1,"slot":79,"speed":60.42306900024414,"x":431.8136901855469,"y":566.9578857421875},{"cell":2476,"hp":60.0,"id":65616,"off_x":6.068842887878418,"off_y":-0.49275970458984375,"route":2,"slot":80,"speed":54.57176971435547,"x":1522.8095703125,"y":509.5072937011719},{"cell":2710,"hp":26.0,"id":65618,"off_x":-2.0613999366760254,"off_y":-3.639468193054199,"route":1,"slot":82,"speed":62.73096466064453,"x":455.701171875,"y":566.3603515625},{"cell":2478,"hp":60.0,"id":65619,"off_x":6.316068649291992,"off_y":2.128312110900879,"route":2,"slot":83,"speed":50.30666732788086,"x":1571.6444091796875,"y":512.12841796875},{"cell":2706,"hp":60.0,"id":65621,"off_x":-1.8996987342834473,"off_y":-0.6709470748901367,"route":1,"slot":85,"speed":51.21711730957031,"x":373.4483642578125,"y":569.3290405273438},{"cell":2764,"hp":60.0,"id":65622,"off_x":-4.373927116394043,"off_y":-4.036786079406738,"route":2,"slot":86,"speed":51.699771881103516,"x":1536.8209228515625,"y":565.9631958007813},{"cell":2705,"hp":60.0,"id":65624,"off_x":-3.623873472213745,"off_y":-3.858217716217041,"route":1,"slot":88,"speed":50.93167495727539,"x":358.29339599609375,"y":566.1419677734375},{"cell":2760,"hp":60.0,"id":65625,"off_x":-2.928628444671631,"off_y":-0.3502664566040039,"route":2,"slot":89,"speed":65.2286148071289,"x":1453.1356201171875,"y":569.6500854492188},{"cell":3696,"hp":26.0,"id":65626,"off_x":-3.8567276000976563,"off_y":3.76560115814209,"route":0,"slot":90,"speed":49.425048828125,"x":966.14306640625,"y":762.3800659179688},{"cell":2703,"hp":60.0,"id":65627,"off_x":-5.868386268615723,"off_y":-6.46760368347168,"route":1,"slot":91,"speed":48.91694259643555,"x":309.59210205078125,"y":563.5322875976563},{"cell":2476,"hp":60.0,"id":65628,"off_x":-0.796809196472168,"off_y":-6.084654808044434,"route":2,"slot":92,"speed":54.963314056396484,"x":1533.4278564453125,"y":503.9151916503906},{"cell":2710,"hp":26.0,"id":65630,"off_x":5.23698616027832,"off_y":-0.7521686553955078,"route":1,"slot":94,"speed":65.84939575195313,"x":446.5821533203125,"y":569.2474365234375},{"cell":2474,"hp":60.0,"id":65631,"off_x":6.573336601257324,"off_y":-4.238926410675049,"route":2,"slot":95,"speed":62.26829147338867,"x":1491.0582275390625,"y":505.7610778808594},{"cell":2705,"hp":60.0,"id":65633,"off_x":5.961088180541992,"off_y":-3.33900785446167,"route":1,"slot":97,"speed":50.26116180419922,"x":344.3606262207031,"y":566.6604614257813},{"cell":2478,"hp":60.0,"id":65634,"off_x":-4.267221450805664,"off_y":-2.026416778564453,"route":2,"slot":98,"speed":50.20254135131836,"x":1572.1580810546875,"y":507.97381591796875},{"cell":2706,"hp":60.0,"id":65636,"off_x":-2.1828866004943848,"off_y":-6.311591625213623,"route":1,"slot":100,"speed":55.4224739074707,"x":369.49603271484375,"y":563.6881713867188},{"cell":2479,"hp":60.0,"id":65637,"off_x":-5.3105974197387695,"off_y":-2.5937557220458984,"route":2,"slot":101,"speed":47.81338882446289,"x":1599.775146484375,"y":507.4065246582031},{"cell":2706,"hp":60.0,"id":65639,"off_x":-0.8356614112854004,"off_y":2.941861152648926,"route":1,"slot":103,"speed":55.020748138427734,"x":368.6339416503906,"y":572.9418334960938},{"cell":2767,"hp":60.0,"id":65640,"off_x":3.0597238540649414,"off_y":-0.03133058547973633,"route":2,"slot":104,"speed":49.92814254760742,"x":1586.8555908203125,"y":569.9686889648438},{"cell":2704,"hp":60.0,"id":65642,"off_x":-6.92866325378418,"off_y":-1.642125129699707,"route":1,"slot":106,"speed":52.536170959472656,"x":333.73529052734375,"y":568.3579711914063},{"cell":2761,"hp":60.0,"id":65643,"off_x":0.7664985656738281,"off_y":-0.3923473358154297,"route":2,"slot":107,"speed":69.21858978271484,"x":1471.1429443359375,"y":569.6078491210938},{"cell":3696,"hp":26.0,"id":65644,"off_x":-4.696611404418945,"off_y":5.082724571228027,"route":0,"slot":108,"speed":52.603485107421875,"x":965.30322265625,"y":774.4796752929688},{"cell":2708,"hp":60.0,"id":65645,"off_x":1.912668228149414,"off_y":4.368796348571777,"route":1,"slot":109,"speed":69.7395248413086,"x":419.8485107421875,"y":574.3685302734375},{"cell":2474,"hp":60.0,"id":65646,"off_x":-1.4782919883728027,"off_y":-3.1789302825927734,"route":2,"slot":110,"speed":66.18548583984375,"x":1494.3941650390625,"y":506.8209228515625},{"cell":3600,"hp":26.0,"id":65647,"off_x":-5.661438941955566,"off_y":-3.7350826263427734,"route":0,"slot":111,"speed":54.31566619873047,"x":964.338134765625,"y":744.0897216796875},{"cell":2707,"hp":60.0,"id":65648,"off_x":2.080167770385742,"off_y":5.725437164306641,"route":1,"slot":112,"speed":65.21148681640625,"x":394.0180969238281,"y":575.72509765625},{"cell":2474,"hp":60.0,"id":65649,"off_x":6.979698181152344,"off_y":2.7593994140625,"route":2,"slot":113,"speed":69.66810607910156,"x":1482.716064453125,"y":512.7593994140625},{"cell":2705,"hp":60.0,"id":65651,"off_x":0.04697227478027344,"off_y":-3.287433385848999,"route":1,"slot":115,"speed":57.0466194152832,"x":346.3441162109375,"y":566.7122802734375},{"cell":2480,"hp":60.0,"id":65652,"off_x":0.1164555549621582,"off_y":6.230029106140137,"route":2,"slot":116,"speed":49.6418342590332,"x":1611.1207275390625,"y":516.2303466796875},{"cell":3216,"hp":26.0,"id":65653,"off_x":-5.259052276611328,"off_y":2.7350988388061523,"route":0,"slot":117,"speed":69.30323791503906,"x":964.7407836914063,"y":660.7252197265625},{"cell":2706,"hp":60.0,"id":65654,"off_x":-2.14420223236084,"off_y":-2.1054916381835938,"route":1,"slot":118,"speed":60.35978317260742,"x":365.9928894042969,"y":567.894287109375},{"cell":2479,"hp":60.0,"id":65655,"off_x":6.801796913146973,"off_y":1.7942419052124023,"route":2,"slot":119,"speed":58.07857894897461,"x":1586.4298095703125,"y":511.7942810058594},{"cell":2701,"hp":60.0,"id":65657,"off_x":-2.9892382621765137,"off_y":4.17772102355957,"route":1,"slot":121,"speed":45.966529846191406,"x":279.74615478515625,"y":574.177734375},{"cell":2769,"hp":60.0,"id":65658,"off_x":-1.3190946578979492,"off_y":-5.119824409484863,"route":2,"slot":122,"speed":45.988258361816406,"x":1635.814208984375,"y":564.8801879882813},{"cell":3792,"hp":60.0,"id":65659,"off_x":2.989316940307617,"off_y":0.829585075378418,"route":0,"slot":123,"speed":47.780696868896484,"x":972.9896240234375,"y":797.7682495117188},{"cell":2702,"hp":60.0,"id":65660,"off_x":-0.8260331153869629,"off_y":0.5174369812011719,"route":1,"slot":124,"speed":49.215641021728516,"x":290.651123046875,"y":570.5177612304688},{"cell":2766,"hp":60.0,"id":65661,"off_x":-2.2418556213378906,"off_y":-0.4654712677001953,"route":2,"slot":125,"speed":59.17222595214844,"x":1567.552734375,"y":569.5348510742188},{"cell":2706,"hp":60.0,"id":65663,"off_x":-0.6222476959228516,"off_y":-1.720259189605713,"route":1,"slot":127,"speed":67.80738067626953,"x":367.1152648925781,"y":568.279541015625},{"cell":2475,"hp":60.0,"id":65664,"off_x":-6.279518127441406,"off_y":-4.467500686645508,"route":2,"slot":128,"speed":68.241455078125,"x":1516.494873046875,"y":505.53228759765625},{"cell":3600,"hp":26.0,"id":65665,"off_x":1.9373779296875,"off_y":2.714519500732422,"route":0,"slot":129,"speed":60.69092559814453,"x":971.9371948242188,"y":758.6178588867188},{"cell":2701,"hp":60.0,"id":65666,"off_x":-0.2744903564453125,"off_y":6.8206329345703125,"route":1,"slot":130,"speed":49.88128662109375,"x":263.39544677734375,"y":576.8202514648438},{"cell":2481,"hp":60.0,"id":65667,"off_x":0.8136348724365234,"off_y":0.7380366325378418,"route":2,"slot":131,"speed":49.4527587890625,"x":1632.2276611328125,"y":510.738037109375},{"cell":3696,"hp":26.0,"id":65668,"off_x":-2.794229030609131,"off_y":-3.687697410583496,"route":0,"slot":132,"speed":56.94715881347656,"x":967.2053833007813,"y":762.925537109375},{"cell":2704,"hp":60.0,"id":65669,"off_x":2.082700729370117,"off_y":-6.3925323486328125,"route":1,"slot":133,"speed":58.574466705322266,"x":325.190185546875,"y":563.6071166992188},{"cell":2483,"hp":60.0,"id":65670,"off_x":6.093487739562988,"off_y":-1.2026562690734863,"route":2,"slot":134,"speed":45.83238983154297,"x":1669.449462890625,"y":508.7973937988281},{"cell":3504,"hp":26.0,"id":65671,"off_x":-5.800526142120361,"off_y":-5.044530391693115,"route":0,"slot":135,"speed":62.80112838745117,"x":964.1990356445313,"y":728.0228271484375},{"cell":2700,"hp":60.0,"id":65672,"off_x":-5.438180446624756,"off_y":-4.9867095947265625,"route":1,"slot":136,"speed":46.245025634765625,"x":248.9749755859375,"y":565.0131225585938},{"cell":2482,"hp":60.0,"id":65673,"off_x":-4.4403181076049805,"off_y":4.304941177368164,"route":2,"slot":137,"speed":48.305641174316406,"x":1653.4205322265625,"y":514.3060913085938},{"cell":3888,"hp":60.0,"id":65674,"off_x":0.28070831298828125,"off_y":3.918405532836914,"route":0,"slot":138,"speed":48.76609420776367,"x":970.2807006835938,"y":813.84033203125},{"cell":2702,"hp":60.0,"id":65675,"off_x":0.3964552879333496,"off_y":-3.1960582733154297,"route":1,"slot":139,"speed":53.893287658691406,"x":297.8279113769531,"y":566.803955078125},{"cell":2764,"hp":60.0,"id":65676,"off_x":-5.242640495300293,"off_y":-1.873581886291504,"route":2,"slot":140,"speed":68.40636444091797,"x":1539.91357421875,"y":568.1264038085938},{"cell":3792,"hp":60.0,"id":65677,"off_x":6.023940086364746,"off_y":0.15113496780395508,"route":0,"slot":141,"speed":54.90911102294922,"x":976.0242309570313,"y":788.2387084960938},{"cell":2703,"hp":60.0,"id":65678,"off_x":4.671634674072266,"off_y":-1.1924219131469727,"route":1,"slot":142,"speed":59.060794830322266,"x":319.390380859375,"y":568.8079833984375},{"cell":2766,"hp":60.0,"id":65679,"off_x":4.994929313659668,"off_y":-6.322672367095947,"route":2,"slot":143,"speed":67.28256225585938,"x":1569.5477294921875,"y":563.6774291992188},{"cell":3888,"hp":60.0,"id":65680,"off_x":-6.55059289932251,"off_y":1.0715856552124023,"route":0,"slot":144,"speed":55.498779296875,"x":963.448486328125,"y":812.6874389648438},{"cell":2699,"hp":60.0,"id":65681,"off_x":4.328807830810547,"off_y":3.891437530517578,"route":1,"slot":145,"speed":48.23023986816406,"x":232.48622131347656,"y":573.8715209960938},{"cell":2481,"hp":60.0,"id":65682,"off_x":1.214883804321289,"off_y":-6.913845062255859,"route":2,"slot":146,"speed":54.457069396972656,"x":1637.4034423828125,"y":503.0860290527344},{"cell":4080,"hp":60.0,"id":65683,"off_x":6.051529884338379,"off_y":2.045435905456543,"route":0,"slot":147,"speed":50.52744674682617,"x":976.05126953125,"y":846.5533447265625},{"cell":2700,"hp":60.0,"id":65684,"off_x":-6.5449628829956055,"off_y":-4.328116416931152,"route":1,"slot":148,"speed":55.82221984863281,"x":254.63328552246094,"y":565.6718139648438},{"cell":2481,"hp":60.0,"id":65685,"off_x":1.5899410247802734,"off_y":-1.8016862869262695,"route":2,"slot":149,"speed":54.60053253173828,"x":1636.7596435546875,"y":508.19830322265625},{"cell":3696,"hp":26.0,"id":65686,"off_x":6.180868148803711,"off_y":5.611352920532227,"route":0,"slot":150,"speed":67.46688842773438,"x":976.1807861328125,"y":763.2520751953125},{"cell":2703,"hp":60.0,"id":65687,"off_x":-2.4780402183532715,"off_y":-5.168801307678223,"route":1,"slot":151,"speed":64.73529052734375,"x":312.190673828125,"y":564.8309936523438},{"cell":2479,"hp":60.0,"id":65688,"off_x":-2.775038242340088,"off_y":0.678978443145752,"route":2,"slot":152,"speed":64.93204498291016,"x":1591.7362060546875,"y":510.67913818359375},{"cell":3888,"hp":60.0,"id":65689,"off_x":1.5528392791748047,"off_y":0.8371496200561523,"route":0,"slot":153,"speed":56.543434143066406,"x":971.5525512695313,"y":803.2176513671875},{"cell":2702,"hp":60.0,"id":65690,"off_x":6.539259910583496,"off_y":-1.2713289260864258,"route":1,"slot":154,"speed":56.17094421386719,"x":284.0274963378906,"y":568.7281494140625},{"cell":2480,"hp":60.0,"id":65691,"off_x":-4.2837419509887695,"off_y":-2.5482025146484375,"route":2,"slot":155,"speed":63.60225296020508,"x":1610.892578125,"y":507.4519958496094},{"cell":3696,"hp":26.0,"id":65692,"off_x":-6.810581207275391,"off_y":-0.012589454650878906,"route":0,"slot":156,"speed":64.78146362304688,"x":963.1893920898438,"y":763.3492431640625},{"cell":2699,"hp":60.0,"id":65693,"off_x":-0.5381784439086914,"off_y":-0.6947722434997559,"route":1,"slot":157,"speed":48.482666015625,"x":238.94644165039063,"y":569.3052368164063},{"cell":2772,"hp":60.0,"id":65694,"off_x":-1.6861200332641602,"off_y":-5.678732395172119,"route":2,"slot":158,"speed":45.30342102050781,"x":1693.8924560546875,"y":564.3212890625},{"cell":4080,"hp":60.0,"id":65695,"off_x":6.585511207580566,"off_y":6.885989189147949,"route":0,"slot":159,"speed":51.211116790771484,"x":976.5855712890625,"y":846.793212890625},{"cell":2702,"hp":60.0,"id":65696,"off_x":0.393984317779541,"off_y":-4.0260419845581055,"route":1,"slot":160,"speed":61.242469787597656,"x":288.75469970703125,"y":565.9742431640625},{"cell":2770,"hp":60.0,"id":65697,"off_x":6.29672908782959,"off_y":1.3051128387451172,"route":2,"slot":161,"speed":58.10024642944336,"x":1654.1304931640625,"y":571.30517578125},{"cell":2702,"hp":60.0,"id":65698,"off_x":0.6955156326293945,"off_y":-4.101302146911621,"route":1,"slot":162,"speed":66.45529174804688,"x":284.54901123046875,"y":565.89794921875},{"cell":2481,"hp":60.0,"id":65699,"off_x":-4.752864837646484,"off_y":-6.8327178955078125,"route":2,"slot":163,"speed":60.9184684753418,"x":1633.4798583984375,"y":503.16705322265625},{"cell":3696,"hp":60.0,"id":65700,"off_x":2.356290817260742,"off_y":-6.05360221862793,"route":0,"slot":164,"speed":68.89878845214844,"x":972.355224609375,"y":778.427734375},{"cell":2697,"hp":60.0,"id":65701,"off_x":0.07820510864257813,"off_y":0.2856149673461914,"route":1,"slot":165,"speed":47.123111724853516,"x":197.0596923828125,"y":570.280029296875},{"cell":2481,"hp":60.0,"id":65702,"off_x":-3.501922369003296,"off_y":6.511002540588379,"route":2,"slot":166,"speed":61.58475875854492,"x":1633.484375,"y":516.510986328125},{"cell":4080,"hp":60.0,"id":65703,"off_x":-2.8239030838012695,"off_y":4.138379096984863,"route":0,"slot":167,"speed":57.599300384521484,"x":967.1759643554688,"y":840.63623046875},{"cell":2697,"hp":60.0,"id":65704,"off_x":-2.658413887023926,"off_y":-0.8772740364074707,"route":1,"slot":168,"speed":45.43336486816406,"x":188.72735595703125,"y":569.1224365234375},{"cell":2482,"hp":60.0,"id":65705,"off_x":2.161836624145508,"off_y":6.321938514709473,"route":2,"slot":169,"speed":61.449913024902344,"x":1651.8175048828125,"y":516.3221435546875},{"cell":3792,"hp":60.0,"id":65706,"off_x":2.4780044555664063,"off_y":0.35654783248901367,"route":0,"slot":170,"speed":69.27786254882813,"x":972.477783203125,"y":782.5896606445313},{"cell":2699,"hp":60.0,"id":65707,"off_x":-6.682043075561523,"off_y":4.586946487426758,"route":1,"slot":171,"speed":57.08121109008789,"x":237.7993927001953,"y":574.5868530273438},{"cell":2485,"hp":60.0,"id":65708,"off_x":-4.916059494018555,"off_y":-0.36249589920043945,"route":2,"slot":172,"speed":50.96491241455078,"x":1701.3916015625,"y":509.64599609375},{"cell":3888,"hp":60.0,"id":65709,"off_x":0.47095775604248047,"off_y":5.309108734130859,"route":0,"slot":173,"speed":64.99483489990234,"x":970.470947265625,"y":806.66259765625},{"cell":2698,"hp":60.0,"id":65710,"off_x":-5.383702754974365,"off_y":-3.972588539123535,"route":1,"slot":174,"speed":51.85378646850586,"x":218.94488525390625,"y":566.0274047851563},{"cell":2769,"hp":60.0,"id":65711,"off_x":-2.4779653549194336,"off_y":-1.590498924255371,"route":2,"slot":175,"speed":64.82635498046875,"x":1639.5718994140625,"y":568.4094848632813},{"cell":4176,"hp":60.0,"id":65712,"off_x":3.6452884674072266,"off_y":6.890161514282227,"route":0,"slot":176,"speed":54.074493408203125,"x":973.6453857421875,"y":866.0728759765625},{"cell":2700,"hp":60.0,"id":65713,"off_x":-3.6507527828216553,"off_y":-6.17481803894043,"route":1,"slot":177,"speed":61.4582633972168,"x":247.94056701660156,"y":563.8253173828125},{"cell":2771,"hp":60.0,"id":65714,"off_x":-6.31069278717041,"off_y":0.30985546112060547,"route":2,"slot":178,"speed":58.472129821777344,"x":1671.894287109375,"y":570.311279296875}],"hwacha_totals":{"candidate_evaluations":1917,"kills":50,"shared_only":11,"shots":11},"killed_total":50,"leaked_total":1,"network":{"edges":{"10":[6,9,12],"11":[8],"12":[10],"5":[6,9],"6":[5,7,10],"7":[6,8],"8":[7,11],"9":[5,10]},"groups":[5],"hwacha_known":{"1":[65543,65547,65552,65553,65562,65568,65589,65592,65596,65601,65603,65626,65644,65647,65653,65659,65665,65668,65671,65674,65677,65680,65683,65686,65689,65692,65695,65700,65703,65706,65709,65712,131087],"2":[65543,65547,65552,65553,65562,65568,65589,65592,65601,65603,65626,65644,65647,65659,65665,65668,65671,65674,65677,65680,65683,65686,65689,65692,65695,65700,65703,65706,65709,65712,131087],"3":[65543,65547,65552,65553,65562,65568,65589,65592,65601,65603,65626,65644,65647,65659,65665,65668,65671,65674,65677,65680,65683,65686,65689,65692,65695,65700,65703,65706,65709,65712,131087],"4":[65543,65547,65552,65553,65562,65568,65589,65592,65601,65603,65626,65644,65647,65659,65665,65668,65671,65674,65677,65680,65683,65686,65689,65692,65695,65700,65703,65706,65709,65712,131087]},"sensor_seen":{"13":[65543,65552,65603],"14":[65547,65553,65562,65568,65589,65592,65601],"15":[65626,65644,65647,65659,65665,65668,65671,65674,65677,65680,65683,65686,65689,65692,65695,65700,65703,65706,65709,65712,131087],"16":[]},"topology_version":16},"path":{"goal":[47,26],"path_version":4},"placement_counters":{"activation_changes":0,"commands_accepted":18,"commands_rejected":0,"locked_district":-1,"next_id":19,"rejected_total":0},"rng_state":2011065352812074855,"route_alive":[23,46,60],"route_leaked":[1,0,0],"route_spawned":[60,60,60],"run":{"arrival_damage":1.0,"collapse_count":0,"collapse_sim_time":-1.0,"collapse_tick":-1,"core_arrivals":0,"core_damage_absorbed":0.0,"core_damage_total":0.0,"core_hp":60.0,"core_hp_max":60.0,"core_invulnerable":false,"defense":"OUTER_ACTIVE","end_sim_time":-1.0,"end_tick":-1,"event_count":2,"forced_hp_writes":0,"outer_arrivals":1,"outer_damage_total":1.0,"outer_hp":359.0,"outer_hp_max":360.0,"recovery_anchor":[-1,-1],"recovery_placed":false,"recovery_placed_tick":-1,"recovery_right":0,"recovery_target_id":1,"run":"RUNNING"},"run_mode":"waves","sim_time":10.016666686700075,"spawned_total":180,"spawning_enabled":true,"steps":601,"structures":[{"active":true,"anchor":[46,29],"attached_to":10,"blast_radius":55.0,"center":[940.0,600.0],"cooldown":0.8,"cooldown_left":0.316666665700001,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":5,"id":1,"kills":36,"kind":"HWACHA","known_local":2,"known_shared":31,"label":"화차·중영","last_aim":[980.0,750.0],"last_target_local":0,"last_target_shared":12,"last_zone":1,"muzzle_timer":0.0,"shots":7,"wait_reason":"재장전"},{"active":true,"anchor":[30,25],"attached_to":5,"blast_radius":55.0,"center":[620.0,520.0],"cooldown":0.8,"cooldown_left":0.366666665800001,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":5,"id":2,"kills":14,"kind":"HWACHA","known_local":3,"known_shared":28,"label":"화차·서영","last_aim":[460.0,580.0],"last_target_local":0,"last_target_shared":2,"last_zone":4,"muzzle_timer":0.0,"shots":4,"wait_reason":"재장전"},{"active":true,"anchor":[64,25],"attached_to":8,"blast_radius":55.0,"center":[1300.0,520.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":0,"fire_range":200.0,"group":5,"id":3,"kills":0,"kind":"HWACHA","known_local":7,"known_shared":24,"label":"화차·동영","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"알려진 표적이 사거리 밖"},{"active":true,"anchor":[46,17],"attached_to":6,"blast_radius":55.0,"center":[940.0,360.0],"cooldown":0.8,"cooldown_left":0.0,"damage":34.0,"detached":false,"detect_range":100.0,"district":1,"fire_range":200.0,"group":5,"id":4,"kills":0,"kind":"HWACHA","known_local":0,"known_shared":31,"label":"화차·궁성","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":"알려진 표적이 사거리 밖"},{"active":true,"anchor":[34,21],"attached_to":-1,"blast_radius":0.0,"center":[700.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":5,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[42,21],"attached_to":-1,"blast_radius":0.0,"center":[860.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":5,"id":6,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[50,21],"attached_to":-1,"blast_radius":0.0,"center":[1020.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":1,"fire_range":0.0,"group":5,"id":7,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[58,21],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,440.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":8,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[34,29],"attached_to":-1,"blast_radius":0.0,"center":[700.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":9,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B5","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[42,29],"attached_to":-1,"blast_radius":0.0,"center":[860.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":10,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B6","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[58,29],"attached_to":-1,"blast_radius":0.0,"center":[1180.0,600.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":11,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B7","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[44,33],"attached_to":-1,"blast_radius":0.0,"center":[900.0,680.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":5,"id":12,"kills":0,"kind":"BONGSU","known_local":0,"known_shared":0,"label":"봉수 B8","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[30,27],"attached_to":9,"blast_radius":0.0,"center":[620.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":5,"id":13,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[62,27],"attached_to":11,"blast_radius":0.0,"center":[1260.0,560.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":5,"id":14,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[44,39],"attached_to":12,"blast_radius":0.0,"center":[900.0,800.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":0,"fire_range":0.0,"group":5,"id":15,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S3","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[47,15],"attached_to":7,"blast_radius":0.0,"center":[960.0,320.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":140.0,"district":1,"fire_range":0.0,"group":5,"id":16,"kills":0,"kind":"SENSOR","known_local":0,"known_shared":0,"label":"혼천의 S4","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[44,36],"attached_to":-1,"blast_radius":0.0,"center":[900.0,740.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":17,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J1","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""},{"active":true,"anchor":[22,24],"attached_to":-1,"blast_radius":0.0,"center":[460.0,500.0],"cooldown":0.0,"cooldown_left":0.0,"damage":0.0,"detached":false,"detect_range":0.0,"district":0,"fire_range":0.0,"group":-1,"id":18,"kills":0,"kind":"JANGSEUNG","known_local":0,"known_shared":0,"label":"장승 J2","last_aim":[0.0,0.0],"last_target_local":0,"last_target_shared":0,"last_zone":-1,"muzzle_timer":0.0,"shots":0,"wait_reason":""}],"targeting_mode":"wp002","waves":{"enabled":true,"gap_left":0.0,"remaining":[0,0,0],"scheduled_complete":false,"spawned_by_wave":[180,0,0],"spawned_extra":0,"spawned_scheduled":180,"state":"WAITING_CLEAR","total_budget":1140,"wave_index":0,"wave_name":"W1","wave_spent_tick":[359,-1,-1],"wave_started_tick":[0,-1,-1]},"waves_accum":[0.0,0.0,0.0],"zone_counts":[0,11,0,0,8,7,5,0,1,0],"zone_set":"wp003","zones":[{"center":[900.0,750.0],"id":0,"name":"남문 서편 골목","radius":45.0},{"center":[980.0,750.0],"id":1,"name":"남문 동편 골목","radius":45.0},{"center":[940.0,1000.0],"id":2,"name":"남대문 대로","radius":70.0},{"center":[460.0,500.0],"id":3,"name":"서문 북편 골목","radius":45.0},{"center":[460.0,580.0],"id":4,"name":"서문 남편 골목","radius":45.0},{"center":[1460.0,500.0],"id":5,"name":"동문 북편 골목","radius":45.0},{"center":[1460.0,580.0],"id":6,"name":"동문 남편 골목","radius":45.0},{"center":[960.0,310.0],"id":7,"name":"광화문 어귀","radius":70.0},{"center":[950.0,560.0],"id":8,"name":"광장 남단","radius":70.0},{"center":[950.0,410.0],"id":9,"name":"광화문 앞","radius":50.0}]})
+  -- capture hold: the battle does not advance while the same tick is captured in several views
+     PASS  no tick while held (= 6)
+     PASS  view switched while held (= true)
+     PASS  ticks resume after the hold
+
+TOTAL passed=1368 failed=0
+elapsed 76.3 s
