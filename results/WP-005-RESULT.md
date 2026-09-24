@@ -381,3 +381,10 @@ PR #11은 이미 상위 브랜치에 병합되어 있었으므로 보완은 PR #
 - 증거: `results/evidence/wp-005/captures/v01/` (PNG 15장 × 2 해상도 + 로그), `perf/`, `tests/test_report.txt`.
 - 남은 것: V-02(적 몸통 중간톤·시설 팔레트, GPT 제작), V-03(건축 실루엣, GPT 제작), V-04(점등·발사·소등 효과), 잔여 리소스 15파일. AC-08은 사용자 스타일 확인 전까지 NOT RUN. WP-005 상태 IN_PROGRESS 유지.
 
+#### 회차 6 보완 (2026-09-24): 플레이어 HUD 글자 18 px
+
+- 구현 **`5f6333a`**, 같은 커밋에서 `verify.ps1 -Wp005` 종료 0. 위 표의 캡처·성능은 이 커밋으로 다시 만들어졌다(앞 커밋 `60fc75f`의 수치는 git 이력 `4cc0490`에 보존).
+- 이유: 회차 6 관측에서 4줄 플레이어 HUD가 1280×720에서 약 10 px로 작았다. 플레이어 보기에서만 15 → 18 px(720p에서 약 12 px). 지도 위 이름 크기는 그대로 두어 겹침 수치가 유지된다.
+- 결과: 테스트 **1,368 passed / 0 failed**(글자 크기 검사 2건 추가), 플레이어 보기 문구 겹침 1080p 0 / 720p 0, HUD 4줄, 패널은 내곽 왼쪽·광장 위에 머문다.
+- 성능(release `b36ab01fa857…`, 구현 `5f6333a`): greybox collapse_move 230.9 FPS / p95 12.49 ms · greybox collapse_combat 253.2 FPS / p95 11.67 ms · sample collapse_move 184.0 FPS / p95 13.92 ms · sample collapse_combat 203.6 FPS / p95 12.72 ms.
+

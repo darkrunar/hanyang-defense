@@ -1430,8 +1430,10 @@
      PASS  detail label hidden (= false)
      PASS  empty bottom panel hidden (= false)
      PASS  short structure names (= false)
+     PASS  player HUD font 18 px (readable at 720p) (= 18)
      PASS  --view=dev: developer view (= false)
      PASS  --view=dev: overlays and detail as before (= true)
+     PASS  --view=dev: HUD font 15 px as before (= 15)
      PASS  --capture keeps the developer view (existing evidence reproducible) (= false)
      PASS  capture: zones as before (= true)
      PASS  --view=player applies to a capture too (= true)
@@ -1473,5 +1475,5 @@
      PASS  view switched while held (= true)
      PASS  ticks resume after the hold
 
-TOTAL passed=1366 failed=0
-elapsed 79.9 s
+TOTAL passed=1368 failed=0
+elapsed 75.9 s
