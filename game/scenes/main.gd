@@ -1240,8 +1240,16 @@ func _update_hud() -> void:
 const WAVE_STATE_KO: Dictionary = {"SPAWNING": "진격 중", "WAITING_CLEAR": "잔적 정리", "GAP": "다음 웨이브 대기", "DONE": "모든 웨이브 종료"}
 
 
+## Top HUD font: 18 px in the player view (about 12 px at 1280x720, where the
+## 15 px developer HUD shrinks to 10 px), 15 px in the developer view.
+const HUD_FONT_PLAYER: int = 18
+const HUD_FONT_DEV: int = 15
+
+
 func _set_player_view(on: bool) -> void:
     _player_view = on
+    if _hud != null:
+        _hud.add_theme_font_size_override("font_size", HUD_FONT_PLAYER if on else HUD_FONT_DEV)
     _show_zones = not on
     _show_ranges = not on
     _show_detail = not on
