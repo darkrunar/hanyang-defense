@@ -39,6 +39,10 @@ extends Node2D
 ##   --play-mode=build     WP-008 (D-054): preparation phase + paid construction + supply ledger on the
 ##                         "build" fixture (4 structures). Never the default; the classic run is unchanged.
 ##
+##   --stage=N|key         core-loop test mode (docs/CORE_LOOP_STAGES.md, D-056): stage 1..8 of the
+##                         one-content expansion ladder (flow, jangseung, hwacha, network, waves,
+##                         collapse, loop, build). `[` / `]` (or PageUp / PageDown) switch stages in place.
+##
 ## WP-008 build-mode controls (PREPARING and PLAYING):
 ##   1 / 2 / 3 / 4   select 장승 / 화차 / 봉수대 / 혼천의 to buy (cost shown at the cursor)
 ##   5               select the free recovery placement (after the collapse)
@@ -64,6 +68,7 @@ const MenuLayer := preload("res://game/scenes/menu_layer.gd")
 const ArtSet := preload("res://game/scenes/art_set.gd")
 const FxLayer := preload("res://game/scenes/fx_layer.gd")
 const EnemySim := preload("res://game/core/enemy_sim.gd")
+const StageLadder := preload("res://game/core/stage_ladder.gd")
 
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 
@@ -210,10 +215,24 @@ func _ready() -> void:
     battle = Battle.new(config)
     _build_scene()
     _apply_run_mode()
-    _set_player_view(_view_arg == "player" or (_view_arg == "" and _perf == null and _capture_name == ""))
+    _set_player_view(_view_arg == "player" or (_view_arg == "" and _perf == null and _capture_name == "" and _stage_arg == ""))
+    if _stage_arg != "" and _perf == null and _capture_name == "":
+        var sid: int = StageLadder.parse(_stage_arg)
+        if not _enter_stage(sid):
+            printerr("--stage=%s: %s" % [_stage_arg, _last_notice])
 
 
 var _explicit_sets: Dictionary = {}
+## Raw --set values (key -> string), so a stage switch can reapply the
+## non-mode overrides (seed, speeds ...) on top of the stage preset.
+var _explicit_values: Dictionary = {}
+
+## Core-loop test mode (D-056). 0 = off.
+var _stage: int = 0
+var _stage_arg: String = ""
+var _stage_pending: int = -1
+var _stage_layer: CanvasLayer = null
+var _stage_label: Label = null
 
 ## Every key that selects a game mode. A scripted scenario must reapply ALL of
 ## them from its own preset (Codex review on PR #4: the legacy WP-001/002
@@ -246,6 +265,7 @@ func _parse_args() -> void:
                 printerr("unknown config key: %s" % parts[0])
             elif parts.size() == 2:
                 _explicit_sets[parts[0]] = true
+                _explicit_values[parts[0]] = parts[1]
         elif arg.begins_with("--config="):
             if not config.merge_json(arg.substr("--config=".length())):
                 printerr("could not load config: %s" % arg)
@@ -287,6 +307,8 @@ func _parse_args() -> void:
             _view_arg = arg.substr("--view=".length())
         elif arg.begins_with("--art-outline="):
             _enemy_outline = arg.substr("--art-outline=".length()) != "off"
+        elif arg.begins_with("--stage="):
+            _stage_arg = arg.substr("--stage=".length())
         elif arg.begins_with("--play-mode="):
             var pm: String = arg.substr("--play-mode=".length())
             if pm == "build" or pm == "classic":
@@ -449,6 +471,22 @@ func _build_scene() -> void:
     menu.on_intent = Callable(self, "queue_intent")
     add_child(menu)
     menu.build()
+
+    # D-056 core-loop test mode panel: top centre, over the wall rows above the
+    # 경복궁 compound (y < 110) and between the HUD (x < 816) and the pause
+    # button (x >= 1724). Its own layer so it also shows over the title screen.
+    _stage_layer = CanvasLayer.new()
+    _stage_layer.name = "StagePanel"
+    _stage_layer.layer = 25
+    add_child(_stage_layer)
+    var sp: PanelContainer = _make_panel()
+    sp.position = Vector2(840.0, 8.0)
+    _stage_layer.add_child(sp)
+    _stage_label = _make_hud_label(860.0, 13)
+    _stage_label.add_theme_constant_override("line_spacing", -2)
+    _stage_label.add_theme_color_override("font_color", Color(0.75, 0.92, 0.88))
+    sp.add_child(_stage_label)
+    _stage_layer.visible = false
 
 
 static func _make_panel() -> PanelContainer:
@@ -845,6 +883,10 @@ func _check_run_end() -> void:
 func _physics_process(delta: float) -> void:
     if _capture_busy:
         return
+    if _stage_pending > 0:
+        var nid: int = _stage_pending
+        _stage_pending = -1
+        _enter_stage(nid)
     # A run that already ended while PLAYING (only possible when something
     # outside this loop stepped the battle) shows RESULT before any pending
     # pause / restart is applied, so those are dropped as stale (§2, RESULT
@@ -1105,6 +1147,14 @@ func _unhandled_input(event: InputEvent) -> void:
 ## and the headless flow tests with synthesized events.
 func _handle_key_event(event: InputEvent) -> void:
     _track_held(event)
+    if _stage > 0 and event is InputEventKey and event.pressed and not event.echo:
+        var sk: int = (event as InputEventKey).keycode
+        if sk in [KEY_BRACKETRIGHT, KEY_PAGEDOWN, KEY_BRACKETLEFT, KEY_PAGEUP]:
+            _request_stage_step(1 if sk in [KEY_BRACKETRIGHT, KEY_PAGEDOWN] else -1)
+            var svp: Viewport = get_viewport()
+            if svp != null:
+                svp.set_input_as_handled()
+            return
     if flow.menu_open():
         # A menu is open: mouse events are consumed by the Controls (dim
         # rectangle + buttons) before they get here; keys close exactly one
@@ -1147,8 +1197,10 @@ func _handle_key_event(event: InputEvent) -> void:
                 _say("건설 모드에는 철거·판매·환불이 없다 (WP-008)")
             elif waves_mode:
                 _say("WP-003 런에서는 시설 철거를 제공하지 않는다 (회수 화차 배치만 가능)")
+            elif _stage > 0 and not _stage_allows_structure_at(_cursor_world()):
+                pass
             else:
-                var res: Placement.Result = battle.remove_at_world(get_global_mouse_position())
+                var res: Placement.Result = battle.remove_at_world(_cursor_world())
                 if res.ok:
                     _say("제거: %s #%d  (경로 버전 %d)" % [res.structure.label, res.structure.id, battle.path.path_version])
                 else:
@@ -1172,6 +1224,8 @@ func _handle_key_event(event: InputEvent) -> void:
                 KEY_T, KEY_C:
                     _say("건설 모드에는 활성 전환·전투 토글 디버그 명령이 없다 (WP-008)")
                     return
+        if _stage > 0 and not waves_mode and not _stage_key_allowed(key.keycode):
+            return
         if waves_mode and key.keycode in [KEY_1, KEY_2, KEY_3, KEY_4, KEY_T, KEY_C]:
             _say("WP-003 런에서는 자유 설치·활성 전환·전투 토글 디버그 명령을 제공하지 않는다")
             return
@@ -1322,6 +1376,14 @@ func _try_buy_at_cursor() -> void:
 
 
 func _try_place_at_cursor() -> void:
+    if _stage > 0 and not StageLadder.allows_kind(_stage, _place_mode):
+        _mouse_down = false
+        var st0: Dictionary = StageLadder.get_stage(_stage)
+        if (st0["kinds"] as Array).is_empty():
+            _say("단계 %d(%s)는 관찰 단계다 — 설치는 단계 %d(장승)부터" % [_stage, st0["title"], StageLadder.stage_adding_kind(Placement.Kind.JANGSEUNG)])
+        else:
+            _say("단계 %d에는 %s 설치가 없다" % [_stage, Placement.kind_label(_place_mode)])
+        return
     var anchor: Vector2i = battle.placement.anchor_for_world(_cursor_world())
     var res: Placement.Result = battle.place_structure(_place_mode, anchor)
     if res.ok:
@@ -1366,6 +1428,7 @@ func _active_total() -> int:
 
 
 func _update_hud() -> void:
+    _update_stage_panel()
     if not _show_hud:
         return
     var sim := battle.sim
@@ -1375,7 +1438,8 @@ func _update_hud() -> void:
         _update_player_hud(detail)
         return
     lines.append("한양 디펜스 · %s   Godot %s / %s" % [
-        ("WP-008 건설·물자 프로토타입 (build)" if battle.play_mode == "build" else "WP-003 검증·붕괴·후퇴·재편 프로토타입") if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
+        ("테스트 단계 %d · %s" % [_stage, StageLadder.get_stage(_stage)["title"]]) if _stage > 0 else
+        (("WP-008 건설·물자 프로토타입 (build)" if battle.play_mode == "build" else "WP-003 검증·붕괴·후퇴·재편 프로토타입") if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입"),
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
     ])
     lines.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s%s" % [
@@ -1449,11 +1513,185 @@ func _update_hud() -> void:
         lines.append("1~4 건설 선택  5 회수 화차  LMB 클릭 1회 = 1개 구매(홀드 재시도 없음; 회수 배치만 재시도)  Space 방어 시작  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처")
     elif battle.run_mode == "waves":
         lines.append("LMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
+    elif _stage > 0:
+        lines.append(_stage_controls_line())
     else:
         lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
     _hud.text = "\n".join(lines)
     _detail.text = "\n".join(detail)
 
+
+
+
+# ======================================================== core-loop stages ===
+# D-056 (docs/CORE_LOOP_STAGES.md): the scene side of the one-content test
+# modes. The stage is data (game/core/stage_ladder.gd); entering it swaps the
+# config for the stage preset, resets the battle and picks the flow (direct
+# start or the normal menus). No rule is added: the stage only decides which
+# already-existing commands the input handler lets through.
+
+## Enter stage `id` in place (also used by the capture tour). Returns false
+## (and says why) for a planned / unknown stage; nothing changes then.
+func _enter_stage(id: int) -> bool:
+    if not StageLadder.is_playable(id):
+        var p: Dictionary = StageLadder.planned(id)
+        if p.is_empty():
+            _say("알 수 없는 테스트 단계 %d (1~%d)" % [id, StageLadder.count()])
+        else:
+            _say("단계 %d %s — %s: 아직 구현되지 않아 테스트 모드가 없다" % [id, p["title"], p["wp"]])
+        return false
+    var st: Dictionary = StageLadder.get_stage(id)
+    _stage = id
+    config.values = StageLadder.config_for(id).values.duplicate(true)
+    # non-mode --set overrides (seed, speeds ...) survive; the mode belongs to the stage
+    for k: String in _explicit_values:
+        if not MODE_KEYS.has(k):
+            config.set_value(k, str(_explicit_values[k]))
+    battle.reset()
+    flow = PlayFlow.new()
+    if bool(st["menus"]):
+        flow.build_mode = battle.play_mode == "build"
+        if settings == null:
+            var spath: String = _settings_path
+            if spath == "":
+                spath = UserSettings.DEFAULT_PATH if _capture_name == "" else "user://stage_capture_settings.cfg"
+            settings = UserSettings.new(spath)
+            if _capture_name == "" or _settings_path != "":
+                settings.load()
+    else:
+        flow.start_bypass()
+    var kinds: Array = st["kinds"]
+    _place_mode = int(kinds[0]) if not kinds.is_empty() else Placement.Kind.JANGSEUNG
+    _reset_input_state()
+    _sync_terrain_marker()
+    _sync_menu()
+    _update_stage_panel()
+    var title: String = "Hanyang Defense [stage:%d %s]" % [id, st["key"]]
+    if _capture_name != "":
+        title += " [capture:%s]" % _capture_name
+    if _art_mode != "greybox":
+        title += " [art:%s]" % _art_mode
+    DisplayServer.window_set_title(title)
+    _say("테스트 단계 %d/%d: %s — 추가: %s" % [id, StageLadder.count(), st["title"], st["adds"]])
+    return true
+
+
+## `[` / `]`: previous / next stage, applied at the start of the next frame.
+func _request_stage_step(delta: int) -> void:
+    var target: int = _stage + delta
+    if target < 1:
+        _say("첫 단계다 (1 %s)" % StageLadder.get_stage(1)["title"])
+        return
+    if target > StageLadder.count():
+        var p: Dictionary = StageLadder.planned(target)
+        _say("마지막 구현 단계다 — 다음 단계 %d %s는 %s" % [target, p.get("title", "?"), p.get("wp", "?")])
+        return
+    _stage_pending = target
+
+
+## Sandbox keys a stage lets through; refused keys say which stage adds them.
+func _stage_key_allowed(keycode: int) -> bool:
+    var st: Dictionary = StageLadder.get_stage(_stage)
+    var kind: int = -1
+    match keycode:
+        KEY_1: kind = Placement.Kind.JANGSEUNG
+        KEY_2: kind = Placement.Kind.HWACHA
+        KEY_3: kind = Placement.Kind.BONGSU
+        KEY_4: kind = Placement.Kind.SENSOR
+        KEY_T:
+            if bool(st["toggle"]):
+                return true
+            _say("단계 %d(%s)에는 활성 전환(T)이 없다 — 단계 4(봉수망)에서 추가" % [_stage, st["title"]])
+            return false
+        KEY_C:
+            if bool(st["combat_toggle"]):
+                return true
+            _say("단계 %d(%s)에는 전투 토글(C)이 없다 — 단계 3(화차)에서 추가" % [_stage, st["title"]])
+            return false
+        _:
+            return true
+    if StageLadder.allows_kind(_stage, kind):
+        return true
+    _say("단계 %d(%s)에는 %s 설치가 없다 — 단계 %d에서 추가된다" % [_stage, st["title"], Placement.kind_label(kind),
+        StageLadder.stage_adding_kind(kind)])
+    return false
+
+
+func _stage_allows_structure_at(p: Vector2) -> bool:
+    var s: Placement.Structure = battle.placement.structure_at_world(p)
+    if s == null:
+        _say("제거 실패: 커서 아래 시설 없음")
+        return false
+    if StageLadder.allows_kind(_stage, s.kind):
+        return true
+    _say("단계 %d에서는 %s를 철거할 수 없다 (이 단계의 설치 종류가 아님)" % [_stage, Placement.kind_label(s.kind)])
+    return false
+
+
+func _update_stage_panel() -> void:
+    if _stage_layer == null:
+        return
+    _stage_layer.visible = _stage > 0 and _show_hud
+    if _stage <= 0:
+        return
+    var st: Dictionary = StageLadder.get_stage(_stage)
+    _stage_label.text = "\n".join(PackedStringArray([
+        "테스트 단계 %d/%d · %s (%s)   [ / ] 이전·다음 단계" % [_stage, StageLadder.count(), st["title"], st["wp"]],
+        "추가: %s" % st["adds"],
+        "해 볼 것: %s" % st["observe"],
+        "지금: %s" % _stage_live_line(),
+    ]))
+
+
+## Sandbox-stage controls: only the commands this stage lets through.
+func _stage_controls_line() -> String:
+    var st: Dictionary = StageLadder.get_stage(_stage)
+    var parts: PackedStringArray = PackedStringArray()
+    var kinds: Array = st["kinds"]
+    if kinds.is_empty():
+        parts.append("관찰 단계(설치 없음)")
+    else:
+        parts.append("LMB 설치  RMB 제거")
+        var keys: PackedStringArray = PackedStringArray()
+        for k: Variant in kinds:
+            keys.append("%d%s" % [int(k) + 1, Placement.kind_label(int(k))])
+        parts.append(" ".join(keys))
+    if bool(st["toggle"]):
+        parts.append("T 활성전환")
+    if bool(st["combat_toggle"]):
+        parts.append("C 전투")
+    parts.append("Z 밀도  G 사거리  [ / ] 단계  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
+    return "  ".join(parts)
+
+
+## The one number per stage that shows its new content working.
+func _stage_live_line() -> String:
+    var b := battle
+    match _stage:
+        1:
+            return "생존 %d · %s · 누수 %d" % [b.sim.alive_count, b.route_summary(), b.sim.leaked_total]
+        2:
+            return "장승 %d · 경로 버전 %d · 남문 서편 골목 %d / 동편 %d" % [b.placement.count_of(Placement.Kind.JANGSEUNG),
+                b.path.path_version, b.density.counts[0], b.density.counts[1]]
+        3:
+            var h1: Placement.Structure = b.placement.hwachas()[0] if not b.placement.hwachas().is_empty() else null
+            return "처치 %d · 누수 %d · 화차·중영 처치 %d" % [b.sim.killed_total, b.sim.leaked_total, h1.kills if h1 != null else 0]
+        4:
+            return "사격 %d · 공유 전용 사격 %d · 봉수망 그룹 %s" % [b.hwacha.shots_total, b.hwacha.shared_only_shots, str(b.network.groups())]
+        5, 6:
+            var ws: Dictionary = b.waves.snapshot()
+            var tail: String = ""
+            if _stage == 6:
+                tail = " · 붕괴 %d · 회수 %s" % [b.run.collapse_count,
+                    "배치됨" if b.run.recovery_placed else ("대기 1/1" if b.run.recovery_right > 0 else "—")]
+            return "웨이브 %s · 외곽 HP %.0f/%.0f · 핵심 %.0f · %s%s" % [ws["wave_name"], b.run.outer_hp, b.run.outer_hp_max,
+                b.run.core_hp, b.run.run_name(), tail]
+        7:
+            return "화면 %s · 런 #%d · %s" % [flow.state_name(), b.run.run_id, b.run.run_name()]
+        8:
+            return "화면 %s · 물자 %d · 구매 %d · 시설 %d/%d" % [flow.state_name(), b.economy.supply, b.economy.purchases.size(),
+                b.structure_total(), b.economy.cap]
+    return ""
 
 # ============================================================ V-01 view ===
 # D-053 / docs/art/WP005_VISUAL_REVISION_PLAN.md V-01: the default display of
@@ -1530,7 +1768,10 @@ func _update_player_hud(detail: PackedStringArray) -> void:
     else:
         lines.append("동시 생존 %d · 처치 %d · 누수 %d%s" % [sim.alive_count, sim.killed_total, sim.leaked_total,
             "   [일시정지]" if flow.state == PlayFlow.State.PAUSED else ""])
-        lines.append("LMB 설치 · RMB 제거 · 1장승 2화차 3봉수대 4혼천의 · T 활성 · C 전투 · Esc 일시정지 · R 초기화 · Z 밀도 · G 사거리 · D 상세")
+        if _stage > 0:
+            lines.append(_stage_controls_line())
+        else:
+            lines.append("LMB 설치 · RMB 제거 · 1장승 2화차 3봉수대 4혼천의 · T 활성 · C 전투 · Esc 일시정지 · R 초기화 · Z 밀도 · G 사거리 · D 상세")
     detail.append("한양 디펜스 · %s   Godot %s / %s" % ["WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()])
     detail.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s" % [_fps_smoothed, _frame_ms_smoothed, battle.sim_time, _sim_speed,
@@ -2332,6 +2573,48 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "stage_tour", "stage_tour_720":
+            # D-056: every playable core-loop stage in order, one or two
+            # captures each, with the stage panel and its live line. Times
+            # restart at 0 whenever a stage is entered. Stage 6 collapses from
+            # real arrivals (outer HP 40); stages 7 / 8 use the real menus.
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            _sim_speed = 6
+            var pt8: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "stage", "id": 1},
+                {"t": 15.0, "do": "capture", "name": pt8 + "_s1_flow_t15"},
+                {"t": 15.0, "do": "stage", "id": 2},
+                {"t": 0.0, "do": "place", "anchor": west},
+                {"t": 25.0, "do": "capture", "name": pt8 + "_s2_jangseung_t25"},
+                {"t": 25.0, "do": "stage", "id": 3},
+                {"t": 0.0, "do": "place", "anchor": west},
+                {"t": 25.0, "do": "capture", "name": pt8 + "_s3_hwacha_bottleneck_t25"},
+                {"t": 25.0, "do": "stage", "id": 4},
+                {"t": 15.0, "do": "hover", "label": "화차·중영"},
+                {"t": 15.0, "do": "capture", "name": pt8 + "_s4_network_t15"},
+                {"t": 15.0, "do": "hover", "label": ""},
+                {"t": 15.0, "do": "stage", "id": 5},
+                {"t": 60.0, "do": "capture", "name": pt8 + "_s5_waves_t60"},
+                {"t": 60.0, "do": "stage", "id": 6},
+                {"t": 0.0, "do": "wait_collapse", "deadline": 120.0},
+                {"t": 0.0, "do": "capture", "name": pt8 + "_s6_collapse"},
+                {"t": 0.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 30.0, "do": "capture", "name": pt8 + "_s6_recovered_t30"},
+                {"t": 30.0, "do": "stage", "id": 7},
+                {"t": 0.0, "do": "capture", "name": pt8 + "_s7_title"},
+                {"t": 0.0, "do": "button", "intent": "title_start"},
+                {"t": 10.0, "do": "capture", "name": pt8 + "_s7_playing_t10"},
+                {"t": 10.0, "do": "stage", "id": 8},
+                {"t": 0.0, "do": "button", "intent": "title_start"},
+                {"t": 0.0, "do": "hud_button", "name": "build_hwacha"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(40, 20)},
+                {"t": 0.0, "do": "capture", "name": pt8 + "_s8_preparing"},
+                {"t": 0.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 0.0, "do": "stage_log", "label": "end"},
+                {"t": 0.0, "do": "quit"},
+            ]
         "wp008_build", "wp008_build_720":
             # WP-008 AC-07: the real build-mode flow (TITLE -> PREPARING -> 방어 시작
             # -> battle -> collapse -> free recovery -> inner purchase -> RESULT)
@@ -2861,6 +3144,15 @@ func _capture_script_step() -> void:
                     "fence": _fence.keys(), "fenced_inputs": fenced_inputs.size(),
                     "preparing": battle.preparing, "begin_defense_calls_ignored": battle.begin_defense_calls_ignored,
                     "settings_path": settings.path if settings != null else ""})
+            "stage":
+                var ok_s: bool = _enter_stage(int(step["id"]))
+                _capture_log.append({"t": battle.sim_time, "stage": int(step["id"]), "ok": ok_s, "tick": battle.steps,
+                    "flow_state": flow.state_name(), "bypass": flow.bypass, "play_mode": battle.play_mode, "run_mode": battle.run_mode,
+                    "fixture": config.get_str("fixture"), "structures": battle.placement.structures.size(),
+                    "panel": _stage_label.text if _stage_label != null else ""})
+            "stage_log":
+                _capture_log.append({"t": battle.sim_time, "stage_log": step["label"], "stage": _stage, "flow_state": flow.state_name(),
+                    "live": _stage_live_line(), "state_hash": battle.state_hash()})
             "econ_log":
                 # WP-008: the ledger and the structure totals at a named point.
                 _capture_log.append({"t": battle.sim_time, "econ_log": step["label"], "tick": battle.steps,
@@ -2968,6 +3260,9 @@ func _do_capture(name: String) -> void:
     snap["art_mode"] = _art_mode
     snap["flow_state"] = flow.state_name()
     snap["selection"] = _sel_kind
+    if _stage > 0:
+        snap["stage"] = _stage
+        snap["stage_live"] = _stage_live_line()
     snap["view"] = "player" if _player_view else "dev"
     snap["labels_on"] = _show_labels
     snap["hud_text"] = _hud.text

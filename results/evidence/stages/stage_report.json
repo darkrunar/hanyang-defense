@@ -1,0 +1,192 @@
+{
+  "all_pass": true,
+  "engine": "4.7-stable (official)",
+  "planned": [
+    {
+      "adds": "넓은 성밖 집결·접근 예고·성문 HP/공격/파괴·통로 개방",
+      "id": 9,
+      "key": "gate",
+      "title": "성밖 접근·성문 공방",
+      "wp": "WP-009 (DRAFT)"
+    },
+    {
+      "adds": "일반 적 우회 + 공성 적의 장승 공격, 파괴 뒤 경로 재계산",
+      "id": 10,
+      "key": "siege",
+      "title": "공성 적·장승 파괴",
+      "wp": "WP-010 (DRAFT)"
+    },
+    {
+      "adds": "유도·포박·차단·수리 (CORE_LOOP C 단계)",
+      "id": 11,
+      "key": "character",
+      "title": "캐릭터 현장 개입(포졸·사또)",
+      "wp": "후보 (WP 없음)"
+    },
+    {
+      "adds": "추가 자원, 시설 해금·융합, 보스",
+      "id": 12,
+      "key": "resources",
+      "title": "정보·혼 · 런 성장",
+      "wp": "후보 (WP 없음)"
+    },
+    {
+      "adds": "런 사이 기록·전략 해금",
+      "id": 13,
+      "key": "meta",
+      "title": "규장각 메타 성장",
+      "wp": "후보 (WP 없음)"
+    }
+  ],
+  "seed": 20260913,
+  "stages": [
+    {
+      "check": "30 s: 세 경로 모두 생존 > 0, 누수 > 0, 처치 0, 시설 0",
+      "failed": [],
+      "id": 1,
+      "key": "flow",
+      "metrics": {
+        "alive": 1000,
+        "killed": 0,
+        "leaked": 1061,
+        "route_alive": [
+          297,
+          352,
+          351
+        ],
+        "route_leaked": [
+          390,
+          335,
+          336
+        ],
+        "t": 30.0000000600011
+      },
+      "pass": true,
+      "title": "적 흐름"
+    },
+    {
+      "check": "같은 시드 35 s: 장승 없음 대비 서편 골목 밀도 0, 동편 증가, 두 골목 동시 차단은 거절",
+      "failed": [],
+      "id": 2,
+      "key": "jangseung",
+      "metrics": {
+        "jangseung_44_36": {
+          "avg_east": 25.9783333333333,
+          "avg_west": 0.0,
+          "path_version": 3
+        },
+        "no_jangseung": {
+          "avg_east": 12.3083333333333,
+          "avg_west": 12.7
+        },
+        "seal_refused": "WOULD_BLOCK_ALL_PATHS",
+        "window": "25..35 s"
+      },
+      "pass": true,
+      "title": "장승 — 길 막기"
+    },
+    {
+      "check": "같은 시드: 1단계 대비 누수 감소, 장승 병목 시 화차·중영 처치 증가",
+      "failed": [],
+      "id": 3,
+      "key": "hwacha",
+      "metrics": {
+        "gun_kills_bottleneck": 616,
+        "gun_kills_open": 178,
+        "killed": 3161,
+        "leaked": 5,
+        "stage1_leaked": 1347,
+        "t": 35.0,
+        "window": "20..35 s"
+      },
+      "pass": true,
+      "title": "화차 — 집중 사격"
+    },
+    {
+      "check": "20 s: 공유 전용 사격 > 0, 봉수대 전부 끄면 공유 전용 사격 0",
+      "failed": [],
+      "id": 4,
+      "key": "network",
+      "metrics": {
+        "groups": [
+          5
+        ],
+        "killed": 1069,
+        "network_off": {
+          "killed": 693,
+          "shared_only_shots": 0,
+          "shots": 13
+        },
+        "shared_only_shots": 34,
+        "shots": 47,
+        "t": 20.0
+      },
+      "pass": true,
+      "title": "봉수망 — 탐지 공유"
+    },
+    {
+      "check": "입력 없이 끝까지: WON, 붕괴 0, 1,140체 생성, 외곽 HP > 0",
+      "failed": [],
+      "id": 5,
+      "key": "waves",
+      "metrics": {
+        "core_hp": 60.0,
+        "ended_at": 99.8333335330054,
+        "killed": 826,
+        "outcome": "WON",
+        "outer_arrivals": 314,
+        "outer_hp": 46.0,
+        "spawned": 1140
+      },
+      "pass": true,
+      "title": "웨이브·거점 방어"
+    },
+    {
+      "check": "강제 없이 붕괴 1회, 회수 배치 B ok(같은 ID), 런 종료까지 진행",
+      "failed": [],
+      "id": 6,
+      "key": "collapse",
+      "metrics": {
+        "collapse_t": 20.4500000409006,
+        "core_arrivals": 18,
+        "core_hp": 42.0,
+        "ended_at": 105.150000210307,
+        "h1_shots": 89,
+        "outcome": "WON",
+        "recovery_t": 20.4666667076006
+      },
+      "pass": true,
+      "title": "붕괴·후퇴·회수"
+    },
+    {
+      "check": "TITLE → PLAYING → RESULT → R → 새 런(run_id +1, 같은 초기 상태)",
+      "failed": [],
+      "id": 7,
+      "key": "loop",
+      "metrics": {
+        "note": "screens / input checked by tests/test_stage_ladder.gd scene cases",
+        "play_mode": "classic",
+        "preparing": false,
+        "structures": 18,
+        "supply": 0
+      },
+      "pass": true,
+      "title": "반복 플레이 — 시작·결과·재시작"
+    },
+    {
+      "check": "TITLE → PREPARING(시간 정지) → 방어 시작 → 구매 1클릭 1개, 장부 불변식",
+      "failed": [],
+      "id": 8,
+      "key": "build",
+      "metrics": {
+        "note": "screens / input checked by tests/test_stage_ladder.gd scene cases",
+        "play_mode": "build",
+        "preparing": true,
+        "structures": 4,
+        "supply": 240
+      },
+      "pass": true,
+      "title": "준비·건설·물자"
+    }
+  ]
+}

@@ -20,6 +20,7 @@ const SUITES: Array = [
     ["WP-005 real asset integration (R-01/R-03, AC-05 F1/F2/F4)", "res://tests/test_art_integration.gd"],
     ["WP-005 V-01 player view (defaults, HUD order, toggles, labels, display only)", "res://tests/test_player_view.gd"],
     ["WP-008 build economy (AC-01..06: preparing, ledger, purchases, cap, collapse, determinism, scene input)", "res://tests/test_build_economy.gd"],
+    ["core-loop stages (D-056: ladder data, per-stage A/B checks, --stage test modes)", "res://tests/test_stage_ladder.gd"],
 ]
 
 
