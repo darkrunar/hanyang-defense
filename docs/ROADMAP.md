@@ -1,5 +1,7 @@
 # Roadmap
 
+기획 인벤토리 (2026-09-28): [콘텐츠 목록](CONTENT_CATALOG.md) / [시스템 목록](SYSTEM_CATALOG.md). 기존 명세·후속 계획·재검토·후보·로컬 작업 중을 구분하며, 아래 WP 상태를 새 실행 결과로 갱신한 것은 아니다.
+
 현재: **WP-001 DONE** (2026-09-13, GPT 재리뷰 PASS `d9699aa`). 엔진은 Godot 4.7로 확정(D-007). **WP-002 DONE (2026-09-14, GPT 재리뷰 PASS `869788b`)**: 봉수망 연결·탐지·단절·배치와 16시설/1,000체 성능 검증 완료 ([results/WP-002-RESULT.md](../results/WP-002-RESULT.md)). **WP-003 DONE (2026-09-15, GPT 재리뷰 PASS `f5d7e69`)**: 외곽 붕괴·후퇴·회수 재배치·유한 웨이브·승패·재시작과 전환 중 1,000체 성능 검증 완료. 1차 REVISE(`f379bea`, D-032 외곽 HP 360) 후 보완 회차(`41ff91c`)로 R-01~07 해소 ([results/WP-003-RESULT.md](../results/WP-003-RESULT.md)).
 
 | 단계 | WP | 상태 | 통과 조건 |
