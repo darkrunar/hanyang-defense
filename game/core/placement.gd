@@ -37,6 +37,10 @@ enum Reject {
     RUN_ENDED,             # run is WON / LOST
     NO_RECOVERY_RIGHT,     # no recovery right left (already placed / no collapse)
     NOT_DETACHED,          # restore() on a structure that is not detached
+    # --- WP-008 paid construction (D-054) ---
+    BUILD_DISABLED,        # not a build-mode run (classic: recovery placement only)
+    CAP_REACHED,           # structure total (initial + bought + inactive + waiting) at the cap
+    INSUFFICIENT_SUPPLY,   # supply < cost
 }
 
 const REJECT_NAMES: Array[String] = [
@@ -53,6 +57,9 @@ const REJECT_NAMES: Array[String] = [
     "RUN_ENDED",
     "NO_RECOVERY_RIGHT",
     "NOT_DETACHED",
+    "BUILD_DISABLED",
+    "CAP_REACHED",
+    "INSUFFICIENT_SUPPLY",
 ]
 
 ## Every structure is a 2x2 cell footprint (40x40 px at the default cell size).
@@ -162,6 +169,26 @@ static func reject_name(reason: int) -> String:
     if reason < 0 or reason >= REJECT_NAMES.size():
         return "UNKNOWN"
     return REJECT_NAMES[reason]
+
+
+## Player-facing refusal text (HUD notice, cursor ghost, WP-008 build preview).
+static func reject_ko(reason: int) -> String:
+    match reason:
+        Reject.NONE: return "배치 가능"
+        Reject.NO_RECOVERY_RIGHT: return "회수권 없음 (붕괴 전이거나 이미 배치함)"
+        Reject.RUN_ENDED: return "런 종료 — R로 재시작"
+        Reject.DISTRICT_LOST: return "붕괴한 외곽에는 설치 불가"
+        Reject.WRONG_DISTRICT: return "내곽(경복궁·광화문·광장 북단)에만 배치 가능"
+        Reject.DISTRICT_SPLIT: return "구역 경계에 걸침"
+        Reject.ENEMY_OCCUPIES_CELL: return "적이 점유 중"
+        Reject.STRUCTURE_OVERLAP: return "다른 시설과 겹침"
+        Reject.TERRAIN_BLOCKED: return "벽·지형"
+        Reject.OUT_OF_BOUNDS: return "지도 밖"
+        Reject.WOULD_BLOCK_ALL_PATHS: return "모든 경로를 막음"
+        Reject.BUILD_DISABLED: return "이 런에서는 건설 불가"
+        Reject.CAP_REACHED: return "시설 상한 도달"
+        Reject.INSUFFICIENT_SUPPLY: return "물자 부족"
+        _: return reject_name(reason)
 
 
 func footprint_cells(anchor: Vector2i) -> PackedInt32Array:

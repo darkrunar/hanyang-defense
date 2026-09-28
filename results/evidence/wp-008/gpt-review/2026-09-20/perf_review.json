@@ -1,0 +1,62 @@
+[
+  {
+    "file": "perf_build_full_combat_1000_release.json",
+    "frames": 7722,
+    "fps": 128.68306101973442,
+    "p95_ms": 23.73,
+    "alive_min": 1000,
+    "lengths_match": true,
+    "load_held": true,
+    "semantic_events": 6,
+    "segments_cover": true,
+    "sha": "f39911a7ceec94995cb0640f3c79908cc93c2c10-dirty",
+    "exe": "b557ec69bb234174e26aae32ea45d9556e935abf88ea0c260d6f6e3bc13cac25",
+    "art": "greybox",
+    "total": 24
+  },
+  {
+    "file": "perf_build_full_move_1000_release.json",
+    "frames": 7530,
+    "fps": 125.49596530471545,
+    "p95_ms": 23.818,
+    "alive_min": 1000,
+    "lengths_match": true,
+    "load_held": true,
+    "semantic_events": 6,
+    "segments_cover": true,
+    "sha": "f39911a7ceec94995cb0640f3c79908cc93c2c10-dirty",
+    "exe": "b557ec69bb234174e26aae32ea45d9556e935abf88ea0c260d6f6e3bc13cac25",
+    "art": "greybox",
+    "total": 24
+  },
+  {
+    "file": "perf_build_grow_combat_1000_release.json",
+    "frames": 9454,
+    "fps": 157.54698379682432,
+    "p95_ms": 19.201,
+    "alive_min": 1000,
+    "lengths_match": true,
+    "load_held": true,
+    "semantic_events": 6,
+    "segments_cover": true,
+    "sha": "f39911a7ceec94995cb0640f3c79908cc93c2c10-dirty",
+    "exe": "b557ec69bb234174e26aae32ea45d9556e935abf88ea0c260d6f6e3bc13cac25",
+    "art": "greybox",
+    "total": 24
+  },
+  {
+    "file": "perf_build_grow_move_1000_release.json",
+    "frames": 8412,
+    "fps": 140.19738298218434,
+    "p95_ms": 20.527,
+    "alive_min": 1000,
+    "lengths_match": true,
+    "load_held": true,
+    "semantic_events": 6,
+    "segments_cover": true,
+    "sha": "f39911a7ceec94995cb0640f3c79908cc93c2c10-dirty",
+    "exe": "b557ec69bb234174e26aae32ea45d9556e935abf88ea0c260d6f6e3bc13cac25",
+    "art": "greybox",
+    "total": 24
+  }
+]

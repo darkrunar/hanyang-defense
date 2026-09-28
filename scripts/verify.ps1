@@ -5,6 +5,9 @@
 #   .\scripts\verify.ps1 -Wp003     tests + WP-003 evidence only (F1/F3 ledgers, F2/F3 captures,
 #                                    release build, collapse perf); the approved WP-001/002
 #                                    evidence files are left untouched
+#   .\scripts\verify.ps1 -Wp008     tests + WP-008 evidence only (build-mode captures at two
+#                                    resolutions, AC-09 strategy comparison, release build, the four
+#                                    build_* transition benchmarks); approved evidence untouched
 #
 # Requires `godot` (4.7.stable) on PATH and, for build/perf, the matching
 # Windows export template. Evidence lands in results\evidence\.
@@ -12,7 +15,7 @@
 # stops the run, regenerated artifacts are deleted first so a stale file can
 # never pass as new evidence, and the perf JSON is checked against the D-009
 # budget (GPT review recommendations).
-param([switch]$Quick, [switch]$Wp003, [switch]$Wp004, [switch]$Wp005)
+param([switch]$Quick, [switch]$Wp003, [switch]$Wp004, [switch]$Wp005, [switch]$Wp008)
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 $root = (Get-Location).Path
@@ -32,6 +35,7 @@ function Assert-File([string]$path, [string]$step) {
     if ((Get-Item $path).Length -eq 0) { throw "$step produced an empty '$path'" }
 }
 
+if ($Wp008) { $Wp005 = $true }   # -Wp008 = WP-008 build-mode captures + AC-09 comparison + build_* perf under wp-008/; approved WP-001..005 evidence untouched
 if ($Wp005) { $Wp004 = $true }   # -Wp005 = WP-005 art pipeline captures (greybox / sample, dev fixture) + perf per art mode under wp-005/; approved WP-001..004 evidence untouched
 if ($Wp004) { $Wp003 = $true }   # -Wp004 = WP-004 captures + new release collapse perf under wp-004/; approved WP-001/002/003 evidence untouched
 $evid3 = Join-Path $evid "wp-003"
@@ -40,7 +44,9 @@ $evid5 = Join-Path $evid "wp-005"
 New-Item -ItemType Directory -Force (Join-Path $evid3 "tests") | Out-Null
 New-Item -ItemType Directory -Force (Join-Path $evid4 "tests") | Out-Null
 if ($Wp005) { New-Item -ItemType Directory -Force (Join-Path $evid5 "tests") | Out-Null }
-$report = if ($Wp005) { "$evid5\tests\test_report.txt" } elseif ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
+$evid8 = "$root\results\evidence\wp-008"
+if ($Wp008) { foreach ($d in @("tests", "captures", "compare", "perf")) { New-Item -ItemType Directory -Force (Join-Path $evid8 $d) | Out-Null } }
+$report = if ($Wp008) { "$evid8\tests\test_report.txt" } elseif ($Wp005) { "$evid5\tests\test_report.txt" } elseif ($Wp004) { "$evid4\tests\test_report.txt" } elseif ($Wp003) { "$evid3\tests\test_report.txt" } else { "$evid\test_report.txt" }
 
 # Freshness: remove every artifact this script regenerates.
 $stale = @(
@@ -173,6 +179,29 @@ foreach ($sc in @("wp004_ui", "wp004_ui_720")) {
 }
 }   # end of the WP-004 capture block skipped by -Wp005
 
+if ($Wp008) {
+# GPT review R-01 (PR #13): evidence must come from a committed source tree. The perf
+# JSON and the release capture logs carry `implementation_sha`; a "-dirty" tag there
+# cannot be tied to the reviewed commit, so the run refuses to start on a dirty tree.
+$wp8Dirty = (& git status --porcelain --untracked-files=no -- game project.godot export_presets.cfg 2>$null)
+if ($wp8Dirty) { throw "-Wp008: commit the game tree first (dirty: $($wp8Dirty -join '; ')). Evidence must name a clean implementation sha." }
+$wp8Sha = (& git rev-parse HEAD).Trim()
+Write-Host "== 4f/6 WP-008: clean tree at $wp8Sha (build-mode captures run on the release exe in step 6f)"
+
+Write-Host "== 4g/6 WP-008 AC-09 strategy comparison (headless, same seed: no construction vs planned strategies)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid8\compare\ac09_compare.json"
+& godot --headless --path . --script res://game/tools/wp008_compare.gd -- "--out=$evid8\compare\ac09_compare.json" | Out-Host
+Assert-Exit "ac09 compare"
+Assert-File "$evid8\compare\ac09_compare.json" "ac09 compare"
+$cmp = Get-Content "$evid8\compare\ac09_compare.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+if (@($cmp.winning_strategies).Count -lt 1) { throw "ac09: no winning construction strategy" }
+foreach ($name in ($cmp.summary | Get-Member -MemberType NoteProperty | ForEach-Object { $_.Name })) {
+    $r = $cmp.summary.$name
+    if (-not $r.balance_ok) { throw "ac09: ledger invariant broken in strategy $name" }
+    if ($r.supply_end -ne (240 + $r.earned_kills + $r.earned_waves - $r.spent)) { throw "ac09: formula broken in strategy $name" }
+}
+Write-Host ("ac09: winning strategies {0}; no_build {1} collapse {2:N1}s core {3}" -f (@($cmp.winning_strategies) -join ","), $cmp.summary.no_build.outcome, $cmp.summary.no_build.collapse_sim_time, $cmp.summary.no_build.core_hp)
+} else {
 if ($Wp005) {
 Write-Host "== 4e/6 WP-005 art pipeline captures (greybox / sample with the dev fixture, 1920x1080 and 1280x720)"
 # The fixture is programmatic placeholder art in the ArtSet file contract (NOT game assets):
@@ -307,6 +336,7 @@ foreach ($sc in @("wp005_v01", "wp005_v01_720")) {
     Write-Host ("capture {0}: 5 checkpoints x 3 views at the same tick; label overlaps dev {1} -> player {2}" -f $sc, $devOv, $plOv)
 }
 }   # end of the WP-005 capture block
+}   # end of the WP-005 capture block skipped by -Wp008
 
 if ($Quick) { Write-Host "quick mode: skipping build and perf"; exit 0 }
 
@@ -356,7 +386,7 @@ foreach ($sc in @("network_move", "network_combat")) {
 }
 }   # end of the WP-001/002 perf block skipped by -Wp003
 # D-027 collapse benchmark contract check, shared by 6c (WP-003/004) and 6d (WP-005 per art mode).
-function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
+function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag, [int]$structuresAtStart = 18) {
     $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
     $c = $r.collapse
     $types = @($c.semantic_events | ForEach-Object { $_.type })
@@ -366,7 +396,7 @@ function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
     # R-05: every measured frame in exactly one segment, live manifest (10 zones,
     # 18 structures at start, J1/J2 anchors), executable hash present.
     $manOk = ($c.segments_cover_all_frames -eq $true) -and ($c.global_frames -eq $r.frames) -and `
-             (@($r.manifest.zones).Count -eq 10) -and (@($r.manifest.structures_at_start).Count -eq 18) -and `
+             (@($r.manifest.zones).Count -eq 10) -and (@($r.manifest.structures_at_start).Count -eq $structuresAtStart) -and `
              ($r.manifest.executable.sha256.Length -eq 64) -and (-not $r.manifest.executable.is_editor_binary)
     $ok = ($r.avg_fps -ge 60) -and ($r.frame_ms_p95 -le 25) -and $r.load_held_all_frames -and $sixOk -and $segOk -and $manOk -and `
           ($c.placement_result -eq "ok") -and (-not $c.natural_collapse_before_trigger) -and ($c.ticks_trigger_to_collapse -ge 0) -and ($c.ticks_trigger_to_collapse -le 2) -and `
@@ -378,7 +408,119 @@ function Assert-CollapsePerf([string]$out, [string]$sc, [string]$tag) {
     if ($verdict -ne "PASS") { throw "perf $sc$tag did not meet the WP-003 D-027 contract" }
 }
 
-if (-not $Wp005) {
+if ($Wp008) {
+Write-Host "== 6e/6 WP-008 build-mode transition performance (build_full_* = 24 from the start, build_grow_* = 22 + 2 bought in the window; same exe, D-027 contract + ledger)"
+Remove-Item -Force -ErrorAction SilentlyContinue "$evid8\perf\perf_build_*_1000_release.json*"
+foreach ($sc in @("build_full_move", "build_full_combat", "build_grow_move", "build_grow_combat")) {
+    $out = "results\evidence\wp-008\perf\perf_${sc}_1000_release.json"
+    & (Join-Path $PSScriptRoot "perf_with_memory.ps1") -Scenario $sc -Warmup 10 -Measure 60 -Out $out -Art greybox
+    Assert-File $out "perf $sc"
+    Assert-File "$out.memory.json" "perf $sc memory sampler"
+    $r = Get-Content $out -Raw -Encoding UTF8 | ConvertFrom-Json
+    $startCount = if ($sc -like "build_full_*") { 24 } else { 22 }
+    if ($r.play_mode -ne "build" -or -not $r.economy.benchmark_injected -or -not $r.economy.balance_ok) { throw "perf ${sc}: build mode / flagged injection / ledger invariant missing" }
+    $cmds = @($r.collapse.build_commands | Where-Object { $_.phase -eq "measure" })
+    $capRefused = @($cmds | Where-Object { $_.reason -eq "CAP_REACHED" }).Count
+    $okBuys = @($cmds | Where-Object { $_.ok }).Count
+    if ($capRefused -lt 1) { throw "perf ${sc}: the cap refusal inside the window is missing" }
+    if ($sc -like "build_grow_*" -and $okBuys -ne 2) { throw "perf ${sc}: expected exactly 2 accepted purchases in the window (got $okBuys)" }
+    if ($sc -like "build_full_*" -and $okBuys -ne 0) { throw "perf ${sc}: no purchase may succeed at the cap (got $okBuys)" }
+    if ($r.structure_total -ne 24) { throw "perf ${sc}: structure total at the end must be 24 (got $($r.structure_total))" }
+    if ($r.collapse.build_commands_pending -ne 0) { throw "perf ${sc}: scripted purchases still pending" }
+    Assert-CollapsePerf $out $sc " [build]" $startCount
+    Write-Host ("perf {0}: window purchases ok={1} cap_refused={2} supply_end={3} (injected {4})" -f $sc, $okBuys, $capRefused, $r.economy.supply, $r.economy.injected)
+}
+foreach ($pf in @("build_full_move", "build_full_combat", "build_grow_move", "build_grow_combat")) {
+    $r = Get-Content "results\evidence\wp-008\perf\perf_${pf}_1000_release.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($r.manifest.implementation_sha -ne $wp8Sha) { throw "perf ${pf}: implementation_sha '$($r.manifest.implementation_sha)' is not the clean HEAD $wp8Sha (R-01)" }
+}
+
+Write-Host "== 6f/6 WP-008 build-mode captures on the RELEASE exe (greybox + sample art, 1920x1080 + 1280x720; real HUD buttons / keys / clicks, throwaway settings file)"
+$wp8Exe = Get-Item (Resolve-Path "build_out\windows\hanyang_defense_wp001.exe")
+$wp8ExeSha = (Get-FileHash -Algorithm SHA256 $wp8Exe.FullName).Hash.ToLower()
+$capRoot = "$evid8\captures"
+Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$capRoot\release_greybox", "$capRoot\release_sample"
+Remove-Item -Force -ErrorAction SilentlyContinue "$capRoot\wp008_build*", "$capRoot\settings_capture.cfg"   # editor-run captures of the first submission are superseded
+$wp8Hashes = @{}
+foreach ($art in @("greybox", "sample")) {
+    $capDir = "$capRoot\release_$art"
+    New-Item -ItemType Directory -Force $capDir | Out-Null
+    foreach ($sc in @("wp008_build", "wp008_build_720")) {
+        $capArgs = @("--", "--capture=$sc", "--out-dir=$capDir", "--settings=$capDir\settings_capture.cfg", "--art=$art", "--sha=$wp8Sha")
+        $proc = Start-Process -FilePath $wp8Exe.FullName -ArgumentList $capArgs -PassThru -Wait
+        if ($proc.ExitCode -ne 0) { throw "release capture $sc [$art] exited with $($proc.ExitCode)" }
+        Assert-File "$capDir\${sc}_log.json" "release capture $sc [$art]"
+        foreach ($n in @("01_preparing", "02_preview_hwacha_cost", "02b_no_target_zone", "02c_zone_not_detectable", "03_bought_in_preparation", "04_insufficient_supply", "05_invalid_terrain",
+                         "06_invalid_overlap", "07_paused_in_preparation", "08_battle_t20", "09_battle_purchase_t45", "10_collapse_recovery_selected",
+                         "11_recovery_preview_B", "12_recovery_placed_free", "13_outer_refused_after_collapse", "14_inner_preview",
+                         "15_inner_purchase", "16_result", "17_restart_preparing")) {
+            Assert-File "$capDir\${sc}_$n.png" "release capture $sc [$art]"
+        }
+        $log = Get-Content "$capDir\${sc}_log.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+        $man = ($log | Where-Object { $_.capture_manifest } | Select-Object -First 1).capture_manifest
+        if ($null -eq $man) { throw "release capture ${sc} [$art]: capture_manifest missing" }
+        if ($man.executable.sha256 -ne $wp8ExeSha -or $man.executable.is_editor_binary) { throw "release capture ${sc} [$art]: executable hash '$($man.executable.sha256)' is not the exported exe $wp8ExeSha" }
+        if ($man.implementation_sha -ne $wp8Sha) { throw "release capture ${sc} [$art]: implementation_sha '$($man.implementation_sha)' != $wp8Sha" }
+        if ($man.art_mode -ne $art) { throw "release capture ${sc}: art_mode '$($man.art_mode)' != '$art'" }
+        if ($art -eq "sample" -and ($man.art.loaded_count -lt 13)) { throw "release capture ${sc} [sample]: shipped assets not loaded ($($man.art.loaded_count))" }
+        if ($man.settings_path -ne "$capDir\settings_capture.cfg") { throw "release capture ${sc}: settings path '$($man.settings_path)' is not the throwaway file (--settings= parser)" }
+        $expect = @{ launch="TITLE"; start_goes_to_preparing="PREPARING"; esc_pauses_preparing="PAUSED"; esc_resumes_to_preparing="PREPARING";
+                     begin_defense_playing="PLAYING"; second_begin_defense_refused="PLAYING"; r_on_result_restarts_to_preparing="PREPARING" }
+        foreach ($k in $expect.Keys) {
+            $row = $log | Where-Object { $_.label -eq $k -and $_.ui_state } | Select-Object -First 1
+            if ($null -eq $row -or $row.ui_state -ne $expect[$k]) { throw "release capture ${sc} [$art]: state after '$k' should be $($expect[$k]) (got $($row.ui_state))" }
+        }
+        $econ = @{}; foreach ($row in ($log | Where-Object { $_.econ_log })) { $econ[$row.econ_log] = $row }
+        if ($econ["preparing_start"].economy.supply -ne 240 -or -not $econ["preparing_start"].preparing) { throw "release capture ${sc}: preparation must start at 240 supply" }
+        if ($econ["after_preparation_purchases"].economy.purchase_count -ne 3 -or $econ["after_preparation_purchases"].economy.supply -ne 40) { throw "release capture ${sc}: expected 3 preparation purchases leaving 40" }
+        foreach ($k in $econ.Keys) {
+            if (-not $econ[$k].economy.balance_ok) { throw "release capture ${sc}: ledger invariant broken at '$k'" }
+            if (-not $econ[$k].economy.events_well_ordered) { throw "release capture ${sc}: ledger event seq not monotonic at '$k' (R-03)" }
+        }
+        $clicks = @($log | Where-Object { $_.lmb_at })
+        $bought = @($clicks | Where-Object { $_.last_click.buy -and $_.last_click.ok })
+        $reasons = @($clicks | Where-Object { $_.last_click.buy -and -not $_.last_click.ok } | ForEach-Object { $_.last_click.reason })
+        if ($bought.Count -lt 5) { throw "release capture ${sc}: expected at least 5 accepted purchases by real clicks (got $($bought.Count))" }
+        if ($reasons -notcontains "INSUFFICIENT_SUPPLY") { throw "release capture ${sc}: the insufficient-supply click must be refused (got $($reasons -join ','))" }
+        foreach ($c in $clicks) { if ($c.accepted_delta -gt 1) { throw "release capture ${sc}: one click accepted $($c.accepted_delta) commands" } }
+        if (@($clicks | Where-Object { $_.recovery_placed }).Count -lt 1) { throw "release capture ${sc}: the free recovery was never placed by a click" }
+        if ($econ["after_recovery"].economy.spent -ne $econ["after_collapse"].economy.spent) { throw "release capture ${sc}: the recovery must cost nothing" }
+        $previews = @($log | Where-Object { $_.preview_at -and $_.reason })
+        foreach ($need in @("DISTRICT_LOST", "TERRAIN_BLOCKED", "STRUCTURE_OVERLAP", "INSUFFICIENT_SUPPLY")) {
+            if (@($previews | Where-Object { $_.reason -eq $need }).Count -lt 1) { throw "release capture ${sc}: preview reason $need missing" }
+        }
+        $second = $log | Where-Object { $_.label -eq "second_begin_defense_refused" } | Select-Object -First 1
+        if ($second.begin_defense_calls_ignored -ne 0) { throw "release capture ${sc}: the battle must never see a second 방어 시작" }
+        # target-zone hint on the hwacha ghost: (40,20) has zones in range, (31,17) has none
+        $hz = @($log | Where-Object { $_.hwacha_hint })
+        $withZ = $hz | Where-Object { $_.preview_at -eq "(40, 20)" } | Select-Object -First 1
+        $noZ = $hz | Where-Object { $_.preview_at -eq "(31, 17)" } | Select-Object -First 1
+        if ($null -eq $withZ -or $withZ.hwacha_hint.zone_count -lt 1) { throw "release capture ${sc}: hwacha hint at (40,20) should list target zones" }
+        if ($null -eq $noZ -or $noZ.hwacha_hint.zone_count -ne 0) { throw "release capture ${sc}: hwacha hint at (31,17) should say no target zone" }
+        $unseen = $hz | Where-Object { $_.preview_at -eq "(37, 27)" } | Select-Object -First 1
+        if ($null -eq $unseen -or $unseen.hwacha_hint.zone_count -lt 1 -or $unseen.hwacha_hint.known_zone_count -ne 0) { throw "release capture ${sc}: hwacha hint at (37,27) should list a zone it cannot detect" }
+        $results = @($log | Where-Object { $_.wait_result })
+        if ($results.Count -ne 1 -or -not $results[0].result.economy.balance_ok -or $results[0].result.play_mode -ne "build") { throw "release capture ${sc}: expected one build-mode result with a balanced ledger" }
+        $restart = $econ["restart_ledger_reset"].economy
+        if ($restart.supply -ne 240 -or $restart.purchase_count -ne 0 -or $restart.earned_kills -ne 0) { throw "release capture ${sc}: the restart must reset the ledger" }
+        # state checkpoints for the cross-mode / cross-resolution comparison below
+        $h = @{}; foreach ($row in ($log | Where-Object { $_.state_log })) { $h[$row.state_log] = $row.state_hash }
+        $wp8Hashes["$art|$sc"] = $h
+        Write-Host ("release capture {0} [{1}]: exe {2}… sha {3}, purchases by click {4}, refused ({5}), result {6} supply {7}, checkpoints {8}" -f $sc, $art, $wp8ExeSha.Substring(0, 12), $wp8Sha.Substring(0, 7), $bought.Count, ($reasons -join ","), $results[0].result.outcome, $results[0].result.economy.supply, $h.Count)
+    }
+}
+# AC-06: the whole build-mode cycle (preparation purchases -> battle -> collapse -> free recovery -> inner purchase -> result -> restart)
+# holds identical battle state in greybox and sample, and at 1920x1080 and 1280x720 (same seed, same commands).
+$labels = @("preparing_start", "after_preparation_purchases", "battle_t20", "after_collapse", "after_recovery", "after_inner_purchase", "result", "restart_preparing")
+$ref = $wp8Hashes["greybox|wp008_build"]
+foreach ($key in $wp8Hashes.Keys) {
+    foreach ($lb in $labels) {
+        if (-not $ref.ContainsKey($lb) -or -not $wp8Hashes[$key].ContainsKey($lb)) { throw "release capture ${key}: checkpoint '$lb' missing" }
+        if ($wp8Hashes[$key][$lb] -ne $ref[$lb]) { throw "release capture ${key}: battle state at '$lb' differs from greybox 1080p (AC-06)" }
+    }
+}
+Write-Host ("release captures: {0} runs x {1} checkpoints identical to greybox 1080p (greybox == sample, 1080p == 720p)" -f $wp8Hashes.Count, $labels.Count)
+} elseif (-not $Wp005) {
 Write-Host "== 6c/6 WP-003 transition performance (collapse_move, collapse_combat)"
 $perfDir = if ($Wp004) { "results\evidence\wp-004\perf" } else { "results\evidence\wp-003\perf" }
 Remove-Item -Force -ErrorAction SilentlyContinue "$root\$perfDir\perf_collapse_move_1000_release.json*", "$root\$perfDir\perf_collapse_combat_1000_release.json*"   # archived *_runN_* files are kept
@@ -409,4 +551,4 @@ foreach ($art in @("greybox", "sample")) {
     }
 }
 }
-Write-Host "done. evidence in $(if ($Wp005) { $evid5 } else { $evid3 })$(if (-not $Wp003) { ", $evid and $evid2" })"
+Write-Host "done. evidence in $(if ($Wp008) { $evid8 } elseif ($Wp005) { $evid5 } else { $evid3 })$(if (-not $Wp003) { ", $evid and $evid2" })"

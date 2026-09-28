@@ -295,7 +295,7 @@ func _draw_result_map() -> void:
 ## the confirm text, the result model, the settings label and notices.
 func show_state(state_name: String, ctx: Dictionary) -> void:
     _current = state_name
-    visible = state_name != "PLAYING"
+    visible = state_name != "PLAYING" and state_name != "PREPARING"
     _dim.color = C_DIM_TITLE if state_name == "TITLE" else C_DIM
     for k: String in _panels:
         (_panels[k] as Control).visible = k == state_name
@@ -307,6 +307,9 @@ func show_state(state_name: String, ctx: Dictionary) -> void:
             (_buttons["confirm_cancel"] as Button).text = str(t.get("cancel", "취소"))
         "RESULT":
             _fill_result(ctx.get("result", {}))
+        "PAUSED":
+            _pause_hint.text = "준비 단계가 멈춰 있다. Esc 또는 계속하기로 준비를 이어간다." if str(ctx.get("pause_return", "")) == "PREPARING" \
+                else "전투와 배치가 멈춰 있다. Esc 또는 계속하기로 재개."
         "SETTINGS":
             _settings_mode.text = str(ctx.get("window_mode_label", "창 모드"))
             _settings_notice.text = str(ctx.get("settings_notice", ""))
@@ -334,7 +337,7 @@ func _fill_result(m: Dictionary) -> void:
     var won: bool = bool(m.get("won", false))
     _result_title.text = "승리 — 핵심 시설 사수" if won else "패배 — 핵심 시설 함락"
     _result_title.add_theme_color_override("font_color", C_TEAL if won else C_RED)
-    for row: Array in ResultModel.lines(m):
+    for row: Array in ResultModel.lines(m) + ResultModel.economy_lines(m):
         var h: HBoxContainer = HBoxContainer.new()
         var k: Label = _make_label(str(row[0]), FONT_BODY, C_PAPER.darkened(0.25), false)
         k.custom_minimum_size = Vector2(170.0, 0.0)

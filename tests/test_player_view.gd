@@ -139,6 +139,32 @@ func _hud_text(t: RefCounted, tree: SceneTree) -> void:
     d._update_hud()
     t.check(d._hud.text.find("Godot") >= 0, "developer view: HUD unchanged (engine line in the top panel)")
     _drop(d)
+    # WP-008 build mode in the player view (integration 2026-09-24)
+    var b: Node2D = Main.new()
+    b._settings_path = SETTINGS_TMP
+    b._art_mode = "greybox"
+    b._play_mode_arg = "build"
+    tree.root.add_child(b)
+    if not b.is_node_ready():
+        b._ready()
+    b.set_process(false)
+    b.set_physics_process(false)
+    t.eq(b._player_view, true, "build mode: player view by default")
+    _start(b)
+    t.eq(b.flow.state_name(), "PREPARING", "build mode: PREPARING")
+    b._update_hud()
+    t.check(b._hud.text.begins_with("준비 단계"), "preparing headline (%s)" % b._hud.text.get_slice("\n", 0))
+    t.check(b._hud.text.find("물자 240") >= 0, "supply line")
+    t.check(b._hud.text.find("1~4 건설") >= 0 and b._hud.text.find("Space 방어 시작") >= 0, "build controls line")
+    t.eq(b._hud.text.split("\n").size(), 5, "five lines in build mode")
+    t.check(b._detail.text.find("장부: 물자 240 = 시작 240") >= 0, "ledger formula in the detail panel")
+    b._build_buttons["begin_defense"].pressed.emit()
+    _frame(b)
+    b._update_hud()
+    t.check(b._hud.text.begins_with("웨이브 1/3"), "after 방어 시작 the wave headline returns")
+    t.check(b._hud.text.find("Space 방어 시작") < 0, "Space hint gone once the defence started")
+    t.eq(b._build_bar.visible, true, "construction bar still shown in the player view")
+    _drop(b)
 
 
 func _toggles(t: RefCounted, tree: SceneTree) -> void:

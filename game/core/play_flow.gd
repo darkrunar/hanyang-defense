@@ -14,14 +14,19 @@ extends RefCounted
 ## requests are counted so a double-click / key repeat can be proven to
 ## have produced exactly one transition.
 
-enum State { TITLE, PLAYING, PAUSED, SETTINGS, CONFIRM, RESULT }
-const STATE_NAMES: Array[String] = ["TITLE", "PLAYING", "PAUSED", "SETTINGS", "CONFIRM", "RESULT"]
+## WP-008 (D-054): PREPARING sits between TITLE and PLAYING in build mode
+## (start_game -> PREPARING -> begin_defense -> PLAYING). The field accepts
+## placement input in PREPARING, the battle ticks only in PLAYING; a pause
+## returns to the state it interrupted.
+enum State { TITLE, PLAYING, PAUSED, SETTINGS, CONFIRM, RESULT, PREPARING }
+const STATE_NAMES: Array[String] = ["TITLE", "PLAYING", "PAUSED", "SETTINGS", "CONFIRM", "RESULT", "PREPARING"]
 
 ## Actions the scene must perform after an accepted transition.
 const ACT_NONE: String = ""
 const ACT_NEW_RUN: String = "new_run"        # start a fresh run from the initial data
 const ACT_TO_TITLE: String = "to_title"      # discard the current run, show the title
 const ACT_QUIT: String = "quit"
+const ACT_BEGIN_DEFENSE: String = "begin_defense"   # WP-008: PREPARING -> PLAYING, start the waves
 
 const CONFIRM_RESTART: String = "restart"
 const CONFIRM_TO_TITLE: String = "to_title"
@@ -32,10 +37,14 @@ const CONFIRM_TEXT: Dictionary = {
 }
 
 var state: int = State.TITLE
-## Where SETTINGS returns to (TITLE or PAUSED) and where CONFIRM returns to
-## on cancel (PLAYING or PAUSED).
+## WP-008: a build-mode launch starts every run in PREPARING.
+var build_mode: bool = false
+## Where SETTINGS returns to (TITLE or PAUSED), where CONFIRM returns to on
+## cancel (PLAYING, PREPARING or PAUSED) and where PAUSED resumes to
+## (PLAYING or PREPARING).
 var settings_return: int = State.TITLE
 var confirm_return: int = State.PLAYING
+var pause_return: int = State.PLAYING
 var confirm_kind: String = ""
 ## Frozen result model (D-041); null outside RESULT.
 var result: Dictionary = {}
@@ -51,13 +60,23 @@ func state_name() -> String:
     return STATE_NAMES[state]
 
 
-## True while the battle may advance and accept field input.
+## True while the battle may advance.
 func battle_active() -> bool:
     return state == State.PLAYING
 
 
+## True while the field accepts placement input (battle ticking or preparing).
+func field_active() -> bool:
+    return state == State.PLAYING or state == State.PREPARING
+
+
 func menu_open() -> bool:
-    return state != State.PLAYING
+    return not field_active()
+
+
+## The state a new run starts in.
+func _run_start_state() -> int:
+    return State.PREPARING if build_mode else State.PLAYING
 
 
 func _go(to: int, request: String) -> void:
@@ -85,13 +104,23 @@ func start_bypass() -> void:
 func start_game() -> String:
     if state != State.TITLE:
         return _refuse("start_game")
-    _go(State.PLAYING, "start_game")
+    _go(_run_start_state(), "start_game")
     return ACT_NEW_RUN
 
 
+## WP-008: the one "방어 시작" of a build-mode run. Refused anywhere but
+## PREPARING, so a double click / key repeat starts the waves exactly once.
+func begin_defense() -> String:
+    if state != State.PREPARING:
+        return _refuse("begin_defense")
+    _go(State.PLAYING, "begin_defense")
+    return ACT_BEGIN_DEFENSE
+
+
 func pause() -> String:
-    if state != State.PLAYING:
+    if not field_active():
         return _refuse("pause")
+    pause_return = state
     _go(State.PAUSED, "pause")
     return ACT_NONE
 
@@ -99,7 +128,7 @@ func pause() -> String:
 func resume() -> String:
     if state != State.PAUSED:
         return _refuse("resume")
-    _go(State.PLAYING, "resume")
+    _go(pause_return, "resume")
     return ACT_NONE
 
 
@@ -113,7 +142,8 @@ func open_settings() -> String:
         State.PAUSED:
             settings_return = State.PAUSED
             _go(State.SETTINGS, "open_settings")
-        State.PLAYING:
+        State.PLAYING, State.PREPARING:
+            pause_return = state
             _go(State.PAUSED, "open_settings(pause first)")
             settings_return = State.PAUSED
             _go(State.SETTINGS, "open_settings")
@@ -133,14 +163,14 @@ func close_settings() -> String:
 ## restart is immediate (no confirmation, D-040).
 func request_restart() -> String:
     match state:
-        State.PLAYING, State.PAUSED:
+        State.PLAYING, State.PAUSED, State.PREPARING:
             confirm_return = state
             confirm_kind = CONFIRM_RESTART
             _go(State.CONFIRM, "request_restart")
             return ACT_NONE
         State.RESULT:
             result = {}
-            _go(State.PLAYING, "result_restart")
+            _go(_run_start_state(), "result_restart")
             return ACT_NEW_RUN
         _:
             return _refuse("request_restart")
@@ -166,7 +196,7 @@ func confirm() -> String:
         return _refuse("confirm")
     if confirm_kind == CONFIRM_RESTART:
         confirm_kind = ""
-        _go(State.PLAYING, "confirm_restart")
+        _go(_run_start_state(), "confirm_restart")
         return ACT_NEW_RUN
     confirm_kind = ""
     _go(State.TITLE, "confirm_to_title")
@@ -184,7 +214,7 @@ func cancel_confirm() -> String:
 ## Esc: closes exactly one level. TITLE / RESULT ignore it (no quit, no restart).
 func back() -> String:
     match state:
-        State.PLAYING:
+        State.PLAYING, State.PREPARING:
             return pause()
         State.PAUSED:
             return resume()
@@ -224,6 +254,8 @@ func snapshot() -> Dictionary:
         "settings_return": STATE_NAMES[settings_return],
         "confirm_return": STATE_NAMES[confirm_return],
         "confirm_kind": confirm_kind,
+        "pause_return": STATE_NAMES[pause_return],
+        "build_mode": build_mode,
         "bypass": bypass,
         "has_result": not result.is_empty(),
         "transitions": transitions.duplicate(true),

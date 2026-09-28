@@ -58,6 +58,21 @@ const DEFAULTS: Dictionary = {
     # Benchmark-only (D-027): core HP is held, attempts are counted.
     "benchmark_core_invulnerable": false,
 
+    # --- WP-008 build mode (backlog/WP-008.md, D-054) ---
+    # play_mode: "classic" = the WP-003/004 run (recovery placement only);
+    # "build" = preparation phase + paid construction + supply ledger.
+    "play_mode": "classic",
+    "start_supply": 240,
+    "kill_reward": 1,            # per real kill
+    "wave_reward": 80,           # once per wave, when spawned AND resolved
+    "cost_jangseung": 40,
+    "cost_hwacha": 100,
+    "cost_bongsu": 60,
+    "cost_sensor": 80,
+    "structure_cap": 24,         # initial + bought + inactive + waiting (recovery)
+    # Benchmark-only: supply injected at run start (flagged in every ledger).
+    "benchmark_supply": 0,
+
     # --- hwacha ---
     "hwacha_range": 200.0,
     "hwacha_blast_radius": 55.0,
@@ -97,6 +112,15 @@ static func for_wp003():
     c.values["run_mode"] = "waves"
     c.values["district_rules"] = true
     c.values["combat_enabled"] = true
+    return c
+
+
+## WP-008 build profile (backlog/WP-008.md, D-054): the WP-003 contract with
+## the "build" fixture (4 structures) and the supply ledger. Never the default.
+static func for_wp008():
+    var c = for_wp003()
+    c.values["play_mode"] = "build"
+    c.values["fixture"] = "build"
     return c
 
 
