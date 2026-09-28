@@ -9,6 +9,7 @@ extends SceneTree
 const TestFramework := preload("res://tests/test_framework.gd")
 
 const SUITES: Array = [
+    ["Stage map editor (flat/terrain contracts, gate routes, serialization)", "res://tests/test_stage_map_editor.gd"],
     ["path + placement (AC-02, AC-03)", "res://tests/test_path_and_placement.gd"],
     ["density + hwacha (AC-04, AC-05)", "res://tests/test_density_and_hwacha.gd"],
     ["flow + determinism (AC-01, AC-06)", "res://tests/test_flow_and_determinism.gd"],
