@@ -1,0 +1,165 @@
+{
+  "canvas": [
+    12,
+    16
+  ],
+  "frames": [
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        148,
+        255
+      ],
+      "state": "walk_down"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        152,
+        254
+      ],
+      "state": "walk_down"
+    },
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        147,
+        261
+      ],
+      "state": "walk_up"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        152,
+        255
+      ],
+      "state": "walk_up"
+    },
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        146,
+        249
+      ],
+      "state": "walk_left"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        9,
+        14
+      ],
+      "source_size": [
+        155,
+        246
+      ],
+      "state": "walk_left"
+    },
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        8,
+        14
+      ],
+      "source_size": [
+        146,
+        249
+      ],
+      "state": "walk_right"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        9,
+        14
+      ],
+      "source_size": [
+        154,
+        250
+      ],
+      "state": "walk_right"
+    },
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        10,
+        13
+      ],
+      "source_size": [
+        174,
+        235
+      ],
+      "state": "hit"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        10,
+        13
+      ],
+      "source_size": [
+        174,
+        234
+      ],
+      "state": "hit"
+    },
+    {
+      "clipped": false,
+      "frame": 0,
+      "runtime_size": [
+        10,
+        16
+      ],
+      "source_size": [
+        189,
+        289
+      ],
+      "state": "despawn"
+    },
+    {
+      "clipped": false,
+      "frame": 1,
+      "runtime_size": [
+        10,
+        13
+      ],
+      "source_size": [
+        173,
+        239
+      ],
+      "state": "despawn"
+    }
+  ],
+  "scale": 0.055363321799308
+}

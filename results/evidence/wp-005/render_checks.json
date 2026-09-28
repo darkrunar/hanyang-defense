@@ -1,0 +1,22 @@
+[
+  {
+    "height": 1080,
+    "mode": "greybox",
+    "state_unchanged": true
+  },
+  {
+    "height": 1080,
+    "mode": "sample",
+    "state_unchanged": true
+  },
+  {
+    "height": 720,
+    "mode": "greybox",
+    "state_unchanged": true
+  },
+  {
+    "height": 720,
+    "mode": "sample",
+    "state_unchanged": true
+  }
+]

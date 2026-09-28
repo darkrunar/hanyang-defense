@@ -32,6 +32,12 @@ var killed_total: int = 0
 var leaked_total: int = 0
 ## Number of individual damage applications (one per enemy per volley).
 var damage_applications: int = 0
+## WP-005 render ledger (D-049): [x, y, kind] triples for every despawn / hit
+## since the renderer last took them. kind 0 = killed, 1 = leaked (arrived),
+## 2 = damaged but alive. Pure output (nothing in the simulation reads it),
+## capped so headless runs never grow it.
+var render_events: PackedFloat32Array = PackedFloat32Array()
+const RENDER_EVENTS_CAP: int = 768   # 256 events
 var route_alive: PackedInt32Array = PackedInt32Array()
 var route_spawned: PackedInt32Array = PackedInt32Array()
 var route_leaked: PackedInt32Array = PackedInt32Array()
@@ -98,6 +104,7 @@ func reset(seed_value: int) -> void:
     _spawn_cursor = 0
     _spawn_accum = 0.0
     _route_cursor.fill(0)
+    render_events = PackedFloat32Array()
 
 
 ## Current RNG state (for state-equality checks between two deterministic runs).
@@ -288,6 +295,7 @@ func collect_arrivals() -> PackedInt64Array:
 func _despawn_at(live_index: int, leaked: bool) -> void:
     var s: int = _live[live_index]
     alive[s] = 0
+    _render_event(pos_x[s], pos_y[s], 1.0 if leaked else 0.0)
     var r: int = route[s]
     route_alive[r] -= 1
     alive_count -= 1
@@ -322,8 +330,23 @@ func apply_blast(center: Vector2, radius: float, damage: float) -> int:
                 _despawn_at(i, false)
                 kills += 1
                 continue
+            _render_event(pos_x[s], pos_y[s], 2.0)
         i += 1
     return kills
+
+
+func _render_event(x: float, y: float, kind: float) -> void:
+    if render_events.size() < RENDER_EVENTS_CAP:
+        render_events.append(x)
+        render_events.append(y)
+        render_events.append(kind)
+
+
+## The renderer takes the ledger (and empties it) once per drawn frame.
+func take_render_events() -> PackedFloat32Array:
+    var out: PackedFloat32Array = render_events
+    render_events = PackedFloat32Array()
+    return out
 
 
 func live_slots() -> PackedInt32Array:

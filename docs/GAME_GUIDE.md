@@ -215,9 +215,11 @@ godot --path . --rendering-driver opengl3 -- --set=run_mode=sandbox --set=fixtur
 | `res://game/tools/wp003_timeline.gd -- --out=<abs>.json` | F1 정상 방어 초 단위 장부 |
 | `res://game/tools/wp003_f3_evidence.gd -- --out=<abs>.json` | F3 A/B 개체별 장부 |
 | `res://game/tools/dump_map.gd`, `probe_occupancy.gd` | 지형 덤프, 포화 골목 설치 성공률 |
+| `-- --art=greybox\|sample [--art-dir=<경로>] [--labels=off] [--art-outline=off]` | WP-005 아트 적용(D-049/050; 미지정 시 일반 실행 sample, `--perf`/`--capture`는 greybox): `assets/art/wp005/`의 검수 PNG로 샘플 구역·시설·적·효과를 그린다. 없는 파일은 회색상자 유지·로그에 누락 기록. 전투 상태·시드·자동 모드는 greybox와 같다. `L` 키로 시설 이름 라벨 토글 |
+| `-- --capture=wp005_greybox\|wp005_sample[_720] --art=... --out-dir=<abs>` | F2 타임라인(강제 붕괴 20 s, 회수 25 s)을 지정 렌더링 모드로 재생하며 7장 캡처 + 체크포인트 `state_log`/fx/sprites 로그 |
 | `-- --capture=wp004_ui\|wp004_ui_720 --out-dir=<abs> --settings=<abs>.cfg` | 실제 버튼·키로 메뉴 흐름을 재생하며 TITLE/설정/전투/일시정지/확인창/결과(패배·승리) 캡처 11장(1920×1080 / 1280×720) |
 | `-- --settings=<abs>.cfg` | 설정 파일 경로 주입(검증용; 기본 `user://settings.cfg`) |
-| `scripts/verify.ps1 [-Quick] [-Wp003] [-Wp004]` / `scripts/verify.sh` | 테스트·캡처·빌드·성능을 한 번에 |
+| `scripts/verify.ps1 [-Quick] [-Wp003] [-Wp004] [-Wp005]` / `scripts/verify.sh` | 테스트·캡처·빌드·성능을 한 번에 |
 
 ## 13. 알려진 제한
 

@@ -43,6 +43,7 @@ func run(t: RefCounted) -> void:
 static func _new_scene(tree: SceneTree, settings_path: String = SETTINGS_TMP) -> Node2D:
     var scene: Node2D = Main.new()
     scene._settings_path = settings_path
+    scene._art_mode = "greybox"   # WP-004 suites render the grey box (WP-005 chooses its own mode)
     tree.root.add_child(scene)
     if not scene.is_node_ready():
         scene._ready()

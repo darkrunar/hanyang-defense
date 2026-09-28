@@ -9,6 +9,7 @@ extends SceneTree
 const TestFramework := preload("res://tests/test_framework.gd")
 
 const SUITES: Array = [
+    ["Stage map editor (flat/terrain contracts, gate routes, serialization)", "res://tests/test_stage_map_editor.gd"],
     ["path + placement (AC-02, AC-03)", "res://tests/test_path_and_placement.gd"],
     ["density + hwacha (AC-04, AC-05)", "res://tests/test_density_and_hwacha.gd"],
     ["flow + determinism (AC-01, AC-06)", "res://tests/test_flow_and_determinism.gd"],
@@ -16,6 +17,9 @@ const SUITES: Array = [
     ["WP-003 collapse / retreat (AC-01..06, F1..F4)", "res://tests/test_collapse_retreat.gd"],
     ["WP-003 scene entry paths (R-02 zones, R-03 restart input)", "res://tests/test_scene_modes.gd"],
     ["WP-004 play flow (AC-01..07: menus, freeze, confirm, restart, input boundary, result, settings)", "res://tests/test_play_flow.gd"],
+    ["WP-005 art sample pipeline (loader, atlas, tiles, fx events, greybox == sample battle state)", "res://tests/test_art_sample.gd"],
+    ["WP-005 real asset integration (R-01/R-03, AC-05 F1/F2/F4)", "res://tests/test_art_integration.gd"],
+    ["WP-005 V-01 player view (defaults, HUD order, toggles, labels, display only)", "res://tests/test_player_view.gd"],
 ]
 
 

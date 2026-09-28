@@ -1,0 +1,47 @@
+[
+  {
+    "file": "hwacha_idle_source_v01.png",
+    "width": 1254,
+    "height": 1254,
+    "pixel_format": "Format32bppArgb",
+    "corner_alpha": 0,
+    "center_alpha": 253,
+    "sha256": "744964ed5fadf9e33552f932df035cb2476de8fbd8c4b855b8a611ee6b5782a7"
+  },
+  {
+    "file": "bongsu_active_source_v01.png",
+    "width": 1254,
+    "height": 1254,
+    "pixel_format": "Format32bppArgb",
+    "corner_alpha": 0,
+    "center_alpha": 254,
+    "sha256": "b441910165430df6dd4f351d5f995f38bd9eb128385959e41e3ca851782d6f94"
+  },
+  {
+    "file": "style_sheet_v01.png",
+    "width": 1536,
+    "height": 1024,
+    "pixel_format": "Format32bppArgb",
+    "corner_alpha": 165,
+    "center_alpha": 249,
+    "sha256": "a3059b2366f915fd22d12ffbd92afeffe7c9d0f95ab9a4db84fcbbf0f8bc5e89"
+  },
+  {
+    "file": "jangseung_idle_source_v01.png",
+    "width": 1254,
+    "height": 1254,
+    "pixel_format": "Format32bppArgb",
+    "corner_alpha": 0,
+    "center_alpha": 254,
+    "sha256": "7a87a578215639eab8c151d945c7b62db8253bc96194ef6992d870ccf162ef3d"
+  },
+  {
+    "file": "sensor_active_source_v01.png",
+    "width": 1254,
+    "height": 1254,
+    "pixel_format": "Format32bppArgb",
+    "corner_alpha": 0,
+    "center_alpha": 253,
+    "sha256": "a8911da2ce7c710d25faebec4fc759a2bbe7e56767e1c3926b6dd05f3b58f45a"
+  }
+]

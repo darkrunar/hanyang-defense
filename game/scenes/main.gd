@@ -26,8 +26,16 @@ extends Node2D
 ##   --perf --scenario=move|combat [--warmup=10] [--measure=60] --out=path.json
 ##   --capture=ac01|ac02|ac06|wp002_a|wp003_f2|wp003_f3a|wp003_f3b|wp004_ui|wp004_ui_720 --out-dir=dir
 ##                         scripted evidence captures (menus bypassed except wp004_ui*)
+##   --art=greybox|sample  WP-005 rendering choice only (D-049): sample draws the reviewed PNGs from
+##                         assets/art/wp005 (missing files keep the grey box); game data, seed and
+##                         automation are identical in both. --art-dir=res://... overrides the directory,
+##                         --labels=off hides structure name labels (AC-03 legend comparison).
 ##   --settings=path.cfg   user settings file (default user://settings.cfg; never read by --perf/--capture
 ##                         unless given explicitly, WP-004 §6)
+##   --view=player|dev     WP-005 V-01 (D-053) display defaults. A normal launch starts in the player view
+##                         (density zones, range rings and the detail panel collapsed, short structure
+##                         names, wave / HP / recovery first); --perf / --capture keep the developer view.
+##                         Z / G / D bring each piece back at any time.
 
 const Battle := preload("res://game/core/battle.gd")
 const Config := preload("res://game/core/config.gd")
@@ -44,6 +52,9 @@ const PlayFlow := preload("res://game/core/play_flow.gd")
 const ResultModel := preload("res://game/core/result_model.gd")
 const UserSettings := preload("res://game/core/user_settings.gd")
 const MenuLayer := preload("res://game/scenes/menu_layer.gd")
+const ArtSet := preload("res://game/scenes/art_set.gd")
+const FxLayer := preload("res://game/scenes/fx_layer.gd")
+const EnemySim := preload("res://game/core/enemy_sim.gd")
 
 const COLOR_TEXT: Color = Color(0.92, 0.90, 0.85)
 
@@ -55,6 +66,26 @@ var _overlay: OverlayLayer = null
 var _enemies: MultiMeshInstance2D = null
 var _multimesh: MultiMesh = null
 var _buffer: PackedFloat32Array = PackedFloat32Array()
+## WP-005 (D-049): rendering choice. "greybox" is the WP-001..004 drawing,
+## "sample" reads the art set; nothing in the simulation depends on it.
+## Empty = not chosen on the command line: an interactive launch shows the
+## reviewed art (sample), scripted evidence runs (--perf / --capture) stay
+## grey box unless --art says otherwise (D-050).
+var _art_mode: String = ""
+var _art_dir: String = ArtSet.DEFAULT_DIR
+var art: ArtSet = null
+var _art_report: Dictionary = {}
+var _fx: FxLayer = null
+var _fx_collapses_seen: int = 0
+var _show_labels: bool = true
+var _enemy_sprites: bool = false
+## D-052: 1-texel pale rim around enemy sprites in the atlas shader (contrast
+## on dark streets); rendering only, --art-outline=off disables it.
+var _enemy_outline: bool = true
+var _capture_cam: Camera2D = null
+var _enemy_stride: int = 12
+var _last_outer_hp: float = -1.0
+var _last_core_hp: float = -1.0
 var _hud_layer: CanvasLayer = null
 ## R-07: two panels that never cover the inner district / objectives.
 ## Top-left (x 8..~824, above the plaza): run state, HP, recovery guidance, controls.
@@ -86,6 +117,12 @@ var _show_zones: bool = true
 var _show_ranges: bool = true
 var _show_hud: bool = true
 var _show_detail: bool = true
+## WP-005 V-01: player view vs developer view (see --view).
+var _player_view: bool = false
+var _view_arg: String = ""
+## Capture-only: freeze the battle while several captures of one tick are
+## taken (before / after comparisons at the same simulation tick).
+var _capture_hold: bool = false
 var _mouse_down: bool = false
 ## run_id the held click was issued in (R-03): a retry never crosses a restart.
 var _mouse_down_run_id: int = -1
@@ -137,9 +174,12 @@ func _ready() -> void:
     # scenarios pin their own presets in _apply_run_mode; --set overrides here.
     config = Config.for_wp003()
     _parse_args()
+    if _art_mode == "":
+        _art_mode = "greybox" if (_perf != null or _capture_name != "") else "sample"
     battle = Battle.new(config)
     _build_scene()
     _apply_run_mode()
+    _set_player_view(_view_arg == "player" or (_view_arg == "" and _perf == null and _capture_name == ""))
 
 
 var _explicit_sets: Dictionary = {}
@@ -199,6 +239,20 @@ func _parse_args() -> void:
             _capture_dir = arg.substr("--out-dir=".length())
         elif arg.begins_with("--settings="):
             _settings_path = arg.substr("--settings=".length())
+        elif arg.begins_with("--art="):
+            var m: String = arg.substr("--art=".length())
+            if m == "greybox" or m == "sample":
+                _art_mode = m
+            else:
+                printerr("unknown --art mode: %s (greybox|sample)" % m)
+        elif arg.begins_with("--art-dir="):
+            _art_dir = arg.substr("--art-dir=".length())
+        elif arg.begins_with("--labels="):
+            _show_labels = arg.substr("--labels=".length()) != "off"
+        elif arg.begins_with("--view="):
+            _view_arg = arg.substr("--view=".length())
+        elif arg.begins_with("--art-outline="):
+            _enemy_outline = arg.substr("--art-outline=".length()) != "off"
 
 
 func _build_scene() -> void:
@@ -211,25 +265,58 @@ func _build_scene() -> void:
         config.get_num("goal_radius"))
     _sync_terrain_marker()
 
+    if _art_mode == "sample":
+        art = ArtSet.new(_art_dir)
+        _art_report = art.load_all()
+        _terrain.art = art
+        _terrain.queue_redraw()
+        print("art: sample set %s -> %d/%d files, %d missing" % [_art_dir, art.loaded_count(), art.contract_count(), art.missing.size()])
+
     _enemies = MultiMeshInstance2D.new()
     _enemies.name = "Enemies"
     _multimesh = MultiMesh.new()
     _multimesh.transform_format = MultiMesh.TRANSFORM_2D
     _multimesh.use_colors = true
-    var quad: QuadMesh = QuadMesh.new()
-    var size: float = config.get_num("enemy_draw_size")
-    quad.size = Vector2(size, size)
-    _multimesh.mesh = quad
+    _enemy_sprites = art != null and art.enemy_atlas != null
+    if _enemy_sprites:
+        # One batched draw as before: the atlas frame is chosen per instance
+        # from INSTANCE_CUSTOM.x in the vertex shader (D-049).
+        _multimesh.use_custom_data = true
+        _enemy_stride = 16
+        _multimesh.mesh = _sprite_quad(art.enemy_frame_size)
+        _enemies.texture = art.enemy_atlas
+        var mat: ShaderMaterial = ShaderMaterial.new()
+        mat.shader = _enemy_atlas_shader()
+        mat.set_shader_parameter("frame_uv", Vector2(art.enemy_frame_size) / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("pitch_uv", Vector2(art.enemy_atlas_pitch) / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("columns", ArtSet.ATLAS_COLUMNS)
+        mat.set_shader_parameter("texel", Vector2.ONE / Vector2(art.enemy_atlas_size))
+        mat.set_shader_parameter("outline", 1.0 if _enemy_outline else 0.0)
+        _enemies.material = mat
+    else:
+        var quad: QuadMesh = QuadMesh.new()
+        var size: float = config.get_num("enemy_draw_size")
+        quad.size = Vector2(size, size)
+        _multimesh.mesh = quad
     _multimesh.instance_count = battle.sim.capacity
     _multimesh.visible_instance_count = 0
-    _buffer.resize(battle.sim.capacity * 12)
+    _buffer.resize(battle.sim.capacity * _enemy_stride)
     _enemies.multimesh = _multimesh
     add_child(_enemies)
+
+    if _art_mode == "sample":
+        _fx = FxLayer.new()
+        _fx.name = "Fx"
+        _fx.art = art
+        add_child(_fx)
 
     _overlay = OverlayLayer.new()
     _overlay.name = "Overlay"
     _overlay.battle = battle
     _overlay.font = _font
+    _overlay.art = art
+    _overlay.show_labels = _show_labels
+    _overlay.draw_blasts = _fx == null
     add_child(_overlay)
 
     _hud_layer = CanvasLayer.new()
@@ -304,6 +391,73 @@ static func _make_hud_label(width: float, font_size: int) -> Label:
     return l
 
 
+## A 2D quad whose origin is the bottom centre (enemy pivot, ART_GUIDE) with
+## plain 0..1 UVs, so the atlas shader can offset them per instance.
+static func _sprite_quad(size: Vector2i) -> ArrayMesh:
+    var w: float = float(size.x)
+    var h: float = float(size.y)
+    var verts: PackedVector2Array = PackedVector2Array([
+        Vector2(-w * 0.5, -h), Vector2(w * 0.5, -h), Vector2(w * 0.5, 0.0), Vector2(-w * 0.5, 0.0)])
+    var uvs: PackedVector2Array = PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)])
+    var idx: PackedInt32Array = PackedInt32Array([0, 1, 2, 0, 2, 3])
+    var arrays: Array = []
+    arrays.resize(Mesh.ARRAY_MAX)
+    arrays[Mesh.ARRAY_VERTEX] = verts
+    arrays[Mesh.ARRAY_TEX_UV] = uvs
+    arrays[Mesh.ARRAY_INDEX] = idx
+    var mesh: ArrayMesh = ArrayMesh.new()
+    mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+    return mesh
+
+
+static func _enemy_atlas_shader() -> Shader:
+    var sh: Shader = Shader.new()
+    sh.code = """
+shader_type canvas_item;
+uniform vec2 frame_uv;
+uniform vec2 pitch_uv;
+uniform int columns = 4;
+uniform vec2 texel;
+uniform float outline = 1.0;
+uniform vec4 outline_color : source_color = vec4(0.93, 0.88, 0.78, 0.85);
+void vertex() {
+    int f = int(INSTANCE_CUSTOM.x + 0.5);
+    vec2 origin = vec2(float(f % columns), float(f / columns)) * pitch_uv;
+    UV = origin + UV * frame_uv;
+}
+void fragment() {
+    vec4 c = texture(TEXTURE, UV);
+    if (outline > 0.5 && c.a < 0.05) {
+        // a transparent texel next to an opaque one becomes the rim; the
+        // atlas gutters are transparent, so frames never bleed into each other
+        float n = texture(TEXTURE, UV + vec2(texel.x, 0.0)).a + texture(TEXTURE, UV - vec2(texel.x, 0.0)).a
+                + texture(TEXTURE, UV + vec2(0.0, texel.y)).a + texture(TEXTURE, UV - vec2(0.0, texel.y)).a;
+        if (n > 0.2) {
+            c = outline_color;
+        }
+    }
+    COLOR = c * COLOR;
+}
+"""
+    return sh
+
+
+## Which atlas frame an enemy shows: walking direction from the flow field
+## (the cell it heads to), two frames alternating on simulation time.
+func _enemy_frame(slot: int, sim: EnemySim, flow: PackedInt32Array, w: int, phase: int) -> int:
+    var ci: int = sim.cell[slot]
+    var ni: int = flow[ci] if ci >= 0 and ci < flow.size() else -1
+    var base: int = 0   # walk_down
+    if ni >= 0 and ni != ci:
+        var dx: int = (ni % w) - (ci % w)
+        var dy: int = int(ni / w) - int(ci / w)
+        if absi(dx) > absi(dy):
+            base = 6 if dx > 0 else 4      # walk_right / walk_left
+        else:
+            base = 0 if dy > 0 else 2      # walk_down / walk_up
+    return base + ((phase + slot) & 1)
+
+
 ## The static terrain goal marker belongs to the sandbox modes only; in the
 ## WP-003 run the overlay draws both objectives with their live state.
 func _sync_terrain_marker() -> void:
@@ -364,9 +518,13 @@ func _apply_run_mode() -> void:
         _overlay.show_cursor = false
         _setup_capture_steps()
         title += " [capture:%s]" % _capture_name
+    if _art_mode != "greybox":
+        title += " [art:%s]" % _art_mode
     DisplayServer.window_set_title(title)
     _sync_terrain_marker()
     _apply_play_flow_mode()
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
 
 
 ## WP-004 §6: scripted / automated modes bypass the menus and never read the
@@ -540,7 +698,7 @@ func _physics_process(delta: float) -> void:
     # wins; GPT review 2026-09-19 boundary observation).
     _check_run_end()
     _apply_intents()
-    if flow.battle_active():
+    if flow.battle_active() and not _capture_hold:
         var dt: float = config.get_num("fixed_dt")
         for _i: int in range(_sim_speed):
             battle.step(dt)
@@ -571,6 +729,7 @@ func _physics_process(delta: float) -> void:
         _notice_timer -= delta
         if _notice_timer <= 0.0:
             _notice.text = ""
+            _sync_bottom_panel()
     # --quit-after: by simulated time, or as soon as a waves run has ended
     # (sim_time freezes after WON/LOST, so waiting for it would hang).
     if _quit_after >= 0.0 and (battle.sim_time >= _quit_after or battle.run.ended()):
@@ -587,6 +746,12 @@ func _process(delta: float) -> void:
         _first_shared_shot_time = battle.sim_time
     for shot: Array in battle.hwacha.last_shots_for_render():
         _recent_shots.append([shot[0], shot[1], 0.0])
+        if _fx != null:
+            # exactly one fire + one impact per real volley (WP-005 AC-04)
+            _fx.spawn("fire", shot[2] if shot.size() > 2 else shot[0])
+            _fx.spawn("impact", shot[0], shot[1])
+    if _fx != null:
+        _feed_fx()
     var i: int = 0
     while i < _recent_shots.size():
         _recent_shots[i][2] += delta
@@ -600,7 +765,9 @@ func _process(delta: float) -> void:
     _overlay.recent_shots = _recent_shots
     _overlay.show_zones = _show_zones
     _overlay.show_ranges = _show_ranges
+    _overlay.debug_labels = (not _player_view) or _show_detail
     _overlay.place_mode = _place_mode
+    _overlay.sim_time = battle.sim_time
     _overlay.queue_redraw()
     if _perf != null:
         var was_measuring: bool = _perf.phase() == "measure"
@@ -626,7 +793,36 @@ func _process(delta: float) -> void:
             _finish_perf()
 
 
+## WP-005 fx from the battle ledgers: enemy hits / despawns (EnemySim render
+## events), the outer collapse (RunState.collapse_count), objective hit
+## flashes (HP decrease). Effects follow simulation time, so they freeze with
+## the battle and are cleared by _reset_input_state on a restart.
+func _feed_fx() -> void:
+    var ev: PackedFloat32Array = battle.sim.take_render_events()
+    var i: int = 0
+    while i + 2 < ev.size():
+        var kind: int = int(ev[i + 2])
+        if kind == 0:
+            _fx.spawn("enemy_despawn", Vector2(ev[i], ev[i + 1]))
+        elif kind == 2:
+            _fx.spawn("enemy_hit", Vector2(ev[i], ev[i + 1]))
+        i += 3
+    if battle.run.collapse_count > _fx_collapses_seen:
+        _fx.spawn("collapse", battle.grid.cell_center(TestMap.OUTER_GOAL_CELL.x, TestMap.OUTER_GOAL_CELL.y))
+        _fx_collapses_seen = battle.run.collapse_count
+    if battle.run.outer_hp < _last_outer_hp:
+        _overlay.objective_hit_time["outer"] = battle.sim_time
+    if battle.run.core_hp < _last_core_hp:
+        _overlay.objective_hit_time["core"] = battle.sim_time
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
+    _fx.advance(battle.sim_time)
+
+
 func _upload_enemies() -> void:
+    if _enemy_sprites:
+        _upload_enemy_sprites()
+        return
     var sim := battle.sim
     var live: PackedInt32Array = sim.live_slots()
     var n: int = live.size()
@@ -651,6 +847,41 @@ func _upload_enemies() -> void:
         _buffer[o + 10] = c.b
         _buffer[o + 11] = 1.0
         o += 12
+    _multimesh.visible_instance_count = n
+    _multimesh.buffer = _buffer
+
+
+## Sample mode: the same single MultiMesh upload, 16 floats per instance
+## (transform, white colour, custom = atlas frame), bottom-centre pivot.
+func _upload_enemy_sprites() -> void:
+    var sim := battle.sim
+    var live: PackedInt32Array = sim.live_slots()
+    var n: int = live.size()
+    var px: PackedFloat32Array = sim.pos_x
+    var py: PackedFloat32Array = sim.pos_y
+    var flow: PackedInt32Array = battle.path.flow
+    var w: int = battle.grid.width
+    var phase: int = int(battle.sim_time * 6.0)
+    var o: int = 0
+    for k: int in range(n):
+        var s: int = live[k]
+        _buffer[o] = 1.0
+        _buffer[o + 1] = 0.0
+        _buffer[o + 2] = 0.0
+        _buffer[o + 3] = px[s]
+        _buffer[o + 4] = 0.0
+        _buffer[o + 5] = 1.0
+        _buffer[o + 6] = 0.0
+        _buffer[o + 7] = py[s]
+        _buffer[o + 8] = 1.0
+        _buffer[o + 9] = 1.0
+        _buffer[o + 10] = 1.0
+        _buffer[o + 11] = 1.0
+        _buffer[o + 12] = float(_enemy_frame(s, sim, flow, w, phase))
+        _buffer[o + 13] = 0.0
+        _buffer[o + 14] = 0.0
+        _buffer[o + 15] = 0.0
+        o += 16
     _multimesh.visible_instance_count = n
     _multimesh.buffer = _buffer
 
@@ -788,6 +1019,9 @@ func _handle_key_event(event: InputEvent) -> void:
                 _say("전투 %s" % ("활성" if battle.combat_enabled else "비활성 (처치 끔)"))
             KEY_Z:
                 _show_zones = not _show_zones
+            KEY_L:
+                _show_labels = not _show_labels
+                _overlay.show_labels = _show_labels
             KEY_G:
                 _show_ranges = not _show_ranges
             KEY_P:
@@ -802,6 +1036,7 @@ func _handle_key_event(event: InputEvent) -> void:
             KEY_D:
                 _show_detail = not _show_detail
                 _detail.visible = _show_detail
+                _sync_bottom_panel()
             KEY_F12:
                 _screenshot_to_user()
             KEY_ESCAPE:
@@ -818,9 +1053,20 @@ func _reset_input_state() -> void:
     _recent_shots.clear()
     _notice_timer = 0.0
     _notice.text = ""
+    _sync_bottom_panel()
     if _overlay != null:
         _overlay.hover_override = Vector2.INF
         _overlay.preview_override = Vector2i(-1, -1)
+        _overlay.objective_hit_time = {"outer": -1.0, "core": -1.0}
+    # WP-005 AC-04: no effect of the previous run survives a restart.
+    if _fx != null:
+        _fx.clear()
+        _fx.sim_time = battle.sim_time
+    _fx_collapses_seen = battle.run.collapse_count
+    _last_outer_hp = battle.run.outer_hp
+    _last_core_hp = battle.run.core_hp
+    battle.sim.take_render_events()
+    battle.hwacha.last_shots_for_render()
 
 
 ## World position of the placement cursor. Headless tests / scripts that have
@@ -877,6 +1123,14 @@ func _say(msg: String) -> void:
     _last_notice = msg
     _notice.text = msg
     _notice_timer = 3.0
+    _sync_bottom_panel()
+
+
+## V-01: the bottom-left panel only shows when it has something to say
+## (the detail lines, or a notice); an empty dark strip is not left behind.
+func _sync_bottom_panel() -> void:
+    if _hud_bottom != null:
+        _hud_bottom.visible = _show_detail or _notice.text != ""
 
 
 # =================================================================== hud ===
@@ -903,6 +1157,9 @@ func _update_hud() -> void:
     var sim := battle.sim
     var lines: PackedStringArray = PackedStringArray()
     var detail: PackedStringArray = PackedStringArray()
+    if _player_view:
+        _update_player_hud(detail)
+        return
     lines.append("한양 디펜스 · %s   Godot %s / %s" % [
         "WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
         Engine.get_version_info().string, RenderingServer.get_current_rendering_method()
@@ -971,6 +1228,88 @@ func _update_hud() -> void:
         lines.append("LMB 회수 화차 배치(내곽)  Esc/P 일시정지  R 재시작(확인)  Z 밀도  G 사거리  H HUD  D 상세  F12 캡처   (자유 설치/철거/T/C는 WP-003 런에서 비활성)")
     else:
         lines.append("LMB 설치  RMB 제거  1장승 2화차 3봉수대 4혼천의  T 활성전환  C 전투  Z 밀도  G 사거리  Esc/P 일시정지  R 초기화(확인)  H HUD  D 상세  F12 캡처")
+    _hud.text = "\n".join(lines)
+    _detail.text = "\n".join(detail)
+
+
+# ============================================================ V-01 view ===
+# D-053 / docs/art/WP005_VISUAL_REVISION_PLAN.md V-01: the default display of
+# a normal launch. Nothing here changes the battle; it only picks what the
+# HUD / overlay show by default. The developer view is the previous display.
+
+const WAVE_STATE_KO: Dictionary = {"SPAWNING": "진격 중", "WAITING_CLEAR": "잔적 정리", "GAP": "다음 웨이브 대기", "DONE": "모든 웨이브 종료"}
+
+
+## Top HUD font: 18 px in the player view (about 12 px at 1280x720, where the
+## 15 px developer HUD shrinks to 10 px), 15 px in the developer view.
+const HUD_FONT_PLAYER: int = 18
+const HUD_FONT_DEV: int = 15
+
+
+func _set_player_view(on: bool) -> void:
+    _player_view = on
+    if _hud != null:
+        _hud.add_theme_font_size_override("font_size", HUD_FONT_PLAYER if on else HUD_FONT_DEV)
+    _show_zones = not on
+    _show_ranges = not on
+    _show_detail = not on
+    if _detail != null:
+        _detail.visible = _show_detail
+        _sync_bottom_panel()
+    if _overlay != null:
+        _overlay.show_zones = _show_zones
+        _overlay.show_ranges = _show_ranges
+        _overlay.debug_labels = (not on) or _show_detail
+
+
+## Player view: what to defend, how it goes, what to do next. The developer
+## lines (engine, FPS, counters, zones, per-hwacha, network) go to the detail
+## panel, which D opens.
+func _update_player_hud(detail: PackedStringArray) -> void:
+    var sim := battle.sim
+    var lines: PackedStringArray = PackedStringArray()
+    if battle.run_mode == "waves":
+        var rs := battle.run
+        var ws: Dictionary = battle.waves.snapshot()
+        var state: String = WAVE_STATE_KO.get(str(ws["state"]), str(ws["state"]))
+        if str(ws["state"]) == "GAP":
+            state += " %.0fs" % maxf(float(ws["gap_left"]), 0.0)
+        var head: String = "웨이브 %s/%d · %s · %s" % [str(ws["wave_name"]).trim_prefix("W"), (ws["spawned_by_wave"] as Array).size(),
+            state, "외곽 방어 중" if rs.defense == 0 else "외곽 붕괴 — 내곽 방어"]
+        if rs.run == 1:
+            head = "★ 승리 — 핵심 시설 사수 · R 다시 시작"
+        elif rs.run == 2:
+            head = "✖ 패배 — 핵심 시설 함락 · R 다시 시작"
+        if flow.state == PlayFlow.State.PAUSED:
+            head += "   [일시정지]"
+        lines.append(head)
+        lines.append("외곽 거점 HP %.0f/%.0f · 핵심 시설 HP %.0f/%.0f · 처치 %d · 도달 %d" % [
+            rs.outer_hp, rs.outer_hp_max, rs.core_hp, rs.core_hp_max, sim.killed_total, rs.outer_arrivals + rs.core_arrivals])
+        if rs.collapse_count == 0:
+            lines.append("외곽 거점이 무너지면 화차·중영 1대를 회수해 내곽(노란 테두리)에 다시 놓을 수 있다")
+        elif rs.recovery_right > 0:
+            lines.append("▶ 외곽 붕괴! 회수한 화차·중영을 내곽 빈 칸에 클릭해 배치 (누르고 있으면 재시도)")
+        else:
+            lines.append("회수 화차 재배치 완료 %s" % str(rs.recovery_anchor))
+        lines.append("Esc 일시정지 · R 다시 시작 · L 이름 · Z 밀도 · G 사거리 · D 상세 · H HUD · F12 캡처")
+    else:
+        lines.append("동시 생존 %d · 처치 %d · 누수 %d%s" % [sim.alive_count, sim.killed_total, sim.leaked_total,
+            "   [일시정지]" if flow.state == PlayFlow.State.PAUSED else ""])
+        lines.append("LMB 설치 · RMB 제거 · 1장승 2화차 3봉수대 4혼천의 · T 활성 · C 전투 · Esc 일시정지 · R 초기화 · Z 밀도 · G 사거리 · D 상세")
+    detail.append("한양 디펜스 · %s   Godot %s / %s" % ["WP-003 검증·붕괴·후퇴·재편 프로토타입" if battle.run_mode == "waves" else "WP-002 봉수망 프로토타입",
+        Engine.get_version_info().string, RenderingServer.get_current_rendering_method()])
+    detail.append("FPS %3.0f  frame %.1f ms   sim t=%.1fs  x%d%s" % [_fps_smoothed, _frame_ms_smoothed, battle.sim_time, _sim_speed,
+        "" if battle.combat_enabled else "  [전투 비활성]"])
+    detail.append("동시 생존 %d (최고 %d)   생성 누계 %d   처치 %d   누수 %d" % [sim.alive_count, battle.peak_alive, sim.spawned_total,
+        sim.killed_total, sim.leaked_total])
+    detail.append("경로별 생존: %s   경로 버전 %d" % [battle.route_summary(), battle.path.path_version])
+    var hparts: PackedStringArray = PackedStringArray()
+    for s: Placement.Structure in battle.placement.hwachas():
+        hparts.append("%s g%d 로컬%d/공유%d → %s %d발/%d처치%s" % [s.label.trim_prefix("화차·"), s.group_id, s.known_local, s.known_shared,
+            ("Z%d" % s.last_zone) if s.last_zone >= 0 else "--", s.shots_fired, s.kills, "" if s.active else "[비활성]"])
+    detail.append("화차: " + "  ".join(hparts))
+    detail.append("봉수망: 봉수대 %d(활성 %d) · 그룹 %s · 공유전용 사격 %d" % [battle.placement.count_of(Placement.Kind.BONGSU),
+        _active_of(Placement.Kind.BONGSU), str(battle.network.snapshot(battle.placement)["groups"]), battle.hwacha.shared_only_shots])
     _hud.text = "\n".join(lines)
     _detail.text = "\n".join(detail)
 
@@ -1401,6 +1740,10 @@ func _finish_perf() -> void:
         "hwacha_count_at_end": battle.placement.count_of(Placement.Kind.HWACHA),
         "placement_rejected_total": battle.placement.rejected_total,
         "interactive_input_ignored": true,
+        "art_mode": _art_mode,
+        "art": _art_report,
+        "enemy_outline": _enemy_outline,
+        "fx": _fx.snapshot() if _fx != null else {},
         "targeting_mode": battle.targeting_mode,
         "fixture": config.get_str("fixture"),
         "structure_count": battle.placement.structures.size(),
@@ -1647,6 +1990,180 @@ func _setup_capture_steps() -> void:
                 {"t": 0.0, "do": "capture", "name": pfx + "_11_title_again"},
                 {"t": 0.0, "do": "quit"},
             ]
+        "wp005_v01", "wp005_v01_720":
+            # WP-005 V-01 evidence (D-053): the F2 timeline; at each checkpoint
+            # the battle is held and the same tick is captured in the
+            # developer view (the previous default), the player view, and the
+            # player view without names. Label boxes + overlapping pairs are
+            # logged per capture. Art mode from --art (default greybox here;
+            # verify runs it with --art=sample like a normal launch).
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pv: String = _capture_name
+            _capture_steps = [{"t": 0.0, "do": "art_log", "label": "launch"}]
+            var checkpoints: Array = [
+                [15.0, "a_battle_t15", []],
+                [20.5, "b_collapse_t20.5", [{"do": "force_outer_hp", "value": 1.0, "why": "V-01 forced collapse (verification only)", "t": 20.0},
+                    {"do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "V-01 trigger enemy", "t": 20.0}]],
+                [23.5, "c_recovery_preview_t23.5", [{"do": "preview_at", "anchor": TestMap.RECOVERY_B, "t": 23.0}]],
+                [25.5, "d_recovery_placed_t25.5", [{"do": "preview_at", "anchor": Vector2i(-1, -1), "t": 25.0},
+                    {"do": "place_recovery", "anchor": TestMap.RECOVERY_B, "t": 25.0}]],
+                [45.0, "e_inner_fire_t45", []],
+            ]
+            for cp: Array in checkpoints:
+                for pre: Dictionary in cp[2]:
+                    _capture_steps.append(pre)
+                var ct: float = cp[0]
+                _capture_steps.append_array([
+                    {"t": ct, "do": "hold", "on": true},
+                    {"t": ct, "do": "view", "player": false},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_dev"},
+                    {"t": ct, "do": "view", "player": true},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_player"},
+                    {"t": ct, "do": "labels", "on": false},
+                    {"t": ct, "do": "capture", "name": pv + "_" + cp[1] + "_player_nolabels"},
+                    {"t": ct, "do": "labels", "on": true},
+                    {"t": ct, "do": "hold", "on": false},
+                ])
+            _capture_steps.append({"t": 45.0, "do": "quit"})
+        "wp005_playtest", "wp005_playtest_720":
+            # docs/PLAYTEST_WP005.md T1..T4 as a scripted run: no verification
+            # hooks; the collapse comes from real arrivals (run with
+            # --set=outer_hp=40 as the playtest does). 1920x1080 or 1280x720.
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pt: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "capture", "name": pt + "_T1_first_t15"},
+                {"t": 15.0, "do": "labels", "on": false},
+                {"t": 15.0, "do": "capture", "name": pt + "_T1_nolabels_t15"},
+                {"t": 15.0, "do": "labels", "on": true},
+                {"t": 60.0, "do": "capture", "name": pt + "_T2_wave2_t60"},
+                {"t": 60.0, "do": "show", "zones": false, "ranges": false},
+                {"t": 60.0, "do": "capture", "name": pt + "_T2_wave2_clean_t60"},
+                {"t": 90.0, "do": "capture", "name": pt + "_T2_wave3_clean_t90"},
+                {"t": 90.0, "do": "show", "zones": true, "ranges": true},
+                {"t": 90.0, "do": "wait_collapse", "deadline": 400.0},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_collapse"},
+                {"t": 90.0, "do": "labels", "on": false},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_collapse_nolabels"},
+                {"t": 90.0, "do": "labels", "on": true},
+                {"t": 90.0, "do": "preview_at", "anchor": Vector2i(46, 29)},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_preview_outer_refused"},
+                {"t": 90.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_preview_B_ok"},
+                {"t": 90.0, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 90.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 90.0, "do": "capture", "name": pt + "_T3_placed_B"},
+                {"t": 400.0, "do": "capture_on_end", "name": pt + "_T4_result"},
+            ]
+        "wp005_closeup":
+            # AC-02 evidence: 3x close-ups of the plaza (footprint / grid
+            # overlay on and off), the outer post at the collapse and cell B
+            # at the preview / placement, on the F2 timeline in sample mode.
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            var pc: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "zoom", "center": Vector2(950.0, 450.0), "factor": 3.0},
+                {"t": 15.0, "do": "footprints", "on": true},
+                {"t": 15.0, "do": "capture", "name": pc + "_a_plaza_x3_footprints_t15"},
+                {"t": 15.0, "do": "footprints", "on": false},
+                {"t": 15.0, "do": "capture", "name": pc + "_a2_plaza_x3_t15"},
+                {"t": 15.0, "do": "zoom", "center": Vector2(950.0, 450.0), "factor": 1.0},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 closeup forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 closeup trigger enemy"},
+                {"t": 20.5, "do": "zoom", "center": Vector2(950.0, 530.0), "factor": 3.0},
+                {"t": 20.5, "do": "capture", "name": pc + "_b_outer_post_x3_t20.5"},
+                {"t": 23.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 23.5, "do": "zoom", "center": Vector2(900.0, 280.0), "factor": 3.0},
+                {"t": 23.5, "do": "footprints", "on": true},
+                {"t": 23.5, "do": "capture", "name": pc + "_c_preview_B_x3_footprints_t23.5"},
+                {"t": 23.5, "do": "footprints", "on": false},
+                {"t": 23.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.5, "do": "capture", "name": pc + "_d_recovery_B_x3_t25.5"},
+                {"t": 25.5, "do": "zoom", "center": Vector2(900.0, 280.0), "factor": 1.0},
+                {"t": 25.5, "do": "art_log", "label": "t25.5"},
+                {"t": 25.5, "do": "quit"},
+            ]
+        "wp005_dense", "wp005_dense_720":
+            # AC-06 evidence: the D-027 benchmark load (1,000 enemies held by
+            # top-up, finite waves off, outer HP 1e6 until the scripted
+            # trigger) in the rendering mode given by --art; captures with
+            # and without structure labels, the collapse and the recovery.
+            _apply_mode_preset(Config.for_wp003())
+            config.values["benchmark_hold_alive"] = true
+            config.values["outer_hp"] = 1000000.0
+            config.values["benchmark_core_invulnerable"] = true
+            battle.reset()
+            battle.waves.enabled = false
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var pd: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 15.0, "do": "capture", "name": pd + "_a_1000_t15"},
+                {"t": 15.0, "do": "labels", "on": false},
+                {"t": 15.0, "do": "capture", "name": pd + "_a2_1000_nolabels_t15"},
+                {"t": 15.0, "do": "labels", "on": true},
+                {"t": 15.0, "do": "outline", "on": false},
+                {"t": 15.0, "do": "capture", "name": pd + "_a3_1000_nooutline_t15"},
+                {"t": 15.0, "do": "outline", "on": true},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 dense forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 dense trigger enemy"},
+                {"t": 20.5, "do": "capture", "name": pd + "_b_collapse_1000_t20.5"},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.5, "do": "capture", "name": pd + "_c_recovery_1000_t25.5"},
+                {"t": 25.5, "do": "labels", "on": false},
+                {"t": 25.5, "do": "capture", "name": pd + "_c2_recovery_1000_nolabels_t25.5"},
+                {"t": 25.5, "do": "art_log", "label": "t25.5"},
+                {"t": 25.5, "do": "quit"},
+            ]
+        "wp005_sample", "wp005_sample_720", "wp005_greybox", "wp005_greybox_720", "wp005_assets", "wp005_assets_720":
+            # WP-005 evidence: the F2 timeline (forced collapse at 20 s, H1 to B
+            # at 25 s) in the rendering mode given by --art, at 1920x1080 or
+            # 1280x720. The scenario name only picks the window size and the
+            # file prefix (wp005_assets* = --art=sample on the default asset
+            # directory); the battle data are the WP-003 contract in every
+            # variant (AC-05).
+            _apply_mode_preset(Config.for_wp003())
+            battle.reset()
+            _sim_speed = 6
+            if _capture_name.ends_with("_720"):
+                DisplayServer.window_set_size(Vector2i(1280, 720))
+            var p5: String = _capture_name
+            _capture_steps = [
+                {"t": 0.0, "do": "art_log", "label": "launch"},
+                {"t": 0.0, "do": "state_log", "label": "initial"},
+                {"t": 15.0, "do": "capture", "name": p5 + "_a_dense_t15"},
+                {"t": 20.0, "do": "state_log", "label": "before_collapse"},
+                {"t": 20.0, "do": "force_outer_hp", "value": 1.0, "why": "WP-005 forced collapse (verification only)"},
+                {"t": 20.0, "do": "spawn_extra", "pos": Vector2(950.0, 530.0), "count": 1, "why": "WP-005 trigger enemy"},
+                {"t": 20.2, "do": "state_log", "label": "after_collapse"},
+                {"t": 20.5, "do": "capture", "name": p5 + "_b_collapse_t20.5"},
+                {"t": 23.0, "do": "preview_at", "anchor": Vector2i(46, 29)},
+                {"t": 23.0, "do": "capture", "name": p5 + "_c_invalid_preview_t23"},
+                {"t": 23.0, "do": "preview_at", "anchor": TestMap.RECOVERY_B},
+                {"t": 23.5, "do": "capture", "name": p5 + "_d_valid_preview_t23.5"},
+                {"t": 23.5, "do": "preview_at", "anchor": Vector2i(-1, -1)},
+                {"t": 25.0, "do": "place_recovery", "anchor": TestMap.RECOVERY_B},
+                {"t": 25.2, "do": "state_log", "label": "after_recovery"},
+                {"t": 25.5, "do": "capture", "name": p5 + "_e_recovery_placed_t25.5"},
+                {"t": 45.0, "do": "capture", "name": p5 + "_f_inner_fire_t45"},
+                {"t": 45.0, "do": "art_log", "label": "t45"},
+                {"t": 400.0, "do": "capture_on_end", "name": p5 + "_g_run_end"},
+            ]
         "wp003_f2":
             # WP-003 F2 (D-026): the real run, verification-forced collapse at
             # 20 s through real arrival damage, recovery at collapse + 5 s to B,
@@ -1706,6 +2223,48 @@ func _capture_script_step() -> void:
                 _capture_busy = true
                 _do_capture(step["name"])
                 return
+            "show":
+                _show_zones = bool(step["zones"])
+                _show_ranges = bool(step["ranges"])
+                _capture_log.append({"t": battle.sim_time, "show_zones": _show_zones, "show_ranges": _show_ranges, "tick": battle.steps})
+            "wait_collapse":
+                # Stay on this step until the outer district collapses from real
+                # arrivals (no forced HP); give up at the deadline (sim seconds).
+                if battle.run.collapse_count == 0 and battle.sim_time < float(step["deadline"]) and not battle.run.ended():
+                    _capture_index -= 1
+                    return
+                _capture_log.append({"t": battle.sim_time, "wait_collapse": battle.run.collapse_count, "outer_hp": battle.run.outer_hp,
+                    "tick": battle.steps, "run": battle.run.run_name()})
+            "hold":
+                _capture_hold = bool(step["on"])
+                _capture_log.append({"t": battle.sim_time, "hold": _capture_hold, "tick": battle.steps})
+            "view":
+                _set_player_view(bool(step["player"]))
+                _capture_log.append({"t": battle.sim_time, "view": "player" if _player_view else "dev", "tick": battle.steps})
+            "labels":
+                _show_labels = bool(step["on"])
+                _overlay.show_labels = _show_labels
+                _capture_log.append({"t": battle.sim_time, "labels": _show_labels, "tick": battle.steps})
+            "outline":
+                _set_enemy_outline(bool(step["on"]))
+                _capture_log.append({"t": battle.sim_time, "outline": _enemy_outline, "tick": battle.steps})
+            "footprints":
+                _overlay.show_footprints = bool(step["on"])
+                _capture_log.append({"t": battle.sim_time, "footprints": _overlay.show_footprints, "tick": battle.steps})
+            "zoom":
+                # Close-up evidence (AC-02): a Camera2D on the world layers only;
+                # HUD / menu CanvasLayers are unaffected. factor 1 = restore.
+                _apply_zoom(step["center"], float(step["factor"]))
+                _capture_log.append({"t": battle.sim_time, "zoom": float(step["factor"]), "center": [step["center"].x, step["center"].y], "tick": battle.steps})
+            "art_log":
+                _capture_log.append({"t": battle.sim_time, "art_log": step["label"], "art_mode": _art_mode,
+                    "art": _art_report, "fx": _fx.snapshot() if _fx != null else {}, "labels": _show_labels,
+                    "enemy_sprites": _enemy_sprites, "enemy_outline": _enemy_outline, "tick": battle.steps})
+            "state_log":
+                # AC-05: the structured battle state at the comparison points
+                # (initial / before + after collapse / after recovery / end).
+                _capture_log.append({"t": battle.sim_time, "state_log": step["label"], "tick": battle.steps,
+                    "run_id": battle.run.run_id, "state_hash": battle.state_hash(), "full_state": battle.full_state()})
             "reset":
                 battle.reset()
                 _reset_input_state()
@@ -1870,6 +2429,32 @@ func _capture_script_step() -> void:
                 return
 
 
+func _set_enemy_outline(on: bool) -> void:
+    _enemy_outline = on
+    if _enemies != null and _enemies.material is ShaderMaterial:
+        (_enemies.material as ShaderMaterial).set_shader_parameter("outline", 1.0 if on else 0.0)
+
+
+## Capture-only close-up camera. Never used by play or by the tests' battle
+## state; it only changes what the world layers show on screen.
+func _apply_zoom(center: Vector2, factor: float) -> void:
+    if factor <= 1.0:
+        if _capture_cam != null:
+            _capture_cam.enabled = false
+            _capture_cam.queue_free()
+            _capture_cam = null
+        return
+    if _capture_cam == null:
+        _capture_cam = Camera2D.new()
+        _capture_cam.name = "CaptureCam"
+        _capture_cam.anchor_mode = Camera2D.ANCHOR_MODE_DRAG_CENTER
+        add_child(_capture_cam)
+    _capture_cam.position = center
+    _capture_cam.zoom = Vector2(factor, factor)
+    _capture_cam.enabled = true
+    _capture_cam.make_current()
+
+
 ## Synthesized events for the capture script (the same handler the real
 ## input takes, so the held ledger and the fence see them).
 func _probe_key(keycode: int, pressed: bool) -> void:
@@ -1900,6 +2485,19 @@ func _do_capture(name: String) -> void:
     snap["capture"] = name
     snap["png"] = path
     snap["png_saved"] = err == OK
+    snap["art_mode"] = _art_mode
+    snap["view"] = "player" if _player_view else "dev"
+    snap["labels_on"] = _show_labels
+    snap["hud_text"] = _hud.text
+    snap["label_boxes"] = _overlay.text_boxes.size()
+    snap["label_overlaps"] = _overlay.label_overlaps()
+    if _fx != null:
+        snap["fx"] = _fx.snapshot()
+        snap["sprites_drawn"] = _overlay.sprites_drawn.duplicate()
+        snap["marks_drawn"] = _overlay.marks_drawn.duplicate()
+        snap["sample_tiles_drawn"] = _terrain.sample_tiles_drawn.duplicate()
+        snap["enemy_outline"] = _enemy_outline
+        snap["zoom"] = _capture_cam.zoom.x if _capture_cam != null else 1.0
     _capture_log.append(snap)
     print("capture %s -> %s (%s)" % [name, path, error_string(err)])
     _capture_busy = false
