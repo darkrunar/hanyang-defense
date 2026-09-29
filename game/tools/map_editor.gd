@@ -56,9 +56,8 @@ func _ready() -> void:
             args[arg.substr(2, arg.find("=") - 2)] = arg.substr(arg.find("=") + 1)
         elif arg.begins_with("--"):
             args[arg.substr(2)] = ""
-    if args.has("map"):
-        _load_file(str(args["map"]), str(args.get("compare", "")))
-    else:
+    # A refused --map keeps the flat template on screen with the refusal status.
+    if not (args.has("map") and _load_file(str(args["map"]), str(args.get("compare", "")))):
         _sync_ui_from_data()
         _validate_and_preview(false)
     if args.has("preview"):

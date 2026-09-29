@@ -6,6 +6,7 @@ extends SceneTree
 ##
 ##   godot --headless --path . --script res://game/tools/ld_dev_01_compare.gd -- --out=<dir> [--sha=<commit>]
 ##   godot --headless --path . --script res://game/tools/ld_dev_01_compare.gd -- --write-fixtures
+##   godot --headless --path . --script res://game/tools/ld_dev_01_compare.gd -- --write-capture-inputs=user://ld_dev_01_capture
 ##
 ## --write-fixtures regenerates the two committed fixture files from the rule
 ## below; the files are the source the tests and the editor read.
@@ -53,6 +54,9 @@ func _initialize() -> void:
         print("fixtures written: %s" % str(ok))
         quit(0 if ok else 1)
         return
+    if args.has("write-capture-inputs"):
+        quit(0 if write_capture_inputs(str(args["write-capture-inputs"])) else 1)
+        return
     var report: Dictionary = compare(str(args.get("sha", "")))
     var out_dir: String = str(args.get("out", "user://ld_dev_01"))
     var virtual_dir: bool = out_dir.begins_with("res://") or out_dir.begins_with("user://")
@@ -70,6 +74,37 @@ func _initialize() -> void:
         s["changed"], s["count"], report["all_candidates"]["changed"], report["all_candidates"]["total"],
         str(report["control"]["validate_ok"]), str(report["variant"]["validate_ok"]), out_path.get_file()])
     quit(0 if report["ac_m04_pass"] else 1)
+
+
+## Editor capture inputs (not fixtures): the existing terrain template with the
+## shared seed (R-01 "before"), an on-screen spawn radius, a wall hole and a
+## file with a fractional integer field. Written to `dir` (user:// by default)
+## so editor captures show a virtual path.
+static func write_capture_inputs(dir: String) -> bool:
+    if dir == "" or dir == "true":
+        dir = "user://ld_dev_01_capture"
+    DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
+    var legacy = StageMap.terrain_template()
+    legacy.stage_id = "stage_003_legacy_terrain"
+    legacy.spawn_seed = R01_SPAWN_SEED
+    var near = build_control()
+    near.stage_id = "ld01_spawn_on_screen"
+    near.spawn_center = Vector2i(31, 37)
+    var hole = build_control()
+    hole.stage_id = "ld01_wall_hole"
+    hole.set_cell(Vector2i(24, 17), StageMap.Cell.OPEN)
+    var ok: bool = legacy.save_json(dir.path_join("legacy_terrain.json")) \
+        and near.save_json(dir.path_join("spawn_on_screen.json")) \
+        and hole.save_json(dir.path_join("wall_hole.json"))
+    var raw: Dictionary = JSON.parse_string(build_control().to_json_text())
+    raw["tuning"]["wave_count"] = 2.5
+    var f: FileAccess = FileAccess.open(dir.path_join("broken_wave_count.json"), FileAccess.WRITE)
+    ok = ok and f != null
+    if f != null:
+        f.store_string(JSON.stringify(raw, "  ") + "\n")
+        f.close()
+    print("capture inputs written to %s: %s" % [dir, str(ok)])
+    return ok
 
 
 static func _pairs(list: Array) -> Array:
