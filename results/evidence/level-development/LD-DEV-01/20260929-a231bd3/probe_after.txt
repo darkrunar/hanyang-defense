@@ -1,0 +1,26 @@
+# map_contract_probe.gd run on a231bd3
+
+== LD-DEV-01 map contract probe
+-- goal placement (R-02 / AC-M01)
+  direct goal=(31, 17) inside (31,17): validate ok=true errors=0
+  direct goal=(31, 30) outside field (31,30): validate ok=false errors=4
+  direct goal=(24, 17) castle wall (24,17): validate ok=false errors=3
+  direct goal=(31, 25) gate (31,25): validate ok=false errors=1
+  direct goal=(70, 17) out of bounds (70,17): validate ok=false errors=3
+-- set_goal on a wall cell (AC-M01: no auto carve)
+  set_goal((24, 17)) return=wall cell before=1 after=1 goal now=(31, 17) validate ok=true errors=0
+-- gate and wall (AC-M02)
+  open gates [(31, 25), (32, 25)]: validate ok=true errors=0
+  gates closed: validate ok=false errors=3
+  hole at (24,17): validate ok=false errors=2, sample 1 route len=22 crosses gate=true
+  extra gate cell in the field (31,33): validate ok=false errors=3
+-- JSON file round trip (AC-M05)
+  save a: true
+  loaded wave_count=7 type=2 (TYPE_INT=2)
+  save b from loaded: true
+  a == b byte-identical: true (len 16835 vs 16835)
+  cells array of 10 (expected 2304): loader returned null
+-- terrain changes the route? (R-01 / AC-M04), same 12 spawn cells
+  spawns=[(33, 39), (32, 38), (31, 40), (33, 40), (29, 40), (30, 41), (31, 43), (30, 40), (32, 40), (33, 38), (29, 38), (31, 41)]
+  existing terrain_template: 0/12 routes differ from flat
+  revised x28-35,y29-30: 12/12 routes differ from flat, validate ok=true errors=0
