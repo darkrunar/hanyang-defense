@@ -1,0 +1,27 @@
+{
+    "kind":  "LD-DEV-01 map reliability evidence (editor route preview and headless checks; no battle run)",
+    "implementation_sha":  "a231bd3",
+    "baseline_sha":  "ddabd04",
+    "engine":  "4.7.stable.official.5b4e0cb0f",
+    "os":  "Microsoft Windows 11 Home",
+    "gpu":  "Parsec Virtual Display Adapter; NVIDIA GeForce RTX 4070 SUPER; AMD Radeon(TM) Graphics",
+    "window":  "project default 1920x1080 (editor scene), clips 20 fps fixed, 120 frames, GIF at 0.5 scale every 2nd frame",
+    "files":  {
+                  "editor_07_spawn_candidates_on_screen.png":  "826507897df0c3934811c68bc65539529b7b7b156bb6d5dee4999e60e6915748",
+                  "probe_after.txt":  "76e568cfe617462d2355ddc37aed81eb56249faff25949e5d87496339d0016fe",
+                  "tests_full.txt":  "1ca48b726a8455c441b30eb1bfb7153b0e53d0d87d0808f7d7b42511df5f1e1d",
+                  "editor_02_r01_before_legacy_terrain.png":  "62beac6eb4eac728555afcc79ebfecc9824bf8b283d802be930784de273ba112",
+                  "editor_09_broken_file_refused.png":  "8e6ee16493359cb5d0f26f7907b4c0b8953b9a0b7718b64e4a9a303b7e227630",
+                  "preview_r01_after_revised.gif":  "b1f2818713e6e7deb5dc3a2b69e6a95d0ecfdfa71c675f95b6a912e9bf4d9ecd",
+                  "tests_map.txt":  "6e0d1d8ddfb029d77c0c34055a96fec103d2e0be7c1cfff5fe08c81d913094a1",
+                  "stage003_r01_route_compare.json":  "0ede1106ca10ae3e7231fa16754f722eba4758e2cae73f06a7f7dbe0ead3669d",
+                  "editor_08_wall_hole_24_17.png":  "8b92cbf1aa456116c0199dda5f0209441b702aca1e713e20d70588375f02b0e2",
+                  "probe_before.txt":  "73af8641231df64a2402d83cabb5e5473ef8127ffcf4dd8496662a13d430d3aa",
+                  "editor_01_control_flat.png":  "bbe30002713820ef37fdb8fa753574929f8f29d2c50318a4b59530e4d9d9e597",
+                  "editor_06_goal_refused_gate_31_25.png":  "efcd8c86ea2c8e79d9f52541f0f6edd6b0797ff4eaa4d3faba0fc1db9d2a48db",
+                  "editor_05_goal_refused_wall_24_17.png":  "8c4b29c00b0ddf3e2928ec584baa07b6c11649adbfcc947836b1c5555d8c5ba7",
+                  "preview_r01_before_legacy_terrain.gif":  "3578fc7a391201281d75ac77ab51ed45840644b6d277264b5d467cacd070ed67",
+                  "editor_03_r01_after_revised.png":  "6de10c96f896e4ad2e344ec08401c5389991c91c661e8c33d6e6caf337a26d21",
+                  "editor_04_goal_refused_outside_31_30.png":  "901f97cc5b556805e9f67c8af298be7e49ddaa9324a7dfdcee40bf44cc5bcdf8"
+              }
+}
