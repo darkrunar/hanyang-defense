@@ -2,6 +2,7 @@ extends RefCounted
 ## Stage-map planning contract and editor data regression tests.
 
 const StageMap := preload("res://game/maps/stage_map_definition.gd")
+const Ld01 := preload("res://tests/test_ld_dev_01_map_reliability.gd")
 
 
 func run(t: RefCounted) -> void:
@@ -9,6 +10,7 @@ func run(t: RefCounted) -> void:
     _closed_gate_is_detected(t)
     _terrain_template_contract(t)
     _serialization_round_trip(t)
+    Ld01.new().run(t)
 
 
 func _flat_template_contract(t: RefCounted) -> void:

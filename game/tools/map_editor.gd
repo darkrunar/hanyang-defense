@@ -1,8 +1,18 @@
 extends Node2D
 ## Runtime stage map editor. Run with:
 ## godot --path . res://game/tools/map_editor.tscn
+##
+## The moving dots are a route preview, not a battle (no firing, damage or
+## win/lose). Evidence capture (LD-DEV-01), all optional, after `--`:
+##   --map=<res://|user:// json>   start from this file instead of the flat template
+##   --compare=<json>              draw that map's preview routes as grey ghosts
+##   --goal=x,y                    try to move the objective there (shows the refusal)
+##   --preview                     start the route preview animation
+##   --capture=<png>               save the window after --capture-delay seconds and quit
 
 const StageMap := preload("res://game/maps/stage_map_definition.gd")
+const R01_VARIANT: String = "res://game/maps/stages/stage_003_r01.json"
+const R01_CONTROL: String = "res://game/maps/stages/stage_003_r01_control.json"
 
 const PANEL_WIDTH: float = 400.0
 const CANVAS_ORIGIN: Vector2 = Vector2(430.0, 78.0)
@@ -18,6 +28,13 @@ var validation: Dictionary = {}
 var preview_paths: Array = []
 var test_running: bool = false
 var test_clock: float = 0.0
+## Preview routes of a comparison map (e.g. the no-terrain control), drawn grey.
+var compare_paths: Array = []
+var compare_label: String = ""
+## Last refused objective cell, marked on the map until the next edit.
+var rejected_goal: Vector2i = Vector2i(-1, -1)
+var _capture_path: String = ""
+var _capture_delay: float = 0.4
 
 var _id_edit: LineEdit = null
 var _name_edit: LineEdit = null
@@ -33,10 +50,43 @@ var _status: Label = null
 func _ready() -> void:
     data = StageMap.flat_template()
     _build_ui()
-    _sync_ui_from_data()
-    _validate_and_preview(false)
+    var args: Dictionary = {}
+    for arg: String in OS.get_cmdline_user_args():
+        if arg.begins_with("--") and arg.contains("="):
+            args[arg.substr(2, arg.find("=") - 2)] = arg.substr(arg.find("=") + 1)
+        elif arg.begins_with("--"):
+            args[arg.substr(2)] = ""
+    if args.has("map"):
+        _load_file(str(args["map"]), str(args.get("compare", "")))
+    else:
+        _sync_ui_from_data()
+        _validate_and_preview(false)
+    if args.has("preview"):
+        _validate_and_preview(true)
+    if args.has("goal"):
+        var xy: PackedStringArray = str(args["goal"]).split(",")
+        if xy.size() == 2:
+            active_tool = Tool.GOAL
+            _tool_option.select(Tool.GOAL)
+            _apply_tool(Vector2i(int(xy[0]), int(xy[1])))
     set_process(true)
     queue_redraw()
+    if args.has("capture"):
+        _capture_path = str(args["capture"])
+        _capture_delay = float(args.get("capture-delay", _capture_delay))
+        _capture_and_quit()
+
+
+func _capture_and_quit() -> void:
+    await get_tree().create_timer(_capture_delay).timeout
+    await RenderingServer.frame_post_draw
+    var target: String = _capture_path
+    if target.begins_with("res://") or target.begins_with("user://"):
+        target = ProjectSettings.globalize_path(target)
+    DirAccess.make_dir_recursive_absolute(target.get_base_dir())
+    var err: int = get_viewport().get_texture().get_image().save_png(target)
+    print("capture %s -> %s" % ["ok" if err == OK else "error %d" % err, _capture_path.get_file()])
+    get_tree().quit(0 if err == OK else 1)
 
 
 func _build_ui() -> void:
@@ -79,6 +129,10 @@ func _build_ui() -> void:
     template_row.add_child(_button("기본맵 새로 만들기", func() -> void: _new_template(StageMap.MapType.FLAT)))
     template_row.add_child(_button("지형맵 새로 만들기", func() -> void: _new_template(StageMap.MapType.TERRAIN)))
     column.add_child(template_row)
+    var r01_row: HBoxContainer = HBoxContainer.new()
+    r01_row.add_child(_button("Stage003 R-01 수정안", func() -> void: _load_file(R01_VARIANT, R01_CONTROL)))
+    r01_row.add_child(_button("R-01 대조군", func() -> void: _load_file(R01_CONTROL)))
+    column.add_child(r01_row)
 
     column.add_child(_label("편집 도구 · 단축키 1~6"))
     _tool_option = OptionButton.new()
@@ -165,6 +219,9 @@ func _new_template(type: int) -> void:
     data = StageMap.flat_template() if type == StageMap.MapType.FLAT else StageMap.terrain_template()
     validation = {}
     preview_paths.clear()
+    compare_paths.clear()
+    compare_label = ""
+    rejected_goal = Vector2i(-1, -1)
     test_running = false
     _sync_ui_from_data()
     _validate_and_preview(false)
@@ -202,25 +259,41 @@ func _save_stage() -> void:
         _status.text = "저장 전 검증 실패: 빨간 항목을 먼저 수정하세요."
         return
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("user://stage_maps"))
+    # Status shows the virtual user:// path (the Godot user data folder), not
+    # the absolute local path, so captures carry no local user path.
     var path: String = _stage_path()
     if data.save_json(path):
-        _status.text = "저장 완료: %s" % ProjectSettings.globalize_path(path)
+        _status.text = "저장 완료: %s" % path
     else:
-        _status.text = "저장 실패: %s" % ProjectSettings.globalize_path(path)
+        _status.text = "저장 실패: %s" % path
 
 
 func _load_stage() -> void:
     _sync_data_from_ui()
-    var path: String = _stage_path()
-    var loaded = StageMap.load_json(path)
-    if loaded == null:
-        _status.text = "불러올 파일이 없습니다: %s" % ProjectSettings.globalize_path(path)
-        return
-    data = loaded
+    _load_file(_stage_path())
+
+
+## Loads a map file; a broken file is refused with its reasons and the current
+## map stays (no silent fallback to a template).
+func _load_file(path: String, compare_path: String = "") -> bool:
+    var result: Dictionary = StageMap.load_json_result(path)
+    if not result["ok"]:
+        _status.text = "불러오기 거절 (%s): %s" % [path.get_file(), "; ".join(PackedStringArray(result["errors"]).slice(0, 3))]
+        return false
+    data = result["data"]
     test_running = false
+    rejected_goal = Vector2i(-1, -1)
+    compare_paths.clear()
+    compare_label = ""
+    if compare_path != "":
+        var other = StageMap.load_json(compare_path)
+        if other != null:
+            compare_paths = other.validate()["paths"]
+            compare_label = other.stage_id
     _sync_ui_from_data()
     _validate_and_preview(false)
-    _status.text = "불러오기 완료: %s" % ProjectSettings.globalize_path(path)
+    _status.text = "불러오기 완료: %s" % path
+    return true
 
 
 func _validate_and_preview(run_test: bool) -> void:
@@ -237,6 +310,11 @@ func _validate_and_preview(run_test: bool) -> void:
 
 func _render_checklist() -> void:
     var lines: Array[String] = []
+    var candidates: Dictionary = validation.get("spawn_candidates", {})
+    if not candidates.is_empty():
+        lines.append("생성 후보 전수 %d/%d 유효 · 미리보기 표본 %d개 · seed %d" % [
+            int(candidates["valid"]), int(candidates["total"]), (validation.get("paths", []) as Array).size(),
+            data.effective_spawn_seed()])
     for check: Dictionary in validation.get("checks", []):
         var color: String = "#6ee7a8" if check["ok"] else "#ff7b72"
         var mark: String = "PASS" if check["ok"] else "FAIL"
@@ -307,7 +385,14 @@ func _apply_tool(cell: Vector2i) -> void:
         Tool.SPAWN:
             data.set_spawn_center(cell)
         Tool.GOAL:
-            data.set_goal(cell)
+            var code: String = data.set_goal(cell)
+            if code != "":
+                # Refused: the objective stays and the map is not edited.
+                rejected_goal = cell
+                _status.text = "목표 거절 %s: %s 현재 목표 %s 유지." % [
+                    str(cell), StageMap.goal_rejection_message(code), str(data.goal)]
+                queue_redraw()
+                return
     _map_changed()
 
 
@@ -315,6 +400,7 @@ func _map_changed() -> void:
     test_running = false
     validation = {}
     preview_paths.clear()
+    rejected_goal = Vector2i(-1, -1)
     _status.text = "변경됨 · V를 눌러 기획 규칙과 동선을 다시 검증하세요."
     queue_redraw()
 
@@ -367,6 +453,14 @@ func _draw() -> void:
         var py: float = CANVAS_ORIGIN.y + y * CELL_PIXELS
         draw_line(Vector2(CANVAS_ORIGIN.x, py), Vector2(CANVAS_ORIGIN.x + data.width * CELL_PIXELS, py), grid_color)
 
+    for path: Array in compare_paths:
+        if path.size() < 2:
+            continue
+        var ghost: PackedVector2Array = PackedVector2Array()
+        for cell: Vector2i in path:
+            ghost.append(_cell_center(cell) + Vector2(-3, -3))
+        draw_polyline(ghost, Color(0.85, 0.85, 0.85, 0.45), 2.0, true)
+
     for path: Array in preview_paths:
         if path.size() < 2:
             continue
@@ -374,6 +468,20 @@ func _draw() -> void:
         for cell: Vector2i in path:
             points.append(_cell_center(cell))
         draw_polyline(points, Color(0.40, 0.78, 1.0, 0.55), 2.0, true)
+
+    # Every candidate cell of the spawn radius (AC-M03): pale ring = valid,
+    # red cross = rejected. The filled dots below are the 12 preview samples.
+    var candidates: Dictionary = validation.get("spawn_candidates", {})
+    var rejected_cells: Dictionary = {}
+    for item: Dictionary in candidates.get("rejected", []):
+        rejected_cells[Vector2i(int(item["cell"][0]), int(item["cell"][1]))] = true
+    for cell: Vector2i in data.spawn_candidate_cells():
+        var c: Vector2 = _cell_center(cell)
+        if rejected_cells.has(cell):
+            draw_line(c - Vector2(6, 6), c + Vector2(6, 6), Color(1.0, 0.25, 0.25), 2.5)
+            draw_line(c - Vector2(6, -6), c + Vector2(6, -6), Color(1.0, 0.25, 0.25), 2.5)
+        elif not data.in_bounds(cell):
+            draw_circle(c, 6.0, Color(0.85, 0.85, 0.85, 0.55), false, 1.2)
 
     var samples: Array[Vector2i] = data.generated_spawn_points()
     for spawn: Vector2i in samples:
@@ -389,13 +497,23 @@ func _draw() -> void:
         draw_circle(goal_center, 8.0, Color(0.98, 0.84, 0.30))
         draw_line(goal_center - Vector2(6, 0), goal_center + Vector2(6, 0), Color.BLACK, 2)
         draw_line(goal_center - Vector2(0, 6), goal_center + Vector2(0, 6), Color.BLACK, 2)
+    if rejected_goal != Vector2i(-1, -1):
+        var rc: Vector2 = _cell_center(rejected_goal)
+        draw_circle(rc, 9.0, Color(1.0, 0.2, 0.2), false, 3.0)
+        draw_line(rc - Vector2(7, 7), rc + Vector2(7, 7), Color(1.0, 0.2, 0.2), 3.0)
+        draw_line(rc - Vector2(7, -7), rc + Vector2(7, -7), Color(1.0, 0.2, 0.2), 3.0)
+        draw_string(ThemeDB.fallback_font, rc + Vector2(12, 5), "목표 거절", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(1.0, 0.45, 0.45))
 
     if test_running:
         _draw_test_monsters()
 
     var type_text: String = data.map_type_name()
-    draw_string(ThemeDB.fallback_font, CANVAS_ORIGIN + Vector2(0, -20),
-        "%s · %s · 빨강=화면 밖 생성 · 청록=외곽 진입 · 금색=성문/목표 · 파랑=동선" % [data.stage_id, type_text],
+    draw_string(ThemeDB.fallback_font, CANVAS_ORIGIN + Vector2(0, -48),
+        "경로 미리보기 · 실제 전투 아님 (사격·피해·승패 없음)", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color(1.0, 0.72, 0.30))
+    var legend: String = "%s · %s · 빨강=화면 밖 생성 · 흰 원=생성 후보 · 청록=외곽 진입 · 금색=성문/목표 · 파랑=동선" % [data.stage_id, type_text]
+    if compare_label != "":
+        legend += " · 회색=%s 동선" % compare_label
+    draw_string(ThemeDB.fallback_font, CANVAS_ORIGIN + Vector2(0, -20), legend,
         HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.92, 0.92, 0.92))
 
 
