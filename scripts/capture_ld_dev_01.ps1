@@ -52,14 +52,20 @@ function Invoke-Godot([string]$step, [string[]]$argv) {
 
 Write-Host "== 1/7 probe on the baseline $BaselineSha (temporary worktree) and on $sha"
 $wt = Join-Path $tmp "baseline"
-git worktree add --detach $wt $BaselineSha | Out-Null
+function Invoke-Quiet([scriptblock]$block) {
+    # git and godot report progress on stderr; keep it out of the error stream.
+    $ErrorActionPreference = "Continue"
+    & $block 2>&1 | Out-Null
+}
+Invoke-Quiet { git worktree add --detach $wt $BaselineSha }
+if (-not (Test-Path (Join-Path $wt "game"))) { throw "baseline worktree was not created" }
 try {
     Copy-Item game\tools\map_contract_probe.gd (Join-Path $wt "game\tools\map_contract_probe.gd")
-    & godot --headless --path $wt --import 2>&1 | Out-Null
+    Invoke-Quiet { godot --headless --path $wt --import }
     $before = Invoke-Godot "baseline probe" @("--headless", "--path", $wt, "--script", "res://game/tools/map_contract_probe.gd")
     Save-Lines (Join-Path $run "probe_before.txt") (@("# map_contract_probe.gd (from $sha) run on baseline $BaselineSha") + ($before | Where-Object { $_ -notmatch "^Godot Engine" }))
 } finally {
-    git worktree remove --force $wt | Out-Null
+    Invoke-Quiet { git worktree remove --force $wt }
 }
 $after = Invoke-Godot "probe" @("--headless", "--path", ".", "--script", "res://game/tools/map_contract_probe.gd")
 Save-Lines (Join-Path $run "probe_after.txt") (@("# map_contract_probe.gd run on $sha") + ($after | Where-Object { $_ -notmatch "^Godot Engine" }))
