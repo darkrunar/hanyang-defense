@@ -31,7 +31,8 @@ def main() -> int:
         im = Image.open(f).convert("RGB")
         if a.scale != 1.0:
             im = im.resize((round(im.width * a.scale), round(im.height * a.scale)), Image.LANCZOS)
-        frames.append(im.quantize(colors=128, method=Image.Quantize.MEDIANCUT))
+        # Octree keeps small saturated marks (red preview dots) that median cut greys out.
+        frames.append(im.quantize(colors=256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE))
     duration_ms = round(1000.0 * max(a.every, 1) / a.fps_in)
     frames[0].save(a.out, save_all=True, append_images=frames[1:], duration=duration_ms, loop=0, optimize=True)
     print("%s: %d frames of %d, %d ms each, %dx%d, %d bytes" % (
