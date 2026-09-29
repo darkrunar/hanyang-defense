@@ -314,6 +314,10 @@ func _render_checklist() -> void:
         lines.append("생성 후보 전수 %d/%d 유효 · 미리보기 표본 %d개 · seed %d" % [
             int(candidates["valid"]), int(candidates["total"]), (validation.get("paths", []) as Array).size(),
             data.effective_spawn_seed()])
+    # Failures first, with their reasons, so they are visible without scrolling.
+    for check: Dictionary in validation.get("checks", []):
+        if not check["ok"]:
+            lines.append("[color=#ff7b72]● FAIL %s[/color]  %s" % [check["label"], check["detail"]])
     for check: Dictionary in validation.get("checks", []):
         var color: String = "#6ee7a8" if check["ok"] else "#ff7b72"
         var mark: String = "PASS" if check["ok"] else "FAIL"

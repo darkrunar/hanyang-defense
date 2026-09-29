@@ -135,13 +135,14 @@ $leak = Get-ChildItem $run -File | Where-Object { $_.Extension -in ".txt", ".jso
 if ($leak) { throw "local path left in evidence: $($leak[0])" }
 $files = @{}
 foreach ($f in Get-ChildItem $run -File) { $files[$f.Name] = (Get-FileHash -Algorithm SHA256 $f.FullName).Hash.ToLower() }
-$gpu = (Get-CimInstance Win32_VideoController | Select-Object -First 1).Name
+$gpu = ((Get-CimInstance Win32_VideoController | ForEach-Object { $_.Name }) -join "; ")
+$engine = (& godot --version | Select-Object -First 1 | ForEach-Object { "$_".Trim() })
 $os = (Get-CimInstance Win32_OperatingSystem).Caption
 $manifest = [ordered]@{
     kind = "LD-DEV-01 map reliability evidence (editor route preview and headless checks; no battle run)"
     implementation_sha = $sha
     baseline_sha = $BaselineSha
-    engine = ((& godot --version) | Select-Object -First 1)
+    engine = $engine
     os = $os
     gpu = $gpu
     window = "project default 1920x1080 (editor scene), clips 20 fps fixed, 120 frames, GIF at 0.5 scale every 2nd frame"

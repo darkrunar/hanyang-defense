@@ -86,12 +86,15 @@ static func write_capture_inputs(dir: String) -> bool:
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
     var legacy = StageMap.terrain_template()
     legacy.stage_id = "stage_003_legacy_terrain"
+    legacy.stage_name = "기존 지형 템플릿 (R-01 이전)"
     legacy.spawn_seed = R01_SPAWN_SEED
     var near = build_control()
     near.stage_id = "ld01_spawn_on_screen"
+    near.stage_name = "검사용 · 생성 반경이 화면에 걸침"
     near.spawn_center = Vector2i(31, 37)
     var hole = build_control()
     hole.stage_id = "ld01_wall_hole"
+    hole.stage_name = "검사용 · 성벽 구멍 (24,17)"
     hole.set_cell(Vector2i(24, 17), StageMap.Cell.OPEN)
     var ok: bool = legacy.save_json(dir.path_join("legacy_terrain.json")) \
         and near.save_json(dir.path_join("spawn_on_screen.json")) \
